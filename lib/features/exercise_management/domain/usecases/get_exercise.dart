@@ -1,5 +1,5 @@
 import 'package:dartz/dartz.dart';
-import 'package:my_fitness_tracker/core/usecases/usecase.dart';
+import '../../../../core/usecases/usecase.dart';
 import '../../../../core/error/failures.dart';
 import '../entities/exercise.dart';
 import '../repositories/exercise_repository.dart';

@@ -1,8 +1,8 @@
 import 'package:dartz/dartz.dart';
-import 'package:my_fitness_tracker/core/error/failures.dart';
-import 'package:my_fitness_tracker/core/usecases/usecase.dart';
-import 'package:my_fitness_tracker/features/exercise_management/domain/entities/exercise.dart';
-import 'package:my_fitness_tracker/features/exercise_management/domain/repositories/exercise_repository.dart';
+import '../../../../core/error/failures.dart';
+import '../../../../core/usecases/usecase.dart';
+import '../entities/exercise.dart';
+import '../repositories/exercise_repository.dart';
 
 class FetchExercises extends Usecase<List<Exercise>, void> {
   final ExerciseRepository repository;
