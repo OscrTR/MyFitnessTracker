@@ -29,7 +29,7 @@ void main() {
       when(() => mockExerciseRepository.deleteExercise(tExercise))
           .thenAnswer((_) async => Right(tExercise));
       // Act
-      final result = await usecase.execute(exercise: tExercise);
+      final result = await usecase(Params(exercise: tExercise));
       // Assert
       expect(result, Right(tExercise));
       verify(() => mockExerciseRepository.deleteExercise(tExercise));

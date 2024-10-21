@@ -30,7 +30,7 @@ void main() {
       when(() => mockExerciseRepository.getExercise(tId))
           .thenAnswer((_) async => Right(tExercise));
       // Act
-      final result = await usecase.execute(id: tId);
+      final result = await usecase(Params(id: tId));
       // Assert
       expect(result, Right(tExercise));
       verify(() => mockExerciseRepository.getExercise(tId));
