@@ -18,6 +18,7 @@ void main() {
     mockLocalDataSource = MockLocalDataSource();
     repository = ExerciseRepositoryImpl(localDataSource: mockLocalDataSource);
   });
+
   const tId = 1;
   const tExerciseModel = ExerciseModel(
       id: 1,
@@ -47,7 +48,7 @@ void main() {
         () async {
       // Arrange
       when(() => mockLocalDataSource.createExercise(tExercise))
-          .thenThrow(DatabaseException());
+          .thenThrow(LocalDatabaseException());
 
       // Act
       final result = await repository.createExercise(tExercise);
@@ -78,7 +79,7 @@ void main() {
       () async {
         // Arrange
         when(() => mockLocalDataSource.getExercise(tId))
-            .thenThrow(DatabaseException());
+            .thenThrow(LocalDatabaseException());
         // Act
         final result = await repository.getExercise(tId);
         // Assert
@@ -108,7 +109,7 @@ void main() {
         () async {
       // Arrange
       when(() => mockLocalDataSource.fetchExercises())
-          .thenThrow(DatabaseException());
+          .thenThrow(LocalDatabaseException());
 
       // Act
       final result = await repository.fetchExercises();
@@ -138,7 +139,7 @@ void main() {
         () async {
       // Arrange
       when(() => mockLocalDataSource.updateExercise(tExercise))
-          .thenThrow(DatabaseException());
+          .thenThrow(LocalDatabaseException());
 
       // Act
       final result = await repository.updateExercise(tExercise);
@@ -169,7 +170,7 @@ void main() {
         () async {
       // Arrange
       when(() => mockLocalDataSource.deleteExercise(tExercise))
-          .thenThrow(DatabaseException());
+          .thenThrow(LocalDatabaseException());
 
       // Act
       final result = await repository.deleteExercise(tExercise);

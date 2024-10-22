@@ -17,7 +17,7 @@ class ExerciseRepositoryImpl implements ExerciseRepository {
       final createdExercise =
           await localDataSource.createExercise(exerciseToCreate);
       return Right(createdExercise);
-    } on DatabaseException {
+    } on LocalDatabaseException {
       return const Left(DatabaseFailure());
     }
   }
@@ -29,7 +29,7 @@ class ExerciseRepositoryImpl implements ExerciseRepository {
       final deletedExercise =
           await localDataSource.deleteExercise(exerciseToDelete);
       return Right(deletedExercise);
-    } on DatabaseException {
+    } on LocalDatabaseException {
       return const Left(DatabaseFailure());
     }
   }
@@ -38,7 +38,7 @@ class ExerciseRepositoryImpl implements ExerciseRepository {
   Future<Either<Failure, List<Exercise>>> fetchExercises() async {
     try {
       return Right(await localDataSource.fetchExercises());
-    } on DatabaseException {
+    } on LocalDatabaseException {
       return const Left(DatabaseFailure());
     }
   }
@@ -47,7 +47,7 @@ class ExerciseRepositoryImpl implements ExerciseRepository {
   Future<Either<Failure, Exercise>> getExercise(int id) async {
     try {
       return Right(await localDataSource.getExercise(id));
-    } on DatabaseException {
+    } on LocalDatabaseException {
       return const Left(DatabaseFailure());
     }
   }
@@ -59,7 +59,7 @@ class ExerciseRepositoryImpl implements ExerciseRepository {
       final updatedExercise =
           await localDataSource.updateExercise(exerciseToUpdate);
       return Right(updatedExercise);
-    } on DatabaseException {
+    } on LocalDatabaseException {
       return const Left(DatabaseFailure());
     }
   }
