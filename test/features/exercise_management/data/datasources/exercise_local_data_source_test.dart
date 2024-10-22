@@ -34,6 +34,16 @@ void main() {
         final result = await dataSourceSQLite.createExercise(tExercise);
 
         // Assert
+        // Verify that the insert was called on the mockDatabase with the expected values
+        verify(() => mockDatabase.insert(
+              any(),
+              {
+                'name': tExercise.name,
+                'image_name': tExercise.imageName,
+                'description': tExercise.description,
+              },
+            )).called(1);
+
         // Verify the returned exercise
         expect(result.name, 'Deadlift');
         expect(result.description, 'A full body exercise');
@@ -77,6 +87,14 @@ void main() {
         final result = await dataSourceSQLite.getExercise(tId);
 
         // Assert
+        // Verify that query was called with correct parameters
+        verify(() => mockDatabase.query(
+              any(),
+              where: any(named: 'where'),
+              whereArgs: any(named: 'whereArgs'),
+            )).called(1);
+
+        // Verify the result
         expect(result.id, tId);
         expect(result.name, 'Squat');
         expect(result.imageName, 'squat.png');
@@ -122,6 +140,10 @@ void main() {
         final result = await dataSourceSQLite.fetchExercises();
 
         // Assert
+        // Verify that query was called on the database
+        verify(() => mockDatabase.query(any())).called(1);
+
+        // Verify the result
         expect(result.length, 2); // We expect two exercises in the list
         expect(result[0].name, 'Squat');
         expect(result[1].name, 'Push-up');
@@ -158,15 +180,21 @@ void main() {
             )).thenAnswer((_) async => 1);
 
         // Act
-        await dataSourceSQLite.updateExercise(tExercise);
+        final result = await dataSourceSQLite.updateExercise(tExercise);
 
         // Assert
+        // Verify that the update was called on the mockDatabase with correct arguments
         verify(() => mockDatabase.update(
               any(),
               any(),
               where: any(named: 'where'),
               whereArgs: any(named: 'whereArgs'),
             )).called(1);
+
+        // Verify the result
+        expect(result.name, tExercise.name);
+        expect(result.description, tExercise.description);
+        expect(result.imageName, tExercise.imageName);
       },
     );
 
@@ -204,14 +232,20 @@ void main() {
             )).thenAnswer((_) async => 1);
 
         // Act
-        await dataSourceSQLite.deleteExercise(tExercise);
+        final result = await dataSourceSQLite.deleteExercise(tExercise);
 
         // Assert
+        // Verify that delete was called on the mockDatabase with correct arguments
         verify(() => mockDatabase.delete(
               any(),
               where: any(named: 'where'),
               whereArgs: any(named: 'whereArgs'),
             )).called(1);
+
+        // Verify the result
+        expect(result.name, tExercise.name);
+        expect(result.description, tExercise.description);
+        expect(result.imageName, tExercise.imageName);
       },
     );
 
