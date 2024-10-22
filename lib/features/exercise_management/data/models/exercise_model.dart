@@ -1,4 +1,4 @@
-import 'package:my_fitness_tracker/features/exercise_management/domain/entities/exercise.dart';
+import '../../domain/entities/exercise.dart';
 
 class ExerciseModel extends Exercise {
   const ExerciseModel(

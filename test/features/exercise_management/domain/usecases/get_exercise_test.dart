@@ -17,7 +17,7 @@ void main() {
   });
 
   const tId = 1;
-  final tExercise = Exercise(
+  const tExercise = Exercise(
       id: 1,
       name: 'Test name',
       imageName: 'Test image name',
