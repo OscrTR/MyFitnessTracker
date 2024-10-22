@@ -28,11 +28,11 @@ void main() {
     () async {
       // Arrange
       when(() => mockExerciseRepository.getExercise(tId))
-          .thenAnswer((_) async => Right(tExercise));
+          .thenAnswer((_) async => const Right(tExercise));
       // Act
       final result = await usecase(Params(id: tId));
       // Assert
-      expect(result, Right(tExercise));
+      expect(result, const Right(tExercise));
       verify(() => mockExerciseRepository.getExercise(tId));
       verifyNoMoreInteractions(mockExerciseRepository);
     },

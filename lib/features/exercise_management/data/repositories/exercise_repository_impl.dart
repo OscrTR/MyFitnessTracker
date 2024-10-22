@@ -11,21 +11,36 @@ class ExerciseRepositoryImpl implements ExerciseRepository {
   ExerciseRepositoryImpl({required this.localDataSource});
 
   @override
-  Future<Either<Failure, Exercise>> createExercise(Exercise exerciseToCreate) {
-    // TODO: implement createExercise
-    throw UnimplementedError();
+  Future<Either<Failure, Exercise>> createExercise(
+      Exercise exerciseToCreate) async {
+    try {
+      final createdExercise =
+          await localDataSource.createExercise(exerciseToCreate);
+      return Right(createdExercise);
+    } on DatabaseException {
+      return const Left(DatabaseFailure());
+    }
   }
 
   @override
-  Future<Either<Failure, Exercise>> deleteExercise(Exercise exerciseToDelete) {
-    // TODO: implement deleteExercise
-    throw UnimplementedError();
+  Future<Either<Failure, Exercise>> deleteExercise(
+      Exercise exerciseToDelete) async {
+    try {
+      final deletedExercise =
+          await localDataSource.deleteExercise(exerciseToDelete);
+      return Right(deletedExercise);
+    } on DatabaseException {
+      return const Left(DatabaseFailure());
+    }
   }
 
   @override
-  Future<Either<Failure, List<Exercise>>> fetchExercises() {
-    // TODO: implement fetchExercises
-    throw UnimplementedError();
+  Future<Either<Failure, List<Exercise>>> fetchExercises() async {
+    try {
+      return Right(await localDataSource.fetchExercises());
+    } on DatabaseException {
+      return const Left(DatabaseFailure());
+    }
   }
 
   @override
@@ -38,8 +53,14 @@ class ExerciseRepositoryImpl implements ExerciseRepository {
   }
 
   @override
-  Future<Either<Failure, Exercise>> updateExercise(Exercise exerciseToUpdate) {
-    // TODO: implement updateExercise
-    throw UnimplementedError();
+  Future<Either<Failure, Exercise>> updateExercise(
+      Exercise exerciseToUpdate) async {
+    try {
+      final updatedExercise =
+          await localDataSource.updateExercise(exerciseToUpdate);
+      return Right(updatedExercise);
+    } on DatabaseException {
+      return const Left(DatabaseFailure());
+    }
   }
 }
