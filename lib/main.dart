@@ -3,6 +3,7 @@ import 'package:my_fitness_tracker/features/exercise_management/presentation/pag
 import 'injection_container.dart' as di;
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   await di.init();
   runApp(const MyApp());
 }
