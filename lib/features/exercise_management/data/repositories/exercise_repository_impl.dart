@@ -23,12 +23,9 @@ class ExerciseRepositoryImpl implements ExerciseRepository {
   }
 
   @override
-  Future<Either<Failure, Exercise>> deleteExercise(
-      Exercise exerciseToDelete) async {
+  Future<Either<Failure, Exercise>> getExercise(int id) async {
     try {
-      final deletedExercise =
-          await localDataSource.deleteExercise(exerciseToDelete);
-      return Right(deletedExercise);
+      return Right(await localDataSource.getExercise(id));
     } on LocalDatabaseException {
       return const Left(DatabaseFailure());
     }
@@ -44,21 +41,24 @@ class ExerciseRepositoryImpl implements ExerciseRepository {
   }
 
   @override
-  Future<Either<Failure, Exercise>> getExercise(int id) async {
-    try {
-      return Right(await localDataSource.getExercise(id));
-    } on LocalDatabaseException {
-      return const Left(DatabaseFailure());
-    }
-  }
-
-  @override
   Future<Either<Failure, Exercise>> updateExercise(
       Exercise exerciseToUpdate) async {
     try {
       final updatedExercise =
           await localDataSource.updateExercise(exerciseToUpdate);
       return Right(updatedExercise);
+    } on LocalDatabaseException {
+      return const Left(DatabaseFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, Exercise>> deleteExercise(
+      Exercise exerciseToDelete) async {
+    try {
+      final deletedExercise =
+          await localDataSource.deleteExercise(exerciseToDelete);
+      return Right(deletedExercise);
     } on LocalDatabaseException {
       return const Left(DatabaseFailure());
     }

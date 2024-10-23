@@ -13,7 +13,7 @@ void main() {
 
   setUp(() async {
     mockDatabase = MockDatabase();
-    dataSourceSQLite = SQLiteExerciseLocalDataSource(mockDatabase);
+    dataSourceSQLite = SQLiteExerciseLocalDataSource(database: mockDatabase);
   });
 
   group('createExercise', () {

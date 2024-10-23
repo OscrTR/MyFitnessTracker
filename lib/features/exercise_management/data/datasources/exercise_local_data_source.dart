@@ -33,7 +33,7 @@ abstract class ExerciseLocalDataSource {
 class SQLiteExerciseLocalDataSource implements ExerciseLocalDataSource {
   final Database database;
 
-  SQLiteExerciseLocalDataSource(this.database);
+  SQLiteExerciseLocalDataSource({required this.database});
 
   @override
   Future<ExerciseModel> createExercise(Exercise exerciseToCreate) async {
