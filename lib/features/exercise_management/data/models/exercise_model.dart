@@ -1,7 +1,7 @@
 import '../../domain/entities/exercise.dart';
 
 class ExerciseModel extends Exercise {
-  const ExerciseModel(
+  ExerciseModel(
       {super.id,
       required super.name,
       required super.imageName,

@@ -26,7 +26,7 @@ void main() {
     const tExerciseName = 'Push-up';
     const tExerciseDescription = 'Upper body exercise';
     const tExerciseImageName = 'pushup.png';
-    const tExercise = Exercise(
+    final tExercise = Exercise(
       name: tExerciseName,
       description: tExerciseDescription,
       imageName: tExerciseImageName,
@@ -41,7 +41,7 @@ void main() {
                 name: tExerciseName,
                 description: tExerciseDescription,
                 imageName: tExerciseImageName)))
-            .thenAnswer((_) async => const Right(tExercise));
+            .thenAnswer((_) async => Right(tExercise));
       },
       act: (bloc) => bloc.add(const CreateExerciseEvent(
         name: tExerciseName,
@@ -50,7 +50,7 @@ void main() {
       )),
       expect: () => [
         ExerciseManagementLoading(),
-        const ExerciseManagementSuccess(tExercise),
+        ExerciseManagementSuccess(tExercise),
       ],
     );
 

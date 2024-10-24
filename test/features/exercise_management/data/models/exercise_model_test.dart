@@ -7,7 +7,7 @@ import 'package:my_fitness_tracker/features/exercise_management/domain/entities/
 import '../../../../fixtures/fixture_reader.dart';
 
 void main() {
-  const tExerciseModel = ExerciseModel(
+  final tExerciseModel = ExerciseModel(
       id: 1,
       name: 'Test name',
       imageName: 'Test image name',

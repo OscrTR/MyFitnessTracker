@@ -104,5 +104,8 @@ class _ExerciseCreationState extends State<ExerciseCreation> {
         name: exerciseName,
         description: exerciseDescription,
         imageName: exerciseImageName));
+    exerciseName = '';
+    exerciseImageName = '';
+    exerciseDescription = '';
   }
 }

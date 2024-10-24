@@ -16,7 +16,7 @@ void main() {
     usecase = DeleteExercise(mockExerciseRepository);
   });
 
-  const tExercise = Exercise(
+  final tExercise = Exercise(
       id: 1,
       name: 'Test name',
       imageName: 'Test image name',
@@ -27,11 +27,11 @@ void main() {
     () async {
       // Arrange
       when(() => mockExerciseRepository.deleteExercise(tExercise))
-          .thenAnswer((_) async => const Right(tExercise));
+          .thenAnswer((_) async => Right(tExercise));
       // Act
       final result = await usecase(Params(exercise: tExercise));
       // Assert
-      expect(result, const Right(tExercise));
+      expect(result, Right(tExercise));
       verify(() => mockExerciseRepository.deleteExercise(tExercise));
       verifyNoMoreInteractions(mockExerciseRepository);
     },

@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
 
+import '../../../../core/error/exceptions.dart';
 import '../../../../core/error/failures.dart';
 import '../../../../core/usecases/usecase.dart';
 import '../entities/exercise.dart';
@@ -13,12 +14,25 @@ class CreateExercise extends Usecase<Exercise, Params> {
 
   @override
   Future<Either<Failure, Exercise>> call(Params params) async {
-    final exercise = Exercise(
-      name: params.name,
-      description: params.description,
-      imageName: params.imageName,
-    );
-    return await repository.createExercise(exercise);
+    try {
+      // Construct the Exercise entity
+      final exercise = Exercise(
+        name: params.name,
+        description: params.description,
+        imageName: params.imageName,
+      );
+
+      // Call the repository to save the exercise
+      return await repository.createExercise(exercise);
+    } catch (e) {
+      // If there is a validation error, return an InvalidExerciseNameFailure
+      if (e is ExerciseNameException) {
+        return const Left(InvalidExerciseNameFailure());
+      }
+
+      // Otherwise, return a generic failure
+      return const Left(DatabaseFailure());
+    }
   }
 }
 

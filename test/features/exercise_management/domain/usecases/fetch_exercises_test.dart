@@ -17,12 +17,12 @@ void main() {
   });
 
   final tExercises = [
-    const Exercise(
+    Exercise(
         id: 1,
         name: 'Test name',
         imageName: 'Test image name',
         description: 'Test description'),
-    const Exercise(
+    Exercise(
         id: 2,
         name: 'Test name 2',
         imageName: 'Test image name 2',

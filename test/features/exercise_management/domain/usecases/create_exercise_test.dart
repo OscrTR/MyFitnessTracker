@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:my_fitness_tracker/core/error/failures.dart';
 import 'package:my_fitness_tracker/features/exercise_management/domain/entities/exercise.dart';
 import 'package:my_fitness_tracker/features/exercise_management/domain/repositories/exercise_repository.dart';
 import 'package:my_fitness_tracker/features/exercise_management/domain/usecases/create_exercise.dart';
@@ -16,11 +17,11 @@ void main() {
     usecase = CreateExercise(mockExerciseRepository);
   });
 
-  const tExercise = Exercise(
+  final tExercise = Exercise(
       name: 'Test name',
       imageName: 'Test image name',
       description: 'Test description');
-  const rExercise = Exercise(
+  final rExercise = Exercise(
       id: 1,
       name: 'Test name',
       imageName: 'Test image name',
@@ -31,16 +32,31 @@ void main() {
     () async {
       // Arrange
       when(() => mockExerciseRepository.createExercise(tExercise))
-          .thenAnswer((_) async => const Right(rExercise));
+          .thenAnswer((_) async => Right(rExercise));
       // Act
       final result = await usecase(Params(
           name: tExercise.name,
           description: tExercise.description,
           imageName: tExercise.imageName));
       // Assert
-      expect(result, const Right(rExercise));
+      expect(result, Right(rExercise));
       verify(() => mockExerciseRepository.createExercise(tExercise));
       verifyNoMoreInteractions(mockExerciseRepository);
+    },
+  );
+
+  test(
+    'should return an InvalidExerciseNameFailure when exercise name is empty',
+    () async {
+      // Act
+      final result = await usecase(Params(
+        name: '', // Invalid input: empty name
+        description: tExercise.description,
+        imageName: tExercise.imageName,
+      ));
+
+      // Assert
+      expect(result, const Left(InvalidExerciseNameFailure()));
     },
   );
 }

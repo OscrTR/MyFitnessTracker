@@ -22,7 +22,7 @@ void unitTesting() {
   });
 
   group('createExercise', () {
-    const tExercise = Exercise(
+    final tExercise = Exercise(
       name: 'Deadlift',
       imageName: 'deadlift.png',
       description: 'A full body exercise',
@@ -166,7 +166,7 @@ void unitTesting() {
   });
 
   group('updateExercise', () {
-    const tExercise = Exercise(
+    final tExercise = Exercise(
       id: 1,
       name: 'Updated Squat',
       description: 'An updated lower body exercise',
@@ -219,7 +219,7 @@ void unitTesting() {
   });
 
   group('deleteExercise', () {
-    const tExercise = Exercise(
+    final tExercise = Exercise(
       id: 1,
       name: 'Squat',
       description: 'A lower body exercise',
@@ -301,7 +301,7 @@ void integrationTesting() {
   });
 
   group('createExercise', () {
-    const tExercise = Exercise(
+    final tExercise = Exercise(
       name: 'Squat',
       description: 'A lower body exercise',
       imageName: 'squat.png',
@@ -335,7 +335,7 @@ void integrationTesting() {
   });
 
   group('getExercise', () {
-    const tExercise = Exercise(
+    final tExercise = Exercise(
       id: 1,
       name: 'Squat',
       description: 'A lower body exercise',
@@ -409,7 +409,7 @@ void integrationTesting() {
   });
 
   group('updateExercise', () {
-    const tExercise = Exercise(
+    final tExercise = Exercise(
       id: 1,
       name: 'Squat',
       description: 'A lower body exercise',
@@ -428,7 +428,7 @@ void integrationTesting() {
 
     test('should update the exercise in the database', () async {
       // Arrange
-      const updatedExercise = Exercise(
+      final updatedExercise = Exercise(
         id: 1,
         name: 'Updated Squat',
         description: 'Updated lower body exercise',
@@ -452,7 +452,7 @@ void integrationTesting() {
   });
 
   group('deleteExercise', () {
-    const tExercise = Exercise(
+    final tExercise = Exercise(
       id: 1,
       name: 'Squat',
       description: 'A lower body exercise',
