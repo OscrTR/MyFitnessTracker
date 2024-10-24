@@ -13,15 +13,26 @@ class CreateExercise extends Usecase<Exercise, Params> {
 
   @override
   Future<Either<Failure, Exercise>> call(Params params) async {
-    return await repository.createExercise(params.exercise);
+    final exercise = Exercise(
+      name: params.name,
+      description: params.description,
+      imageName: params.imageName,
+    );
+    return await repository.createExercise(exercise);
   }
 }
 
 class Params extends Equatable {
-  final Exercise exercise;
+  final String name;
+  final String description;
+  final String imageName;
 
-  const Params({required this.exercise});
+  const Params({
+    required this.name,
+    required this.description,
+    required this.imageName,
+  });
 
   @override
-  List<Object> get props => [exercise];
+  List<Object> get props => [name, description, imageName];
 }

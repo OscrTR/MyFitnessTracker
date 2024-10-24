@@ -16,13 +16,11 @@ class ExerciseManagementBloc
       : super(ExerciseManagementInitial()) {
     on<CreateExerciseEvent>((event, emit) async {
       emit(ExerciseManagementLoading());
-
       final result = await createExercise(
         Params(
-          exercise: Exercise(
-              name: event.name,
-              imageName: event.imageName,
-              description: event.description),
+          name: event.name,
+          description: event.description,
+          imageName: event.imageName,
         ),
       );
 

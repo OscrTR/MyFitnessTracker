@@ -33,7 +33,10 @@ void main() {
       when(() => mockExerciseRepository.createExercise(tExercise))
           .thenAnswer((_) async => const Right(rExercise));
       // Act
-      final result = await usecase(Params(exercise: tExercise));
+      final result = await usecase(Params(
+          name: tExercise.name,
+          description: tExercise.description,
+          imageName: tExercise.imageName));
       // Assert
       expect(result, const Right(rExercise));
       verify(() => mockExerciseRepository.createExercise(tExercise));

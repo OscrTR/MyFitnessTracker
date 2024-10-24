@@ -37,7 +37,10 @@ void main() {
       build: () => bloc,
       setUp: () {
         // Arrange: Mock success response from createExercise
-        when(() => mockCreateExercise(const Params(exercise: tExercise)))
+        when(() => mockCreateExercise(const Params(
+                name: tExerciseName,
+                description: tExerciseDescription,
+                imageName: tExerciseImageName)))
             .thenAnswer((_) async => const Right(tExercise));
       },
       act: (bloc) => bloc.add(const CreateExerciseEvent(
@@ -56,7 +59,10 @@ void main() {
       build: () => bloc,
       setUp: () {
         // Arrange: Mock failure response from createExercise
-        when(() => mockCreateExercise(const Params(exercise: tExercise)))
+        when(() => mockCreateExercise(const Params(
+                name: tExerciseName,
+                description: tExerciseDescription,
+                imageName: tExerciseImageName)))
             .thenAnswer((_) async => const Left(DatabaseFailure()));
       },
       act: (bloc) => bloc.add(const CreateExerciseEvent(
