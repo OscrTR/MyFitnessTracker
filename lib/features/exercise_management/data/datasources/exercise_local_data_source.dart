@@ -1,7 +1,8 @@
-import '../models/exercise_model.dart';
-import '../../domain/entities/exercise.dart';
 import 'package:sqflite/sqflite.dart';
+
 import '../../../../core/error/exceptions.dart';
+import '../../domain/entities/exercise.dart';
+import '../models/exercise_model.dart';
 
 abstract class ExerciseLocalDataSource {
   /// Query the local database and adds the exercise. Return the created exercise.

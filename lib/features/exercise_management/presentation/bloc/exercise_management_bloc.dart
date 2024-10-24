@@ -1,7 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:my_fitness_tracker/features/exercise_management/domain/entities/exercise.dart';
-import 'package:my_fitness_tracker/features/exercise_management/domain/usecases/create_exercise.dart';
+import '../../domain/entities/exercise.dart';
+import '../../domain/usecases/create_exercise.dart';
 
 part 'exercise_management_event.dart';
 part 'exercise_management_state.dart';

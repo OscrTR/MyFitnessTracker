@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:my_fitness_tracker/features/exercise_management/presentation/pages/exercise_page.dart';
+import 'features/exercise_management/presentation/pages/exercise_page.dart';
 import 'injection_container.dart' as di;
 
 void main() async {
