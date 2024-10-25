@@ -25,14 +25,35 @@ class ExercisePage extends StatelessWidget {
           padding: const EdgeInsets.all(10),
           child: Column(
             children: [
-              Container(
-                height: MediaQuery.of(context).size.height / 3,
-                child: const Placeholder(),
+              BlocListener<ExerciseManagementBloc, ExerciseManagementState>(
+                listener: (context, state) {
+                  if (state is ExerciseManagementFailure) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(state.message),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  } else if (state is ExerciseManagementSuccess) {
+                    // Show success message in a SnackBar
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                            'Exercise "${state.exercise.name}" created successfully!'),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                  }
+                },
+                child: SizedBox(
+                  height: MediaQuery.of(context).size.height / 3,
+                  child: const Placeholder(),
+                ),
               ),
               const SizedBox(height: 20),
-              Column(
+              const Column(
                 children: [
-                  const ExerciseCreation(),
+                  ExerciseForm(),
                 ],
               )
             ],
@@ -43,69 +64,87 @@ class ExercisePage extends StatelessWidget {
   }
 }
 
-class ExerciseCreation extends StatefulWidget {
-  const ExerciseCreation({super.key});
+class ExerciseForm extends StatefulWidget {
+  const ExerciseForm({super.key});
 
   @override
-  State<ExerciseCreation> createState() => _ExerciseCreationState();
+  ExerciseFormState createState() => ExerciseFormState();
 }
 
-String exerciseName = '';
-String exerciseImageName = '';
-String exerciseDescription = '';
+class ExerciseFormState extends State<ExerciseForm> {
+  final _formKey = GlobalKey<FormState>();
+  final _nameController = TextEditingController();
+  final _imageNameController = TextEditingController();
+  final _descriptionController = TextEditingController();
 
-final exerciseNameController = TextEditingController();
-final exerciseImageNameController = TextEditingController();
-final exerciseDescriptionController = TextEditingController();
-
-class _ExerciseCreationState extends State<ExerciseCreation> {
   @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        TextField(
-          controller: exerciseNameController,
-          decoration: const InputDecoration(
-              border: OutlineInputBorder(), hintText: 'Exercise name'),
-          onChanged: (value) {
-            exerciseName = value;
-          },
-        ),
-        const SizedBox(height: 10),
-        TextField(
-          controller: exerciseImageNameController,
-          decoration: const InputDecoration(
-              border: OutlineInputBorder(), hintText: 'Exercise image name'),
-          onChanged: (value) {
-            exerciseImageName = value;
-          },
-        ),
-        const SizedBox(height: 10),
-        TextField(
-          controller: exerciseDescriptionController,
-          decoration: const InputDecoration(
-              border: OutlineInputBorder(), hintText: 'Exercise description'),
-          onChanged: (value) {
-            exerciseDescription = value;
-          },
-        ),
-        const SizedBox(height: 10),
-        ElevatedButton(
-            onPressed: createExercise, child: const Text('Create exercise'))
-      ],
-    );
+  void dispose() {
+    _nameController.dispose();
+    _imageNameController.dispose();
+    _descriptionController.dispose();
+    super.dispose();
   }
 
-  void createExercise() {
-    exerciseNameController.clear();
-    exerciseImageNameController.clear();
-    exerciseDescriptionController.clear();
-    BlocProvider.of<ExerciseManagementBloc>(context).add(CreateExerciseEvent(
-        name: exerciseName,
-        description: exerciseDescription,
-        imageName: exerciseImageName));
-    exerciseName = '';
-    exerciseImageName = '';
-    exerciseDescription = '';
+  void _submitForm() {
+    if (_formKey.currentState!.validate()) {
+      // Trigger the CreateExerciseEvent with form data
+      BlocProvider.of<ExerciseManagementBloc>(context).add(
+        CreateExerciseEvent(
+          name: _nameController.text,
+          imageName: _imageNameController.text,
+          description: _descriptionController.text,
+        ),
+      );
+
+      // Clear the text fields after submission
+      _nameController.clear();
+      _imageNameController.clear();
+      _descriptionController.clear();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Form(
+        key: _formKey,
+        child: Column(
+          children: [
+            // Name Field
+            TextFormField(
+              controller: _nameController,
+              decoration: const InputDecoration(labelText: 'Exercise Name'),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter a name';
+                }
+                return null;
+              },
+            ),
+
+            // Image Name Field
+            TextFormField(
+              controller: _imageNameController,
+              decoration: const InputDecoration(labelText: 'Image Name'),
+            ),
+
+            // Description Field
+            TextFormField(
+              controller: _descriptionController,
+              decoration: const InputDecoration(labelText: 'Description'),
+            ),
+
+            const SizedBox(height: 16.0),
+
+            // Submit Button
+            ElevatedButton(
+              onPressed: _submitForm,
+              child: const Text('Create Exercise'),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
