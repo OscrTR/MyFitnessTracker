@@ -25,10 +25,10 @@ abstract class ExerciseLocalDataSource {
   /// Throws a [LocalDatabaseException] for all error codes.
   Future<ExerciseModel> updateExercise(Exercise exerciseToUpdate);
 
-  /// Query the local database and adds the exercise. Return the deleted exercise.
+  /// Query the local database and delete the exercise.
   ///
   /// Throws a [LocalDatabaseException] for all error codes.
-  Future<ExerciseModel> deleteExercise(Exercise exerciseToDelete);
+  Future<void> deleteExercise(int id);
 }
 
 class SQLiteExerciseLocalDataSource implements ExerciseLocalDataSource {
@@ -82,9 +82,11 @@ class SQLiteExerciseLocalDataSource implements ExerciseLocalDataSource {
     try {
       final List<Map<String, dynamic>> maps = await database.query('exercises');
 
-      return List.generate(maps.length, (i) {
+      final result = List.generate(maps.length, (i) {
         return ExerciseModel.fromJson(maps[i]);
       });
+
+      return result;
     } catch (e) {
       throw LocalDatabaseException();
     }
@@ -112,19 +114,12 @@ class SQLiteExerciseLocalDataSource implements ExerciseLocalDataSource {
   }
 
   @override
-  Future<ExerciseModel> deleteExercise(Exercise exerciseToDelete) async {
+  Future<void> deleteExercise(int id) async {
     try {
       await database.delete(
         'exercises',
         where: 'id = ?',
-        whereArgs: [exerciseToDelete.id],
-      );
-
-      return ExerciseModel(
-        id: exerciseToDelete.id,
-        name: exerciseToDelete.name,
-        imageName: exerciseToDelete.imageName,
-        description: exerciseToDelete.description,
+        whereArgs: [id],
       );
     } catch (e) {
       throw LocalDatabaseException();

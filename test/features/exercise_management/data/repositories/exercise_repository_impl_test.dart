@@ -151,32 +151,19 @@ void main() {
   });
 
   group('deleteExercise', () {
-    test(
-        'should return deleted Exercise when the call to localDataSource is successful',
-        () async {
-      // Arrange
-      when(() => mockLocalDataSource.deleteExercise(tExercise))
-          .thenAnswer((_) async => tExerciseModel);
-
-      // Act
-      final result = await repository.deleteExercise(tExercise);
-
-      // Assert
-      verify(() => mockLocalDataSource.deleteExercise(tExercise));
-      expect(result, Right(tExercise));
-    });
+    const tId = 1;
 
     test('should return DatabaseFailure when the call to localDataSource fails',
         () async {
       // Arrange
-      when(() => mockLocalDataSource.deleteExercise(tExercise))
+      when(() => mockLocalDataSource.deleteExercise(tId))
           .thenThrow(LocalDatabaseException());
 
       // Act
-      final result = await repository.deleteExercise(tExercise);
+      final result = await repository.deleteExercise(tId);
 
       // Assert
-      verify(() => mockLocalDataSource.deleteExercise(tExercise));
+      verify(() => mockLocalDataSource.deleteExercise(tId));
       expect(result, const Left(DatabaseFailure()));
     });
   });

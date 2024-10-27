@@ -5,14 +5,14 @@ import '../../../../core/error/exceptions.dart';
 class Exercise extends Equatable {
   final int? id;
   final String name;
-  final String imageName;
-  final String description;
+  final String? imageName;
+  final String? description;
 
   Exercise({
     this.id,
     required this.name,
-    required this.imageName,
-    required this.description,
+    this.imageName,
+    this.description,
   }) {
     if (name.isEmpty) {
       throw ExerciseNameException();

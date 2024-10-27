@@ -31,13 +31,21 @@ class GetExerciseEvent extends ExerciseManagementEvent {
 class FetchExercisesEvent extends ExerciseManagementEvent {}
 
 class UpdateExerciseEvent extends ExerciseManagementEvent {
-  final Exercise exerciseToUpdate;
+  final int id;
+  final String name;
+  final String description;
+  final String imageName;
 
-  const UpdateExerciseEvent(this.exerciseToUpdate);
+  const UpdateExerciseEvent({
+    required this.id,
+    required this.name,
+    required this.description,
+    required this.imageName,
+  });
 }
 
 class DeleteExerciseEvent extends ExerciseManagementEvent {
-  final Exercise exerciseToDelete;
+  final int id;
 
-  const DeleteExerciseEvent(this.exerciseToDelete);
+  const DeleteExerciseEvent(this.id);
 }

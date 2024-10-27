@@ -219,12 +219,7 @@ void unitTesting() {
   });
 
   group('deleteExercise', () {
-    final tExercise = Exercise(
-      id: 1,
-      name: 'Squat',
-      description: 'A lower body exercise',
-      imageName: 'squat.png',
-    );
+    const tId = 1;
 
     test(
       'should delete the Exercise from SQLite Database when a valid exercise is provided',
@@ -237,7 +232,7 @@ void unitTesting() {
             )).thenAnswer((_) async => 1);
 
         // Act
-        final result = await dataSourceSQLite.deleteExercise(tExercise);
+        await dataSourceSQLite.deleteExercise(tId);
 
         // Assert
         // Verify that delete was called on the mockDatabase with correct arguments
@@ -246,11 +241,6 @@ void unitTesting() {
               where: any(named: 'where'),
               whereArgs: any(named: 'whereArgs'),
             )).called(1);
-
-        // Verify the result
-        expect(result.name, tExercise.name);
-        expect(result.description, tExercise.description);
-        expect(result.imageName, tExercise.imageName);
       },
     );
 
@@ -263,7 +253,7 @@ void unitTesting() {
           )).thenThrow(LocalDatabaseException());
 
       // Act & Assert
-      expect(() => dataSourceSQLite.deleteExercise(tExercise),
+      expect(() => dataSourceSQLite.deleteExercise(tId),
           throwsA(isA<LocalDatabaseException>()));
     });
   });
@@ -452,6 +442,7 @@ void integrationTesting() {
   });
 
   group('deleteExercise', () {
+    const tId = 1;
     final tExercise = Exercise(
       id: 1,
       name: 'Squat',
@@ -471,7 +462,7 @@ void integrationTesting() {
 
     test('should delete the exercise from the database', () async {
       // Act
-      await dataSource.deleteExercise(tExercise);
+      await dataSource.deleteExercise(tId);
 
       // Assert: Verify the exercise is deleted
       final List<Map<String, dynamic>> exercises =
@@ -484,7 +475,7 @@ void integrationTesting() {
       await database.close();
 
       // Act & Assert
-      expect(() => dataSource.deleteExercise(tExercise),
+      expect(() => dataSource.deleteExercise(tId),
           throwsA(isA<LocalDatabaseException>()));
     });
   });

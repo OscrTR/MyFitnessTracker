@@ -3,19 +3,55 @@ import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:my_fitness_tracker/core/error/failures.dart';
+import 'package:my_fitness_tracker/core/messages/bloc/message_bloc.dart';
 import 'package:my_fitness_tracker/features/exercise_management/domain/entities/exercise.dart';
-import 'package:my_fitness_tracker/features/exercise_management/domain/usecases/create_exercise.dart';
+import 'package:my_fitness_tracker/features/exercise_management/domain/usecases/create_exercise.dart'
+    as create;
+import 'package:my_fitness_tracker/features/exercise_management/domain/usecases/delete_exercise.dart'
+    as delete;
+import 'package:my_fitness_tracker/features/exercise_management/domain/usecases/fetch_exercises.dart'
+    as fetch;
+import 'package:my_fitness_tracker/features/exercise_management/domain/usecases/get_exercise.dart'
+    as get_ex;
+import 'package:my_fitness_tracker/features/exercise_management/domain/usecases/update_exercise.dart'
+    as update;
 import 'package:my_fitness_tracker/features/exercise_management/presentation/bloc/exercise_management_bloc.dart';
 
-class MockCreateExercise extends Mock implements CreateExercise {}
+class MockCreateExercise extends Mock implements create.CreateExercise {}
+
+class MockFetchExercises extends Mock implements fetch.FetchExercises {}
+
+class MockGetExercise extends Mock implements get_ex.GetExercise {}
+
+class MockUpdateExercise extends Mock implements update.UpdateExercise {}
+
+class MockDeleteExercise extends Mock implements delete.DeleteExercise {}
+
+class MockMessageBloc extends Mock implements MessageBloc {}
 
 void main() {
   late ExerciseManagementBloc bloc;
+  late MockMessageBloc mockMessageBloc;
   late MockCreateExercise mockCreateExercise;
+  late MockFetchExercises mockFetchExercises;
+  late MockGetExercise mockGetExercise;
+  late MockUpdateExercise mockUpdateExercise;
+  late MockDeleteExercise mockDeleteExercise;
 
   setUp(() {
     mockCreateExercise = MockCreateExercise();
-    bloc = ExerciseManagementBloc(createExercise: mockCreateExercise);
+    mockFetchExercises = MockFetchExercises();
+    mockGetExercise = MockGetExercise();
+    mockUpdateExercise = MockUpdateExercise();
+    mockDeleteExercise = MockDeleteExercise();
+    mockMessageBloc = MockMessageBloc();
+    bloc = ExerciseManagementBloc(
+        createExercise: mockCreateExercise,
+        fetchExercises: mockFetchExercises,
+        getExercise: mockGetExercise,
+        updateExercise: mockUpdateExercise,
+        deleteExercise: mockDeleteExercise,
+        messageBloc: mockMessageBloc);
   });
 
   test('initial state should be ExerciseManagementInitial', () {
@@ -33,47 +69,51 @@ void main() {
     );
 
     blocTest<ExerciseManagementBloc, ExerciseManagementState>(
-      'should emit [ExerciseManagementLoading, ExerciseManagementSuccess] when exercise creation is successful',
+      'should emit [ExerciseManagementLoaded] when exercise creation is successful',
       build: () => bloc,
       setUp: () {
         // Arrange: Mock success response from createExercise
-        when(() => mockCreateExercise(const Params(
+        when(() => mockCreateExercise(const create.Params(
                 name: tExerciseName,
                 description: tExerciseDescription,
                 imageName: tExerciseImageName)))
             .thenAnswer((_) async => Right(tExercise));
       },
+      seed: () => const ExerciseManagementLoaded(exercises: []),
       act: (bloc) => bloc.add(const CreateExerciseEvent(
         name: tExerciseName,
         description: tExerciseDescription,
         imageName: tExerciseImageName,
       )),
       expect: () => [
-        ExerciseManagementLoading(),
-        ExerciseManagementSuccess(tExercise),
+        ExerciseManagementLoaded(exercises: [tExercise]),
       ],
     );
 
     blocTest<ExerciseManagementBloc, ExerciseManagementState>(
-      'should emit [ExerciseManagementLoading, ExerciseManagementFailure] when exercise creation fails',
+      'should emit [ErrorMessage] when exercise creation fails',
       build: () => bloc,
       setUp: () {
-        // Arrange: Mock failure response from createExercise
-        when(() => mockCreateExercise(const Params(
-                name: tExerciseName,
+        // Arrange: Mock success response from createExercise
+        when(() => mockCreateExercise(const create.Params(
+                name: '',
                 description: tExerciseDescription,
                 imageName: tExerciseImageName)))
-            .thenAnswer((_) async => const Left(DatabaseFailure()));
+            .thenAnswer((_) async => const Left(InvalidExerciseNameFailure()));
       },
+      seed: () => const ExerciseManagementLoaded(exercises: []),
       act: (bloc) => bloc.add(const CreateExerciseEvent(
-        name: tExerciseName,
+        name: '',
         description: tExerciseDescription,
         imageName: tExerciseImageName,
       )),
-      expect: () => [
-        ExerciseManagementLoading(),
-        const ExerciseManagementFailure(message: databaseFailureMessage),
-      ],
+      verify: (_) {
+        // Confirm the message bloc received the error event
+        verify(() => mockMessageBloc.add(const AddMessageEvent(
+              message: invalidExerciseNameFailureMessage,
+              isError: true,
+            ))).called(1);
+      },
     );
   });
 }

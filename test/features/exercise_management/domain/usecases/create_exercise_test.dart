@@ -36,8 +36,8 @@ void main() {
       // Act
       final result = await usecase(Params(
           name: tExercise.name,
-          description: tExercise.description,
-          imageName: tExercise.imageName));
+          description: tExercise.description!,
+          imageName: tExercise.imageName!));
       // Assert
       expect(result, Right(rExercise));
       verify(() => mockExerciseRepository.createExercise(tExercise));
@@ -51,8 +51,8 @@ void main() {
       // Act
       final result = await usecase(Params(
         name: '', // Invalid input: empty name
-        description: tExercise.description,
-        imageName: tExercise.imageName,
+        description: tExercise.description!,
+        imageName: tExercise.imageName!,
       ));
 
       // Assert

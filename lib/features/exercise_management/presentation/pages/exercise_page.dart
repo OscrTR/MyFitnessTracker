@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:my_fitness_tracker/core/messages/bloc/message_bloc.dart';
 import '../bloc/exercise_management_bloc.dart';
-
-import '../../../../injection_container.dart';
 
 class ExercisePage extends StatelessWidget {
   const ExercisePage({super.key});
@@ -13,59 +12,89 @@ class ExercisePage extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Exercise'),
       ),
-      body: SingleChildScrollView(child: buildBody(context)),
-    );
-  }
-
-  BlocProvider<ExerciseManagementBloc> buildBody(BuildContext context) {
-    return BlocProvider(
-      create: (BuildContext context) => sl<ExerciseManagementBloc>(),
-      child: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(10),
-          child: Column(
-            children: [
-              BlocListener<ExerciseManagementBloc, ExerciseManagementState>(
-                listener: (context, state) {
-                  if (state is ExerciseManagementFailure) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(state.message),
-                        backgroundColor: Colors.red,
-                      ),
-                    );
-                  } else if (state is ExerciseManagementSuccess) {
-                    // Show success message in a SnackBar
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                            'Exercise "${state.exercise.name}" created successfully!'),
-                        backgroundColor: Colors.green,
-                      ),
-                    );
-                  }
-                },
-                child: SizedBox(
-                  height: MediaQuery.of(context).size.height / 3,
-                  child: const Placeholder(),
-                ),
+      body: BlocListener<MessageBloc, MessageState>(
+        listener: (context, state) {
+          if (state is MessageLoaded) {
+            // Show error message
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.message),
+                backgroundColor: state.isError ? Colors.red : Colors.green,
               ),
-              const SizedBox(height: 20),
-              const Column(
-                children: [
-                  ExerciseForm(),
-                ],
-              )
-            ],
-          ),
+            );
+          }
+        },
+        child: Column(
+          children: [
+            const Expanded(child: ExerciseList()),
+            ExerciseForm(
+              onSubmit: (name, imageName, description) {
+                BlocProvider.of<ExerciseManagementBloc>(context).add(
+                  CreateExerciseEvent(
+                    name: name,
+                    imageName: imageName,
+                    description: description,
+                  ),
+                );
+              },
+            ),
+          ],
         ),
       ),
     );
   }
 }
 
+class ExerciseList extends StatelessWidget {
+  const ExerciseList({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<ExerciseManagementBloc, ExerciseManagementState>(
+      builder: (context, state) {
+        if (state is ExerciseManagementLoading) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (state is ExerciseManagementLoaded) {
+          return ListView.builder(
+            itemCount: state.exercises.length,
+            itemBuilder: (context, index) {
+              final exercise = state.exercises[index];
+              return ListTile(
+                title: Text(exercise.name),
+                trailing: GestureDetector(
+                    onTap: () {
+                      BlocProvider.of<ExerciseManagementBloc>(context)
+                          .add(DeleteExerciseEvent(exercise.id!));
+                    },
+                    child: const Icon(Icons.more_horiz)),
+                subtitle: const TextField(),
+                leading: GestureDetector(
+                    onTap: () {
+                      BlocProvider.of<ExerciseManagementBloc>(context).add(
+                          UpdateExerciseEvent(
+                              id: exercise.id!,
+                              name: 'Updated',
+                              description: exercise.description ?? '',
+                              imageName: exercise.imageName ?? ''));
+                    },
+                    child: const Icon(Icons.update)),
+              );
+            },
+          );
+        } else if (state is ExerciseManagementFailure) {
+          return Center(child: Text(state.message));
+        }
+        return const SizedBox.shrink();
+      },
+    );
+  }
+}
+
 class ExerciseForm extends StatefulWidget {
-  const ExerciseForm({super.key});
+  final void Function(String name, String imageName, String description)
+      onSubmit;
+
+  const ExerciseForm({super.key, required this.onSubmit});
 
   @override
   ExerciseFormState createState() => ExerciseFormState();
@@ -87,16 +116,11 @@ class ExerciseFormState extends State<ExerciseForm> {
 
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
-      // Trigger the CreateExerciseEvent with form data
-      BlocProvider.of<ExerciseManagementBloc>(context).add(
-        CreateExerciseEvent(
-          name: _nameController.text,
-          imageName: _imageNameController.text,
-          description: _descriptionController.text,
-        ),
+      widget.onSubmit(
+        _nameController.text,
+        _imageNameController.text,
+        _descriptionController.text,
       );
-
-      // Clear the text fields after submission
       _nameController.clear();
       _imageNameController.clear();
       _descriptionController.clear();
@@ -111,33 +135,19 @@ class ExerciseFormState extends State<ExerciseForm> {
         key: _formKey,
         child: Column(
           children: [
-            // Name Field
             TextFormField(
               controller: _nameController,
               decoration: const InputDecoration(labelText: 'Exercise Name'),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter a name';
-                }
-                return null;
-              },
             ),
-
-            // Image Name Field
             TextFormField(
               controller: _imageNameController,
               decoration: const InputDecoration(labelText: 'Image Name'),
             ),
-
-            // Description Field
             TextFormField(
               controller: _descriptionController,
               decoration: const InputDecoration(labelText: 'Description'),
             ),
-
             const SizedBox(height: 16.0),
-
-            // Submit Button
             ElevatedButton(
               onPressed: _submitForm,
               child: const Text('Create Exercise'),

@@ -53,12 +53,10 @@ class ExerciseRepositoryImpl implements ExerciseRepository {
   }
 
   @override
-  Future<Either<Failure, Exercise>> deleteExercise(
-      Exercise exerciseToDelete) async {
+  Future<Either<Failure, void>> deleteExercise(int id) async {
     try {
-      final deletedExercise =
-          await localDataSource.deleteExercise(exerciseToDelete);
-      return Right(deletedExercise);
+      await localDataSource.deleteExercise(id);
+      return const Right(null);
     } on LocalDatabaseException {
       return const Left(DatabaseFailure());
     }

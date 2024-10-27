@@ -11,5 +11,5 @@ abstract class ExerciseRepository {
 
   Future<Either<Failure, Exercise>> updateExercise(Exercise exercise);
 
-  Future<Either<Failure, Exercise>> deleteExercise(Exercise exercise);
+  Future<Either<Failure, void>> deleteExercise(int id);
 }

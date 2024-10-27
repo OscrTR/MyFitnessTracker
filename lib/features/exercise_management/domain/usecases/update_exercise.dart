@@ -1,4 +1,6 @@
 import 'package:dartz/dartz.dart';
+import 'package:equatable/equatable.dart';
+import '../../../../core/error/exceptions.dart';
 import '../../../../core/error/failures.dart';
 import '../../../../core/usecases/usecase.dart';
 import '../entities/exercise.dart';
@@ -12,12 +14,42 @@ class UpdateExercise extends Usecase<Exercise, Params> {
 
   @override
   Future<Either<Failure, Exercise>> call(Params params) async {
-    return await repository.updateExercise(params.exercise);
+    try {
+      // Construct the Exercise entity
+      final exercise = Exercise(
+        id: params.id,
+        name: params.name,
+        description: params.description,
+        imageName: params.imageName,
+      );
+
+      // Call the repository to save the exercise
+      return await repository.updateExercise(exercise);
+    } catch (e) {
+      // If there is a validation error, return an InvalidExerciseNameFailure
+      if (e is ExerciseNameException) {
+        return const Left(InvalidExerciseNameFailure());
+      }
+
+      // Otherwise, return a generic failure
+      return const Left(DatabaseFailure());
+    }
   }
 }
 
-class Params {
-  final Exercise exercise;
+class Params extends Equatable {
+  final int id;
+  final String name;
+  final String description;
+  final String imageName;
 
-  Params({required this.exercise});
+  const Params({
+    required this.id,
+    required this.name,
+    required this.description,
+    required this.imageName,
+  });
+
+  @override
+  List<Object> get props => [id, name, description, imageName];
 }
