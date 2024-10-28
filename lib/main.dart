@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:my_fitness_tracker/app_theme.dart';
 import 'package:my_fitness_tracker/core/messages/bloc/message_bloc.dart';
+import 'package:my_fitness_tracker/router.dart';
 import 'features/exercise_management/presentation/bloc/exercise_management_bloc.dart';
-import 'features/exercise_management/presentation/pages/exercise_page.dart';
 import 'injection_container.dart';
 import 'injection_container.dart' as di;
 
@@ -26,15 +27,10 @@ class MyApp extends StatelessWidget {
               sl<ExerciseManagementBloc>()..add(FetchExercisesEvent()),
         ),
       ],
-      child: MaterialApp(
-        title: 'Exercise',
-        theme: ThemeData(
-          primaryColor: Colors.green,
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
-          useMaterial3: true,
-        ),
-        home: const ExercisePage(),
-      ),
+      child: MaterialApp.router(
+          routerConfig: router,
+          debugShowCheckedModeBanner: false,
+          theme: appTheme),
     );
   }
 }

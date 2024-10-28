@@ -33,6 +33,7 @@ class ExerciseManagementBloc
       required this.getExercise,
       required this.messageBloc})
       : super(ExerciseManagementInitial()) {
+    // TODO : test this
     on<FetchExercisesEvent>((event, emit) async {
       final result = await fetchExercises(null);
 
@@ -44,6 +45,8 @@ class ExerciseManagementBloc
         },
       );
     });
+
+    // TODO : add get event
 
     on<CreateExerciseEvent>((event, emit) async {
       if (state is ExerciseManagementLoaded) {
@@ -74,6 +77,7 @@ class ExerciseManagementBloc
       }
     });
 
+// TODO : test this
     on<UpdateExerciseEvent>((event, emit) async {
       if (state is ExerciseManagementLoaded) {
         final currentState = state as ExerciseManagementLoaded;
@@ -110,7 +114,7 @@ class ExerciseManagementBloc
         );
       }
     });
-
+// TODO : test this
     on<DeleteExerciseEvent>((event, emit) async {
       if (state is ExerciseManagementLoaded) {
         final currentState = state as ExerciseManagementLoaded;

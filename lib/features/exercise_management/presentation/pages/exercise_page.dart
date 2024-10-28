@@ -1,44 +1,67 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:my_fitness_tracker/core/app_colors.dart';
 import 'package:my_fitness_tracker/core/messages/bloc/message_bloc.dart';
 import '../bloc/exercise_management_bloc.dart';
 
+// TODO : create the real exercise management page
+// TODO : move the widgets to widgets
 class ExercisePage extends StatelessWidget {
   const ExercisePage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Exercise'),
-      ),
-      body: BlocListener<MessageBloc, MessageState>(
-        listener: (context, state) {
-          if (state is MessageLoaded) {
-            // Show error message
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.message),
-                backgroundColor: state.isError ? Colors.red : Colors.green,
+      body: Padding(
+        padding: const EdgeInsets.all(10),
+        child: BlocListener<MessageBloc, MessageState>(
+          listener: (context, state) {
+            if (state is MessageLoaded) {
+              // Show error message
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(state.message),
+                  backgroundColor: state.isError ? Colors.red : Colors.green,
+                ),
+              );
+            }
+          },
+          child: Column(
+            children: [
+              Container(
+                height: 60,
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: AppColors.lightGrey),
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.list,
+                      color: AppColors.black,
+                    ),
+                    const SizedBox(width: 10),
+                    Text(
+                      'Exercises',
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                  ],
+                ),
               ),
-            );
-          }
-        },
-        child: Column(
-          children: [
-            const Expanded(child: ExerciseList()),
-            ExerciseForm(
-              onSubmit: (name, imageName, description) {
-                BlocProvider.of<ExerciseManagementBloc>(context).add(
-                  CreateExerciseEvent(
-                    name: name,
-                    imageName: imageName,
-                    description: description,
-                  ),
-                );
-              },
-            ),
-          ],
+              const Expanded(child: ExerciseList()),
+              ExerciseForm(
+                onSubmit: (name, imageName, description) {
+                  BlocProvider.of<ExerciseManagementBloc>(context).add(
+                    CreateExerciseEvent(
+                      name: name,
+                      imageName: imageName,
+                      description: description,
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -55,29 +78,56 @@ class ExerciseList extends StatelessWidget {
         if (state is ExerciseManagementLoading) {
           return const Center(child: CircularProgressIndicator());
         } else if (state is ExerciseManagementLoaded) {
-          return ListView.builder(
+          return ListView.separated(
+            separatorBuilder: (context, index) => const SizedBox(height: 10.0),
             itemCount: state.exercises.length,
             itemBuilder: (context, index) {
               final exercise = state.exercises[index];
-              return ListTile(
-                title: Text(exercise.name),
-                trailing: GestureDetector(
-                    onTap: () {
-                      BlocProvider.of<ExerciseManagementBloc>(context)
-                          .add(DeleteExerciseEvent(exercise.id!));
+              return Container(
+                decoration: BoxDecoration(
+                    border: Border.all(color: AppColors.lightGrey),
+                    borderRadius: BorderRadius.circular(10)),
+                child: ListTile(
+                  title: Text(
+                    exercise.name,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  trailing: PopupMenuButton(
+                    onSelected: (value) {
+                      if (value == 'edit') {
+                        // Navigate to edit screen or show edit dialog
+                        // BlocProvider.of<ExerciseManagementBloc>(context)
+                        //     .add(EditExerciseEvent(exercise.id!));
+                      } else if (value == 'delete') {
+                        // Trigger delete event
+                        BlocProvider.of<ExerciseManagementBloc>(context)
+                            .add(DeleteExerciseEvent(exercise.id!));
+                      }
                     },
-                    child: const Icon(Icons.more_horiz)),
-                subtitle: const TextField(),
-                leading: GestureDetector(
-                    onTap: () {
-                      BlocProvider.of<ExerciseManagementBloc>(context).add(
-                          UpdateExerciseEvent(
-                              id: exercise.id!,
-                              name: 'Updated',
-                              description: exercise.description ?? '',
-                              imageName: exercise.imageName ?? ''));
-                    },
-                    child: const Icon(Icons.update)),
+                    itemBuilder: (BuildContext context) => [
+                      const PopupMenuItem(
+                        value: 'edit',
+                        child: Row(
+                          children: [
+                            Text('Edit'),
+                          ],
+                        ),
+                      ),
+                      const PopupMenuItem(
+                        value: 'delete',
+                        child: Row(
+                          children: [
+                            Text('Delete'),
+                          ],
+                        ),
+                      ),
+                    ],
+                    icon: const Icon(
+                      Icons.more_horiz,
+                      color: AppColors.lightBlack,
+                    ),
+                  ),
+                ),
               );
             },
           );
