@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:my_fitness_tracker/core/app_colors.dart';
 import 'package:my_fitness_tracker/core/messages/bloc/message_bloc.dart';
 import '../bloc/exercise_management_bloc.dart';
@@ -13,7 +14,7 @@ class ExercisePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
-        padding: const EdgeInsets.all(10),
+        padding: const EdgeInsets.all(20),
         child: BlocListener<MessageBloc, MessageState>(
           listener: (context, state) {
             if (state is MessageLoaded) {
@@ -48,6 +49,7 @@ class ExercisePage extends StatelessWidget {
                   ],
                 ),
               ),
+              const SizedBox(height: 10),
               const Expanded(child: ExerciseList()),
               ExerciseForm(
                 onSubmit: (name, imageName, description) {
@@ -88,6 +90,7 @@ class ExerciseList extends StatelessWidget {
                     border: Border.all(color: AppColors.lightGrey),
                     borderRadius: BorderRadius.circular(10)),
                 child: ListTile(
+                  contentPadding: const EdgeInsets.only(left: 10, right: 0),
                   title: Text(
                     exercise.name,
                     style: Theme.of(context).textTheme.titleMedium,
@@ -95,9 +98,9 @@ class ExerciseList extends StatelessWidget {
                   trailing: PopupMenuButton(
                     onSelected: (value) {
                       if (value == 'edit') {
-                        // Navigate to edit screen or show edit dialog
-                        // BlocProvider.of<ExerciseManagementBloc>(context)
-                        //     .add(EditExerciseEvent(exercise.id!));
+                        BlocProvider.of<ExerciseManagementBloc>(context)
+                            .add(GetExerciseEvent(exercise.id!));
+                        GoRouter.of(context).go('/exercise_detail');
                       } else if (value == 'delete') {
                         // Trigger delete event
                         BlocProvider.of<ExerciseManagementBloc>(context)

@@ -46,6 +46,21 @@ class ExerciseManagementBloc
       );
     });
 
+    on<GetExerciseEvent>((event, emit) async {
+      if (state is ExerciseManagementLoaded) {
+        final currentState = state as ExerciseManagementLoaded;
+        final result = await getExercise(get_ex.Params(id: event.exerciseId));
+
+        result.fold(
+          (failure) => messageBloc.add(AddMessageEvent(
+              message: _mapFailureToMessage(failure), isError: true)),
+          (exercise) {
+            emit(currentState.copyWith(selectedExercise: exercise));
+          },
+        );
+      }
+    });
+
     // TODO : add get event
 
     on<CreateExerciseEvent>((event, emit) async {

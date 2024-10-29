@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_fitness_tracker/core/app_colors.dart';
-import 'package:my_fitness_tracker/history_page.dart';
-import 'package:my_fitness_tracker/home_page.dart';
-import 'package:my_fitness_tracker/settings_page.dart';
-import 'package:my_fitness_tracker/trainings_page.dart';
+import 'package:my_fitness_tracker/core/pages/history_page.dart';
+import 'package:my_fitness_tracker/core/pages/home_page.dart';
+import 'package:my_fitness_tracker/core/pages/settings_page.dart';
+import 'package:my_fitness_tracker/core/pages/trainings_page.dart';
+import 'package:my_fitness_tracker/features/exercise_management/presentation/pages/exercise_detail_page.dart';
 
 final router = GoRouter(
   initialLocation: '/home',
@@ -66,11 +67,27 @@ final router = GoRouter(
             );
           },
         ),
+        GoRoute(
+          path: '/exercise_detail',
+          pageBuilder: (context, state) {
+            return CustomTransitionPage(
+              child: const ExerciseDetailPage(),
+              transitionsBuilder:
+                  (context, animation, secondaryAnimation, child) {
+                return child;
+              },
+            );
+          },
+        ),
       ],
       builder: (context, state, child) {
+        bool isExerciseDetailPage =
+            GoRouterState.of(context).uri.toString() == '/exercise_detail';
         return Scaffold(
             body: SafeArea(child: child),
-            bottomNavigationBar: const BottomNavigationBarWidget());
+            bottomNavigationBar: isExerciseDetailPage
+                ? null
+                : const BottomNavigationBarWidget());
       },
     ),
   ],
@@ -102,7 +119,7 @@ class BottomNavigationBarWidget extends StatelessWidget {
                 color: Colors.black.withOpacity(0.08),
                 spreadRadius: 0,
                 blurRadius: 20,
-                offset: Offset(0, 8)),
+                offset: const Offset(0, 8)),
           ],
         ),
         child: Row(
@@ -124,7 +141,7 @@ class BottomNavigationBarWidget extends StatelessWidget {
                     GoRouter.of(context).go('/trainings');
                   }
                 },
-                child: Icon(
+                child: const Icon(
                   Icons.question_mark,
                   color: AppColors.black,
                 )),
@@ -134,7 +151,7 @@ class BottomNavigationBarWidget extends StatelessWidget {
                     GoRouter.of(context).go('/history');
                   }
                 },
-                child: Icon(
+                child: const Icon(
                   Icons.question_mark,
                   color: AppColors.black,
                 )),
@@ -144,7 +161,7 @@ class BottomNavigationBarWidget extends StatelessWidget {
                     GoRouter.of(context).go('/settings');
                   }
                 },
-                child: Icon(
+                child: const Icon(
                   Icons.question_mark,
                   color: AppColors.black,
                 )),
