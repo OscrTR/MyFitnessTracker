@@ -26,6 +26,9 @@ class GetExerciseEvent extends ExerciseManagementEvent {
   final int exerciseId;
 
   const GetExerciseEvent(this.exerciseId);
+
+  @override
+  List<Object> get props => [exerciseId];
 }
 
 class FetchExercisesEvent extends ExerciseManagementEvent {}
@@ -42,10 +45,16 @@ class UpdateExerciseEvent extends ExerciseManagementEvent {
     required this.description,
     required this.imagePath,
   });
+
+  @override
+  List<Object> get props => [id, name, description, imagePath];
 }
 
 class DeleteExerciseEvent extends ExerciseManagementEvent {
   final int id;
 
   const DeleteExerciseEvent(this.id);
+
+  @override
+  List<Object> get props => [id];
 }
