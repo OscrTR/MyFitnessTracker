@@ -20,12 +20,12 @@ void main() {
     Exercise(
         id: 1,
         name: 'Test name',
-        imageName: 'Test image name',
+        imagePath: 'Test image name',
         description: 'Test description'),
     Exercise(
         id: 2,
         name: 'Test name 2',
-        imageName: 'Test image name 2',
+        imagePath: 'Test image name 2',
         description: 'Test description 2')
   ];
 

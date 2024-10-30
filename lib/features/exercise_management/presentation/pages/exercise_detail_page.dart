@@ -270,7 +270,7 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
                       CreateExerciseEvent(
                           name: _nameController.text,
                           description: _descriptionController.text,
-                          imageName: _image != null ? _image!.path : ''),
+                          imagePath: _image != null ? _image!.path : ''),
                     );
                     GoRouter.of(context).go('/trainings');
                   },
@@ -303,9 +303,9 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
             if (!_isDataInitialized) {
               _nameController.text = selectedExercise!.name;
               _descriptionController.text = selectedExercise.description ?? '';
-              if (selectedExercise.imageName != null &&
-                  selectedExercise.imageName!.isNotEmpty) {
-                final file = File(selectedExercise.imageName!);
+              if (selectedExercise.imagePath != null &&
+                  selectedExercise.imagePath!.isNotEmpty) {
+                final file = File(selectedExercise.imagePath!);
                 file.exists().then((exists) {
                   if (exists) {
                     setState(() {
@@ -499,7 +499,7 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
                           id: state.selectedExercise!.id!,
                           name: _nameController.text,
                           description: _descriptionController.text,
-                          imageName: _image != null ? _image!.path : ''),
+                          imagePath: _image != null ? _image!.path : ''),
                     );
                     GoRouter.of(context).go('/trainings');
                   },

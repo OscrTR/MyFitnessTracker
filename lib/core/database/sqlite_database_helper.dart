@@ -20,7 +20,7 @@ class SQLiteDatabaseHelper {
             id INTEGER PRIMARY KEY AUTOINCREMENT, 
             name TEXT, 
             description TEXT, 
-            image_name TEXT
+            image_path TEXT
           )
         ''');
       },

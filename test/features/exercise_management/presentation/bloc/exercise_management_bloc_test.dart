@@ -61,11 +61,11 @@ void main() {
   group('CreateExerciseEvent', () {
     const tExerciseName = 'Push-up';
     const tExerciseDescription = 'Upper body exercise';
-    const tExerciseImageName = 'pushup.png';
+    const tExerciseimagePath = 'pushup.png';
     final tExercise = Exercise(
       name: tExerciseName,
       description: tExerciseDescription,
-      imageName: tExerciseImageName,
+      imagePath: tExerciseimagePath,
     );
 
     blocTest<ExerciseManagementBloc, ExerciseManagementState>(
@@ -76,14 +76,14 @@ void main() {
         when(() => mockCreateExercise(const create.Params(
                 name: tExerciseName,
                 description: tExerciseDescription,
-                imageName: tExerciseImageName)))
+                imagePath: tExerciseimagePath)))
             .thenAnswer((_) async => Right(tExercise));
       },
       seed: () => const ExerciseManagementLoaded(exercises: []),
       act: (bloc) => bloc.add(const CreateExerciseEvent(
         name: tExerciseName,
         description: tExerciseDescription,
-        imageName: tExerciseImageName,
+        imagePath: tExerciseimagePath,
       )),
       expect: () => [
         ExerciseManagementLoaded(exercises: [tExercise]),
@@ -98,14 +98,14 @@ void main() {
         when(() => mockCreateExercise(const create.Params(
                 name: '',
                 description: tExerciseDescription,
-                imageName: tExerciseImageName)))
+                imagePath: tExerciseimagePath)))
             .thenAnswer((_) async => const Left(InvalidExerciseNameFailure()));
       },
       seed: () => const ExerciseManagementLoaded(exercises: []),
       act: (bloc) => bloc.add(const CreateExerciseEvent(
         name: '',
         description: tExerciseDescription,
-        imageName: tExerciseImageName,
+        imagePath: tExerciseimagePath,
       )),
       verify: (_) {
         // Confirm the message bloc received the error event

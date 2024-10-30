@@ -19,7 +19,7 @@ class CreateExercise extends Usecase<Exercise, Params> {
       final exercise = Exercise(
         name: params.name,
         description: params.description,
-        imageName: params.imageName,
+        imagePath: params.imagePath,
       );
 
       // Call the repository to save the exercise
@@ -39,14 +39,14 @@ class CreateExercise extends Usecase<Exercise, Params> {
 class Params extends Equatable {
   final String name;
   final String description;
-  final String imageName;
+  final String imagePath;
 
   const Params({
     required this.name,
     required this.description,
-    required this.imageName,
+    required this.imagePath,
   });
 
   @override
-  List<Object> get props => [name, description, imageName];
+  List<Object> get props => [name, description, imagePath];
 }

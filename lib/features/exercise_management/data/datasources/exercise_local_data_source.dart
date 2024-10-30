@@ -42,7 +42,7 @@ class SQLiteExerciseLocalDataSource implements ExerciseLocalDataSource {
       // Insert the exercise into the database and get its generated ID
       final id = await database.insert('exercises', {
         'name': exerciseToCreate.name,
-        'image_name': exerciseToCreate.imageName,
+        'image_path': exerciseToCreate.imagePath,
         'description': exerciseToCreate.description,
       });
 
@@ -50,7 +50,7 @@ class SQLiteExerciseLocalDataSource implements ExerciseLocalDataSource {
       return ExerciseModel(
         id: id,
         name: exerciseToCreate.name,
-        imageName: exerciseToCreate.imageName,
+        imagePath: exerciseToCreate.imagePath,
         description: exerciseToCreate.description,
       );
     } catch (e) {
@@ -98,7 +98,7 @@ class SQLiteExerciseLocalDataSource implements ExerciseLocalDataSource {
       final exerciseToUpdateModel = ExerciseModel(
         id: exerciseToUpdate.id,
         name: exerciseToUpdate.name,
-        imageName: exerciseToUpdate.imageName,
+        imagePath: exerciseToUpdate.imagePath,
         description: exerciseToUpdate.description,
       );
       await database.update(

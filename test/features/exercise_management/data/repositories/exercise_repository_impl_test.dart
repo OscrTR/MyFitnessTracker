@@ -24,7 +24,7 @@ void main() {
       id: 1,
       name: 'Push-up',
       description: 'Upper body exercise',
-      imageName: 'pushup.png');
+      imagePath: 'pushup.png');
   final Exercise tExercise = tExerciseModel;
   final tExerciseList = [tExerciseModel];
 

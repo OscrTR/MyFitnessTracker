@@ -10,7 +10,7 @@ void main() {
   final tExerciseModel = ExerciseModel(
       id: 1,
       name: 'Test name',
-      imageName: 'Test image name',
+      imagePath: 'Test image name',
       description: 'Test description');
 
   test(
@@ -46,7 +46,7 @@ void main() {
         const expectedMap = {
           "id": 1,
           "name": "Test name",
-          "image_name": "Test image name",
+          "image_path": "Test image name",
           "description": "Test description"
         };
         expect(result, expectedMap);

@@ -19,7 +19,7 @@ void main() {
   final tExercise = Exercise(
       id: 1,
       name: 'Test name modified',
-      imageName: 'Test image name modified',
+      imagePath: 'Test image name modified',
       description: 'Test description modified');
 
   test(
@@ -33,7 +33,7 @@ void main() {
           id: tExercise.id!,
           name: tExercise.name,
           description: tExercise.description!,
-          imageName: tExercise.imageName!));
+          imagePath: tExercise.imagePath!));
       // Assert
       expect(result, Right(tExercise));
       verify(() => mockExerciseRepository.updateExercise(tExercise));

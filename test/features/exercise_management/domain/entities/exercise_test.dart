@@ -9,14 +9,14 @@ void main() {
       final exercise = Exercise(
         id: 1,
         name: 'Push-up',
-        imageName: 'pushup.png',
+        imagePath: 'pushup.png',
         description: 'An upper body exercise',
       );
 
       // Assert
       expect(exercise.id, 1);
       expect(exercise.name, 'Push-up');
-      expect(exercise.imageName, 'pushup.png');
+      expect(exercise.imagePath, 'pushup.png');
       expect(exercise.description, 'An upper body exercise');
     });
 
@@ -26,7 +26,7 @@ void main() {
         () => Exercise(
           id: 1,
           name: '',
-          imageName: 'pushup.png',
+          imagePath: 'pushup.png',
           description: 'An upper body exercise',
         ),
         throwsA(isA<ExerciseNameException>()),
@@ -39,14 +39,14 @@ void main() {
       final exercise1 = Exercise(
         id: 1,
         name: 'Push-up',
-        imageName: 'pushup.png',
+        imagePath: 'pushup.png',
         description: 'An upper body exercise',
       );
 
       final exercise2 = Exercise(
         id: 1,
         name: 'Push-up',
-        imageName: 'pushup.png',
+        imagePath: 'pushup.png',
         description: 'An upper body exercise',
       );
 
@@ -61,14 +61,14 @@ void main() {
       final exercise1 = Exercise(
         id: 1,
         name: 'Push-up',
-        imageName: 'pushup.png',
+        imagePath: 'pushup.png',
         description: 'An upper body exercise',
       );
 
       final exercise2 = Exercise(
         id: 2,
         name: 'Squat',
-        imageName: 'squat.png',
+        imagePath: 'squat.png',
         description: 'A lower body exercise',
       );
 

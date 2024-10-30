@@ -20,7 +20,7 @@ void main() {
   final tExercise = Exercise(
       id: 1,
       name: 'Test name',
-      imageName: 'Test image name',
+      imagePath: 'Test image name',
       description: 'Test description');
 
   test(

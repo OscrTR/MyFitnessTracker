@@ -71,7 +71,7 @@ class ExerciseManagementBloc
           create.Params(
             name: event.name,
             description: event.description,
-            imageName: event.imageName,
+            imagePath: event.imagePath,
           ),
         );
 
@@ -102,7 +102,7 @@ class ExerciseManagementBloc
             id: event.id,
             name: event.name,
             description: event.description,
-            imageName: event.imageName,
+            imagePath: event.imagePath,
           ),
         );
 
@@ -120,7 +120,7 @@ class ExerciseManagementBloc
                 id: event.id,
                 name: event.name,
                 description: event.description,
-                imageName: event.imageName);
+                imagePath: event.imagePath);
             emit(currentState.copyWith(exercises: updatedExercises));
             messageBloc.add(AddMessageEvent(
                 message: 'Exercise ${event.name} updated successfully.',

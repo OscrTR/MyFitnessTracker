@@ -24,7 +24,7 @@ void unitTesting() {
   group('createExercise', () {
     final tExercise = Exercise(
       name: 'Deadlift',
-      imageName: 'deadlift.png',
+      imagePath: 'deadlift.png',
       description: 'A full body exercise',
     );
 
@@ -44,7 +44,7 @@ void unitTesting() {
               any(),
               {
                 'name': tExercise.name,
-                'image_name': tExercise.imageName,
+                'image_path': tExercise.imagePath,
                 'description': tExercise.description,
               },
             )).called(1);
@@ -52,7 +52,7 @@ void unitTesting() {
         // Verify the returned exercise
         expect(result.name, 'Deadlift');
         expect(result.description, 'A full body exercise');
-        expect(result.imageName, 'deadlift.png');
+        expect(result.imagePath, 'deadlift.png');
         expect(result.id, isNotNull); // Ensure it has an auto-generated id
       },
     );
@@ -83,7 +83,7 @@ void unitTesting() {
               {
                 'id': 1,
                 'name': 'Squat',
-                'image_name': 'squat.png',
+                'image_path': 'squat.png',
                 'description': 'A lower body exercise'
               }
             ]);
@@ -102,7 +102,7 @@ void unitTesting() {
         // Verify the result
         expect(result.id, tId);
         expect(result.name, 'Squat');
-        expect(result.imageName, 'squat.png');
+        expect(result.imagePath, 'squat.png');
         expect(result.description, 'A lower body exercise');
       },
     );
@@ -130,13 +130,13 @@ void unitTesting() {
               {
                 'id': 1,
                 'name': 'Squat',
-                'image_name': 'squat.png',
+                'image_path': 'squat.png',
                 'description': 'A lower body exercise'
               },
               {
                 'id': 2,
                 'name': 'Push-up',
-                'image_name': 'pushup.png',
+                'image_path': 'pushup.png',
                 'description': 'An upper body exercise'
               }
             ]);
@@ -170,7 +170,7 @@ void unitTesting() {
       id: 1,
       name: 'Updated Squat',
       description: 'An updated lower body exercise',
-      imageName: 'updated_squat.png',
+      imagePath: 'updated_squat.png',
     );
 
     test(
@@ -199,7 +199,7 @@ void unitTesting() {
         // Verify the result
         expect(result.name, tExercise.name);
         expect(result.description, tExercise.description);
-        expect(result.imageName, tExercise.imageName);
+        expect(result.imagePath, tExercise.imagePath);
       },
     );
 
@@ -277,7 +277,7 @@ void integrationTesting() {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT,
         description TEXT,
-        image_name TEXT
+        image_path TEXT
       )
     ''');
 
@@ -294,7 +294,7 @@ void integrationTesting() {
     final tExercise = Exercise(
       name: 'Squat',
       description: 'A lower body exercise',
-      imageName: 'squat.png',
+      imagePath: 'squat.png',
     );
 
     test('should insert a new Exercise into the database', () async {
@@ -304,7 +304,7 @@ void integrationTesting() {
       // Assert
       expect(result.name, tExercise.name);
       expect(result.description, tExercise.description);
-      expect(result.imageName, tExercise.imageName);
+      expect(result.imagePath, tExercise.imagePath);
       expect(result.id, isNotNull); // Ensure the ID is generated
 
       // Verify that the data is inserted into the database
@@ -329,7 +329,7 @@ void integrationTesting() {
       id: 1,
       name: 'Squat',
       description: 'A lower body exercise',
-      imageName: 'squat.png',
+      imagePath: 'squat.png',
     );
 
     setUp(() async {
@@ -338,7 +338,7 @@ void integrationTesting() {
         'id': tExercise.id,
         'name': tExercise.name,
         'description': tExercise.description,
-        'image_name': tExercise.imageName,
+        'image_path': tExercise.imagePath,
       });
     });
 
@@ -352,7 +352,7 @@ void integrationTesting() {
       expect(result.id, 1);
       expect(result.name, tExercise.name);
       expect(result.description, tExercise.description);
-      expect(result.imageName, tExercise.imageName);
+      expect(result.imagePath, tExercise.imagePath);
     });
 
     test('should throw LocalDatabaseException when the exercise is not found',
@@ -369,13 +369,13 @@ void integrationTesting() {
       await database.insert('exercises', {
         'name': 'Squat',
         'description': 'A lower body exercise',
-        'image_name': 'squat.png',
+        'image_path': 'squat.png',
       });
 
       await database.insert('exercises', {
         'name': 'Push-up',
         'description': 'An upper body exercise',
-        'image_name': 'pushup.png',
+        'image_path': 'pushup.png',
       });
 
       // Act
@@ -403,7 +403,7 @@ void integrationTesting() {
       id: 1,
       name: 'Squat',
       description: 'A lower body exercise',
-      imageName: 'squat.png',
+      imagePath: 'squat.png',
     );
 
     setUp(() async {
@@ -412,7 +412,7 @@ void integrationTesting() {
         'id': tExercise.id,
         'name': tExercise.name,
         'description': tExercise.description,
-        'image_name': tExercise.imageName,
+        'image_path': tExercise.imagePath,
       });
     });
 
@@ -422,7 +422,7 @@ void integrationTesting() {
         id: 1,
         name: 'Updated Squat',
         description: 'Updated lower body exercise',
-        imageName: 'updated_squat.png',
+        imagePath: 'updated_squat.png',
       );
 
       // Act
@@ -432,7 +432,7 @@ void integrationTesting() {
       expect(result.id, updatedExercise.id);
       expect(result.name, updatedExercise.name);
       expect(result.description, updatedExercise.description);
-      expect(result.imageName, updatedExercise.imageName);
+      expect(result.imagePath, updatedExercise.imagePath);
 
       // Verify the exercise is updated in the database
       final List<Map<String, dynamic>> exercises =
@@ -447,7 +447,7 @@ void integrationTesting() {
       id: 1,
       name: 'Squat',
       description: 'A lower body exercise',
-      imageName: 'squat.png',
+      imagePath: 'squat.png',
     );
 
     setUp(() async {
@@ -456,7 +456,7 @@ void integrationTesting() {
         'id': tExercise.id,
         'name': tExercise.name,
         'description': tExercise.description,
-        'image_name': tExercise.imageName,
+        'image_path': tExercise.imagePath,
       });
     });
 

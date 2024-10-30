@@ -4,7 +4,7 @@ class ExerciseModel extends Exercise {
   ExerciseModel({
     super.id,
     required super.name,
-    super.imageName,
+    super.imagePath,
     super.description,
   });
 
@@ -12,7 +12,7 @@ class ExerciseModel extends Exercise {
     return ExerciseModel(
       id: json['id'],
       name: json['name'] as String? ?? 'No Name',
-      imageName: json['image_name'] as String? ?? '',
+      imagePath: json['image_path'] as String? ?? '',
       description: json['description'] as String? ?? '',
     );
   }
@@ -21,7 +21,7 @@ class ExerciseModel extends Exercise {
     return {
       'id': id,
       'name': name,
-      'image_name': imageName,
+      'image_path': imagePath,
       'description': description,
     };
   }
