@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lottie/lottie.dart';
 import 'package:my_fitness_tracker/core/app_colors.dart';
 import 'package:my_fitness_tracker/core/pages/history_page.dart';
 import 'package:my_fitness_tracker/core/pages/home_page.dart';
@@ -159,49 +160,120 @@ class BottomNavigationBarWidget extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            GestureDetector(
-                onTap: () {
-                  if (!isHomePage) {
-                    GoRouter.of(context).go('/home');
-                  }
-                },
-                child: const Icon(
-                  Icons.home,
-                  color: AppColors.black,
-                )),
-            GestureDetector(
-                onTap: () {
-                  if (!isTrainingsPage) {
-                    GoRouter.of(context).go('/trainings');
-                  }
-                },
-                child: const Icon(
-                  Icons.question_mark,
-                  color: AppColors.black,
-                )),
-            GestureDetector(
-                onTap: () {
-                  if (!isHistoryPage) {
-                    GoRouter.of(context).go('/history');
-                  }
-                },
-                child: const Icon(
-                  Icons.question_mark,
-                  color: AppColors.black,
-                )),
-            GestureDetector(
-                onTap: () {
-                  if (!isSettingsPage) {
-                    GoRouter.of(context).go('/settings');
-                  }
-                },
-                child: const Icon(
-                  Icons.question_mark,
-                  color: AppColors.black,
-                )),
+            LottieIconButton(
+              url: '/home',
+              lottieAsset: 'lib/assets/lottie/home_animation.json',
+              iconSize: 30,
+              customAction: () {
+                if (!isHomePage) {
+                  GoRouter.of(context).go('/home');
+                }
+              },
+            ),
+            LottieIconButton(
+              url: '/trainings',
+              lottieAsset: 'lib/assets/lottie/trainings_animation.json',
+              iconSize: 30,
+              customAction: () {
+                if (!isTrainingsPage) {
+                  GoRouter.of(context).go('/trainings');
+                }
+              },
+            ),
+            LottieIconButton(
+              url: '/history',
+              lottieAsset: 'lib/assets/lottie/history_animation.json',
+              iconSize: 30,
+              customAction: () {
+                if (!isHistoryPage) {
+                  GoRouter.of(context).go('/history');
+                }
+              },
+            ),
+            LottieIconButton(
+              url: '/settings',
+              lottieAsset: 'lib/assets/lottie/settings_animation.json',
+              iconSize: 30,
+              customAction: () {
+                if (!isSettingsPage) {
+                  GoRouter.of(context).go('/settings');
+                }
+              },
+            ),
           ],
         ),
       ),
     );
+  }
+}
+
+class LottieIconButton extends StatefulWidget {
+  final String lottieAsset;
+  final double iconSize;
+  final VoidCallback? customAction;
+  final String url;
+
+  const LottieIconButton({
+    super.key,
+    required this.lottieAsset,
+    required this.iconSize,
+    this.customAction,
+    required this.url,
+  });
+
+  @override
+  LottieIconButtonState createState() => LottieIconButtonState();
+}
+
+class LottieIconButtonState extends State<LottieIconButton>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _checkAndAnimate() {
+    bool isCurrentPage = GoRouterState.of(context).uri.toString() == widget.url;
+    if (isCurrentPage) {
+      _controller.forward(from: 0.0); // Start animation when on the target page
+    } else {
+      _controller.value = 0; // Set to end if not on the target page
+    }
+  }
+
+  bool _isLoaded = false;
+
+  @override
+  Widget build(BuildContext context) {
+    if (_isLoaded == true) {
+      _checkAndAnimate();
+    }
+    return GestureDetector(
+        onTap: () {
+          _controller.forward(from: 0.0);
+          if (widget.customAction != null) {
+            widget.customAction!();
+          }
+        },
+        child: Lottie.asset(
+          widget.lottieAsset,
+          controller: _controller,
+          width: widget.iconSize,
+          height: widget.iconSize,
+          onLoaded: (composition) {
+            _controller.duration = composition.duration;
+            _checkAndAnimate();
+            _isLoaded = true;
+          },
+        ));
   }
 }
