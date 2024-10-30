@@ -4,6 +4,13 @@
   "global_save": "Save",
   "global_edit": "Edit",
 
+  "message_unexpected_error": "Unexpected error.",
+  "message_database_failure": "Database failure.",
+  "message_exercise_creation_success": "Exercise {} created successfully.",
+  "message_exercise_update_success": "Exercise {} updated successfully.",
+  "message_exercise_deletion_success": "Exercise {} deleted successfully.",
+  "message_exercise_creation_name_error": "Invalid exercise name.",
+
   "error_state": "State error",
 
   "trainings_page_title": "Trainings",

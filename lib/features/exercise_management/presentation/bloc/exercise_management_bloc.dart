@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:equatable/equatable.dart';
 
 import '../../../../core/error/failures.dart';
@@ -13,8 +14,9 @@ import '../../domain/usecases/update_exercise.dart' as update;
 part 'exercise_management_event.dart';
 part 'exercise_management_state.dart';
 
-const String databaseFailureMessage = 'Database Failure';
-const String invalidExerciseNameFailureMessage = 'Invalid exercise name.';
+final String databaseFailureMessage = tr('message_database_failure');
+final String invalidExerciseNameFailureMessage =
+    tr('message_exercise_creation_name_error');
 
 class ExerciseManagementBloc
     extends Bloc<ExerciseManagementEvent, ExerciseManagementState> {
@@ -81,7 +83,8 @@ class ExerciseManagementBloc
           },
           (result) {
             messageBloc.add(AddMessageEvent(
-                message: 'Exercise ${event.name} created successfully.',
+                message:
+                    tr('message_exercise_creation_success', args: [event.name]),
                 isError: false));
             final updatedExercises = List<Exercise>.from(currentState.exercises)
               ..add(result);
@@ -121,7 +124,8 @@ class ExerciseManagementBloc
                 imagePath: event.imagePath);
             emit(currentState.copyWith(exercises: updatedExercises));
             messageBloc.add(AddMessageEvent(
-                message: 'Exercise ${event.name} updated successfully.',
+                message:
+                    tr('message_exercise_update_success', args: [event.name]),
                 isError: false));
           },
         );
@@ -148,8 +152,8 @@ class ExerciseManagementBloc
               ..removeWhere((el) => el.id == event.id);
             emit(currentState.copyWith(exercises: updatedExercises));
             messageBloc.add(AddMessageEvent(
-                message:
-                    'Exercise ${deletedExercise.name} deleted successfully.',
+                message: tr('message_exercise_deletion_success',
+                    args: [deletedExercise.name]),
                 isError: false));
           },
         );
@@ -164,6 +168,6 @@ String _mapFailureToMessage(Failure failure) {
   } else if (failure is InvalidExerciseNameFailure) {
     return invalidExerciseNameFailureMessage;
   } else {
-    return 'Unexpected error';
+    return tr('message_unexpected_error');
   }
 }

@@ -4,6 +4,13 @@
   "global_save": "Enregistrer",
   "global_edit": "Modifier",
 
+  "message_unexpected_error": "Erreur inattendue.",
+  "message_database_failure": "Echec de la abse de données.",
+  "message_exercise_creation_success": "Exercice {} créé avec succès.",
+  "message_exercise_update_success": "Exercice {} mis à jour avec succès.",
+  "message_exercise_deletion_success": "Exercice {} supprimé avec succès.",
+  "message_exercise_creation_name_error": "Nom d'exercice invalide.",
+
   "error_state": "Erreur d'état",
 
   "trainings_page_title": "Entraînements",
