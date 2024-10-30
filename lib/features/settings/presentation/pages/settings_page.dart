@@ -1,4 +1,5 @@
 import 'package:animated_custom_dropdown/custom_dropdown.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:my_fitness_tracker/core/app_colors.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -43,7 +44,7 @@ class _SettingsPageState extends State<SettingsPage> {
             SizedBox(
               height: 48,
               child: Text(
-                'Settings',
+                context.tr('settings_page_title'),
                 style: Theme.of(context).textTheme.displayLarge,
               ),
             ),
@@ -62,7 +63,7 @@ class _SettingsPageState extends State<SettingsPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'App language',
+          context.tr('settings_page_language'),
           style: Theme.of(context).textTheme.titleLarge,
         ),
         const SizedBox(height: 20),
@@ -92,11 +93,39 @@ class _SettingsPageState extends State<SettingsPage> {
             expandedBorder: Border.all(color: AppColors.lightBlack),
           ),
           onChanged: (value) {
-            print('changing value to: $value');
+            _setLocale(context, value!);
           },
         ),
       ],
     );
+  }
+
+  void _setLocale(BuildContext context, String name) {
+    const List<Map<String, String>> languagesCodes = [
+      {
+        'name': 'English',
+        'languageCode': 'en',
+        'countryCode': 'US',
+      },
+      {
+        'name': 'Français',
+        'languageCode': 'fr',
+        'countryCode': 'FR',
+      }
+    ];
+
+    // Find the matching language map based on the `name`
+    final language = languagesCodes.firstWhere(
+      (lang) => lang['name'] == name,
+      orElse: () => {
+        'languageCode': 'en',
+        'countryCode': 'US'
+      }, // Default to English if not found
+    );
+
+    // Set the locale using the found language codes
+    context
+        .setLocale(Locale(language['languageCode']!, language['countryCode']!));
   }
 
   Widget _buildVersionSection(BuildContext context) {
@@ -104,7 +133,7 @@ class _SettingsPageState extends State<SettingsPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'App version',
+          context.tr('settings_page_version'),
           style: Theme.of(context).textTheme.titleLarge,
         ),
         const SizedBox(height: 10),

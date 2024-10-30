@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -107,7 +108,7 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
                     ),
                     Center(
                       child: Text(
-                        'Create exercise',
+                        context.tr('exercise_detail_page_title_create'),
                         style: Theme.of(context).textTheme.titleLarge,
                       ),
                     )
@@ -115,7 +116,7 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
                 ),
                 const SizedBox(height: 30),
                 Text(
-                  'Name',
+                  context.tr('exercise_detail_page_name'),
                   style: Theme.of(context)
                       .textTheme
                       .bodyMedium!
@@ -133,7 +134,7 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
                     controller: _nameController,
                     decoration: InputDecoration(
                         contentPadding: const EdgeInsets.only(bottom: 10),
-                        hintText: 'Enter exercise name here',
+                        hintText: context.tr('exercise_detail_page_name_hint'),
                         hintStyle: Theme.of(context)
                             .textTheme
                             .bodyMedium!
@@ -150,7 +151,7 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Image',
+                        context.tr('exercise_detail_page_image'),
                         style: Theme.of(context)
                             .textTheme
                             .bodyMedium!
@@ -166,19 +167,20 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
                             }
                           },
                           itemBuilder: (BuildContext context) => [
-                            const PopupMenuItem(
+                            PopupMenuItem(
                               value: 'change',
                               child: Row(
                                 children: [
-                                  Text('Change'),
+                                  Text(context
+                                      .tr('exercise_detail_page_change')),
                                 ],
                               ),
                             ),
-                            const PopupMenuItem(
+                            PopupMenuItem(
                               value: 'delete',
                               child: Row(
                                 children: [
-                                  Text('Delete'),
+                                  Text(context.tr('global_delete')),
                                 ],
                               ),
                             ),
@@ -209,17 +211,18 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
                           decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(15),
                               border: Border.all(color: AppColors.lightBlack)),
-                          child: const Row(
+                          child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Column(
                                 children: [
                                   Text(
-                                    'Choose an image',
-                                    style:
-                                        TextStyle(color: AppColors.lightBlack),
+                                    context
+                                        .tr('exercise_detail_page_image_hint'),
+                                    style: const TextStyle(
+                                        color: AppColors.lightBlack),
                                   ),
-                                  Icon(
+                                  const Icon(
                                     Icons.add,
                                     color: AppColors.lightBlack,
                                   )
@@ -231,7 +234,7 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
                       ),
                 const SizedBox(height: 20),
                 Text(
-                  'Description',
+                  context.tr('exercise_detail_page_description'),
                   style: Theme.of(context)
                       .textTheme
                       .bodyMedium!
@@ -249,7 +252,8 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
                     controller: _descriptionController,
                     decoration: InputDecoration(
                         contentPadding: const EdgeInsets.only(bottom: 10),
-                        hintText: 'Enter exercise description here',
+                        hintText:
+                            context.tr('exercise_detail_page_description_hint'),
                         hintStyle: Theme.of(context)
                             .textTheme
                             .bodyMedium!
@@ -285,7 +289,7 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          'Save',
+                          context.tr('global_save'),
                           style: Theme.of(context)
                               .textTheme
                               .titleMedium!
@@ -335,7 +339,7 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
                     ),
                     Center(
                       child: Text(
-                        'Edit exercise',
+                        context.tr('exercise_detail_page_title_edit'),
                         style: Theme.of(context).textTheme.titleLarge,
                       ),
                     )
@@ -343,7 +347,7 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
                 ),
                 const SizedBox(height: 30),
                 Text(
-                  'Name',
+                  context.tr('exercise_detail_page_name'),
                   style: Theme.of(context)
                       .textTheme
                       .bodyMedium!
@@ -361,7 +365,7 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
                     controller: _nameController,
                     decoration: InputDecoration(
                         contentPadding: const EdgeInsets.only(bottom: 10),
-                        hintText: 'Enter exercise name here',
+                        hintText: context.tr('exercise_detail_page_name_hint'),
                         hintStyle: Theme.of(context)
                             .textTheme
                             .bodyMedium!
@@ -378,7 +382,7 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Image',
+                        context.tr('exercise_detail_page_image'),
                         style: Theme.of(context)
                             .textTheme
                             .bodyMedium!
@@ -394,19 +398,20 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
                             }
                           },
                           itemBuilder: (BuildContext context) => [
-                            const PopupMenuItem(
+                            PopupMenuItem(
                               value: 'change',
                               child: Row(
                                 children: [
-                                  Text('Change'),
+                                  Text(context
+                                      .tr('exercise_detail_page_change')),
                                 ],
                               ),
                             ),
-                            const PopupMenuItem(
+                            PopupMenuItem(
                               value: 'delete',
                               child: Row(
                                 children: [
-                                  Text('Delete'),
+                                  Text(context.tr('global_delete')),
                                 ],
                               ),
                             ),
@@ -437,17 +442,18 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
                           decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(15),
                               border: Border.all(color: AppColors.lightBlack)),
-                          child: const Row(
+                          child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Column(
                                 children: [
                                   Text(
-                                    'Choose an image',
-                                    style:
-                                        TextStyle(color: AppColors.lightBlack),
+                                    context
+                                        .tr('exercise_detail_page_image_hint'),
+                                    style: const TextStyle(
+                                        color: AppColors.lightBlack),
                                   ),
-                                  Icon(
+                                  const Icon(
                                     Icons.add,
                                     color: AppColors.lightBlack,
                                   )
@@ -459,7 +465,7 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
                       ),
                 const SizedBox(height: 20),
                 Text(
-                  'Description',
+                  context.tr('exercise_detail_page_description'),
                   style: Theme.of(context)
                       .textTheme
                       .bodyMedium!
@@ -477,7 +483,8 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
                     controller: _descriptionController,
                     decoration: InputDecoration(
                         contentPadding: const EdgeInsets.only(bottom: 10),
-                        hintText: 'Enter exercise description here',
+                        hintText:
+                            context.tr('exercise_detail_page_description_hint'),
                         hintStyle: Theme.of(context)
                             .textTheme
                             .bodyMedium!
@@ -514,7 +521,7 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          'Save',
+                          context.tr('global_save'),
                           style: Theme.of(context)
                               .textTheme
                               .titleMedium!
@@ -527,7 +534,7 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
               ],
             );
           }
-          return const Center(child: Text('Exercise state error.'));
+          return Center(child: Text(context.tr('error_state')));
         }),
       ),
     );

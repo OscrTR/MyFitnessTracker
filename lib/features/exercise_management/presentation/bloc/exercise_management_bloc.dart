@@ -127,7 +127,7 @@ class ExerciseManagementBloc
         );
       }
     });
-// TODO : test this
+
     on<DeleteExerciseEvent>((event, emit) async {
       if (state is ExerciseManagementLoaded) {
         final currentState = state as ExerciseManagementLoaded;

@@ -56,3 +56,4 @@ flutter:
   assets:
     - lib/assets/lottie/
     - lib/assets/svg/
+    - lib/assets/translations/

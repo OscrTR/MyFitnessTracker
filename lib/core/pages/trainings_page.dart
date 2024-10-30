@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_fitness_tracker/core/app_colors.dart';
@@ -17,7 +18,7 @@ class TrainingsPage extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Trainings',
+                  context.tr('trainings_page_title'),
                   style: Theme.of(context).textTheme.displayLarge,
                 ),
                 FilledButton.icon(
@@ -25,7 +26,7 @@ class TrainingsPage extends StatelessWidget {
                     _showNewDialog(context);
                   },
                   icon: const Icon(Icons.add),
-                  label: Text('New',
+                  label: Text(context.tr('trainings_page_new'),
                       style: Theme.of(context)
                           .textTheme
                           .bodyMedium!
@@ -50,7 +51,7 @@ void _showNewDialog(BuildContext context) {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15),
       ),
-      title: const Text('Add new'),
+      title: Text(context.tr('trainings_page_add_new')),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -60,8 +61,8 @@ void _showNewDialog(BuildContext context) {
               GoRouter.of(context).go('/exercise_detail');
               Navigator.pop(context, 'New exercise');
             },
-            child: const SizedBox(
-              child: Text('Exercise'),
+            child: SizedBox(
+              child: Text(context.tr('trainings_page_exercise')),
             ),
           ),
         ],
@@ -69,7 +70,7 @@ void _showNewDialog(BuildContext context) {
       actions: <Widget>[
         TextButton(
           onPressed: () => Navigator.pop(context, 'Cancel'),
-          child: const Text('Cancel'),
+          child: Text(context.tr('global_cancel')),
         ),
       ],
     ),

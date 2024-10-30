@@ -1,0 +1,29 @@
+{
+  "global_cancel": "Annuler",
+  "global_delete": "Supprimer",
+  "global_save": "Enregistrer",
+  "global_edit": "Modifier",
+
+  "error_state": "Erreur d'état",
+
+  "trainings_page_title": "Entraînements",
+  "trainings_page_new": "Nouveau",
+  "trainings_page_add_new": "Ajouter",
+  "trainings_page_exercise": "Exercice",
+
+  "exercise_page_exercises": "Exercices",
+
+  "exercise_detail_page_title_create": "Créer un exercice",
+  "exercise_detail_page_title_edit": "Modifier un exercise",
+  "exercise_detail_page_name": "Nom",
+  "exercise_detail_page_name_hint": "Entrer le nom de l'exercice ici",
+  "exercise_detail_page_image": "Image",
+  "exercise_detail_page_image_hint": "Choisir une image",
+  "exercise_detail_page_change": "Changer",
+  "exercise_detail_page_description": "Description",
+  "exercise_detail_page_description_hint": "Entrer la description de l'exercice ici",
+
+  "settings_page_title": "Paramètres",
+  "settings_page_language": "Langue de l'application",
+  "settings_page_version": "Version de l'application"
+}

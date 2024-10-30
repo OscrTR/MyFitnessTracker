@@ -1,11 +1,10 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_fitness_tracker/core/app_colors.dart';
 import '../bloc/exercise_management_bloc.dart';
 
-// TODO : create the real exercise management page
-// TODO : move the widgets to widgets
 class ExercisePage extends StatelessWidget {
   const ExercisePage({super.key});
 
@@ -28,7 +27,7 @@ class ExercisePage extends StatelessWidget {
                 ),
                 const SizedBox(width: 10),
                 Text(
-                  'Exercises',
+                  context.tr('exercise_page_exercises'),
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
               ],
@@ -80,19 +79,23 @@ class ExerciseList extends StatelessWidget {
                       }
                     },
                     itemBuilder: (BuildContext context) => [
-                      const PopupMenuItem(
+                      PopupMenuItem(
                         value: 'edit',
                         child: Row(
                           children: [
-                            Text('Edit'),
+                            Text(
+                              context.tr('global_edit'),
+                            ),
                           ],
                         ),
                       ),
-                      const PopupMenuItem(
+                      PopupMenuItem(
                         value: 'delete',
                         child: Row(
                           children: [
-                            Text('Delete'),
+                            Text(
+                              context.tr('global_delete'),
+                            ),
                           ],
                         ),
                       ),
