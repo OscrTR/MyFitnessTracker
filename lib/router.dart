@@ -5,7 +5,7 @@ import 'package:lottie/lottie.dart';
 import 'package:my_fitness_tracker/core/app_colors.dart';
 import 'package:my_fitness_tracker/core/pages/history_page.dart';
 import 'package:my_fitness_tracker/core/pages/home_page.dart';
-import 'package:my_fitness_tracker/core/pages/settings_page.dart';
+import 'package:my_fitness_tracker/features/settings/presentation/pages/settings_page.dart';
 import 'package:my_fitness_tracker/core/pages/trainings_page.dart';
 import 'package:my_fitness_tracker/features/exercise_management/presentation/pages/exercise_detail_page.dart';
 import 'package:top_snackbar_flutter/custom_snack_bar.dart';
