@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_fitness_tracker/core/app_colors.dart';
 import 'package:my_fitness_tracker/core/pages/history_page.dart';
@@ -6,6 +7,10 @@ import 'package:my_fitness_tracker/core/pages/home_page.dart';
 import 'package:my_fitness_tracker/core/pages/settings_page.dart';
 import 'package:my_fitness_tracker/core/pages/trainings_page.dart';
 import 'package:my_fitness_tracker/features/exercise_management/presentation/pages/exercise_detail_page.dart';
+import 'package:top_snackbar_flutter/custom_snack_bar.dart';
+import 'package:top_snackbar_flutter/top_snack_bar.dart';
+
+import 'core/messages/bloc/message_bloc.dart';
 
 final router = GoRouter(
   initialLocation: '/home',
@@ -84,7 +89,36 @@ final router = GoRouter(
         bool isExerciseDetailPage =
             GoRouterState.of(context).uri.toString() == '/exercise_detail';
         return Scaffold(
-            body: SafeArea(child: child),
+            body: SafeArea(
+                child: BlocListener<MessageBloc, MessageState>(
+                    listener: (context, state) {
+                      if (state is MessageLoaded) {
+                        if (!state.isError) {
+                          showTopSnackBar(
+                            Overlay.of(context),
+                            CustomSnackBar.success(
+                                icon: const Icon(null),
+                                textStyle: const TextStyle(
+                                    fontSize: 16, color: AppColors.black),
+                                backgroundColor: const Color(0xffadebb3),
+                                message: state.message),
+                          );
+                        }
+
+                        if (state.isError) {
+                          showTopSnackBar(
+                            Overlay.of(context),
+                            CustomSnackBar.error(
+                                icon: const Icon(null),
+                                textStyle: const TextStyle(
+                                    fontSize: 16, color: AppColors.black),
+                                backgroundColor: const Color(0xffff857a),
+                                message: state.message),
+                          );
+                        }
+                      }
+                    },
+                    child: child)),
             bottomNavigationBar: isExerciseDetailPage
                 ? null
                 : const BottomNavigationBarWidget());
