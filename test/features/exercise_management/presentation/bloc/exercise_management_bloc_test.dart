@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:dartz/dartz.dart';
@@ -29,7 +30,7 @@ class MockGetExercise extends Mock implements get_ex.GetExercise {}
 
 class MockMessageBloc extends Mock implements MessageBloc {}
 
-void main() {
+void main() async {
   late ExerciseManagementBloc bloc;
   late MockCreateExercise mockCreateExercise;
   late MockFetchExercises mockFetchExercises;
@@ -93,7 +94,7 @@ void main() {
       expect: () => [],
       verify: (_) {
         verify(() => mockFetchExercises(null)).called(1);
-        verify(() => mockMessageBloc.add(const AddMessageEvent(
+        verify(() => mockMessageBloc.add(AddMessageEvent(
               message: databaseFailureMessage,
               isError: true,
             ))).called(1);
@@ -129,8 +130,9 @@ void main() {
       ],
       verify: (_) {
         verify(() => mockCreateExercise(params)).called(1);
-        verify(() => mockMessageBloc.add(const AddMessageEvent(
-              message: 'Exercise Squats created successfully.',
+        verify(() => mockMessageBloc.add(AddMessageEvent(
+              message: tr('message_exercise_creation_success',
+                  args: [tExercise.name]),
               isError: false,
             ))).called(1);
       },
@@ -151,7 +153,7 @@ void main() {
       expect: () => [],
       verify: (_) {
         verify(() => mockCreateExercise(params)).called(1);
-        verify(() => mockMessageBloc.add(const AddMessageEvent(
+        verify(() => mockMessageBloc.add(AddMessageEvent(
               message: invalidExerciseNameFailureMessage,
               isError: true,
             ))).called(1);
@@ -202,7 +204,7 @@ void main() {
       verify: (_) {
         verify(() => mockGetExercise(const get_ex.Params(id: tExerciseId)))
             .called(1);
-        verify(() => mockMessageBloc.add(const AddMessageEvent(
+        verify(() => mockMessageBloc.add(AddMessageEvent(
               message: databaseFailureMessage,
               isError: true,
             ))).called(1);
@@ -251,8 +253,9 @@ void main() {
       ],
       verify: (_) {
         verify(() => mockUpdateExercise(updateParams)).called(1);
-        verify(() => mockMessageBloc.add(const AddMessageEvent(
-              message: 'Exercise Updated Push Up updated successfully.',
+        verify(() => mockMessageBloc.add(AddMessageEvent(
+              message: tr('message_exercise_update_success',
+                  args: [tUpdatedExercise.name]),
               isError: false,
             ))).called(1);
       },
@@ -281,7 +284,7 @@ void main() {
       expect: () => [],
       verify: (_) {
         verify(() => mockUpdateExercise(updateParams)).called(1);
-        verify(() => mockMessageBloc.add(const AddMessageEvent(
+        verify(() => mockMessageBloc.add(AddMessageEvent(
               message: databaseFailureMessage,
               isError: true,
             ))).called(1);
@@ -314,7 +317,8 @@ void main() {
         verify(() => mockDeleteExercise(const delete.Params(id: tExerciseId)))
             .called(1);
         verify(() => mockMessageBloc.add(AddMessageEvent(
-              message: 'Exercise ${tExercise.name} deleted successfully.',
+              message: tr('message_exercise_deletion_success',
+                  args: [tExercise.name]),
               isError: false,
             ))).called(1);
       },
@@ -333,7 +337,7 @@ void main() {
       verify: (_) {
         verify(() => mockDeleteExercise(const delete.Params(id: tExerciseId)))
             .called(1);
-        verify(() => mockMessageBloc.add(const AddMessageEvent(
+        verify(() => mockMessageBloc.add(AddMessageEvent(
               message: databaseFailureMessage,
               isError: true,
             ))).called(1);

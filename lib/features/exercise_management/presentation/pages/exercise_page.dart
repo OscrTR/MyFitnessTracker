@@ -73,7 +73,6 @@ class ExerciseList extends StatelessWidget {
                             .add(GetExerciseEvent(exercise.id!));
                         GoRouter.of(context).go('/exercise_detail');
                       } else if (value == 'delete') {
-                        // Trigger delete event
                         BlocProvider.of<ExerciseManagementBloc>(context)
                             .add(DeleteExerciseEvent(exercise.id!));
                       }
