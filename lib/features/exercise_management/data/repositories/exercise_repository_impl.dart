@@ -1,9 +1,10 @@
 import 'package:dartz/dartz.dart';
+
 import '../../../../core/error/exceptions.dart';
 import '../../../../core/error/failures.dart';
-import '../datasources/exercise_local_data_source.dart';
 import '../../domain/entities/exercise.dart';
 import '../../domain/repositories/exercise_repository.dart';
+import '../datasources/exercise_local_data_source.dart';
 
 class ExerciseRepositoryImpl implements ExerciseRepository {
   final ExerciseLocalDataSource localDataSource;

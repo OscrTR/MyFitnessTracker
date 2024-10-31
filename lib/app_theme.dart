@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:my_fitness_tracker/core/app_colors.dart';
+
+import 'core/app_colors.dart';
 
 final ThemeData appTheme = ThemeData(
   scaffoldBackgroundColor: Colors.white,

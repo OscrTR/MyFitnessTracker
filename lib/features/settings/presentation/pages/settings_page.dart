@@ -1,8 +1,9 @@
 import 'package:animated_custom_dropdown/custom_dropdown.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:my_fitness_tracker/core/app_colors.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+
+import '../../../../core/app_colors.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});

@@ -1,10 +1,10 @@
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
+
 import '../../../../core/error/exceptions.dart';
 import '../../../../core/error/failures.dart';
 import '../../../../core/usecases/usecase.dart';
 import '../entities/exercise.dart';
-
 import '../repositories/exercise_repository.dart';
 
 class UpdateExercise extends Usecase<Exercise, Params> {

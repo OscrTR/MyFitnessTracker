@@ -23,12 +23,13 @@ class ExerciseManagementLoaded extends ExerciseManagementState {
   ExerciseManagementLoaded copyWith({
     List<Exercise>? exercises,
     Exercise? selectedExercise,
-    String? errorMessage,
-    String? successMessage,
+    bool clearSelectedExercise = false,
   }) {
     return ExerciseManagementLoaded(
       exercises: exercises ?? this.exercises,
-      selectedExercise: selectedExercise ?? this.selectedExercise,
+      selectedExercise: clearSelectedExercise
+          ? null
+          : (selectedExercise ?? this.selectedExercise),
     );
   }
 

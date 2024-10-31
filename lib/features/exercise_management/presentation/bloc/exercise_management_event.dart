@@ -31,6 +31,10 @@ class GetExerciseEvent extends ExerciseManagementEvent {
   List<Object> get props => [exerciseId];
 }
 
+class ClearSelectedExerciseEvent extends ExerciseManagementEvent {
+  const ClearSelectedExerciseEvent();
+}
+
 class FetchExercisesEvent extends ExerciseManagementEvent {}
 
 class UpdateExerciseEvent extends ExerciseManagementEvent {

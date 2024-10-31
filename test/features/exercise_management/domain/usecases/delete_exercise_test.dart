@@ -19,7 +19,7 @@ void main() {
 
   group('DeleteExercise UseCase', () {
     const int tExerciseId = 1;
-    final params = Params(id: tExerciseId);
+    const params = Params(id: tExerciseId);
 
     test('should delete exercise and return Right(void) on success', () async {
       // Arrange

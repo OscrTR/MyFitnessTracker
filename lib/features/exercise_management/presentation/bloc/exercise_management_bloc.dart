@@ -64,6 +64,15 @@ class ExerciseManagementBloc
       }
     });
 
+    on<ClearSelectedExerciseEvent>((event, emit) {
+      if (state is ExerciseManagementLoaded) {
+        final currentState = state as ExerciseManagementLoaded;
+        emit(
+          currentState.copyWith(clearSelectedExercise: true),
+        );
+      }
+    });
+
     on<CreateExerciseEvent>((event, emit) async {
       if (state is ExerciseManagementLoaded) {
         final currentState = state as ExerciseManagementLoaded;

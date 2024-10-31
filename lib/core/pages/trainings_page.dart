@@ -1,8 +1,8 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:my_fitness_tracker/core/app_colors.dart';
-import 'package:my_fitness_tracker/features/exercise_management/presentation/pages/exercise_page.dart';
+import '../app_colors.dart';
+import '../../features/exercise_management/presentation/pages/exercise_list_page.dart';
 
 class TrainingsPage extends StatelessWidget {
   const TrainingsPage({super.key});

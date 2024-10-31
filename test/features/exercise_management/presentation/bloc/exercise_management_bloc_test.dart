@@ -292,6 +292,25 @@ void main() async {
     );
   });
 
+  group('ExerciseManagementBloc - ClearSelectedExerciseEvent', () {
+    blocTest<ExerciseManagementBloc, ExerciseManagementState>(
+      'emits state with selectedExercise as null when ClearSelectedExerciseEvent is added',
+      build: () {
+        return bloc;
+      },
+      seed: () => ExerciseManagementLoaded(
+        exercises: [Exercise(id: 1, name: 'Push Up')],
+        selectedExercise: Exercise(id: 1, name: 'Push Up'),
+      ),
+      act: (bloc) => bloc.add(const ClearSelectedExerciseEvent()),
+      expect: () => [
+        ExerciseManagementLoaded(
+          exercises: [Exercise(id: 1, name: 'Push Up')],
+          selectedExercise: null,
+        ),
+      ],
+    );
+  });
   group('DeleteExerciseEvent', () {
     const tExerciseId = 1;
     final tExercise = Exercise(

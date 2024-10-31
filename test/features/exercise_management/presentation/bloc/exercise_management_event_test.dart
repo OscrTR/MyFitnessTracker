@@ -50,6 +50,13 @@ void main() {
       expect(event1, isNot(equals(event2)));
     });
 
+    test('ClearSelectedExerciseEvent should be equal', () {
+      const event1 = ClearSelectedExerciseEvent();
+      const event2 = ClearSelectedExerciseEvent();
+
+      expect(event1, equals(event2));
+    });
+
     test('FetchExercisesEvent should always be equal', () {
       var event1 = FetchExercisesEvent();
       var event2 = FetchExercisesEvent();
