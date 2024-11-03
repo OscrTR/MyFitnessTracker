@@ -1,7 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:my_fitness_tracker/core/error/exceptions.dart';
 import 'package:my_fitness_tracker/core/error/failures.dart';
 import 'package:my_fitness_tracker/features/exercise_management/domain/entities/exercise.dart';
 import 'package:my_fitness_tracker/features/exercise_management/domain/repositories/exercise_repository.dart';
@@ -19,7 +18,7 @@ void main() {
   });
 
   group('UpdateExercise UseCase', () {
-    final tExercise = Exercise(
+    const tExercise = Exercise(
       id: 1,
       name: 'Squats',
       description: 'A lower body exercise',
@@ -33,34 +32,35 @@ void main() {
       imagePath: '/images/squats.png',
     );
 
+    const paramsWithEmptyName = Params(
+      id: 1,
+      name: '',
+      description: 'A lower body exercise',
+      imagePath: '/images/squats.png',
+    );
+
     test('should return Exercise on successful update', () async {
       // Arrange
       when(() => mockExerciseRepository.updateExercise(tExercise))
-          .thenAnswer((_) async => Right(tExercise));
+          .thenAnswer((_) async => const Right(tExercise));
 
       // Act
       final result = await updateExercise(params);
 
       // Assert
-      expect(result, Right(tExercise));
+      expect(result, const Right(tExercise));
       verify(() => mockExerciseRepository.updateExercise(tExercise)).called(1);
       verifyNoMoreInteractions(mockExerciseRepository);
     });
 
-    test(
-        'should return InvalidExerciseNameFailure when ExerciseNameException is thrown',
+    test('should return InvalidExerciseNameFailure when name is empty',
         () async {
-      // Arrange
-      when(() => mockExerciseRepository.updateExercise(tExercise))
-          .thenThrow(ExerciseNameException());
-
       // Act
-      final result = await updateExercise(params);
+      final result = await updateExercise(paramsWithEmptyName);
 
       // Assert
       expect(result, const Left(InvalidExerciseNameFailure()));
-      verify(() => mockExerciseRepository.updateExercise(tExercise)).called(1);
-      verifyNoMoreInteractions(mockExerciseRepository);
+      verifyZeroInteractions(mockExerciseRepository);
     });
 
     test('should return DatabaseFailure for any other exception', () async {

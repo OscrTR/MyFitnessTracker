@@ -17,11 +17,11 @@ void main() {
     usecase = CreateExercise(mockExerciseRepository);
   });
 
-  final tExercise = Exercise(
+  const tExercise = Exercise(
       name: 'Test name',
       imagePath: 'Test image name',
       description: 'Test description');
-  final rExercise = Exercise(
+  const rExercise = Exercise(
       id: 1,
       name: 'Test name',
       imagePath: 'Test image name',
@@ -32,14 +32,14 @@ void main() {
     () async {
       // Arrange
       when(() => mockExerciseRepository.createExercise(tExercise))
-          .thenAnswer((_) async => Right(rExercise));
+          .thenAnswer((_) async => const Right(rExercise));
       // Act
       final result = await usecase(Params(
           name: tExercise.name,
           description: tExercise.description!,
           imagePath: tExercise.imagePath!));
       // Assert
-      expect(result, Right(rExercise));
+      expect(result, const Right(rExercise));
       verify(() => mockExerciseRepository.createExercise(tExercise));
       verifyNoMoreInteractions(mockExerciseRepository);
     },
@@ -57,6 +57,7 @@ void main() {
 
       // Assert
       expect(result, const Left(InvalidExerciseNameFailure()));
+      verifyZeroInteractions(mockExerciseRepository);
     },
   );
 }

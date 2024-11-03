@@ -1,12 +1,11 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:my_fitness_tracker/core/error/exceptions.dart';
 import 'package:my_fitness_tracker/features/exercise_management/domain/entities/exercise.dart';
 
 void main() {
   group('Exercise Entity', () {
     test('should create an Exercise with valid inputs', () {
       // Act
-      final exercise = Exercise(
+      const exercise = Exercise(
         id: 1,
         name: 'Push-up',
         imagePath: 'pushup.png',
@@ -20,30 +19,17 @@ void main() {
       expect(exercise.description, 'An upper body exercise');
     });
 
-    test('should throw ArgumentError if name is empty', () {
-      // Act & Assert
-      expect(
-        () => Exercise(
-          id: 1,
-          name: '',
-          imagePath: 'pushup.png',
-          description: 'An upper body exercise',
-        ),
-        throwsA(isA<ExerciseNameException>()),
-      );
-    });
-
     test('should return true when comparing two exercises with same properties',
         () {
       // Arrange
-      final exercise1 = Exercise(
+      const exercise1 = Exercise(
         id: 1,
         name: 'Push-up',
         imagePath: 'pushup.png',
         description: 'An upper body exercise',
       );
 
-      final exercise2 = Exercise(
+      const exercise2 = Exercise(
         id: 1,
         name: 'Push-up',
         imagePath: 'pushup.png',
@@ -58,14 +44,14 @@ void main() {
         'should return false when comparing two exercises with different properties',
         () {
       // Arrange
-      final exercise1 = Exercise(
+      const exercise1 = Exercise(
         id: 1,
         name: 'Push-up',
         imagePath: 'pushup.png',
         description: 'An upper body exercise',
       );
 
-      final exercise2 = Exercise(
+      const exercise2 = Exercise(
         id: 2,
         name: 'Squat',
         imagePath: 'squat.png',

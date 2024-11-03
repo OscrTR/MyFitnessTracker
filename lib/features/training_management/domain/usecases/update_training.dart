@@ -1,31 +1,31 @@
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
+import 'package:my_fitness_tracker/features/training_management/domain/entities/training.dart';
+import 'package:my_fitness_tracker/features/training_management/domain/repositories/training_repository.dart';
 
 import '../../../../core/error/failures.dart';
 import '../../../../core/usecases/usecase.dart';
-import '../entities/exercise.dart';
-import '../repositories/exercise_repository.dart';
 
-class UpdateExercise extends Usecase<Exercise, Params> {
-  final ExerciseRepository repository;
+class UpdateTraining extends Usecase<Training, Params> {
+  final TrainingRepository repository;
 
-  UpdateExercise(this.repository);
+  UpdateTraining(this.repository);
 
   @override
-  Future<Either<Failure, Exercise>> call(Params params) async {
+  Future<Either<Failure, Training>> call(Params params) async {
     try {
       if (params.name.isEmpty) {
         return const Left(InvalidExerciseNameFailure());
       }
 
-      final exercise = Exercise(
-        id: params.id,
-        name: params.name,
-        description: params.description,
-        imagePath: params.imagePath,
-      );
+      final training = Training(
+          name: name,
+          type: type,
+          isSelected: isSelected,
+          exercises: exercises,
+          multisets: multisets);
 
-      return await repository.updateExercise(exercise);
+      return await repository.updateTraining(training);
     } catch (e) {
       return const Left(DatabaseFailure());
     }

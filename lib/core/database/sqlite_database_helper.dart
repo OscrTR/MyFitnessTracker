@@ -21,6 +21,76 @@ class SQLiteDatabaseHelper {
             image_path TEXT
           )
         ''');
+        await db.execute('''
+          CREATE TABLE trainings(
+            id INTEGER PRIMARY KEY AUTOINCREMENT, 
+            name TEXT, 
+            type TEXT, 
+            is_selected INTEGER
+          )
+        ''');
+        await db.execute('''
+          CREATE TABLE multisets(
+            id INTEGER PRIMARY KEY AUTOINCREMENT, 
+            training_id INTEGER,
+            sets INTEGER,
+            set_rest INTEGER,
+            multiset_rest INTEGER,
+            special_instructions TEXT,
+            objectives TEXT,
+            FOREIGN KEY(training_id) REFERENCES trainings(id) ON DELETE CASCADE
+          )
+        ''');
+        await db.execute('''
+          CREATE TABLE run_exercises(
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            training_id INTEGER,
+            multiset_id INTEGER,
+            target_distance INTEGER,
+            target_duration INTEGER,
+            target_rythm INTEGER,
+            intervals INTEGER,
+            interval_distance INTEGER,
+            interval_duration INTEGER,
+            interval_rest INTEGER,
+            FOREIGN KEY(training_id) REFERENCES trainings(id) ON DELETE CASCADE
+            FOREIGN KEY(multiset_id) REFERENCES multisets(id) ON DELETE CASCADE,
+          )
+        ''');
+        await db.execute('''
+          CREATE TABLE workout_exercises(
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            training_id INTEGER,
+            multiset_id INTEGER,
+            exercise_id INTEGER,
+            sets INTEGER,
+            reps INTEGER,
+            duration INTEGER,
+            set_rest INTEGER,
+            exercise_rest INTEGER,
+            manual_start INTEGER,
+            FOREIGN KEY(training_id) REFERENCES training(id) ON DELETE CASCADE,
+            FOREIGN KEY(multiset_id) REFERENCES multisets(id) ON DELETE CASCADE,
+            FOREIGN KEY(exercise_id) REFERENCES exercises(id) ON DELETE CASCADE
+          )
+        ''');
+        await db.execute('''
+          CREATE TABLE yoga_exercises(
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            training_id INTEGER,
+            multiset_id INTEGER,
+            exercise_id INTEGER,
+            sets INTEGER,
+            reps INTEGER,
+            duration INTEGER,
+            set_rest INTEGER,
+            exercise_rest INTEGER,
+            manual_start INTEGER,
+            FOREIGN KEY(training_id) REFERENCES training(id) ON DELETE CASCADE,
+            FOREIGN KEY(multiset_id) REFERENCES multisets(id) ON DELETE CASCADE,
+            FOREIGN KEY(exercise_id) REFERENCES exercises(id) ON DELETE CASCADE
+          )
+        ''');
       },
       version: 1,
     );
