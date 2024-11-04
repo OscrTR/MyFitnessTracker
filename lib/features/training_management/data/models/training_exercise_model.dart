@@ -31,7 +31,7 @@ class TrainingExerciseModel extends TrainingExercise {
       multisetId: json['multisetId'] as int?,
       exerciseId: json['exerciseId'] as int?,
       trainingExerciseType:
-          json['trainingExerciseType'] as TrainingExerciseType,
+          TrainingExerciseType.values[json['trainingExerciseType'] as int],
       specialInstructions: json['specialInstructions'] as String?,
       objectives: json['objectives'] as String?,
       targetDistance: json['targetDistance'] as int?,
@@ -56,7 +56,7 @@ class TrainingExerciseModel extends TrainingExercise {
       'trainingId': trainingId,
       'multisetId': multisetId,
       'exerciseId': exerciseId,
-      'trainingExerciseType': trainingExerciseType,
+      'trainingExerciseType': trainingExerciseType!.index,
       'specialInstructions': specialInstructions,
       'objectives': objectives,
       'targetDistance': targetDistance,

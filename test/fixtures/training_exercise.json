@@ -1,0 +1,24 @@
+[
+  {
+    "id": 1,
+    "trainingId": 101,
+    "multisetId": 10,
+    "exerciseId": 202,
+    "trainingExerciseType": 1,
+    "specialInstructions": "Focus on breathing",
+    "objectives": "Endurance",
+    "targetDistance": 5000,
+    "targetDuration": 1800,
+    "targetRythm": 80,
+    "intervals": 5,
+    "intervalDistance": 1000,
+    "intervalDuration": 300,
+    "intervalRest": 60,
+    "sets": 3,
+    "reps": 15,
+    "duration": 600,
+    "setRest": 120,
+    "exerciseRest": 90,
+    "manualStart": true
+  }
+]

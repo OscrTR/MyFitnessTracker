@@ -3,10 +3,8 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 void main() {
   // Initialize sqflite_ffi for tests
-  setUpAll(() {
-    sqfliteFfiInit();
-    databaseFactory = databaseFactoryFfi;
-  });
+  sqfliteFfiInit();
+  databaseFactory = databaseFactoryFfi;
 
   group('SQLiteDatabaseHelper', () {
     late Database db;
@@ -49,7 +47,7 @@ void main() {
             training_id INTEGER,
             multiset_id INTEGER,
             exercise_id INTEGER,
-            training_exercise_type TEXT,
+            training_exercise_type INTEGER,
             sets INTEGER,
             reps INTEGER,
             duration INTEGER,
