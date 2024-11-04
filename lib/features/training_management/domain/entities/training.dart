@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:my_fitness_tracker/features/training_management/domain/entities/multiset.dart';
 
-import 'training_exercise.dart.dart';
+import 'training_exercise.dart';
 
 enum TrainingType { yoga, workout, run }
 

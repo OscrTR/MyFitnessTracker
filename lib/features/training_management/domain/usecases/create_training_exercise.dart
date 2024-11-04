@@ -5,7 +5,7 @@ import 'package:my_fitness_tracker/features/training_management/domain/repositor
 
 import '../../../../core/error/failures.dart';
 import '../../../../core/usecases/usecase.dart';
-import '../entities/training_exercise.dart.dart';
+import '../entities/training_exercise.dart';
 
 class CreateTrainingExercise extends Usecase<TrainingExercise, Params> {
   final TrainingExerciseRepository repository;

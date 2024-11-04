@@ -4,7 +4,7 @@ import 'package:mocktail/mocktail.dart';
 
 import 'package:my_fitness_tracker/core/error/failures.dart';
 import 'package:my_fitness_tracker/features/training_management/domain/entities/multiset.dart';
-import 'package:my_fitness_tracker/features/training_management/domain/entities/yoga_exercise.dart';
+import 'package:my_fitness_tracker/features/training_management/domain/entities/training_exercise.dart';
 import 'package:my_fitness_tracker/features/training_management/domain/repositories/multiset_repository.dart';
 import 'package:my_fitness_tracker/features/training_management/domain/repositories/training_exercise_repository.dart';
 import 'package:my_fitness_tracker/features/training_management/domain/usecases/create_multiset.dart';
@@ -33,7 +33,9 @@ void main() {
     const objectives = 'Improve endurance';
     const exerciseId = 1;
 
-    const yogaExercise = YogaExercise(
+    const trainingExercise = TrainingExercise(
+      id: 1,
+      trainingExerciseType: TrainingExerciseType.yoga,
       specialInstructions: specialInstructions,
       objectives: objectives,
       multisetId: multisetId,
@@ -45,12 +47,19 @@ void main() {
       setRest: 10,
       exerciseRest: 15,
       manualStart: true,
+      targetDistance: null,
+      targetDuration: null,
+      targetRythm: null,
+      intervals: null,
+      intervalDistance: null,
+      intervalDuration: null,
+      intervalRest: null,
     );
 
     const multiset = Multiset(
       id: multisetId,
       trainingId: trainingId,
-      exercises: [yogaExercise],
+      exercises: [trainingExercise],
       sets: sets,
       setRest: setRest,
       multisetRest: multisetRest,

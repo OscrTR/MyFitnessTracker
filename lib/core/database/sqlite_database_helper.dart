@@ -42,10 +42,18 @@ class SQLiteDatabaseHelper {
           )
         ''');
         await db.execute('''
-          CREATE TABLE run_exercises(
+          CREATE TABLE training_exercises(
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             training_id INTEGER,
             multiset_id INTEGER,
+            exercise_id INTEGER,
+            training_exercise_type TEXT,
+            sets INTEGER,
+            reps INTEGER,
+            duration INTEGER,
+            set_rest INTEGER,
+            exercise_rest INTEGER,
+            manual_start INTEGER,
             target_distance INTEGER,
             target_duration INTEGER,
             target_rythm INTEGER,
@@ -55,39 +63,6 @@ class SQLiteDatabaseHelper {
             interval_rest INTEGER,
             FOREIGN KEY(training_id) REFERENCES trainings(id) ON DELETE CASCADE
             FOREIGN KEY(multiset_id) REFERENCES multisets(id) ON DELETE CASCADE,
-          )
-        ''');
-        await db.execute('''
-          CREATE TABLE workout_exercises(
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            training_id INTEGER,
-            multiset_id INTEGER,
-            exercise_id INTEGER,
-            sets INTEGER,
-            reps INTEGER,
-            duration INTEGER,
-            set_rest INTEGER,
-            exercise_rest INTEGER,
-            manual_start INTEGER,
-            FOREIGN KEY(training_id) REFERENCES training(id) ON DELETE CASCADE,
-            FOREIGN KEY(multiset_id) REFERENCES multisets(id) ON DELETE CASCADE,
-            FOREIGN KEY(exercise_id) REFERENCES exercises(id) ON DELETE CASCADE
-          )
-        ''');
-        await db.execute('''
-          CREATE TABLE yoga_exercises(
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            training_id INTEGER,
-            multiset_id INTEGER,
-            exercise_id INTEGER,
-            sets INTEGER,
-            reps INTEGER,
-            duration INTEGER,
-            set_rest INTEGER,
-            exercise_rest INTEGER,
-            manual_start INTEGER,
-            FOREIGN KEY(training_id) REFERENCES training(id) ON DELETE CASCADE,
-            FOREIGN KEY(multiset_id) REFERENCES multisets(id) ON DELETE CASCADE,
             FOREIGN KEY(exercise_id) REFERENCES exercises(id) ON DELETE CASCADE
           )
         ''');
@@ -96,12 +71,5 @@ class SQLiteDatabaseHelper {
     );
 
     return _database!;
-  }
-
-  static Future<void> deleteDatabaseInstance() async {
-    final path = await getDatabasesPath();
-    final dbPath = join(path, 'my_fitness_tracker.db');
-    await databaseFactory.deleteDatabase(dbPath);
-    _database = null;
   }
 }

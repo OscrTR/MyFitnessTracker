@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-import 'training_exercise.dart.dart';
+import 'training_exercise.dart';
 
 class Multiset extends Equatable {
   final int? id;

@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
 
 import '../../../../core/error/failures.dart';
-import '../entities/training_exercise.dart.dart';
+import '../entities/training_exercise.dart';
 
 abstract class TrainingExerciseRepository {
   Future<Either<Failure, List<TrainingExercise>>> fetchTrainingExercises(
