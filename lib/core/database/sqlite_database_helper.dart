@@ -97,4 +97,11 @@ class SQLiteDatabaseHelper {
 
     return _database!;
   }
+
+  static Future<void> deleteDatabaseInstance() async {
+    final path = await getDatabasesPath();
+    final dbPath = join(path, 'my_fitness_tracker.db');
+    await databaseFactory.deleteDatabase(dbPath);
+    _database = null;
+  }
 }
