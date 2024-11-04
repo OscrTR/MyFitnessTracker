@@ -11,6 +11,10 @@ class FetchTrainings extends Usecase<List<Training>, void> {
 
   @override
   Future<Either<Failure, List<Training>>> call(void params) async {
-    return await repository.fetchTrainings();
+    try {
+      return await repository.fetchTrainings();
+    } catch (e) {
+      return const Left(DatabaseFailure());
+    }
   }
 }

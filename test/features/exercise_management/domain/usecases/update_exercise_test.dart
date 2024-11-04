@@ -17,46 +17,39 @@ void main() {
     updateExercise = UpdateExercise(mockExerciseRepository);
   });
 
+  const exercise = Exercise(
+    id: 1,
+    name: 'Squats',
+    description: 'A lower body exercise',
+    imagePath: '/images/squats.png',
+  );
+
+  const exerciseNoName = Exercise(
+    id: 1,
+    name: '',
+    description: 'A lower body exercise',
+    imagePath: '/images/squats.png',
+  );
+
   group('UpdateExercise UseCase', () {
-    const tExercise = Exercise(
-      id: 1,
-      name: 'Squats',
-      description: 'A lower body exercise',
-      imagePath: '/images/squats.png',
-    );
-
-    const params = Params(
-      id: 1,
-      name: 'Squats',
-      description: 'A lower body exercise',
-      imagePath: '/images/squats.png',
-    );
-
-    const paramsWithEmptyName = Params(
-      id: 1,
-      name: '',
-      description: 'A lower body exercise',
-      imagePath: '/images/squats.png',
-    );
-
     test('should return Exercise on successful update', () async {
       // Arrange
-      when(() => mockExerciseRepository.updateExercise(tExercise))
-          .thenAnswer((_) async => const Right(tExercise));
+      when(() => mockExerciseRepository.updateExercise(exercise))
+          .thenAnswer((_) async => const Right(exercise));
 
       // Act
-      final result = await updateExercise(params);
+      final result = await updateExercise(const Params(exercise));
 
       // Assert
-      expect(result, const Right(tExercise));
-      verify(() => mockExerciseRepository.updateExercise(tExercise)).called(1);
+      expect(result, const Right(exercise));
+      verify(() => mockExerciseRepository.updateExercise(exercise)).called(1);
       verifyNoMoreInteractions(mockExerciseRepository);
     });
 
     test('should return InvalidExerciseNameFailure when name is empty',
         () async {
       // Act
-      final result = await updateExercise(paramsWithEmptyName);
+      final result = await updateExercise(const Params(exerciseNoName));
 
       // Assert
       expect(result, const Left(InvalidExerciseNameFailure()));
@@ -65,73 +58,16 @@ void main() {
 
     test('should return DatabaseFailure for any other exception', () async {
       // Arrange
-      when(() => mockExerciseRepository.updateExercise(tExercise))
+      when(() => mockExerciseRepository.updateExercise(exercise))
           .thenThrow(Exception());
 
       // Act
-      final result = await updateExercise(params);
+      final result = await updateExercise(const Params(exercise));
 
       // Assert
       expect(result, const Left(DatabaseFailure()));
-      verify(() => mockExerciseRepository.updateExercise(tExercise)).called(1);
+      verify(() => mockExerciseRepository.updateExercise(exercise)).called(1);
       verifyNoMoreInteractions(mockExerciseRepository);
-    });
-  });
-
-  group('Params Equatability', () {
-    test('Params with identical properties should be equal', () {
-      const params1 = Params(
-        id: 1,
-        name: 'Squats',
-        description: 'A lower body exercise',
-        imagePath: '/images/squats.png',
-      );
-
-      const params2 = Params(
-        id: 1,
-        name: 'Squats',
-        description: 'A lower body exercise',
-        imagePath: '/images/squats.png',
-      );
-
-      expect(params1, equals(params2));
-    });
-
-    test('Params with different properties should not be equal', () {
-      const params1 = Params(
-        id: 1,
-        name: 'Squats',
-        description: 'A lower body exercise',
-        imagePath: '/images/squats.png',
-      );
-
-      const params2 = Params(
-        id: 2,
-        name: 'Lunges',
-        description: 'A different exercise',
-        imagePath: '/images/lunges.png',
-      );
-
-      expect(params1, isNot(equals(params2)));
-    });
-
-    test('Params with identical id but different names should not be equal',
-        () {
-      const params1 = Params(
-        id: 1,
-        name: 'Squats',
-        description: 'A lower body exercise',
-        imagePath: '/images/squats.png',
-      );
-
-      const params2 = Params(
-        id: 1,
-        name: 'Lunges',
-        description: 'A lower body exercise',
-        imagePath: '/images/squats.png',
-      );
-
-      expect(params1, isNot(equals(params2)));
     });
   });
 }

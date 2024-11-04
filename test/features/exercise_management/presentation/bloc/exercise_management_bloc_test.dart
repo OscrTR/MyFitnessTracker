@@ -62,7 +62,7 @@ void main() async {
 
   group('FetchExercisesEvent', () {
     var tExercises = [
-      Exercise(
+      const Exercise(
           id: 1,
           name: 'Squats',
           description: 'A lower body exercise',
@@ -103,30 +103,24 @@ void main() async {
   });
 
   group('CreateExerciseEvent', () {
-    final tExercise = Exercise(
+    const tExercise = Exercise(
         id: 1,
         name: 'Squats',
         description: 'A lower body exercise',
         imagePath: '/images/squats.png');
-    const params = create.Params(
-        name: 'Squats',
-        description: 'A lower body exercise',
-        imagePath: '/images/squats.png');
+    const params = create.Params(tExercise);
 
     blocTest<ExerciseManagementBloc, ExerciseManagementState>(
       'emits updated ExerciseManagementLoaded when CreateExerciseEvent is successful',
       build: () {
         when(() => mockCreateExercise(params))
-            .thenAnswer((_) async => Right(tExercise));
+            .thenAnswer((_) async => const Right(tExercise));
         return bloc;
       },
       seed: () => const ExerciseManagementLoaded(exercises: []),
-      act: (bloc) => bloc.add(const CreateExerciseEvent(
-          name: 'Squats',
-          description: 'A lower body exercise',
-          imagePath: '/images/squats.png')),
+      act: (bloc) => bloc.add(const CreateExerciseEvent(tExercise)),
       expect: () => [
-        ExerciseManagementLoaded(exercises: [tExercise]),
+        const ExerciseManagementLoaded(exercises: [tExercise]),
       ],
       verify: (_) {
         verify(() => mockCreateExercise(params)).called(1);
@@ -146,10 +140,7 @@ void main() async {
         return bloc;
       },
       seed: () => const ExerciseManagementLoaded(exercises: []),
-      act: (bloc) => bloc.add(const CreateExerciseEvent(
-          name: 'Squats',
-          description: 'A lower body exercise',
-          imagePath: '/images/squats.png')),
+      act: (bloc) => bloc.add(const CreateExerciseEvent(tExercise)),
       expect: () => [],
       verify: (_) {
         verify(() => mockCreateExercise(params)).called(1);
@@ -163,7 +154,7 @@ void main() async {
 
   group('GetExerciseEvent', () {
     const tExerciseId = 1;
-    final tExercise = Exercise(
+    const tExercise = Exercise(
       id: tExerciseId,
       name: 'Push Up',
       description: 'An upper body exercise',
@@ -173,20 +164,20 @@ void main() async {
     blocTest<ExerciseManagementBloc, ExerciseManagementState>(
       'emits updated ExerciseManagementLoaded with selectedExercise when GetExerciseEvent is successful',
       build: () {
-        when(() => mockGetExercise(const get_ex.Params(id: tExerciseId)))
-            .thenAnswer((_) async => Right(tExercise));
+        when(() => mockGetExercise(const get_ex.Params(tExerciseId)))
+            .thenAnswer((_) async => const Right(tExercise));
         return bloc;
       },
       seed: () {
-        return ExerciseManagementLoaded(exercises: [tExercise]);
+        return const ExerciseManagementLoaded(exercises: [tExercise]);
       },
       act: (bloc) => (bloc.add(const GetExerciseEvent(tExerciseId))),
       expect: () => [
-        ExerciseManagementLoaded(
+        const ExerciseManagementLoaded(
             exercises: [tExercise], selectedExercise: tExercise),
       ],
       verify: (_) {
-        verify(() => mockGetExercise(const get_ex.Params(id: tExerciseId)))
+        verify(() => mockGetExercise(const get_ex.Params(tExerciseId)))
             .called(1);
       },
     );
@@ -194,15 +185,15 @@ void main() async {
     blocTest<ExerciseManagementBloc, ExerciseManagementState>(
       'calls messageBloc with error when GetExerciseEvent fails',
       build: () {
-        when(() => mockGetExercise(const get_ex.Params(id: tExerciseId)))
+        when(() => mockGetExercise(const get_ex.Params(tExerciseId)))
             .thenAnswer((_) async => const Left(DatabaseFailure()));
         return bloc;
       },
-      seed: () => ExerciseManagementLoaded(exercises: [tExercise]),
+      seed: () => const ExerciseManagementLoaded(exercises: [tExercise]),
       act: (bloc) => bloc.add(const GetExerciseEvent(tExerciseId)),
       expect: () => [],
       verify: (_) {
-        verify(() => mockGetExercise(const get_ex.Params(id: tExerciseId)))
+        verify(() => mockGetExercise(const get_ex.Params(tExerciseId)))
             .called(1);
         verify(() => mockMessageBloc.add(AddMessageEvent(
               message: databaseFailureMessage,
@@ -214,42 +205,32 @@ void main() async {
 
   group('UpdateExerciseEvent', () {
     const tExerciseId = 1;
-    final tUpdatedExercise = Exercise(
+    const tUpdatedExercise = Exercise(
       id: tExerciseId,
       name: 'Updated Push Up',
       description: 'An updated upper body exercise',
       imagePath: '/images/updated_push_up.png',
     );
 
-    const updateParams = update.Params(
-      id: tExerciseId,
-      name: 'Updated Push Up',
-      description: 'An updated upper body exercise',
-      imagePath: '/images/updated_push_up.png',
-    );
+    const updateParams = update.Params(tUpdatedExercise);
 
     blocTest<ExerciseManagementBloc, ExerciseManagementState>(
       'emits updated ExerciseManagementLoaded with updated exercise and sends success message on successful update',
       build: () {
         when(() => mockUpdateExercise(updateParams))
-            .thenAnswer((_) async => Right(tUpdatedExercise));
+            .thenAnswer((_) async => const Right(tUpdatedExercise));
         return bloc;
       },
-      seed: () => ExerciseManagementLoaded(exercises: [
+      seed: () => const ExerciseManagementLoaded(exercises: [
         Exercise(
             id: 1,
             name: 'Push Up',
             description: 'An upper body exercise',
             imagePath: '/images/push_up.png'),
       ]),
-      act: (bloc) => bloc.add(const UpdateExerciseEvent(
-        id: tExerciseId,
-        name: 'Updated Push Up',
-        description: 'An updated upper body exercise',
-        imagePath: '/images/updated_push_up.png',
-      )),
+      act: (bloc) => bloc.add(const UpdateExerciseEvent(tUpdatedExercise)),
       expect: () => [
-        ExerciseManagementLoaded(exercises: [tUpdatedExercise]),
+        const ExerciseManagementLoaded(exercises: [tUpdatedExercise]),
       ],
       verify: (_) {
         verify(() => mockUpdateExercise(updateParams)).called(1);
@@ -268,19 +249,14 @@ void main() async {
             .thenAnswer((_) async => const Left(DatabaseFailure()));
         return bloc;
       },
-      seed: () => ExerciseManagementLoaded(exercises: [
+      seed: () => const ExerciseManagementLoaded(exercises: [
         Exercise(
             id: 1,
             name: 'Push Up',
             description: 'An upper body exercise',
             imagePath: '/images/push_up.png'),
       ]),
-      act: (bloc) => bloc.add(const UpdateExerciseEvent(
-        id: tExerciseId,
-        name: 'Updated Push Up',
-        description: 'An updated upper body exercise',
-        imagePath: '/images/updated_push_up.png',
-      )),
+      act: (bloc) => bloc.add(const UpdateExerciseEvent(tUpdatedExercise)),
       expect: () => [],
       verify: (_) {
         verify(() => mockUpdateExercise(updateParams)).called(1);
@@ -298,13 +274,13 @@ void main() async {
       build: () {
         return bloc;
       },
-      seed: () => ExerciseManagementLoaded(
+      seed: () => const ExerciseManagementLoaded(
         exercises: [Exercise(id: 1, name: 'Push Up')],
         selectedExercise: Exercise(id: 1, name: 'Push Up'),
       ),
       act: (bloc) => bloc.add(const ClearSelectedExerciseEvent()),
       expect: () => [
-        ExerciseManagementLoaded(
+        const ExerciseManagementLoaded(
           exercises: [Exercise(id: 1, name: 'Push Up')],
           selectedExercise: null,
         ),
@@ -313,7 +289,7 @@ void main() async {
   });
   group('DeleteExerciseEvent', () {
     const tExerciseId = 1;
-    final tExercise = Exercise(
+    const tExercise = Exercise(
       id: tExerciseId,
       name: 'Push Up',
       description: 'An upper body exercise',
@@ -323,17 +299,17 @@ void main() async {
     blocTest<ExerciseManagementBloc, ExerciseManagementState>(
       'emits updated ExerciseManagementLoaded without the deleted exercise and sends success message on successful deletion',
       build: () {
-        when(() => mockDeleteExercise(const delete.Params(id: tExerciseId)))
+        when(() => mockDeleteExercise(const delete.Params(tExerciseId)))
             .thenAnswer((_) async => const Right(null));
         return bloc;
       },
-      seed: () => ExerciseManagementLoaded(exercises: [tExercise]),
+      seed: () => const ExerciseManagementLoaded(exercises: [tExercise]),
       act: (bloc) => bloc.add(const DeleteExerciseEvent(tExerciseId)),
       expect: () => [
         const ExerciseManagementLoaded(exercises: []),
       ],
       verify: (_) {
-        verify(() => mockDeleteExercise(const delete.Params(id: tExerciseId)))
+        verify(() => mockDeleteExercise(const delete.Params(tExerciseId)))
             .called(1);
         verify(() => mockMessageBloc.add(AddMessageEvent(
               message: tr('message_exercise_deletion_success',
@@ -346,15 +322,15 @@ void main() async {
     blocTest<ExerciseManagementBloc, ExerciseManagementState>(
       'does not emit new state and sends error message on deletion failure',
       build: () {
-        when(() => mockDeleteExercise(const delete.Params(id: tExerciseId)))
+        when(() => mockDeleteExercise(const delete.Params(tExerciseId)))
             .thenAnswer((_) async => const Left(DatabaseFailure()));
         return bloc;
       },
-      seed: () => ExerciseManagementLoaded(exercises: [tExercise]),
+      seed: () => const ExerciseManagementLoaded(exercises: [tExercise]),
       act: (bloc) => bloc.add(const DeleteExerciseEvent(tExerciseId)),
       expect: () => [],
       verify: (_) {
-        verify(() => mockDeleteExercise(const delete.Params(id: tExerciseId)))
+        verify(() => mockDeleteExercise(const delete.Params(tExerciseId)))
             .called(1);
         verify(() => mockMessageBloc.add(AddMessageEvent(
               message: databaseFailureMessage,

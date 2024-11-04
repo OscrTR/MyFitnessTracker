@@ -12,14 +12,18 @@ class FetchMultisets extends Usecase<List<Multiset>, Params> {
 
   @override
   Future<Either<Failure, List<Multiset>>> call(params) async {
-    return await repository.fetchMultisets(params.trainingId);
+    try {
+      return await repository.fetchMultisets(params.trainingId);
+    } catch (e) {
+      return const Left(DatabaseFailure());
+    }
   }
 }
 
 class Params extends Equatable {
   final int trainingId;
 
-  const Params({required this.trainingId});
+  const Params(this.trainingId);
 
   @override
   List<Object?> get props => [trainingId];

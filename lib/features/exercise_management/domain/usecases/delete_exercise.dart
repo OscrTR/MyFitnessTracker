@@ -12,14 +12,18 @@ class DeleteExercise extends Usecase<void, Params> {
 
   @override
   Future<Either<Failure, void>> call(Params params) async {
-    return await repository.deleteExercise(params.id);
+    try {
+      return await repository.deleteExercise(params.id);
+    } catch (e) {
+      return const Left(DatabaseFailure());
+    }
   }
 }
 
 class Params extends Equatable {
   final int id;
 
-  const Params({required this.id});
+  const Params(this.id);
 
   @override
   List<Object> get props => [id];

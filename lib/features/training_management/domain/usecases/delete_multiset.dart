@@ -11,7 +11,11 @@ class DeleteMultiset extends Usecase<void, Params> {
 
   @override
   Future<Either<Failure, void>> call(params) async {
-    return await repository.deleteMultiset(params.id);
+    try {
+      return await repository.deleteMultiset(params.id);
+    } catch (e) {
+      return const Left(DatabaseFailure());
+    }
   }
 }
 

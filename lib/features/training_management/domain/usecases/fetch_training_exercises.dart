@@ -12,14 +12,18 @@ class FetchTrainingExercises extends Usecase<List<TrainingExercise>, Params> {
 
   @override
   Future<Either<Failure, List<TrainingExercise>>> call(params) async {
-    return await repository.fetchTrainingExercises(params.trainingId);
+    try {
+      return await repository.fetchTrainingExercises(params.trainingId);
+    } catch (e) {
+      return const Left(DatabaseFailure());
+    }
   }
 }
 
 class Params extends Equatable {
   final int trainingId;
 
-  const Params({required this.trainingId});
+  const Params(this.trainingId);
 
   @override
   List<Object?> get props => [trainingId];

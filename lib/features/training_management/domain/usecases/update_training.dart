@@ -14,18 +14,11 @@ class UpdateTraining extends Usecase<Training, Params> {
   @override
   Future<Either<Failure, Training>> call(Params params) async {
     try {
-      if (params.name.isEmpty) {
+      if (params.training.name.isEmpty) {
         return const Left(InvalidExerciseNameFailure());
       }
 
-      final training = Training(
-          name: name,
-          type: type,
-          isSelected: isSelected,
-          exercises: exercises,
-          multisets: multisets);
-
-      return await repository.updateTraining(training);
+      return await repository.updateTraining(params.training);
     } catch (e) {
       return const Left(DatabaseFailure());
     }
@@ -33,18 +26,10 @@ class UpdateTraining extends Usecase<Training, Params> {
 }
 
 class Params extends Equatable {
-  final int id;
-  final String name;
-  final String description;
-  final String imagePath;
+  final Training training;
 
-  const Params({
-    required this.id,
-    required this.name,
-    required this.description,
-    required this.imagePath,
-  });
+  const Params(this.training);
 
   @override
-  List<Object> get props => [id, name, description, imagePath];
+  List<Object> get props => [training];
 }

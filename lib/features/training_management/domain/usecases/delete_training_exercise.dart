@@ -11,7 +11,11 @@ class DeleteTrainingExercise extends Usecase<void, Params> {
 
   @override
   Future<Either<Failure, void>> call(params) async {
-    return await repository.deleteTrainingExercise(params.id);
+    try {
+      return await repository.deleteTrainingExercise(params.id);
+    } catch (e) {
+      return const Left(DatabaseFailure());
+    }
   }
 }
 

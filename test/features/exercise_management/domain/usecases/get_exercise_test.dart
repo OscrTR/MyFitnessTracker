@@ -17,7 +17,7 @@ void main() {
   });
 
   const tId = 1;
-  final tExercise = Exercise(
+  const tExercise = Exercise(
       id: 1,
       name: 'Test name',
       imagePath: 'Test image name',
@@ -28,11 +28,11 @@ void main() {
     () async {
       // Arrange
       when(() => mockExerciseRepository.getExercise(tId))
-          .thenAnswer((_) async => Right(tExercise));
+          .thenAnswer((_) async => const Right(tExercise));
       // Act
-      final result = await usecase(const Params(id: tId));
+      final result = await usecase(const Params(tId));
       // Assert
-      expect(result, Right(tExercise));
+      expect(result, const Right(tExercise));
       verify(() => mockExerciseRepository.getExercise(tId));
       verifyNoMoreInteractions(mockExerciseRepository);
     },

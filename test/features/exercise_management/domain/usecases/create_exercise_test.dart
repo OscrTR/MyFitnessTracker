@@ -35,9 +35,11 @@ void main() {
           .thenAnswer((_) async => const Right(rExercise));
       // Act
       final result = await usecase(Params(
-          name: tExercise.name,
-          description: tExercise.description!,
-          imagePath: tExercise.imagePath!));
+        Exercise(
+            name: tExercise.name,
+            description: tExercise.description!,
+            imagePath: tExercise.imagePath!),
+      ));
       // Assert
       expect(result, const Right(rExercise));
       verify(() => mockExerciseRepository.createExercise(tExercise));
@@ -50,9 +52,11 @@ void main() {
     () async {
       // Act
       final result = await usecase(Params(
-        name: '', // Invalid input: empty name
-        description: tExercise.description!,
-        imagePath: tExercise.imagePath!,
+        Exercise(
+          name: '', // Invalid input: empty name
+          description: tExercise.description!,
+          imagePath: tExercise.imagePath!,
+        ),
       ));
 
       // Assert
