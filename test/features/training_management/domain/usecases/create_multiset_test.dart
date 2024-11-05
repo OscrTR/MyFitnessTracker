@@ -59,7 +59,7 @@ void main() {
     const multiset = Multiset(
       id: multisetId,
       trainingId: trainingId,
-      exercises: [trainingExercise],
+      trainingExercises: [trainingExercise],
       sets: sets,
       setRest: setRest,
       multisetRest: multisetRest,

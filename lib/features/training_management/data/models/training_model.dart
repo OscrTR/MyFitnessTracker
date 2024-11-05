@@ -4,6 +4,7 @@ import 'package:my_fitness_tracker/features/training_management/domain/entities/
 
 class TrainingModel extends Training {
   const TrainingModel({
+    super.id,
     required super.name,
     required super.type,
     required super.isSelected,
@@ -13,8 +14,9 @@ class TrainingModel extends Training {
 
   factory TrainingModel.fromJson(Map<String, dynamic> json) {
     return TrainingModel(
+      id: json['id'] as int?,
       name: json['name'] as String,
-      type: json['type'] as TrainingType,
+      type: TrainingType.values[json['type'] as int],
       isSelected: json['isSelected'] as bool,
       exercises: (json['exercises'] as List<dynamic>)
           .map((exerciseJson) => TrainingExerciseModel.fromJson(
@@ -29,8 +31,9 @@ class TrainingModel extends Training {
 
   Map<String, dynamic> toJson() {
     return {
+      'id': id,
       'name': name,
-      'type': type,
+      'type': type.index,
       'isSelected': isSelected,
       'exercises': exercises
           .map((exercise) => (exercise as TrainingExerciseModel).toJson())

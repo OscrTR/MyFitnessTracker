@@ -5,7 +5,7 @@ import 'training_exercise.dart';
 class Multiset extends Equatable {
   final int? id;
   final int? trainingId;
-  final List<TrainingExercise> exercises;
+  final List<TrainingExercise> trainingExercises;
   final int sets;
   final int setRest;
   final int multisetRest;
@@ -15,7 +15,7 @@ class Multiset extends Equatable {
   const Multiset({
     this.id,
     required this.trainingId,
-    required this.exercises,
+    required this.trainingExercises,
     required this.sets,
     required this.setRest,
     required this.multisetRest,
@@ -27,7 +27,7 @@ class Multiset extends Equatable {
   List<Object?> get props => [
         id,
         trainingId,
-        exercises,
+        trainingExercises,
         sets,
         setRest,
         multisetRest,

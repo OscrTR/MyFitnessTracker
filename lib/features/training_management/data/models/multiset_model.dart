@@ -3,8 +3,9 @@ import 'package:my_fitness_tracker/features/training_management/domain/entities/
 
 class MultisetModel extends Multiset {
   const MultisetModel({
+    super.id,
     required super.trainingId,
-    required super.exercises,
+    required super.trainingExercises,
     required super.sets,
     required super.setRest,
     required super.multisetRest,
@@ -14,29 +15,32 @@ class MultisetModel extends Multiset {
 
   factory MultisetModel.fromJson(Map<String, dynamic> json) {
     return MultisetModel(
-      trainingId: json['trainingId'] as int,
-      exercises: (json['exercises'] as List<dynamic>)
+      id: json['id'] as int?,
+      trainingId: json['training_id'] as int,
+      trainingExercises: (json['training_exercises'] as List<dynamic>)
           .map((exerciseJson) => TrainingExerciseModel.fromJson(
               exerciseJson as Map<String, dynamic>))
           .toList(),
       sets: json['sets'] as int,
-      setRest: json['setRest'] as int,
-      multisetRest: json['multisetRest'] as int,
-      specialInstructions: json['specialInstructions'] as String,
+      setRest: json['set_rest'] as int,
+      multisetRest: json['multiset_rest'] as int,
+      specialInstructions: json['special_instructions'] as String,
       objectives: json['objectives'] as String,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'trainingId': trainingId,
-      'exercises': exercises
-          .map((exercise) => (exercise as TrainingExerciseModel).toJson())
+      'id': id,
+      'training_id': trainingId,
+      'training_exercises': trainingExercises
+          .map((trainingExercise) =>
+              (trainingExercise as TrainingExerciseModel).toJson())
           .toList(),
       'sets': sets,
-      'setRest': setRest,
-      'multisetRest': multisetRest,
-      'specialInstructions': specialInstructions,
+      'set_rest': setRest,
+      'multiset_rest': multisetRest,
+      'special_instructions': specialInstructions,
       'objectives': objectives,
     };
   }

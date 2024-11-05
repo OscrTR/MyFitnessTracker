@@ -3,7 +3,7 @@ import 'package:my_fitness_tracker/features/training_management/domain/entities/
 
 import 'training_exercise.dart';
 
-enum TrainingType { yoga, workout, run }
+enum TrainingType { run, yoga, workout }
 
 class Training extends Equatable {
   final int? id;

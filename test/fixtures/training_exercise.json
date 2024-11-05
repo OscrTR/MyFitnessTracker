@@ -1,24 +1,24 @@
 [
   {
     "id": 1,
-    "trainingId": 101,
-    "multisetId": 10,
-    "exerciseId": 202,
-    "trainingExerciseType": 1,
-    "specialInstructions": "Focus on breathing",
+    "training_id": 101,
+    "multiset_id": 10,
+    "exercise_id": 202,
+    "training_exercise_type": 1,
+    "special_instructions": "Focus on breathing",
     "objectives": "Endurance",
-    "targetDistance": 5000,
-    "targetDuration": 1800,
-    "targetRythm": 80,
+    "target_distance": 5000,
+    "target_duration": 1800,
+    "target_rythm": 80,
     "intervals": 5,
-    "intervalDistance": 1000,
-    "intervalDuration": 300,
-    "intervalRest": 60,
+    "interval_distance": 1000,
+    "interval_duration": 300,
+    "interval_rest": 60,
     "sets": 3,
     "reps": 15,
     "duration": 600,
-    "setRest": 120,
-    "exerciseRest": 90,
-    "manualStart": true
+    "set_rest": 120,
+    "exercise_rest": 90,
+    "manual_start": true
   }
 ]
