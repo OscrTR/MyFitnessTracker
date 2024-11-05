@@ -75,7 +75,7 @@ void main() {
     name: 'My first training',
     type: TrainingType.yoga,
     isSelected: true,
-    exercises: [trainingExercise],
+    trainingExercises: [trainingExercise],
     multisets: [multiset],
   );
 

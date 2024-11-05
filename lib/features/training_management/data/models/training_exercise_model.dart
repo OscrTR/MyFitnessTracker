@@ -74,4 +74,30 @@ class TrainingExerciseModel extends TrainingExercise {
       'manual_start': manualStart,
     };
   }
+
+  factory TrainingExerciseModel.fromTrainingExercise(
+      TrainingExercise exercise) {
+    return TrainingExerciseModel(
+      id: exercise.id,
+      trainingId: exercise.trainingId,
+      multisetId: exercise.multisetId,
+      exerciseId: exercise.exerciseId,
+      trainingExerciseType: exercise.trainingExerciseType,
+      specialInstructions: exercise.specialInstructions,
+      objectives: exercise.objectives,
+      targetDistance: exercise.targetDistance,
+      targetDuration: exercise.targetDuration,
+      targetRythm: exercise.targetRythm,
+      intervals: exercise.intervals,
+      intervalDistance: exercise.intervalDistance,
+      intervalDuration: exercise.intervalDuration,
+      intervalRest: exercise.intervalRest,
+      sets: exercise.sets,
+      reps: exercise.reps,
+      duration: exercise.duration,
+      setRest: exercise.setRest,
+      exerciseRest: exercise.exerciseRest,
+      manualStart: exercise.manualStart,
+    );
+  }
 }

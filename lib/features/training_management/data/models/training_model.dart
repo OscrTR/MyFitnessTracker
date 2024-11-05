@@ -8,7 +8,7 @@ class TrainingModel extends Training {
     required super.name,
     required super.type,
     required super.isSelected,
-    required super.exercises,
+    required super.trainingExercises,
     required super.multisets,
   });
 
@@ -17,8 +17,8 @@ class TrainingModel extends Training {
       id: json['id'] as int?,
       name: json['name'] as String,
       type: TrainingType.values[json['type'] as int],
-      isSelected: json['isSelected'] as bool,
-      exercises: (json['exercises'] as List<dynamic>)
+      isSelected: json['is_selected'] as bool,
+      trainingExercises: (json['training_exercises'] as List<dynamic>)
           .map((exerciseJson) => TrainingExerciseModel.fromJson(
               exerciseJson as Map<String, dynamic>))
           .toList(),
@@ -34,13 +34,17 @@ class TrainingModel extends Training {
       'id': id,
       'name': name,
       'type': type.index,
-      'isSelected': isSelected,
-      'exercises': exercises
-          .map((exercise) => (exercise as TrainingExerciseModel).toJson())
-          .toList(),
-      'multisets': multisets
-          .map((multiset) => (multiset as MultisetModel).toJson())
-          .toList(),
+      'is_selected': isSelected,
     };
+  }
+
+  factory TrainingModel.fromMultiset(Training training) {
+    return TrainingModel(
+        id: training.id,
+        name: training.name,
+        type: training.type,
+        isSelected: training.isSelected,
+        trainingExercises: training.trainingExercises,
+        multisets: training.multisets);
   }
 }

@@ -10,7 +10,7 @@ class Training extends Equatable {
   final String name;
   final TrainingType type;
   final bool isSelected;
-  final List<TrainingExercise> exercises;
+  final List<TrainingExercise> trainingExercises;
   final List<Multiset> multisets;
 
   const Training({
@@ -18,10 +18,29 @@ class Training extends Equatable {
     required this.name,
     required this.type,
     required this.isSelected,
-    required this.exercises,
+    required this.trainingExercises,
     required this.multisets,
   });
 
   @override
-  List<Object?> get props => [id, name, type, isSelected, exercises, multisets];
+  List<Object?> get props =>
+      [id, name, type, isSelected, trainingExercises, multisets];
+
+  Training copyWith({
+    int? id,
+    String? name,
+    TrainingType? type,
+    bool? isSelected,
+    List<TrainingExercise>? trainingExercises,
+    List<Multiset>? multisets,
+  }) {
+    return Training(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      type: type ?? this.type,
+      isSelected: isSelected ?? this.isSelected,
+      trainingExercises: trainingExercises ?? this.trainingExercises,
+      multisets: multisets ?? this.multisets,
+    );
+  }
 }

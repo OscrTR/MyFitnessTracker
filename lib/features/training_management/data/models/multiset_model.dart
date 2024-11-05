@@ -33,15 +33,24 @@ class MultisetModel extends Multiset {
     return {
       'id': id,
       'training_id': trainingId,
-      'training_exercises': trainingExercises
-          .map((trainingExercise) =>
-              (trainingExercise as TrainingExerciseModel).toJson())
-          .toList(),
       'sets': sets,
       'set_rest': setRest,
       'multiset_rest': multisetRest,
       'special_instructions': specialInstructions,
       'objectives': objectives,
     };
+  }
+
+  factory MultisetModel.fromMultiset(Multiset multiset) {
+    return MultisetModel(
+      id: multiset.id,
+      trainingId: multiset.trainingId,
+      trainingExercises: multiset.trainingExercises,
+      sets: multiset.sets,
+      setRest: multiset.setRest,
+      multisetRest: multiset.multisetRest,
+      specialInstructions: multiset.specialInstructions,
+      objectives: multiset.objectives,
+    );
   }
 }

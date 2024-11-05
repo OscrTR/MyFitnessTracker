@@ -30,28 +30,59 @@ class SQLiteTrainingExerciseLocalDataSource
           (trainingExercise as TrainingExerciseModel).toJson();
 
       final id = await database.insert('training_exercises', values);
-      return trainingExercise.copyWith(id: id) as TrainingExerciseModel;
+      final createdTrainingExercise = trainingExercise.copyWith(id: id);
+      return TrainingExerciseModel.fromTrainingExercise(
+          createdTrainingExercise);
     } catch (e) {
       throw LocalDatabaseException();
     }
   }
 
   @override
-  Future<void> deleteTrainingExercise(int id) {
-    // TODO: implement deleteTrainingExercise
-    throw UnimplementedError();
+  Future<void> deleteTrainingExercise(int id) async {
+    try {
+      await database.delete(
+        'trainingExercises',
+        where: 'id = ?',
+        whereArgs: [id],
+      );
+    } catch (e) {
+      throw LocalDatabaseException();
+    }
   }
 
   @override
-  Future<List<TrainingExerciseModel>> fetchTrainingExercises(int trainingId) {
-    // TODO: implement fetchTrainingExercise
-    throw UnimplementedError();
+  Future<List<TrainingExerciseModel>> fetchTrainingExercises(
+      int trainingId) async {
+    try {
+      final List<Map<String, dynamic>> values = await database.query(
+        'training_exercises',
+        where: 'training_id = ?',
+        whereArgs: [trainingId],
+      );
+
+      return values.map((map) => TrainingExerciseModel.fromJson(map)).toList();
+    } catch (e) {
+      throw LocalDatabaseException();
+    }
   }
 
   @override
   Future<TrainingExerciseModel> updateTrainingExercise(
-      TrainingExercise trainingExercise) {
-    // TODO: implement updateTrainingExercise
-    throw UnimplementedError();
+      TrainingExercise trainingExercise) async {
+    try {
+      Map<String, dynamic> values =
+          (trainingExercise as TrainingExerciseModel).toJson();
+
+      await database.update(
+        'training_exercises',
+        values,
+        where: 'id = ?',
+        whereArgs: [trainingExercise.id],
+      );
+      return trainingExercise;
+    } catch (e) {
+      throw LocalDatabaseException();
+    }
   }
 }
