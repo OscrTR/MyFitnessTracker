@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:my_fitness_tracker/features/training_management/domain/entities/multiset.dart';
+import 'multiset.dart';
 
 import 'training_exercise.dart';
 
@@ -25,22 +25,4 @@ class Training extends Equatable {
   @override
   List<Object?> get props =>
       [id, name, type, isSelected, trainingExercises, multisets];
-
-  Training copyWith({
-    int? id,
-    String? name,
-    TrainingType? type,
-    bool? isSelected,
-    List<TrainingExercise>? trainingExercises,
-    List<Multiset>? multisets,
-  }) {
-    return Training(
-      id: id ?? this.id,
-      name: name ?? this.name,
-      type: type ?? this.type,
-      isSelected: isSelected ?? this.isSelected,
-      trainingExercises: trainingExercises ?? this.trainingExercises,
-      multisets: multisets ?? this.multisets,
-    );
-  }
 }

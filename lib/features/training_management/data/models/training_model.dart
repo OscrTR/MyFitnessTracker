@@ -1,6 +1,6 @@
-import 'package:my_fitness_tracker/features/training_management/data/models/multiset_model.dart';
-import 'package:my_fitness_tracker/features/training_management/data/models/training_exercise_model.dart';
-import 'package:my_fitness_tracker/features/training_management/domain/entities/training.dart';
+import 'multiset_model.dart';
+import 'training_exercise_model.dart';
+import '../../domain/entities/training.dart';
 
 class TrainingModel extends Training {
   const TrainingModel({
@@ -38,6 +38,17 @@ class TrainingModel extends Training {
       'type': type.index,
       'is_selected': isSelected == true ? 1 : 0,
     };
+  }
+
+  factory TrainingModel.fromTrainingWithId(Training training, int trainingId) {
+    return TrainingModel(
+      id: trainingId,
+      name: training.name,
+      type: training.type,
+      isSelected: training.isSelected,
+      multisets: training.multisets,
+      trainingExercises: training.trainingExercises,
+    );
   }
 
   factory TrainingModel.fromTraining(Training training) {

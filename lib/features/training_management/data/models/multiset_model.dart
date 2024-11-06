@@ -1,5 +1,5 @@
-import 'package:my_fitness_tracker/features/training_management/data/models/training_exercise_model.dart';
-import 'package:my_fitness_tracker/features/training_management/domain/entities/multiset.dart';
+import 'training_exercise_model.dart';
+import '../../domain/entities/multiset.dart';
 
 class MultisetModel extends Multiset {
   const MultisetModel({
@@ -39,6 +39,19 @@ class MultisetModel extends Multiset {
       'special_instructions': specialInstructions,
       'objectives': objectives,
     };
+  }
+
+  factory MultisetModel.fromMultisetWithId(Multiset multiset, int trainingId) {
+    return MultisetModel(
+      id: multiset.id,
+      trainingId: trainingId, // Ensure this line assigns the passed trainingId
+      sets: multiset.sets,
+      setRest: multiset.setRest,
+      multisetRest: multiset.multisetRest,
+      specialInstructions: multiset.specialInstructions,
+      objectives: multiset.objectives,
+      trainingExercises: multiset.trainingExercises,
+    );
   }
 
   factory MultisetModel.fromMultiset(Multiset multiset) {

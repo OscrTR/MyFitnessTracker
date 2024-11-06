@@ -1,4 +1,4 @@
-import 'package:my_fitness_tracker/features/training_management/domain/entities/training_exercise.dart';
+import '../../domain/entities/training_exercise.dart';
 
 class TrainingExerciseModel extends TrainingExercise {
   const TrainingExerciseModel({
@@ -73,6 +73,34 @@ class TrainingExerciseModel extends TrainingExercise {
       'exercise_rest': exerciseRest,
       'manual_start': manualStart == true ? 1 : 0,
     };
+  }
+
+  factory TrainingExerciseModel.fromTrainingExercisewithId(
+      TrainingExercise exercise,
+      {int? trainingId,
+      int? multisetId}) {
+    return TrainingExerciseModel(
+      id: exercise.id,
+      trainingId: trainingId,
+      multisetId: multisetId,
+      exerciseId: exercise.exerciseId,
+      trainingExerciseType: exercise.trainingExerciseType,
+      specialInstructions: exercise.specialInstructions,
+      objectives: exercise.objectives,
+      targetDistance: exercise.targetDistance,
+      targetDuration: exercise.targetDuration,
+      targetRythm: exercise.targetRythm,
+      intervals: exercise.intervals,
+      intervalDistance: exercise.intervalDistance,
+      intervalDuration: exercise.intervalDuration,
+      intervalRest: exercise.intervalRest,
+      sets: exercise.sets,
+      reps: exercise.reps,
+      duration: exercise.duration,
+      setRest: exercise.setRest,
+      exerciseRest: exercise.exerciseRest,
+      manualStart: exercise.manualStart,
+    );
   }
 
   factory TrainingExerciseModel.fromTrainingExercise(

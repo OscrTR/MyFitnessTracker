@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:my_fitness_tracker/features/exercise_management/domain/entities/exercise.dart';
+import '../../domain/entities/exercise.dart';
 import '../../../../core/app_colors.dart';
 import '../bloc/exercise_management_bloc.dart';
 import 'package:path/path.dart' as path;

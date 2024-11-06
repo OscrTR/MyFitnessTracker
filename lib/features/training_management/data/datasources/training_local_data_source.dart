@@ -1,8 +1,8 @@
-import 'package:my_fitness_tracker/core/error/exceptions.dart';
-import 'package:my_fitness_tracker/features/training_management/data/models/multiset_model.dart';
-import 'package:my_fitness_tracker/features/training_management/data/models/training_exercise_model.dart';
-import 'package:my_fitness_tracker/features/training_management/data/models/training_model.dart';
-import 'package:my_fitness_tracker/features/training_management/domain/entities/training.dart';
+import '../../../../core/error/exceptions.dart';
+import '../models/multiset_model.dart';
+import '../models/training_exercise_model.dart';
+import '../models/training_model.dart';
+import '../../domain/entities/training.dart';
 import 'package:sqflite/sqflite.dart';
 
 import '../../domain/entities/training_exercise.dart';
@@ -34,7 +34,7 @@ class SQLiteTrainingLocalDataSource implements TrainingLocalDataSource {
         );
 
         await _manageMultisetsAndExercises(training, trainingId, txn);
-        return TrainingModel.fromTraining(training.copyWith(id: trainingId));
+        return TrainingModel.fromTrainingWithId(training, trainingId);
       });
     } catch (e) {
       throw LocalDatabaseException(e.toString());
@@ -66,148 +66,6 @@ class SQLiteTrainingLocalDataSource implements TrainingLocalDataSource {
       throw LocalDatabaseException(e.toString());
     }
   }
-
-  // @override
-  // Future<TrainingModel> getTraining(int trainingId) async {
-  //   try {
-  //     final queryResult = await database.rawQuery('''
-  //     SELECT
-  //       t.id AS training_id,
-  //       t.name AS training_name,
-  //       t.type AS training_type,
-  //       t.is_selected AS training_is_selected,
-
-  //       m.id AS multiset_id,
-  //       m.training_id AS multiset_training_id,
-  //       m.sets AS multiset_sets,
-  //       m.set_rest AS multiset_set_rest,
-  //       m.multiset_rest AS multiset_multiset_rest,
-  //       m.special_instructions AS multiset_special_instructions,
-  //       m.objectives AS multiset_objectives,
-
-  //       te.id AS exercise_id,
-  //       te.training_id AS exercise_training_id,
-  //       te.multiset_id AS exercise_multiset_id,
-  //       te.exercise_id AS exercise_exercise_id,
-  //       te.training_exercise_type AS exercise_type,
-  //       te.sets AS exercise_sets,
-  //       te.reps AS exercise_reps,
-  //       te.duration AS exercise_duration,
-  //       te.set_rest AS exercise_set_rest,
-  //       te.exercise_rest AS exercise_rest,
-  //       te.manual_start AS exercise_manual_start,
-  //       te.target_distance AS exercise_target_distance,
-  //       te.target_duration AS exercise_target_duration,
-  //       te.target_rythm AS exercise_target_rythm,
-  //       te.intervals AS exercise_intervals,
-  //       te.interval_distance AS exercise_interval_distance,
-  //       te.interval_duration AS exercise_interval_duration,
-  //       te.interval_rest AS exercise_interval_rest,
-  //       te.special_instructions AS exercise_special_instructions,
-  //       te.objectives AS exercise_objectives,
-
-  //       e.name AS exercise_name,
-  //       e.description AS exercise_description,
-  //       e.image_path AS exercise_image_path
-
-  //     FROM trainings t
-  //     LEFT JOIN multisets m ON t.id = m.training_id
-  //     LEFT JOIN training_exercises te ON (t.id = te.training_id AND (m.id = te.multiset_id OR te.multiset_id IS NULL))
-  //     LEFT JOIN exercises e ON te.exercise_id = e.id
-  //     WHERE t.id = ?
-  //     ORDER BY te.id
-  //   ''', [trainingId]);
-
-  //     if (queryResult.isEmpty) {
-  //       throw LocalDatabaseException(
-  //           'No training found for the id: $trainingId');
-  //     }
-  //     Map<String, dynamic> buildTrainingStructure(
-  //         List<Map<String, dynamic>> rows) {
-  //       // Process the query result into a nested structure
-  //       final trainingMap = <String, dynamic>{};
-  //       final multisetMap = <int, Map<String, dynamic>>{};
-  //       final trainingExercises = <Map<String, dynamic>>[];
-
-  //       for (final row in rows) {
-  //         // Populate training data (only once)
-  //         if (trainingMap.isEmpty) {
-  //           trainingMap['id'] = row['training_id'];
-  //           trainingMap['name'] = row['training_name'];
-  //           trainingMap['type'] = row['training_type'];
-  //           trainingMap['is_selected'] = row['training_is_selected'];
-  //           trainingMap['multisets'] = [];
-  //           trainingMap['training_exercises'] = [];
-  //         }
-
-  //         // Populate multiset data
-  //         final multisetId = row['multiset_id'] as int?;
-  //         if (multisetId != null && !multisetMap.containsKey(multisetId)) {
-  //           final multiset = {
-  //             'id': multisetId,
-  //             'training_id': row['multiset_training_id'],
-  //             'sets': row['multiset_sets'],
-  //             'set_rest': row['multiset_set_rest'],
-  //             'multiset_rest': row['multiset_multiset_rest'],
-  //             'special_instructions': row['multiset_special_instructions'],
-  //             'objectives': row['multiset_objectives'],
-  //             'training_exercises': []
-  //           };
-  //           multisetMap[multisetId] = multiset;
-  //           trainingMap['multisets'].add(multiset);
-  //         }
-
-  //         // Populate exercises within multiset or directly for training
-  //         final exerciseId = row['exercise_id'];
-  //         if (exerciseId != null) {
-  //           final exercise = {
-  //             'id': exerciseId,
-  //             'training_id': row['exercise_training_id'],
-  //             'multiset_id': row['exercise_multiset_id'],
-  //             'exercise_id': row['exercise_exercise_id'],
-  //             'name': row['exercise_name'],
-  //             'description': row['exercise_description'],
-  //             'imagePath': row['exercise_image_path'],
-  //             'training_exercise_type': row['exercise_type'],
-  //             'sets': row['exercise_sets'],
-  //             'reps': row['exercise_reps'],
-  //             'duration': row['exercise_duration'],
-  //             'set_rest': row['exercise_set_rest'],
-  //             'exercise_rest': row['exercise_rest'],
-  //             'manual_start': row['exercise_manual_start'],
-  //             'target_distance': row['exercise_target_distance'],
-  //             'target_duration': row['exercise_target_duration'],
-  //             'target_rythm': row['exercise_target_rythm'],
-  //             'intervals': row['exercise_intervals'],
-  //             'interval_distance': row['exercise_interval_distance'],
-  //             'interval_duration': row['exercise_interval_duration'],
-  //             'interval_rest': row['exercise_interval_rest'],
-  //             'special_instructions': row['exercise_special_instructions'],
-  //             'objectives': row['exercise_objectives'],
-  //           };
-
-  //           if (row['exercise_multiset_id'] == null) {
-  //             print(exercise);
-  //             trainingExercises.add(exercise);
-  //           } else {
-  //             multisetMap[multisetId]?['training_exercises'].add(exercise);
-  //           }
-  //         }
-  //       }
-
-  //       // Assign the collected training exercises directly to the training map
-  //       trainingMap['training_exercises'] = trainingExercises;
-
-  //       return trainingMap;
-  //     }
-
-  //     // Build and return TrainingModel
-  //     final trainingData = buildTrainingStructure(queryResult);
-  //     return TrainingModel.fromJson(trainingData);
-  //   } catch (e) {
-  //     throw LocalDatabaseException(e.toString());
-  //   }
-  // }
 
   @override
   Future<TrainingModel> getTraining(int trainingId) async {
@@ -329,7 +187,7 @@ class SQLiteTrainingLocalDataSource implements TrainingLocalDataSource {
 
         await _manageMultisetsAndExercises(training, trainingId, txn,
             isUpdate: true);
-        return TrainingModel.fromTraining(training.copyWith(id: trainingId));
+        return TrainingModel.fromTrainingWithId(training, trainingId);
       });
     } catch (e) {
       throw LocalDatabaseException(
@@ -386,7 +244,7 @@ class SQLiteTrainingLocalDataSource implements TrainingLocalDataSource {
 
     for (var multiset in training.multisets) {
       final multisetWithTrainingId =
-          MultisetModel.fromMultiset(multiset.copyWith(trainingId: trainingId));
+          MultisetModel.fromMultisetWithId(multiset, trainingId);
       final multisetId = await _insertOrUpdate(
           'multisets', multisetWithTrainingId.toJson(), multiset.id, txn);
       currentMultisetsIds.add(multisetId);
@@ -403,8 +261,10 @@ class SQLiteTrainingLocalDataSource implements TrainingLocalDataSource {
     final currentTrainingExerciseIds = <int>[];
 
     for (var exercise in exercises) {
-      final exerciseWithIds = TrainingExerciseModel.fromTrainingExercise(
-        exercise.copyWith(trainingId: trainingId, multisetId: multisetId),
+      final exerciseWithIds = TrainingExerciseModel.fromTrainingExercisewithId(
+        exercise,
+        trainingId: trainingId,
+        multisetId: multisetId,
       );
 
       final exerciseId = await _insertOrUpdate(

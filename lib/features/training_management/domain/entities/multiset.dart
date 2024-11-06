@@ -34,26 +34,4 @@ class Multiset extends Equatable {
         specialInstructions,
         objectives
       ];
-
-  Multiset copyWith({
-    int? id,
-    int? trainingId,
-    List<TrainingExercise>? trainingExercises,
-    int? sets,
-    int? setRest,
-    int? multisetRest,
-    String? specialInstructions,
-    String? objectives,
-  }) {
-    return Multiset(
-      id: id ?? this.id,
-      trainingId: trainingId ?? this.trainingId,
-      trainingExercises: trainingExercises ?? this.trainingExercises,
-      sets: sets ?? this.sets,
-      setRest: setRest ?? this.setRest,
-      multisetRest: multisetRest ?? this.multisetRest,
-      specialInstructions: specialInstructions ?? this.specialInstructions,
-      objectives: objectives ?? this.objectives,
-    );
-  }
 }

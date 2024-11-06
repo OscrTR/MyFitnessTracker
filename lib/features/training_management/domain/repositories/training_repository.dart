@@ -1,5 +1,5 @@
 import 'package:dartz/dartz.dart';
-import 'package:my_fitness_tracker/features/training_management/domain/entities/training.dart';
+import '../entities/training.dart';
 
 import '../../../../core/error/failures.dart';
 

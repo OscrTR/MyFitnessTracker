@@ -1,8 +1,8 @@
 import 'package:dartz/dartz.dart';
-import 'package:my_fitness_tracker/core/error/failures.dart';
-import 'package:my_fitness_tracker/features/training_management/data/datasources/training_local_data_source.dart';
-import 'package:my_fitness_tracker/features/training_management/domain/entities/training.dart';
-import 'package:my_fitness_tracker/features/training_management/domain/repositories/training_repository.dart';
+import '../../../../core/error/failures.dart';
+import '../datasources/training_local_data_source.dart';
+import '../../domain/entities/training.dart';
+import '../../domain/repositories/training_repository.dart';
 
 import '../../../../core/error/exceptions.dart';
 
