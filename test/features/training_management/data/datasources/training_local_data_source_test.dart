@@ -1,13 +1,63 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:my_fitness_tracker/features/exercise_management/data/datasources/exercise_local_data_source.dart';
-import 'package:my_fitness_tracker/features/exercise_management/data/models/exercise_model.dart';
 import 'package:my_fitness_tracker/features/training_management/data/datasources/training_local_data_source.dart';
+import 'package:my_fitness_tracker/features/training_management/data/models/training_model.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+
+import 'package:my_fitness_tracker/features/exercise_management/data/models/exercise_model.dart';
 import 'package:my_fitness_tracker/features/training_management/data/models/multiset_model.dart';
 import 'package:my_fitness_tracker/features/training_management/data/models/training_exercise_model.dart';
-import 'package:my_fitness_tracker/features/training_management/data/models/training_model.dart';
+import 'package:my_fitness_tracker/features/training_management/domain/entities/multiset.dart';
 import 'package:my_fitness_tracker/features/training_management/domain/entities/training.dart';
 import 'package:my_fitness_tracker/features/training_management/domain/entities/training_exercise.dart';
-import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+
+const exercise = ExerciseModel(
+    id: null,
+    name: 'Downward Dog',
+    description: 'Awesome description',
+    imagePath: 'pathToImage');
+
+const exerciseJson = {
+  'id': 1,
+  'name': 'Downward Dog',
+  'description': 'Awesome description',
+  'image_path': 'pathToImage'
+};
+
+final trainingExerciseBase = createTrainingExercise();
+
+final multisetBase = createMultiset(
+  trainingExercises: [trainingExerciseBase],
+);
+
+final trainingBase = createTraining(
+  multisets: [multisetBase],
+  trainingExercises: [trainingExerciseBase],
+);
+
+final trainingBaseJson = {
+  'id': 1,
+  'name': 'Full Body Workout',
+  'type': 1,
+  'is_selected': 1,
+  'multisets': [
+    {
+      'id': 1,
+      'training_id': 1,
+      'training_exercises': [
+        createTrainingExercise(id: 1, trainingId: 1, multisetId: 1).toJson(),
+      ],
+      'sets': 4,
+      'set_rest': 60,
+      'multiset_rest': 120,
+      'special_instructions': 'Do it slowly',
+      'objectives': 'Increase strength',
+    }
+  ],
+  'training_exercises': [
+    createTrainingExercise(id: 2, trainingId: 1).toJson(),
+  ]
+};
 
 void main() {
   late SQLiteTrainingLocalDataSource dataSource;
@@ -28,214 +78,6 @@ void main() {
     await db.close();
   });
 
-  const exercise = ExerciseModel(
-      id: null,
-      name: 'Downward Dog',
-      description: 'Awesome description',
-      imagePath: 'pathToImage');
-
-  const exerciseJson = {
-    'id': 1,
-    'name': 'Downward Dog',
-    'description': 'Awesome description',
-    'image_path': 'pathToImage'
-  };
-
-  const trainingExercise = TrainingExerciseModel(
-    id: null,
-    trainingId: null,
-    multisetId: null,
-    exerciseId: 1,
-    trainingExerciseType: TrainingExerciseType.yoga,
-    sets: 3,
-    reps: 15,
-    duration: 600,
-    setRest: 120,
-    exerciseRest: 90,
-    manualStart: true,
-    targetDistance: 5000,
-    targetDuration: 1800,
-    targetRythm: 80,
-    intervals: 5,
-    intervalDistance: 1000,
-    intervalDuration: 300,
-    intervalRest: 60,
-    specialInstructions: '',
-    objectives: '',
-  );
-
-  const multiset = MultisetModel(
-    id: null,
-    trainingId: null,
-    sets: 4,
-    setRest: 60,
-    multisetRest: 120,
-    specialInstructions: 'Do it slowly',
-    objectives: 'Increase strength',
-    trainingExercises: [trainingExercise],
-  );
-
-  const training = TrainingModel(
-    id: null,
-    name: 'Full Body Workout',
-    type: TrainingType.yoga,
-    isSelected: true,
-    multisets: [multiset],
-    trainingExercises: [trainingExercise],
-  );
-
-  const fetchTrainingsMatcher = TrainingModel(
-      id: 1,
-      name: 'Full Body Workout',
-      type: TrainingType.yoga,
-      isSelected: true,
-      multisets: [],
-      trainingExercises: []);
-
-  final trainingJson = {
-    'id': 1,
-    'name': 'Full Body Workout',
-    'type': 1,
-    'is_selected': 1,
-    'multisets': [
-      {
-        'id': 1,
-        'training_id': 1,
-        'training_exercises': [
-          {
-            "id": 1,
-            "training_id": 1,
-            "multiset_id": 1,
-            "exercise_id": 1,
-            "name": "Downward Dog",
-            "description": "Awesome description",
-            "imagePath": "pathToImage",
-            "training_exercise_type": 1,
-            "special_instructions": "",
-            "objectives": "",
-            "target_distance": 5000,
-            "target_duration": 1800,
-            "target_rythm": 80,
-            "intervals": 5,
-            "interval_distance": 1000,
-            "interval_duration": 300,
-            "interval_rest": 60,
-            "sets": 3,
-            "reps": 15,
-            "duration": 600,
-            "set_rest": 120,
-            "exercise_rest": 90,
-            "manual_start": 1
-          }
-        ],
-        'sets': 4,
-        'set_rest': 60,
-        'multiset_rest': 120,
-        'special_instructions': 'Do it slowly',
-        'objectives': 'Increase strength',
-      }
-    ],
-    'training_exercises': [
-      {
-        "id": 2,
-        "training_id": 1,
-        "multiset_id": null,
-        "exercise_id": 1,
-        "name": "Downward Dog",
-        "description": "Awesome description",
-        "imagePath": "pathToImage",
-        "training_exercise_type": 1,
-        "special_instructions": "",
-        "objectives": "",
-        "target_distance": 5000,
-        "target_duration": 1800,
-        "target_rythm": 80,
-        "intervals": 5,
-        "interval_distance": 1000,
-        "interval_duration": 300,
-        "interval_rest": 60,
-        "sets": 3,
-        "reps": 15,
-        "duration": 600,
-        "set_rest": 120,
-        "exercise_rest": 90,
-        "manual_start": 1
-      }
-    ]
-  };
-
-  final trainingUpdatedJson = {
-    'id': 1,
-    'name': 'EDITED Full Body Workout',
-    'type': 0,
-    'is_selected': 0,
-    'multisets': [
-      {
-        'id': 1,
-        'training_id': 1,
-        'training_exercises': [
-          {
-            "id": 1,
-            "training_id": 1,
-            "multiset_id": 1,
-            "exercise_id": 1,
-            "name": "Downward Dog",
-            "description": "Awesome description",
-            "imagePath": "pathToImage",
-            "training_exercise_type": 1,
-            "special_instructions": "EDITED",
-            "objectives": "",
-            "target_distance": 5000,
-            "target_duration": 1800,
-            "target_rythm": 80,
-            "intervals": 5,
-            "interval_distance": 1000,
-            "interval_duration": 300,
-            "interval_rest": 60,
-            "sets": 3,
-            "reps": 15,
-            "duration": 600,
-            "set_rest": 120,
-            "exercise_rest": 90,
-            "manual_start": 1
-          }
-        ],
-        'sets': 4,
-        'set_rest': 60,
-        'multiset_rest': 120,
-        'special_instructions': 'Do it slowly',
-        'objectives': 'Increase strength',
-      }
-    ],
-    'training_exercises': [
-      {
-        "id": 2,
-        "training_id": 1,
-        "multiset_id": null,
-        "exercise_id": 1,
-        "name": "Downward Dog",
-        "description": "Awesome description",
-        "imagePath": "pathToImage",
-        "training_exercise_type": 1,
-        "special_instructions": "EDITED",
-        "objectives": "",
-        "target_distance": 5000,
-        "target_duration": 1800,
-        "target_rythm": 80,
-        "intervals": 5,
-        "interval_distance": 1000,
-        "interval_duration": 300,
-        "interval_rest": 60,
-        "sets": 3,
-        "reps": 15,
-        "duration": 600,
-        "set_rest": 120,
-        "exercise_rest": 90,
-        "manual_start": 1
-      }
-    ]
-  };
-
   group('create and get training', () {
     test(
       'should insert a training, its multisets, and associated training exercises then get the training and all the associated info',
@@ -247,14 +89,14 @@ void main() {
         expect(exerciseResult.id, isNotNull);
 
         // Act : create the training
-        final trainingResult = await dataSource.createTraining(training);
-        expect(trainingResult.name, training.name);
+        final trainingResult = await dataSource.createTraining(trainingBase);
+        expect(trainingResult.name, trainingBase.name);
         expect(trainingResult.id, isNotNull);
 
         // Assert : get the training and compare it with the actual training
         final createdTraining =
             await dataSource.getTraining(trainingResult.id!);
-        expect(createdTraining, TrainingModel.fromJson(trainingJson));
+        expect(createdTraining, TrainingModel.fromJson(trainingBaseJson));
       },
     );
   });
@@ -263,16 +105,9 @@ void main() {
     test(
       'should retrieve all the trainings with their minimal info (no multisets/training exercises)',
       () async {
-        // Arrange : create a valid exercise to use for the training exercises
-        final exerciseResult =
-            await exerciseLocalDataSource.createExercise(exercise);
-        expect(exerciseResult.name, exercise.name);
-        expect(exerciseResult.id, isNotNull);
-
-        // Create a training to fetch later
-        final trainingResult = await dataSource.createTraining(training);
-        expect(trainingResult.name, training.name);
-        expect(trainingResult.id, isNotNull);
+        // Arrange
+        final fetchTrainingsMatcher = createTraining(id: 1);
+        await _initTraining(exerciseLocalDataSource, dataSource);
 
         // Assert : fetch all trainings and compare the result to what's expected
         final result = await dataSource.fetchTrainings();
@@ -282,75 +117,23 @@ void main() {
   });
 
   group('update training', () {
-    const trainingExerciseUpdated = TrainingExerciseModel(
-      id: 2,
-      trainingId: 1,
-      multisetId: null,
-      exerciseId: 1,
-      trainingExerciseType: TrainingExerciseType.yoga,
-      sets: 3,
-      reps: 15,
-      duration: 600,
-      setRest: 120,
-      exerciseRest: 90,
-      manualStart: true,
-      targetDistance: 5000,
-      targetDuration: 1800,
-      targetRythm: 80,
-      intervals: 5,
-      intervalDistance: 1000,
-      intervalDuration: 300,
-      intervalRest: 60,
-      specialInstructions: 'EDITED',
-      objectives: '',
-    );
+    final trainingExerciseUpdated = createTrainingExercise(
+        id: 2, trainingId: 1, specialInstructions: 'EDITED');
 
-    const multisetTrainingExerciseUpdated = TrainingExerciseModel(
+    final multisetTrainingExerciseUpdated = createTrainingExercise(
       id: 1,
       trainingId: 1,
       multisetId: 1,
-      exerciseId: 1,
-      trainingExerciseType: TrainingExerciseType.yoga,
-      sets: 3,
-      reps: 15,
-      duration: 600,
-      setRest: 120,
-      exerciseRest: 90,
-      manualStart: true,
-      targetDistance: 5000,
-      targetDuration: 1800,
-      targetRythm: 80,
-      intervals: 5,
-      intervalDistance: 1000,
-      intervalDuration: 300,
-      intervalRest: 60,
       specialInstructions: 'EDITED',
-      objectives: '',
     );
 
-    const multisetUpdated = MultisetModel(
+    final multisetUpdated = createMultiset(
       id: 1,
       trainingId: 1,
-      sets: 4,
-      setRest: 60,
-      multisetRest: 120,
-      specialInstructions: 'Do it slowly',
-      objectives: 'Increase strength',
       trainingExercises: [multisetTrainingExerciseUpdated],
     );
 
-    const multisetUpdatedNoExercise = MultisetModel(
-      id: 1,
-      trainingId: 1,
-      sets: 4,
-      setRest: 60,
-      multisetRest: 120,
-      specialInstructions: 'Do it slowly',
-      objectives: 'Increase strength',
-      trainingExercises: [],
-    );
-
-    const trainingUpdate = TrainingModel(
+    final trainingUpdate = createTraining(
       id: 1,
       name: 'EDITED Full Body Workout',
       type: TrainingType.run,
@@ -360,60 +143,63 @@ void main() {
     );
 
     test(
-      'should update the training, its multisets and its training exercises',
+      'UPDATE 1 : should update the training, its multisets and its training exercises',
       () async {
-        // Arrange : create a valid exercise to use for the training exercises
-        final exerciseResult =
-            await exerciseLocalDataSource.createExercise(exercise);
-        expect(exerciseResult.name, exercise.name);
-        expect(exerciseResult.id, isNotNull);
+        // Arrange
+        final trainingUpdatedJson = {
+          'id': 1,
+          'name': 'EDITED Full Body Workout',
+          'type': 0,
+          'is_selected': 0,
+          'multisets': [
+            {
+              'id': 1,
+              'training_id': 1,
+              'training_exercises': [
+                createTrainingExercise(
+                        id: 1,
+                        trainingId: 1,
+                        multisetId: 1,
+                        specialInstructions: 'EDITED')
+                    .toJson(),
+              ],
+              'sets': 4,
+              'set_rest': 60,
+              'multiset_rest': 120,
+              'special_instructions': 'Do it slowly',
+              'objectives': 'Increase strength',
+            }
+          ],
+          'training_exercises': [
+            createTrainingExercise(
+                    id: 2, trainingId: 1, specialInstructions: 'EDITED')
+                .toJson(),
+          ]
+        };
 
-        // Create the training
-        final trainingResult = await dataSource.createTraining(training);
-        expect(trainingResult.name, training.name);
-        expect(trainingResult.id, isNotNull);
-
-        // Get the training and compare it with the actual training
-        final createdTraining =
-            await dataSource.getTraining(trainingResult.id!);
-        expect(createdTraining, TrainingModel.fromJson(trainingJson));
+        await _initTraining(exerciseLocalDataSource, dataSource);
 
         // Act : update the training
         await dataSource.updateTraining(trainingUpdate);
 
         // Assert : compare the updated training to what's exepected
-        final updatedTraining =
-            await dataSource.getTraining(trainingResult.id!);
+        final updatedTraining = await dataSource.getTraining(1);
         expect(updatedTraining, TrainingModel.fromJson(trainingUpdatedJson));
 
-        // Verify that the exercises, training exercises and multisets are also correct
-        final multisetsList = await db.query('multisets');
-        expect(multisetsList, [multisetUpdated.toJson()]);
-
-        final trainingExercisesList = await db.query('training_exercises');
-        expect(trainingExercisesList, [
+        await _verifyDatabase(db: db, multisetsListMatcher: [
+          multisetUpdated.toJson()
+        ], trainingExercisesListMatcher: [
           multisetTrainingExerciseUpdated.toJson(),
           trainingExerciseUpdated.toJson()
         ]);
-
-        final exercisesList = await db.query('exercises');
-        expect(exercisesList, [exerciseJson]);
       },
     );
 
     test(
-      'should update the training and delete the training exercises',
+      'UPDATE 2 : should update the training and delete the training exercises',
       () async {
-        const trainingUpdateLocal = TrainingModel(
-          id: 1,
-          name: 'EDITED Full Body Workout',
-          type: TrainingType.run,
-          isSelected: false,
-          multisets: [multisetUpdatedNoExercise],
-          trainingExercises: [],
-        );
-
-        final trainingUpdatedJsonLocal = {
+        // Arrange
+        final trainingUpdate2Json = {
           'id': 1,
           'name': 'EDITED Full Body Workout',
           'type': 0,
@@ -432,118 +218,65 @@ void main() {
           ],
           'training_exercises': []
         };
-
-        // Arrange : create a valid exercise to use for the training exercises
-        final exerciseResult =
-            await exerciseLocalDataSource.createExercise(exercise);
-        expect(exerciseResult.name, exercise.name);
-        expect(exerciseResult.id, isNotNull);
-
-        // Create the training
-        final trainingResult = await dataSource.createTraining(training);
-        expect(trainingResult.name, training.name);
-        expect(trainingResult.id, isNotNull);
-
-        // Get the training and compare it with the actual training
-        final createdTraining =
-            await dataSource.getTraining(trainingResult.id!);
-        expect(createdTraining, TrainingModel.fromJson(trainingJson));
-
-        // Act : update the training
-        await dataSource.updateTraining(trainingUpdateLocal);
-
-        // Assert : compare the updated training to what's exepected
-        final updatedTraining =
-            await dataSource.getTraining(trainingResult.id!);
-        expect(
-            updatedTraining, TrainingModel.fromJson(trainingUpdatedJsonLocal));
-
-        // Verify that the exercises, training exercises and multisets are also correct
-        final multisetsList = await db.query('multisets');
-        expect(multisetsList, [multisetUpdated.toJson()]);
-
-        final trainingExercisesList = await db.query('training_exercises');
-        expect(trainingExercisesList, []);
-
-        final exercisesList = await db.query('exercises');
-        expect(exercisesList, [exerciseJson]);
-      },
-    );
-
-    test(
-      'should update the training and its training exercises and create new training exercises when they have no id',
-      () async {
-        const multisetTrainingExerciseUpdatedLocal = TrainingExerciseModel(
-          id: null,
-          trainingId: 1,
-          multisetId: 1,
-          exerciseId: 1,
-          trainingExerciseType: TrainingExerciseType.yoga,
-          sets: 3,
-          reps: 15,
-          duration: 600,
-          setRest: 120,
-          exerciseRest: 90,
-          manualStart: true,
-          targetDistance: 5000,
-          targetDuration: 1800,
-          targetRythm: 80,
-          intervals: 5,
-          intervalDistance: 1000,
-          intervalDuration: 300,
-          intervalRest: 60,
-          specialInstructions: 'ADDED COZ NO ID',
-          objectives: '',
-        );
-
-        const multisetUpdatedLocal = MultisetModel(
+        final multisetUpdatedNoExercise = createMultiset(
           id: 1,
           trainingId: 1,
-          sets: 4,
-          setRest: 60,
-          multisetRest: 120,
-          specialInstructions: 'Do it slowly',
-          objectives: 'Increase strength',
-          trainingExercises: [
-            multisetTrainingExerciseUpdated,
-            multisetTrainingExerciseUpdatedLocal
-          ],
         );
-        const trainingExerciseUpdatedLocal = TrainingExerciseModel(
-          id: null,
-          trainingId: 1,
-          multisetId: null,
-          exerciseId: 1,
-          trainingExerciseType: TrainingExerciseType.yoga,
-          sets: 3,
-          reps: 15,
-          duration: 600,
-          setRest: 120,
-          exerciseRest: 90,
-          manualStart: true,
-          targetDistance: 5000,
-          targetDuration: 1800,
-          targetRythm: 80,
-          intervals: 5,
-          intervalDistance: 1000,
-          intervalDuration: 300,
-          intervalRest: 60,
-          specialInstructions: 'ADDED COZ NO ID',
-          objectives: '',
-        );
-        const trainingUpdateLocal = TrainingModel(
+        final trainingUpdate2 = createTraining(
           id: 1,
           name: 'EDITED Full Body Workout',
           type: TrainingType.run,
           isSelected: false,
-          multisets: [multisetUpdatedLocal],
+          multisets: [multisetUpdatedNoExercise],
+        );
+        await _initTraining(exerciseLocalDataSource, dataSource);
+
+        // Act : update the training
+        await dataSource.updateTraining(trainingUpdate2);
+
+        // Assert : compare the updated training to what's exepected
+        final updatedTraining = await dataSource.getTraining(1);
+        expect(updatedTraining, TrainingModel.fromJson(trainingUpdate2Json));
+
+        await _verifyDatabase(
+            db: db,
+            multisetsListMatcher: [multisetUpdated.toJson()],
+            trainingExercisesListMatcher: []);
+      },
+    );
+
+    test(
+      'UPDATE 3 : should update the training and its training exercises and create new training exercises when they have no id',
+      () async {
+        // Arrange
+        final multisetTrainingExerciseUpdate3 = createTrainingExercise(
+            trainingId: 1,
+            multisetId: 1,
+            exerciseId: 1,
+            specialInstructions: 'ADDED COZ NO ID');
+
+        final multisetUpdate3 = createMultiset(
+          id: 1,
+          trainingId: 1,
           trainingExercises: [
-            trainingExerciseUpdated,
-            trainingExerciseUpdatedLocal
+            multisetTrainingExerciseUpdated,
+            multisetTrainingExerciseUpdate3
           ],
         );
 
-        final trainingUpdatedJsonLocal = {
+        final trainingExerciseUpdate3 = createTrainingExercise(
+            trainingId: 1, specialInstructions: 'ADDED COZ NO ID');
+
+        final trainingUpdate3 = createTraining(
+          id: 1,
+          name: 'EDITED Full Body Workout',
+          type: TrainingType.run,
+          isSelected: false,
+          multisets: [multisetUpdate3],
+          trainingExercises: [trainingExerciseUpdated, trainingExerciseUpdate3],
+        );
+
+        final trainingUpdate3Json = {
           'id': 1,
           'name': 'EDITED Full Body Workout',
           'type': 0,
@@ -553,56 +286,18 @@ void main() {
               'id': 1,
               'training_id': 1,
               'training_exercises': [
-                {
-                  "id": 1,
-                  "training_id": 1,
-                  "multiset_id": 1,
-                  "exercise_id": 1,
-                  "name": "Downward Dog",
-                  "description": "Awesome description",
-                  "imagePath": "pathToImage",
-                  "training_exercise_type": 1,
-                  "special_instructions": "EDITED",
-                  "objectives": "",
-                  "target_distance": 5000,
-                  "target_duration": 1800,
-                  "target_rythm": 80,
-                  "intervals": 5,
-                  "interval_distance": 1000,
-                  "interval_duration": 300,
-                  "interval_rest": 60,
-                  "sets": 3,
-                  "reps": 15,
-                  "duration": 600,
-                  "set_rest": 120,
-                  "exercise_rest": 90,
-                  "manual_start": 1
-                },
-                {
-                  "id": 3,
-                  "training_id": 1,
-                  "multiset_id": 1,
-                  "exercise_id": 1,
-                  "name": "Downward Dog",
-                  "description": "Awesome description",
-                  "imagePath": "pathToImage",
-                  "training_exercise_type": 1,
-                  "special_instructions": "ADDED COZ NO ID",
-                  "objectives": "",
-                  "target_distance": 5000,
-                  "target_duration": 1800,
-                  "target_rythm": 80,
-                  "intervals": 5,
-                  "interval_distance": 1000,
-                  "interval_duration": 300,
-                  "interval_rest": 60,
-                  "sets": 3,
-                  "reps": 15,
-                  "duration": 600,
-                  "set_rest": 120,
-                  "exercise_rest": 90,
-                  "manual_start": 1
-                }
+                createTrainingExercise(
+                        id: 1,
+                        trainingId: 1,
+                        multisetId: 1,
+                        specialInstructions: 'EDITED')
+                    .toJson(),
+                createTrainingExercise(
+                        id: 3,
+                        trainingId: 1,
+                        multisetId: 1,
+                        specialInstructions: 'ADDED COZ NO ID')
+                    .toJson(),
               ],
               'sets': 4,
               'set_rest': 60,
@@ -612,326 +307,121 @@ void main() {
             }
           ],
           'training_exercises': [
-            {
-              "id": 2,
-              "training_id": 1,
-              "multiset_id": null,
-              "exercise_id": 1,
-              "name": "Downward Dog",
-              "description": "Awesome description",
-              "imagePath": "pathToImage",
-              "training_exercise_type": 1,
-              "special_instructions": "EDITED",
-              "objectives": "",
-              "target_distance": 5000,
-              "target_duration": 1800,
-              "target_rythm": 80,
-              "intervals": 5,
-              "interval_distance": 1000,
-              "interval_duration": 300,
-              "interval_rest": 60,
-              "sets": 3,
-              "reps": 15,
-              "duration": 600,
-              "set_rest": 120,
-              "exercise_rest": 90,
-              "manual_start": 1
-            },
-            {
-              "id": 4,
-              "training_id": 1,
-              "multiset_id": null,
-              "exercise_id": 1,
-              "name": "Downward Dog",
-              "description": "Awesome description",
-              "imagePath": "pathToImage",
-              "training_exercise_type": 1,
-              "special_instructions": "ADDED COZ NO ID",
-              "objectives": "",
-              "target_distance": 5000,
-              "target_duration": 1800,
-              "target_rythm": 80,
-              "intervals": 5,
-              "interval_distance": 1000,
-              "interval_duration": 300,
-              "interval_rest": 60,
-              "sets": 3,
-              "reps": 15,
-              "duration": 600,
-              "set_rest": 120,
-              "exercise_rest": 90,
-              "manual_start": 1
-            }
+            createTrainingExercise(
+                    id: 2, trainingId: 1, specialInstructions: 'EDITED')
+                .toJson(),
+            createTrainingExercise(
+                    id: 4,
+                    trainingId: 1,
+                    specialInstructions: 'ADDED COZ NO ID')
+                .toJson(),
           ]
         };
 
-        // Arrange : create a valid exercise to use for the training exercises
-        final exerciseResult =
-            await exerciseLocalDataSource.createExercise(exercise);
-        expect(exerciseResult.name, exercise.name);
-        expect(exerciseResult.id, isNotNull);
-
-        // Create the training
-        final trainingResult = await dataSource.createTraining(training);
-        expect(trainingResult.name, training.name);
-        expect(trainingResult.id, isNotNull);
-
-        // Get the training and compare it with the actual training
-        final createdTraining =
-            await dataSource.getTraining(trainingResult.id!);
-        expect(createdTraining, TrainingModel.fromJson(trainingJson));
+        final trainingExercisesListUpdate3 = [
+          createTrainingExercise(
+                  id: 1,
+                  trainingId: 1,
+                  multisetId: 1,
+                  specialInstructions: 'EDITED')
+              .toJson(),
+          createTrainingExercise(
+                  id: 2, trainingId: 1, specialInstructions: 'EDITED')
+              .toJson(),
+          createTrainingExercise(
+                  id: 3,
+                  trainingId: 1,
+                  multisetId: 1,
+                  specialInstructions: 'ADDED COZ NO ID')
+              .toJson(),
+          createTrainingExercise(
+                  id: 4, trainingId: 1, specialInstructions: 'ADDED COZ NO ID')
+              .toJson(),
+        ];
+        await _initTraining(exerciseLocalDataSource, dataSource);
 
         // Act : update the training
-        await dataSource.updateTraining(trainingUpdateLocal);
+        await dataSource.updateTraining(trainingUpdate3);
 
         // Assert : compare the updated training to what's exepected
-        final updatedTraining =
-            await dataSource.getTraining(trainingResult.id!);
-        expect(
-            updatedTraining, TrainingModel.fromJson(trainingUpdatedJsonLocal));
+        final updatedTraining = await dataSource.getTraining(1);
+        expect(updatedTraining, TrainingModel.fromJson(trainingUpdate3Json));
 
-        // Verify that the exercises, training exercises and multisets are also correct
-        final multisetsList = await db.query('multisets');
-        expect(multisetsList, [multisetUpdated.toJson()]);
-
-        final trainingExercisesList = await db.query('training_exercises');
-        expect(trainingExercisesList, [
-          {
-            "id": 1,
-            "training_id": 1,
-            "multiset_id": 1,
-            "exercise_id": 1,
-            "training_exercise_type": 1,
-            "special_instructions": "EDITED",
-            "objectives": "",
-            "target_distance": 5000,
-            "target_duration": 1800,
-            "target_rythm": 80,
-            "intervals": 5,
-            "interval_distance": 1000,
-            "interval_duration": 300,
-            "interval_rest": 60,
-            "sets": 3,
-            "reps": 15,
-            "duration": 600,
-            "set_rest": 120,
-            "exercise_rest": 90,
-            "manual_start": 1
-          },
-          {
-            "id": 2,
-            "training_id": 1,
-            "multiset_id": null,
-            "exercise_id": 1,
-            "training_exercise_type": 1,
-            "special_instructions": "EDITED",
-            "objectives": "",
-            "target_distance": 5000,
-            "target_duration": 1800,
-            "target_rythm": 80,
-            "intervals": 5,
-            "interval_distance": 1000,
-            "interval_duration": 300,
-            "interval_rest": 60,
-            "sets": 3,
-            "reps": 15,
-            "duration": 600,
-            "set_rest": 120,
-            "exercise_rest": 90,
-            "manual_start": 1
-          },
-          {
-            "id": 3,
-            "training_id": 1,
-            "multiset_id": 1,
-            "exercise_id": 1,
-            "training_exercise_type": 1,
-            "special_instructions": "ADDED COZ NO ID",
-            "objectives": "",
-            "target_distance": 5000,
-            "target_duration": 1800,
-            "target_rythm": 80,
-            "intervals": 5,
-            "interval_distance": 1000,
-            "interval_duration": 300,
-            "interval_rest": 60,
-            "sets": 3,
-            "reps": 15,
-            "duration": 600,
-            "set_rest": 120,
-            "exercise_rest": 90,
-            "manual_start": 1
-          },
-          {
-            "id": 4,
-            "training_id": 1,
-            "multiset_id": null,
-            "exercise_id": 1,
-            "training_exercise_type": 1,
-            "special_instructions": "ADDED COZ NO ID",
-            "objectives": "",
-            "target_distance": 5000,
-            "target_duration": 1800,
-            "target_rythm": 80,
-            "intervals": 5,
-            "interval_distance": 1000,
-            "interval_duration": 300,
-            "interval_rest": 60,
-            "sets": 3,
-            "reps": 15,
-            "duration": 600,
-            "set_rest": 120,
-            "exercise_rest": 90,
-            "manual_start": 1
-          }
-        ]);
-
-        final exercisesList = await db.query('exercises');
-        expect(exercisesList, [exerciseJson]);
+        await _verifyDatabase(
+            db: db,
+            multisetsListMatcher: [multisetUpdated.toJson()],
+            trainingExercisesListMatcher: trainingExercisesListUpdate3);
       },
     );
 
     test(
-      'should update the training and delete its multisets',
+      'UPDATE 4 : should update the training and delete its multisets',
       () async {
-        const trainingUpdateLocal = TrainingModel(
+        // Arrange
+        final trainingUpdate4 = createTraining(
           id: 1,
           name: 'EDITED Full Body Workout',
           type: TrainingType.run,
           isSelected: false,
-          multisets: [],
           trainingExercises: [trainingExerciseUpdated],
         );
 
-        final trainingUpdatedJsonLocal = {
+        final trainingUpdate4Json = {
           'id': 1,
           'name': 'EDITED Full Body Workout',
           'type': 0,
           'is_selected': 0,
           'multisets': [],
           'training_exercises': [
-            {
-              "id": 2,
-              "training_id": 1,
-              "multiset_id": null,
-              "exercise_id": 1,
-              "name": "Downward Dog",
-              "description": "Awesome description",
-              "imagePath": "pathToImage",
-              "training_exercise_type": 1,
-              "special_instructions": "EDITED",
-              "objectives": "",
-              "target_distance": 5000,
-              "target_duration": 1800,
-              "target_rythm": 80,
-              "intervals": 5,
-              "interval_distance": 1000,
-              "interval_duration": 300,
-              "interval_rest": 60,
-              "sets": 3,
-              "reps": 15,
-              "duration": 600,
-              "set_rest": 120,
-              "exercise_rest": 90,
-              "manual_start": 1
-            }
+            createTrainingExercise(
+                    id: 2, trainingId: 1, specialInstructions: 'EDITED')
+                .toJson()
           ]
         };
-        // Arrange : create a valid exercise to use for the training exercises
-        final exerciseResult =
-            await exerciseLocalDataSource.createExercise(exercise);
-        expect(exerciseResult.name, exercise.name);
-        expect(exerciseResult.id, isNotNull);
-
-        // Create the training
-        final trainingResult = await dataSource.createTraining(training);
-        expect(trainingResult.name, training.name);
-        expect(trainingResult.id, isNotNull);
-
-        // Get the training and compare it with the actual training
-        final createdTraining =
-            await dataSource.getTraining(trainingResult.id!);
-        expect(createdTraining, TrainingModel.fromJson(trainingJson));
+        await _initTraining(exerciseLocalDataSource, dataSource);
 
         // Act : update the training
-        await dataSource.updateTraining(trainingUpdateLocal);
+        await dataSource.updateTraining(trainingUpdate4);
 
         // Assert : compare the updated training to what's exepected
-        final updatedTraining =
-            await dataSource.getTraining(trainingResult.id!);
-        expect(
-            updatedTraining, TrainingModel.fromJson(trainingUpdatedJsonLocal));
+        final updatedTraining = await dataSource.getTraining(1);
+        expect(updatedTraining, TrainingModel.fromJson(trainingUpdate4Json));
 
-        // Verify that the exercises, training exercises and multisets are also correct
-        final multisetsList = await db.query('multisets');
-        expect(multisetsList, []);
-
-        final trainingExercisesList = await db.query('training_exercises');
-        expect(trainingExercisesList, [trainingExerciseUpdated.toJson()]);
-
-        final exercisesList = await db.query('exercises');
-        expect(exercisesList, [exerciseJson]);
+        await _verifyDatabase(
+            db: db,
+            multisetsListMatcher: [],
+            trainingExercisesListMatcher: [trainingExerciseUpdated.toJson()]);
       },
     );
 
     test(
-      'should update the training and its multisets and create multisets when they have no id',
+      'UPDATE 5 : should update the training and its multisets and create multisets when they have no id',
       () async {
-        const multisetUpdatedLocal = MultisetModel(
+        // Arrange
+        final multisetUpdate5 = createMultiset(
           id: 1,
           trainingId: 1,
-          sets: 4,
-          setRest: 60,
-          multisetRest: 120,
-          specialInstructions: 'Do it slowly',
-          objectives: 'Increase strength',
           trainingExercises: [multisetTrainingExerciseUpdated],
         );
 
-        const multisetTrainingExerciseUpdatedNoId = TrainingExerciseModel(
-          id: null,
-          trainingId: 1,
-          multisetId: null, // Multiset id inconnu puisque pas encore créé
-          exerciseId: 1,
-          trainingExerciseType: TrainingExerciseType.yoga,
-          sets: 3,
-          reps: 15,
-          duration: 600,
-          setRest: 120,
-          exerciseRest: 90,
-          manualStart: true,
-          targetDistance: 5000,
-          targetDuration: 1800,
-          targetRythm: 80,
-          intervals: 5,
-          intervalDistance: 1000,
-          intervalDuration: 300,
-          intervalRest: 60,
-          specialInstructions: 'CREATED',
-          objectives: '',
-        );
+        final multisetTrainingExerciseUpdate5NoId = createTrainingExercise(
+            trainingId: 1, specialInstructions: 'CREATED');
 
-        const multisetUpdatedLocalNoId = MultisetModel(
-          id: null,
+        final multisetUpdate5LocalNoId = createMultiset(
           trainingId: 1,
-          sets: 4,
-          setRest: 60,
-          multisetRest: 120,
           specialInstructions: 'ADDED COZ NO ID',
-          objectives: 'Increase strength',
-          trainingExercises: [multisetTrainingExerciseUpdatedNoId],
+          trainingExercises: [multisetTrainingExerciseUpdate5NoId],
         );
-
-        const trainingUpdateLocal = TrainingModel(
+        final trainingUpdateLocal = createTraining(
           id: 1,
           name: 'EDITED Full Body Workout',
           type: TrainingType.run,
           isSelected: false,
-          multisets: [multisetUpdatedLocal, multisetUpdatedLocalNoId],
-          trainingExercises: [trainingExerciseUpdated], // exo avec id = 2
+          multisets: [multisetUpdate5, multisetUpdate5LocalNoId],
+          trainingExercises: [trainingExerciseUpdated],
         );
 
-        final trainingUpdatedJsonLocal = {
+        final trainingUpdate5Json = {
           'id': 1,
           'name': 'EDITED Full Body Workout',
           'type': 0,
@@ -941,31 +431,12 @@ void main() {
               'id': 1,
               'training_id': 1,
               'training_exercises': [
-                {
-                  "id": 1,
-                  "training_id": 1,
-                  "multiset_id": 1,
-                  "exercise_id": 1,
-                  "name": "Downward Dog",
-                  "description": "Awesome description",
-                  "imagePath": "pathToImage",
-                  "training_exercise_type": 1,
-                  "special_instructions": "EDITED",
-                  "objectives": "",
-                  "target_distance": 5000,
-                  "target_duration": 1800,
-                  "target_rythm": 80,
-                  "intervals": 5,
-                  "interval_distance": 1000,
-                  "interval_duration": 300,
-                  "interval_rest": 60,
-                  "sets": 3,
-                  "reps": 15,
-                  "duration": 600,
-                  "set_rest": 120,
-                  "exercise_rest": 90,
-                  "manual_start": 1
-                }
+                createTrainingExercise(
+                        id: 1,
+                        trainingId: 1,
+                        multisetId: 1,
+                        specialInstructions: 'EDITED')
+                    .toJson(),
               ],
               'sets': 4,
               'set_rest': 60,
@@ -977,31 +448,12 @@ void main() {
               'id': 2,
               'training_id': 1,
               'training_exercises': [
-                {
-                  "id": 3,
-                  "training_id": 1,
-                  "multiset_id": 2,
-                  "exercise_id": 1,
-                  "name": "Downward Dog",
-                  "description": "Awesome description",
-                  "imagePath": "pathToImage",
-                  "training_exercise_type": 1,
-                  "special_instructions": "CREATED",
-                  "objectives": "",
-                  "target_distance": 5000,
-                  "target_duration": 1800,
-                  "target_rythm": 80,
-                  "intervals": 5,
-                  "interval_distance": 1000,
-                  "interval_duration": 300,
-                  "interval_rest": 60,
-                  "sets": 3,
-                  "reps": 15,
-                  "duration": 600,
-                  "set_rest": 120,
-                  "exercise_rest": 90,
-                  "manual_start": 1
-                }
+                createTrainingExercise(
+                        id: 3,
+                        trainingId: 1,
+                        multisetId: 2,
+                        specialInstructions: 'CREATED')
+                    .toJson(),
               ],
               'sets': 4,
               'set_rest': 60,
@@ -1011,151 +463,49 @@ void main() {
             }
           ],
           'training_exercises': [
-            {
-              "id": 2,
-              "training_id": 1,
-              "multiset_id": null,
-              "exercise_id": 1,
-              "name": "Downward Dog",
-              "description": "Awesome description",
-              "imagePath": "pathToImage",
-              "training_exercise_type": 1,
-              "special_instructions": "EDITED",
-              "objectives": "",
-              "target_distance": 5000,
-              "target_duration": 1800,
-              "target_rythm": 80,
-              "intervals": 5,
-              "interval_distance": 1000,
-              "interval_duration": 300,
-              "interval_rest": 60,
-              "sets": 3,
-              "reps": 15,
-              "duration": 600,
-              "set_rest": 120,
-              "exercise_rest": 90,
-              "manual_start": 1
-            }
+            createTrainingExercise(
+                    id: 2, trainingId: 1, specialInstructions: 'EDITED')
+                .toJson()
           ]
         };
 
-        // Arrange : create a valid exercise to use for the training exercises
-        final exerciseResult =
-            await exerciseLocalDataSource.createExercise(exercise);
-        expect(exerciseResult.name, exercise.name);
-        expect(exerciseResult.id, isNotNull);
+        final multisetsListMatcherUpdate5 = [
+          createMultiset(id: 1, trainingId: 1).toJson(),
+          createMultiset(
+                  id: 2, trainingId: 1, specialInstructions: 'ADDED COZ NO ID')
+              .toJson(),
+        ];
 
-        // Create the training
-        final trainingResult = await dataSource.createTraining(training);
-        expect(trainingResult.name, training.name);
-        expect(trainingResult.id, isNotNull);
-
-        // Get the training and compare it with the actual training
-        final createdTraining =
-            await dataSource.getTraining(trainingResult.id!);
-        expect(createdTraining, TrainingModel.fromJson(trainingJson));
+        final trainingExercisesListMatcherUpdate5 = [
+          createTrainingExercise(
+                  id: 1,
+                  trainingId: 1,
+                  multisetId: 1,
+                  specialInstructions: 'EDITED')
+              .toJson(),
+          createTrainingExercise(
+                  id: 2, trainingId: 1, specialInstructions: 'EDITED')
+              .toJson(),
+          createTrainingExercise(
+                  id: 3,
+                  trainingId: 1,
+                  multisetId: 2,
+                  specialInstructions: 'CREATED')
+              .toJson()
+        ];
+        await _initTraining(exerciseLocalDataSource, dataSource);
 
         // Act : update the training
         await dataSource.updateTraining(trainingUpdateLocal);
 
         // Assert : compare the updated training to what's exepected
-        final updatedTraining =
-            await dataSource.getTraining(trainingResult.id!);
-        expect(
-            updatedTraining, TrainingModel.fromJson(trainingUpdatedJsonLocal));
+        final updatedTraining = await dataSource.getTraining(1);
+        expect(updatedTraining, TrainingModel.fromJson(trainingUpdate5Json));
 
-        // Verify that the exercises, training exercises and multisets are also correct
-        final multisetsList = await db.query('multisets');
-        expect(multisetsList, [
-          {
-            'id': 1,
-            'training_id': 1,
-            'sets': 4,
-            'set_rest': 60,
-            'multiset_rest': 120,
-            'special_instructions': 'Do it slowly',
-            'objectives': 'Increase strength'
-          },
-          {
-            'id': 2,
-            'training_id': 1,
-            'sets': 4,
-            'set_rest': 60,
-            'multiset_rest': 120,
-            'special_instructions': 'ADDED COZ NO ID',
-            'objectives': 'Increase strength'
-          }
-        ]);
-
-        final trainingExercisesList = await db.query('training_exercises');
-        expect(trainingExercisesList, [
-          {
-            "id": 1,
-            "training_id": 1,
-            "multiset_id": 1,
-            "exercise_id": 1,
-            "training_exercise_type": 1,
-            "special_instructions": "EDITED",
-            "objectives": "",
-            "target_distance": 5000,
-            "target_duration": 1800,
-            "target_rythm": 80,
-            "intervals": 5,
-            "interval_distance": 1000,
-            "interval_duration": 300,
-            "interval_rest": 60,
-            "sets": 3,
-            "reps": 15,
-            "duration": 600,
-            "set_rest": 120,
-            "exercise_rest": 90,
-            "manual_start": 1
-          },
-          {
-            "id": 2,
-            "training_id": 1,
-            "multiset_id": null,
-            "exercise_id": 1,
-            "training_exercise_type": 1,
-            "special_instructions": "EDITED",
-            "objectives": "",
-            "target_distance": 5000,
-            "target_duration": 1800,
-            "target_rythm": 80,
-            "intervals": 5,
-            "interval_distance": 1000,
-            "interval_duration": 300,
-            "interval_rest": 60,
-            "sets": 3,
-            "reps": 15,
-            "duration": 600,
-            "set_rest": 120,
-            "exercise_rest": 90,
-            "manual_start": 1
-          },
-          {
-            "id": 3,
-            "training_id": 1,
-            "multiset_id": 2,
-            "exercise_id": 1,
-            "training_exercise_type": 1,
-            "special_instructions": "CREATED",
-            "objectives": "",
-            "target_distance": 5000,
-            "target_duration": 1800,
-            "target_rythm": 80,
-            "intervals": 5,
-            "interval_distance": 1000,
-            "interval_duration": 300,
-            "interval_rest": 60,
-            "sets": 3,
-            "reps": 15,
-            "duration": 600,
-            "set_rest": 120,
-            "exercise_rest": 90,
-            "manual_start": 1
-          }
-        ]);
+        await _verifyDatabase(
+            db: db,
+            multisetsListMatcher: multisetsListMatcherUpdate5,
+            trainingExercisesListMatcher: trainingExercisesListMatcherUpdate5);
 
         final exercisesList = await db.query('exercises');
         expect(exercisesList, [exerciseJson]);
@@ -1167,40 +517,49 @@ void main() {
     test(
       'should delete the specified training and all its multisets/training exercises associated',
       () async {
-        // Arrange : create a valid exercise to use for the training exercises
-        final exerciseResult =
-            await exerciseLocalDataSource.createExercise(exercise);
-        expect(exerciseResult.name, exercise.name);
-        expect(exerciseResult.id, isNotNull);
-
-        // Create a training to delete later
-        final trainingResult = await dataSource.createTraining(training);
-        expect(trainingResult.name, training.name);
-        expect(trainingResult.id, isNotNull);
-
-        // Verify the training is actually created
-        final createdTraining =
-            await dataSource.getTraining(trainingResult.id!);
-        expect(createdTraining, TrainingModel.fromJson(trainingJson));
+        // Arrange
+        await _initTraining(exerciseLocalDataSource, dataSource);
 
         // Act : delete the training
-        await dataSource.deleteTraining(trainingResult.id!);
+        await dataSource.deleteTraining(1);
 
         // Assert : check that the training and the multisets/training exercises associated with it are deleted
         final trainingsList = await dataSource.fetchTrainings();
         expect(trainingsList, []);
 
-        final multisetsList = await db.query('multisets');
-        expect(multisetsList, []);
-
-        final trainingExercisesList = await db.query('training_exercises');
-        expect(trainingExercisesList, []);
-
-        final exercisesList = await db.query('exercises');
-        expect(exercisesList, [exerciseJson]);
+        await _verifyDatabase(
+            db: db, multisetsListMatcher: [], trainingExercisesListMatcher: []);
       },
     );
   });
+}
+
+Future<void> _initTraining(ExerciseLocalDataSource exerciseLocalDataSource,
+    TrainingLocalDataSource dataSource) async {
+  final exerciseResult = await exerciseLocalDataSource.createExercise(exercise);
+  expect(exerciseResult.name, exercise.name);
+  expect(exerciseResult.id, isNotNull);
+
+  final trainingResult = await dataSource.createTraining(trainingBase);
+  expect(trainingResult.name, trainingBase.name);
+  expect(trainingResult.id, isNotNull);
+
+  final createdTraining = await dataSource.getTraining(1);
+  expect(createdTraining, TrainingModel.fromJson(trainingBaseJson));
+}
+
+Future<void> _verifyDatabase(
+    {required Database db,
+    required multisetsListMatcher,
+    required trainingExercisesListMatcher}) async {
+  final multisetsList = await db.query('multisets');
+  expect(multisetsList, multisetsListMatcher);
+
+  final trainingExercisesList = await db.query('training_exercises');
+  expect(trainingExercisesList, trainingExercisesListMatcher);
+
+  final exercisesList = await db.query('exercises');
+  expect(exercisesList, [exerciseJson]);
 }
 
 Future<void> _createTables(Database db) async {
@@ -1260,4 +619,89 @@ Future<void> _createTables(Database db) async {
       FOREIGN KEY(exercise_id) REFERENCES exercises(id) ON DELETE CASCADE
     )
   ''');
+}
+
+TrainingExerciseModel createTrainingExercise({
+  int? id,
+  int? trainingId,
+  int? multisetId,
+  int exerciseId = 1,
+  String name = "Downward Dog",
+  String description = "Awesome description",
+  String imagePath = "pathToImage",
+  TrainingExerciseType type = TrainingExerciseType.yoga,
+  String specialInstructions = "",
+  String objectives = "",
+  int targetDistance = 5000,
+  int targetDuration = 1800,
+  int targetRythm = 80,
+  int intervals = 5,
+  int intervalDistance = 1000,
+  int intervalDuration = 300,
+  int intervalRest = 60,
+  int sets = 3,
+  int reps = 15,
+  int duration = 600,
+  int setRest = 120,
+  int exerciseRest = 90,
+  bool manualStart = true,
+}) {
+  return TrainingExerciseModel(
+    id: id,
+    trainingId: trainingId,
+    multisetId: multisetId,
+    exerciseId: exerciseId,
+    trainingExerciseType: type,
+    sets: sets,
+    reps: reps,
+    duration: duration,
+    setRest: setRest,
+    exerciseRest: exerciseRest,
+    manualStart: manualStart,
+    targetDistance: targetDistance,
+    targetDuration: targetDuration,
+    targetRythm: targetRythm,
+    intervals: intervals,
+    intervalDistance: intervalDistance,
+    intervalDuration: intervalDuration,
+    intervalRest: intervalRest,
+    specialInstructions: specialInstructions,
+    objectives: objectives,
+  );
+}
+
+MultisetModel createMultiset({
+  int? id,
+  int? trainingId,
+  String specialInstructions = "Do it slowly",
+  String objectives = "Increase strength",
+  List<TrainingExerciseModel> trainingExercises = const [],
+}) {
+  return MultisetModel(
+    id: id,
+    trainingId: trainingId,
+    sets: 4,
+    setRest: 60,
+    multisetRest: 120,
+    specialInstructions: specialInstructions,
+    objectives: objectives,
+    trainingExercises: trainingExercises,
+  );
+}
+
+TrainingModel createTraining({
+  int? id,
+  String name = 'Full Body Workout',
+  TrainingType type = TrainingType.yoga,
+  bool isSelected = true,
+  List<TrainingExercise> trainingExercises = const [],
+  List<Multiset> multisets = const [],
+}) {
+  return TrainingModel(
+      id: id,
+      name: name,
+      type: type,
+      isSelected: isSelected,
+      trainingExercises: trainingExercises,
+      multisets: multisets);
 }
