@@ -132,7 +132,6 @@ class SQLiteTrainingLocalDataSource implements TrainingLocalDataSource {
             where: 'id = ?',
             whereArgs: [multiset.id],
           );
-
           if (rowsUpdated == 0) {
             // If no rows were updated, insert as new (in case id was not found)
             final newId = await database.insert(
@@ -149,7 +148,7 @@ class SQLiteTrainingLocalDataSource implements TrainingLocalDataSource {
           final newId = await database.insert(
               'multisets', multisetWithTrainingId.toJson());
           currentMultisetsIds.add(newId);
-          // Update th current multisetObjecton which trainingExercises will be iterated on
+          // Update the current multisetObject on which trainingExercises will be iterated on
           createdMultisetWithTrainingId =
               createdMultisetWithTrainingId.copyWith(id: newId);
         }
@@ -168,7 +167,6 @@ class SQLiteTrainingLocalDataSource implements TrainingLocalDataSource {
               where: 'id = ?',
               whereArgs: [trainingExercise.id],
             );
-
             if (rowsUpdated == 0) {
               // If no rows were updated, insert as new (in case id was not found)
               final newId = await database.insert('training_exercises',
@@ -214,7 +212,6 @@ class SQLiteTrainingLocalDataSource implements TrainingLocalDataSource {
             where: 'id = ?',
             whereArgs: [trainingExercise.id],
           );
-
           if (rowsUpdated == 0) {
             // If no rows were updated, insert as new (in case id was not found)
             final newId = await database.insert(

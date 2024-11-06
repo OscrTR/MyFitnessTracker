@@ -98,7 +98,6 @@ class SQLiteMultisetLocalDataSource implements MultisetLocalDataSource {
             where: 'id = ?',
             whereArgs: [trainingExercise.id],
           );
-
           if (rowsUpdated == 0) {
             // If no rows were updated, insert as new (in case id was not found)
             final newId = await database.insert(

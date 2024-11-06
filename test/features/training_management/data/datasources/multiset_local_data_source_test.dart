@@ -44,6 +44,29 @@ void main() {
     objectives: '',
   );
 
+  const trainingExerciseNoId = TrainingExerciseModel(
+    id: null,
+    trainingId: trainingId,
+    multisetId: multisetId,
+    exerciseId: 3,
+    trainingExerciseType: TrainingExerciseType.yoga,
+    sets: 3,
+    reps: 15,
+    duration: 600,
+    setRest: 120,
+    exerciseRest: 90,
+    manualStart: true,
+    targetDistance: 5000,
+    targetDuration: 1800,
+    targetRythm: 80,
+    intervals: 5,
+    intervalDistance: 1000,
+    intervalDuration: 300,
+    intervalRest: 60,
+    specialInstructions: '',
+    objectives: '',
+  );
+
   const multiset = MultisetModel(
     id: multisetId,
     trainingId: trainingId,
@@ -53,6 +76,16 @@ void main() {
     specialInstructions: 'Do it slowly',
     objectives: 'Increase strength',
     trainingExercises: [trainingExercise],
+  );
+  const multisetTrainingExerciseNoId = MultisetModel(
+    id: multisetId,
+    trainingId: trainingId,
+    sets: 4,
+    setRest: 60,
+    multisetRest: 120,
+    specialInstructions: 'Do it slowly',
+    objectives: 'Increase strength',
+    trainingExercises: [trainingExerciseNoId],
   );
 
   final multisetJson = {
@@ -200,6 +233,63 @@ void main() {
       verify(() => mockDatabase.delete(any(),
           where: any(named: 'where'),
           whereArgs: any(named: 'whereArgs'))).called(1);
+    });
+
+    test(
+        'should update existing trainingExercise and insert a new one if not found',
+        () async {
+      // Arrange
+      when(() => mockDatabase.update('multisets', any(),
+          where: any(named: 'where'),
+          whereArgs: any(named: 'whereArgs'))).thenAnswer((_) async => 1);
+      when(() => mockDatabase.insert('multisets', any()))
+          .thenAnswer((_) async => multisetId);
+      when(() => mockDatabase.update('training_exercises', any(),
+          where: any(named: 'where'),
+          whereArgs: any(named: 'whereArgs'))).thenAnswer((_) async => 0);
+      when(() => mockDatabase.insert('training_exercises', any()))
+          .thenAnswer((_) async => trainingExercise.id!);
+      when(() => mockDatabase.delete('training_exercises',
+          where: any(named: 'where'),
+          whereArgs: any(named: 'whereArgs'))).thenAnswer((_) async => 1);
+
+      // Act
+      final result = await dataSource.updateMultiset(multiset);
+
+      // Assert
+      verify(() => mockDatabase.update('multisets', multiset.toJson(),
+          where: 'id = ?', whereArgs: [multiset.id])).called(1);
+      verify(() => mockDatabase.insert(
+          'training_exercises', trainingExercise.toJson())).called(1);
+      expect(result.id, multiset.id);
+    });
+
+    test('should insert new trainingExercise if it has no id', () async {
+      // Arrange
+      when(() => mockDatabase.update('multisets', any(),
+          where: any(named: 'where'),
+          whereArgs: any(named: 'whereArgs'))).thenAnswer((_) async => 1);
+      when(() => mockDatabase.insert('multisets', any()))
+          .thenAnswer((_) async => multisetId);
+      when(() => mockDatabase.update('training_exercises', any(),
+          where: any(named: 'where'),
+          whereArgs: any(named: 'whereArgs'))).thenAnswer((_) async => 0);
+      when(() => mockDatabase.insert('training_exercises', any()))
+          .thenAnswer((_) async => trainingExercise.id!);
+      when(() => mockDatabase.delete('training_exercises',
+          where: any(named: 'where'),
+          whereArgs: any(named: 'whereArgs'))).thenAnswer((_) async => 1);
+
+      // Act
+      final result =
+          await dataSource.updateMultiset(multisetTrainingExerciseNoId);
+
+      // Assert
+      verify(() => mockDatabase.update('multisets', multiset.toJson(),
+          where: 'id = ?', whereArgs: [multiset.id])).called(1);
+      verify(() => mockDatabase.insert(
+          'training_exercises', trainingExerciseNoId.toJson())).called(1);
+      expect(result.id, multiset.id);
     });
 
     test('should throw LocalDatabaseException on error', () async {
