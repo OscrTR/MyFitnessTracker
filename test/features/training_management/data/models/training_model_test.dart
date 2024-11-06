@@ -99,7 +99,7 @@ void main() {
         "id": 1,
         "name": "Morning Routine",
         "type": 1,
-        "is_selected": true,
+        "is_selected": 1,
       };
       expect(result, expectedMap);
     });

@@ -80,7 +80,7 @@ void main() {
           "duration": 600,
           "set_rest": 120,
           "exercise_rest": 90,
-          "manual_start": true
+          "manual_start": 1
         };
         expect(result, expectedMap);
       },

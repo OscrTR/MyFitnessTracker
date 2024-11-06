@@ -6,18 +6,10 @@ import 'package:my_fitness_tracker/features/training_management/domain/entities/
 import 'package:my_fitness_tracker/features/training_management/domain/entities/training.dart';
 import 'package:my_fitness_tracker/features/training_management/domain/entities/training_exercise.dart';
 
-import 'package:my_fitness_tracker/features/training_management/domain/repositories/multiset_repository.dart';
-import 'package:my_fitness_tracker/features/training_management/domain/repositories/training_exercise_repository.dart';
-
 import 'package:my_fitness_tracker/features/training_management/domain/repositories/training_repository.dart';
 import 'package:my_fitness_tracker/features/training_management/domain/usecases/create_training.dart';
 
 class MockTrainingRepository extends Mock implements TrainingRepository {}
-
-class MockTrainingExerciseRepository extends Mock
-    implements TrainingExerciseRepository {}
-
-class MockMultisetRepository extends Mock implements MultisetRepository {}
 
 void main() {
   late MockTrainingRepository mockTrainingRepository;

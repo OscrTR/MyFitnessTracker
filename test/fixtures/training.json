@@ -3,7 +3,7 @@
     "id": 1,
     "name": "Morning Routine",
     "type": 1,
-    "is_selected": true,
+    "is_selected": 1,
     "training_exercises": [
       {
         "id": 1,
@@ -25,7 +25,7 @@
         "duration": 600,
         "set_rest": 120,
         "exercise_rest": 90,
-        "manual_start": true
+        "manual_start": 1
       }
     ],
     "multisets": [
@@ -58,7 +58,7 @@
             "duration": 600,
             "set_rest": 120,
             "exercise_rest": 90,
-            "manual_start": true
+            "manual_start": 1
           }
         ]
       }
