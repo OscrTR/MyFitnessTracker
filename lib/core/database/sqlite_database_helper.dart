@@ -13,6 +13,8 @@ class SQLiteDatabaseHelper {
     _database = await openDatabase(
       join(path, 'my_fitness_tracker.db'),
       onCreate: (db, version) async {
+        await db.execute('PRAGMA foreign_keys = ON');
+
         await db.execute('''
           CREATE TABLE exercises(
             id INTEGER PRIMARY KEY AUTOINCREMENT, 
@@ -21,6 +23,7 @@ class SQLiteDatabaseHelper {
             image_path TEXT
           )
         ''');
+
         await db.execute('''
           CREATE TABLE trainings(
             id INTEGER PRIMARY KEY AUTOINCREMENT, 
@@ -29,6 +32,7 @@ class SQLiteDatabaseHelper {
             is_selected INTEGER
           )
         ''');
+
         await db.execute('''
           CREATE TABLE multisets(
             id INTEGER PRIMARY KEY AUTOINCREMENT, 
@@ -41,6 +45,7 @@ class SQLiteDatabaseHelper {
             FOREIGN KEY(training_id) REFERENCES trainings(id) ON DELETE CASCADE
           )
         ''');
+
         await db.execute('''
           CREATE TABLE training_exercises(
             id INTEGER PRIMARY KEY AUTOINCREMENT,

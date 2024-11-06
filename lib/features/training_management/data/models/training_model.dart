@@ -18,14 +18,16 @@ class TrainingModel extends Training {
       name: json['name'] as String,
       type: TrainingType.values[json['type'] as int],
       isSelected: (json['is_selected'] as int) == 1 ? true : false,
-      trainingExercises: (json['training_exercises'] as List<dynamic>)
-          .map((exerciseJson) => TrainingExerciseModel.fromJson(
-              exerciseJson as Map<String, dynamic>))
-          .toList(),
-      multisets: (json['multisets'] as List<dynamic>)
-          .map((multisetJson) =>
-              MultisetModel.fromJson(multisetJson as Map<String, dynamic>))
-          .toList(),
+      trainingExercises: (json['training_exercises'] as List<dynamic>?)
+              ?.map((exerciseJson) => TrainingExerciseModel.fromJson(
+                  exerciseJson as Map<String, dynamic>))
+              .toList() ??
+          [], // Default to empty list if null
+      multisets: (json['multisets'] as List<dynamic>?)
+              ?.map((multisetJson) =>
+                  MultisetModel.fromJson(multisetJson as Map<String, dynamic>))
+              .toList() ??
+          [], // Default to empty list if null
     );
   }
 
