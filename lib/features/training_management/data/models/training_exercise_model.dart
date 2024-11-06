@@ -46,7 +46,7 @@ class TrainingExerciseModel extends TrainingExercise {
       duration: json['duration'] as int?,
       setRest: json['set_rest'] as int?,
       exerciseRest: json['exercise_rest'] as int?,
-      manualStart: json['manual_start'] as bool?,
+      manualStart: (json['manual_start'] as int?) == 1 ? true : false,
     );
   }
 
@@ -71,7 +71,7 @@ class TrainingExerciseModel extends TrainingExercise {
       'duration': duration,
       'set_rest': setRest,
       'exercise_rest': exerciseRest,
-      'manual_start': manualStart,
+      'manual_start': manualStart == true ? 1 : 0,
     };
   }
 

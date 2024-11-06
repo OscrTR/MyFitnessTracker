@@ -3,8 +3,8 @@
     "id": 1,
     "name": "Morning Routine",
     "type": 1,
-    "isSelected": true,
-    "exercises": [
+    "is_selected": true,
+    "training_exercises": [
       {
         "id": 1,
         "training_id": 1,

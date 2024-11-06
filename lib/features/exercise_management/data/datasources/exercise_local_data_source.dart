@@ -54,7 +54,7 @@ class SQLiteExerciseLocalDataSource implements ExerciseLocalDataSource {
         description: exerciseToCreate.description,
       );
     } catch (e) {
-      throw LocalDatabaseException();
+      throw LocalDatabaseException(e.toString());
     }
   }
 
@@ -73,7 +73,7 @@ class SQLiteExerciseLocalDataSource implements ExerciseLocalDataSource {
         throw Exception('Exercise not found');
       }
     } catch (e) {
-      throw LocalDatabaseException();
+      throw LocalDatabaseException(e.toString());
     }
   }
 
@@ -88,7 +88,7 @@ class SQLiteExerciseLocalDataSource implements ExerciseLocalDataSource {
 
       return result;
     } catch (e) {
-      throw LocalDatabaseException();
+      throw LocalDatabaseException(e.toString());
     }
   }
 
@@ -109,7 +109,7 @@ class SQLiteExerciseLocalDataSource implements ExerciseLocalDataSource {
       );
       return exerciseToUpdateModel;
     } catch (e) {
-      throw LocalDatabaseException();
+      throw LocalDatabaseException(e.toString());
     }
   }
 
@@ -122,7 +122,7 @@ class SQLiteExerciseLocalDataSource implements ExerciseLocalDataSource {
         whereArgs: [id],
       );
     } catch (e) {
-      throw LocalDatabaseException();
+      throw LocalDatabaseException(e.toString());
     }
   }
 }

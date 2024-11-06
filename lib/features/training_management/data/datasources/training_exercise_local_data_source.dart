@@ -34,7 +34,7 @@ class SQLiteTrainingExerciseLocalDataSource
       return TrainingExerciseModel.fromTrainingExercise(
           createdTrainingExercise);
     } catch (e) {
-      throw LocalDatabaseException();
+      throw LocalDatabaseException(e.toString());
     }
   }
 
@@ -47,7 +47,7 @@ class SQLiteTrainingExerciseLocalDataSource
         whereArgs: [id],
       );
     } catch (e) {
-      throw LocalDatabaseException();
+      throw LocalDatabaseException(e.toString());
     }
   }
 
@@ -63,7 +63,7 @@ class SQLiteTrainingExerciseLocalDataSource
 
       return values.map((map) => TrainingExerciseModel.fromJson(map)).toList();
     } catch (e) {
-      throw LocalDatabaseException();
+      throw LocalDatabaseException(e.toString());
     }
   }
 
@@ -82,7 +82,7 @@ class SQLiteTrainingExerciseLocalDataSource
       );
       return trainingExercise;
     } catch (e) {
-      throw LocalDatabaseException();
+      throw LocalDatabaseException(e.toString());
     }
   }
 }

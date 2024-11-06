@@ -38,7 +38,7 @@ class SQLiteMultisetLocalDataSource implements MultisetLocalDataSource {
       final createdMultiset = multiset.copyWith(id: id);
       return MultisetModel.fromMultiset(createdMultiset);
     } catch (e) {
-      throw LocalDatabaseException();
+      throw LocalDatabaseException(e.toString());
     }
   }
 
@@ -51,7 +51,7 @@ class SQLiteMultisetLocalDataSource implements MultisetLocalDataSource {
         whereArgs: [id],
       );
     } catch (e) {
-      throw LocalDatabaseException();
+      throw LocalDatabaseException(e.toString());
     }
   }
 
@@ -66,7 +66,7 @@ class SQLiteMultisetLocalDataSource implements MultisetLocalDataSource {
 
       return values.map((map) => MultisetModel.fromJson(map)).toList();
     } catch (e) {
-      throw LocalDatabaseException();
+      throw LocalDatabaseException(e.toString());
     }
   }
 
@@ -124,7 +124,7 @@ class SQLiteMultisetLocalDataSource implements MultisetLocalDataSource {
 
       return MultisetModel.fromMultiset(multiset);
     } catch (e) {
-      throw LocalDatabaseException();
+      throw LocalDatabaseException(e.toString());
     }
   }
 }

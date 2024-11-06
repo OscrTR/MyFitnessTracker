@@ -16,7 +16,7 @@ void main() {
       name: 'Morning Routine',
       type: TrainingType.yoga,
       isSelected: true,
-      exercises: [
+      trainingExercises: [
         TrainingExerciseModel(
           id: 1,
           trainingId: 1,
@@ -99,7 +99,7 @@ void main() {
         "id": 1,
         "name": "Morning Routine",
         "type": 1,
-        "isSelected": true,
+        "is_selected": true,
       };
       expect(result, expectedMap);
     });

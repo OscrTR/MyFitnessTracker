@@ -17,7 +17,7 @@ class TrainingModel extends Training {
       id: json['id'] as int?,
       name: json['name'] as String,
       type: TrainingType.values[json['type'] as int],
-      isSelected: json['is_selected'] as bool,
+      isSelected: (json['is_selected'] as int) == 1 ? true : false,
       trainingExercises: (json['training_exercises'] as List<dynamic>)
           .map((exerciseJson) => TrainingExerciseModel.fromJson(
               exerciseJson as Map<String, dynamic>))
@@ -34,11 +34,11 @@ class TrainingModel extends Training {
       'id': id,
       'name': name,
       'type': type.index,
-      'is_selected': isSelected,
+      'is_selected': isSelected == true ? 1 : 0,
     };
   }
 
-  factory TrainingModel.fromMultiset(Training training) {
+  factory TrainingModel.fromTraining(Training training) {
     return TrainingModel(
         id: training.id,
         name: training.name,

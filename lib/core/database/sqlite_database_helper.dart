@@ -25,7 +25,7 @@ class SQLiteDatabaseHelper {
           CREATE TABLE trainings(
             id INTEGER PRIMARY KEY AUTOINCREMENT, 
             name TEXT, 
-            type TEXT, 
+            type INTEGER, 
             is_selected INTEGER
           )
         ''');
@@ -47,7 +47,7 @@ class SQLiteDatabaseHelper {
             training_id INTEGER,
             multiset_id INTEGER,
             exercise_id INTEGER,
-            training_exercise_type TEXT,
+            training_exercise_type INTEGER,
             sets INTEGER,
             reps INTEGER,
             duration INTEGER,
@@ -61,7 +61,9 @@ class SQLiteDatabaseHelper {
             interval_distance INTEGER,
             interval_duration INTEGER,
             interval_rest INTEGER,
-            FOREIGN KEY(training_id) REFERENCES trainings(id) ON DELETE CASCADE
+            special_instructions TEXT,
+            objectives TEXT,
+            FOREIGN KEY(training_id) REFERENCES trainings(id) ON DELETE CASCADE,
             FOREIGN KEY(multiset_id) REFERENCES multisets(id) ON DELETE CASCADE,
             FOREIGN KEY(exercise_id) REFERENCES exercises(id) ON DELETE CASCADE
           )
