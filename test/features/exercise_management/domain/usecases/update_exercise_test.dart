@@ -46,13 +46,12 @@ void main() {
       verifyNoMoreInteractions(mockExerciseRepository);
     });
 
-    test('should return InvalidExerciseNameFailure when name is empty',
-        () async {
+    test('should return InvalidNameFailure when name is empty', () async {
       // Act
       final result = await updateExercise(const Params(exerciseNoName));
 
       // Assert
-      expect(result, const Left(InvalidExerciseNameFailure()));
+      expect(result, const Left(InvalidNameFailure()));
       verifyZeroInteractions(mockExerciseRepository);
     });
 

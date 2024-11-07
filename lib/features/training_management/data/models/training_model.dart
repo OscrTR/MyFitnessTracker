@@ -1,6 +1,6 @@
+import '../../domain/entities/training.dart';
 import 'multiset_model.dart';
 import 'training_exercise_model.dart';
-import '../../domain/entities/training.dart';
 
 class TrainingModel extends Training {
   const TrainingModel({

@@ -1,10 +1,10 @@
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
-import '../entities/training.dart';
-import '../repositories/training_repository.dart';
 
 import '../../../../core/error/failures.dart';
 import '../../../../core/usecases/usecase.dart';
+import '../entities/training.dart';
+import '../repositories/training_repository.dart';
 
 class CreateTraining extends Usecase<Training, Params> {
   final TrainingRepository repository;

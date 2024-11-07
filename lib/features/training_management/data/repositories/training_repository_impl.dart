@@ -1,10 +1,10 @@
 import 'package:dartz/dartz.dart';
-import '../../../../core/error/failures.dart';
-import '../datasources/training_local_data_source.dart';
-import '../../domain/entities/training.dart';
-import '../../domain/repositories/training_repository.dart';
 
 import '../../../../core/error/exceptions.dart';
+import '../../../../core/error/failures.dart';
+import '../../domain/entities/training.dart';
+import '../../domain/repositories/training_repository.dart';
+import '../datasources/training_local_data_source.dart';
 
 class TrainingRepositoryImpl implements TrainingRepository {
   final TrainingLocalDataSource localDataSource;

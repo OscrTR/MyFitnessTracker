@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
-import 'multiset.dart';
 
+import 'multiset.dart';
 import 'training_exercise.dart';
 
 enum TrainingType { run, yoga, workout }

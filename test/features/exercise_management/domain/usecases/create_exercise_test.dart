@@ -48,7 +48,7 @@ void main() {
   );
 
   test(
-    'should return an InvalidExerciseNameFailure when exercise name is empty',
+    'should return an InvalidNameFailure when exercise name is empty',
     () async {
       // Act
       final result = await usecase(Params(
@@ -60,7 +60,7 @@ void main() {
       ));
 
       // Assert
-      expect(result, const Left(InvalidExerciseNameFailure()));
+      expect(result, const Left(InvalidNameFailure()));
       verifyZeroInteractions(mockExerciseRepository);
     },
   );

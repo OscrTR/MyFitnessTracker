@@ -136,7 +136,7 @@ void main() async {
       'calls messageBloc with error when CreateExerciseEvent fails due to invalid name',
       build: () {
         when(() => mockCreateExercise(params))
-            .thenAnswer((_) async => const Left(InvalidExerciseNameFailure()));
+            .thenAnswer((_) async => const Left(InvalidNameFailure()));
         return bloc;
       },
       seed: () => const ExerciseManagementLoaded(exercises: []),
@@ -145,7 +145,7 @@ void main() async {
       verify: (_) {
         verify(() => mockCreateExercise(params)).called(1);
         verify(() => mockMessageBloc.add(AddMessageEvent(
-              message: invalidExerciseNameFailureMessage,
+              message: InvalidNameFailureMessage,
               isError: true,
             ))).called(1);
       },

@@ -15,7 +15,7 @@ class UpdateExercise extends Usecase<Exercise, Params> {
   Future<Either<Failure, Exercise>> call(Params params) async {
     try {
       if (params.exercise.name.isEmpty) {
-        return const Left(InvalidExerciseNameFailure());
+        return const Left(InvalidNameFailure());
       }
 
       return await repository.updateExercise(params.exercise);

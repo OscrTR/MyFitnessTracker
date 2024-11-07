@@ -13,6 +13,6 @@ class DatabaseFailure extends Failure {
   const DatabaseFailure([super.message]);
 }
 
-class InvalidExerciseNameFailure extends Failure {
-  const InvalidExerciseNameFailure([super.message]);
+class InvalidNameFailure extends Failure {
+  const InvalidNameFailure([super.message]);
 }

@@ -15,7 +15,7 @@ part 'exercise_management_event.dart';
 part 'exercise_management_state.dart';
 
 final String databaseFailureMessage = tr('message_database_failure');
-final String invalidExerciseNameFailureMessage =
+final String InvalidNameFailureMessage =
     tr('message_exercise_creation_name_error');
 
 class ExerciseManagementBloc
@@ -165,8 +165,8 @@ class ExerciseManagementBloc
 String _mapFailureToMessage(Failure failure) {
   if (failure is DatabaseFailure) {
     return databaseFailureMessage;
-  } else if (failure is InvalidExerciseNameFailure) {
-    return invalidExerciseNameFailureMessage;
+  } else if (failure is InvalidNameFailure) {
+    return InvalidNameFailureMessage;
   } else {
     return tr('message_unexpected_error');
   }

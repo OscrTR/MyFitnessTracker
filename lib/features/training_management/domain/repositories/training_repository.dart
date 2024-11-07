@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
-import '../entities/training.dart';
 
 import '../../../../core/error/failures.dart';
+import '../entities/training.dart';
 
 abstract class TrainingRepository {
   Future<Either<Failure, Training>> getTraining(int id);
