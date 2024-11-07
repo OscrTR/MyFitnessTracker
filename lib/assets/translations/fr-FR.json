@@ -3,6 +3,10 @@
   "global_delete": "Supprimer",
   "global_save": "Enregistrer",
   "global_edit": "Modifier",
+  "global_yoga": "Yoga",
+  "global_workout": "Musculation",
+  "global_run": "Course",
+  "global_unknown": "Inconnu",
 
   "message_unexpected_error": "Erreur inattendue.",
   "message_database_failure": "Echec de la abse de données.",
@@ -21,14 +25,19 @@
   "trainings_page_run": "Plan de course",
   "trainings_page_workout": "Entraînement de musculation",
 
-  "exercise_page_exercises": "Exercices",
-  "training_page_create_exercise": "Créez un exercice",
+  "training_page_create_exercise": "Crée un exercice",
   "training_page_yoga": "Yoga",
-  "training_page_create_yoga": "Créez une routine de yoga",
+  "training_page_create_yoga": "Crée une routine de yoga",
   "training_page_workout": "Musculation",
-  "training_page_create_workout": "Créez un entraînement de musculation",
+  "training_page_create_workout": "Crée un entraînement de musculation",
   "training_page_run": "Course",
-  "training_page_create_run": "Créez un plan de course",
+  "training_page_create_run": "Crée un plan de course",
+
+  "training_detail_page_title_create": "Créer un entraînement",
+  "training_detail_page_title_edit": "Modifier un entraînement",
+  "training_detail_page_training_type": "Type d'entraînement",
+
+  "exercise_page_exercises": "Exercices",
 
   "exercise_detail_page_title_create": "Créer un exercice",
   "exercise_detail_page_title_edit": "Modifier un exercise",

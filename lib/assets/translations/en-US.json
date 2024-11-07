@@ -3,6 +3,10 @@
   "global_delete": "Delete",
   "global_save": "Save",
   "global_edit": "Edit",
+  "global_yoga": "Yoga",
+  "global_workout": "Workout",
+  "global_run": "Run",
+  "global_unknown": "Unknown",
 
   "message_unexpected_error": "Unexpected error.",
   "message_database_failure": "Database failure.",
@@ -21,7 +25,6 @@
   "trainings_page_run": "Run training",
   "trainings_page_workout": "Workout training",
 
-  "exercise_page_exercises": "Exercises",
   "training_page_create_exercise": "Create an exercise",
   "training_page_yoga": "Yoga",
   "training_page_create_yoga": "Create a yoga training",
@@ -29,6 +32,12 @@
   "training_page_create_workout": "Create a workout training",
   "training_page_run": "Run",
   "training_page_create_run": "Create a run training",
+
+  "training_detail_page_title_create": "Create training",
+  "training_detail_page_title_edit": "Edit training",
+  "training_detail_page_training_type": "Training type",
+
+  "exercise_page_exercises": "Exercises",
 
   "exercise_detail_page_title_create": "Create exercise",
   "exercise_detail_page_title_edit": "Edit exercise",

@@ -26,9 +26,18 @@ class TrainingManagementBloc
         (failure) => messageBloc.add(AddMessageEvent(
             message: _mapFailureToMessage(failure), isError: true)),
         (trainings) {
-          emit(TrainingsLoaded(trainings: trainings));
+          emit(TrainingManagementLoaded(trainings: trainings));
         },
       );
+    });
+
+    on<ClearSelectedTrainingEvent>((event, emit) {
+      if (state is TrainingManagementLoaded) {
+        final currentState = state as TrainingManagementLoaded;
+        emit(
+          currentState.copyWith(clearSelectedTraining: true),
+        );
+      }
     });
   }
 }

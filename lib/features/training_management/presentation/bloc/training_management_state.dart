@@ -11,18 +11,19 @@ class TrainingManagementInitial extends TrainingManagementState {}
 
 class TrainingManagementLoading extends TrainingManagementState {}
 
-class TrainingsLoaded extends TrainingManagementState {
+class TrainingManagementLoaded extends TrainingManagementState {
   final List<Training> trainings;
   final Training? selectedTraining;
 
-  const TrainingsLoaded({this.trainings = const [], this.selectedTraining});
+  const TrainingManagementLoaded(
+      {this.trainings = const [], this.selectedTraining});
 
-  TrainingsLoaded copyWith({
+  TrainingManagementLoaded copyWith({
     List<Training>? trainings,
     Training? selectedTraining,
     bool clearSelectedTraining = false,
   }) {
-    return TrainingsLoaded(
+    return TrainingManagementLoaded(
       trainings: trainings ?? this.trainings,
       selectedTraining: clearSelectedTraining
           ? null

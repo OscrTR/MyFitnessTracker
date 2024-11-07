@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:my_fitness_tracker/core/app_colors.dart';
 import 'package:my_fitness_tracker/core/widgets/dash_border_painter_widget.dart';
+import 'package:my_fitness_tracker/features/exercise_management/presentation/bloc/exercise_management_bloc.dart';
+import 'package:my_fitness_tracker/features/exercise_management/presentation/widgets/exercise_list_item_widget.dart';
 import 'package:my_fitness_tracker/features/training_management/domain/entities/training.dart';
 import 'package:my_fitness_tracker/features/training_management/presentation/bloc/training_management_bloc.dart';
 
@@ -44,7 +46,7 @@ class TrainingsListPage extends StatelessWidget {
             // Liste
             BlocBuilder<TrainingManagementBloc, TrainingManagementState>(
                 builder: (context, state) {
-              if (state is TrainingsLoaded) {
+              if (state is TrainingManagementLoaded) {
                 if (state.trainings.isEmpty) {
                   return GestureDetector(
                     onTap: () {
@@ -85,8 +87,17 @@ class TrainingsListPage extends StatelessWidget {
                     ),
                   );
                 }
-                return Text(
-                    'Trainings are a number of ${state.trainings.length}');
+                return ListView.separated(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  separatorBuilder: (context, index) =>
+                      const SizedBox(height: 10.0),
+                  itemCount: state.trainings.length,
+                  itemBuilder: (context, index) {
+                    final training = state.trainings[index];
+                    return Text(training.name);
+                  },
+                );
               }
               return Center(child: Text(context.tr('error_state')));
             }),
@@ -117,7 +128,7 @@ class TrainingsListPage extends StatelessWidget {
             // Liste
             BlocBuilder<TrainingManagementBloc, TrainingManagementState>(
                 builder: (context, state) {
-              if (state is TrainingsLoaded) {
+              if (state is TrainingManagementLoaded) {
                 if (state.trainings.isEmpty) {
                   return GestureDetector(
                     onTap: () {
@@ -158,8 +169,17 @@ class TrainingsListPage extends StatelessWidget {
                     ),
                   );
                 }
-                return Text(
-                    'Trainings are a number of ${state.trainings.length}');
+                return ListView.separated(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  separatorBuilder: (context, index) =>
+                      const SizedBox(height: 10.0),
+                  itemCount: state.trainings.length,
+                  itemBuilder: (context, index) {
+                    final training = state.trainings[index];
+                    return Text(training.name);
+                  },
+                );
               }
               return Center(child: Text(context.tr('error_state')));
             }),
@@ -191,7 +211,7 @@ class TrainingsListPage extends StatelessWidget {
             // Liste
             BlocBuilder<TrainingManagementBloc, TrainingManagementState>(
                 builder: (context, state) {
-              if (state is TrainingsLoaded) {
+              if (state is TrainingManagementLoaded) {
                 if (state.trainings.isEmpty) {
                   return GestureDetector(
                     onTap: () {
@@ -232,8 +252,17 @@ class TrainingsListPage extends StatelessWidget {
                     ),
                   );
                 }
-                return Text(
-                    'Trainings are a number of ${state.trainings.length}');
+                return ListView.separated(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  separatorBuilder: (context, index) =>
+                      const SizedBox(height: 10.0),
+                  itemCount: state.trainings.length,
+                  itemBuilder: (context, index) {
+                    final training = state.trainings[index];
+                    return Text(training.name);
+                  },
+                );
               }
               return Center(child: Text(context.tr('error_state')));
             }),
@@ -261,10 +290,10 @@ class TrainingsListPage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
-            BlocBuilder<TrainingManagementBloc, TrainingManagementState>(
+            BlocBuilder<ExerciseManagementBloc, ExerciseManagementState>(
                 builder: (context, state) {
-              if (state is TrainingsLoaded) {
-                if (state.trainings.isEmpty) {
+              if (state is ExerciseManagementLoaded) {
+                if (state.exercises.isEmpty) {
                   return GestureDetector(
                     onTap: () {
                       GoRouter.of(context).go('/exercise_detail');
@@ -301,8 +330,22 @@ class TrainingsListPage extends StatelessWidget {
                     ),
                   );
                 }
-                return Text(
-                    'Trainings are a number of ${state.trainings.length}');
+                return ListView.separated(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  separatorBuilder: (context, index) =>
+                      const SizedBox(height: 10.0),
+                  itemCount: state.exercises.length,
+                  itemBuilder: (context, index) {
+                    final exercise = state.exercises[index];
+                    return ExerciseListItem(
+                      exerciseId: exercise.id!,
+                      exerciseName: exercise.name,
+                      exerciseImagePath: exercise.imagePath,
+                      exerciseDescription: exercise.description,
+                    );
+                  },
+                );
               }
               return Center(child: Text(context.tr('error_state')));
             }),

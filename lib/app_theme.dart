@@ -23,13 +23,23 @@ final ThemeData appTheme = ThemeData(
   filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(backgroundColor: AppColors.black)),
   textTheme: const TextTheme(
+    // H1
     displayLarge: TextStyle(
         fontSize: 28, fontWeight: FontWeight.w600, color: AppColors.black),
-    titleMedium: TextStyle(
-        fontSize: 18, fontWeight: FontWeight.w500, color: AppColors.black),
+    // H2
     titleLarge: TextStyle(
         fontSize: 20, fontWeight: FontWeight.w600, color: AppColors.black),
+    // H3
+    titleMedium: TextStyle(
+        fontSize: 18, fontWeight: FontWeight.w500, color: AppColors.black),
+    // Regular text
     bodyMedium: TextStyle(
         fontSize: 16, fontWeight: FontWeight.w400, color: AppColors.black),
+    // Small text
+    bodySmall: TextStyle(
+        fontSize: 14, fontWeight: FontWeight.w400, color: AppColors.black),
+    // Extra small text
+    labelMedium: TextStyle(
+        fontSize: 12, fontWeight: FontWeight.w400, color: AppColors.black),
   ),
 );
