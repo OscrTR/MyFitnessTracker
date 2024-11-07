@@ -90,10 +90,10 @@ final router = GoRouter(
         GoRoute(
           path: '/training_detail',
           pageBuilder: (context, state) {
-            final trainingType = state.extra as TrainingType;
+            final trainingType = state.extra as TrainingType?;
             return CustomTransitionPage(
               child: TrainingDetailsPage(
-                trainingType: trainingType,
+                trainingType: trainingType ?? TrainingType.yoga,
               ),
               transitionsBuilder:
                   (context, animation, secondaryAnimation, child) {

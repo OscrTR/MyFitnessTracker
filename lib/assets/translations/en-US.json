@@ -3,6 +3,7 @@
   "global_delete": "Delete",
   "global_save": "Save",
   "global_edit": "Edit",
+  "global_create": "Create",
   "global_yoga": "Yoga",
   "global_workout": "Workout",
   "global_run": "Run",
@@ -36,6 +37,9 @@
   "training_detail_page_title_create": "Create training",
   "training_detail_page_title_edit": "Edit training",
   "training_detail_page_training_type": "Training type",
+  "training_detail_page_add_exercise": "Add exercise",
+  "training_detail_page_add_run": "Add run",
+  "training_detail_page_add_multiset": "Add multiset",
 
   "exercise_page_exercises": "Exercises",
 
