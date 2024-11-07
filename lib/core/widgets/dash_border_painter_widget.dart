@@ -23,7 +23,8 @@ class DashedBorderPainter extends CustomPainter {
     final path = Path();
     path.addRRect(
       RRect.fromRectAndRadius(
-        Rect.fromLTWH(0, 0, size.width, size.height),
+        Rect.fromLTWH(
+            0, 0, size.width - strokeWidth, size.height - strokeWidth),
         const Radius.circular(15),
       ),
     );

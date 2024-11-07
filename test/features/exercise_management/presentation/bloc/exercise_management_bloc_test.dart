@@ -145,7 +145,7 @@ void main() async {
       verify: (_) {
         verify(() => mockCreateExercise(params)).called(1);
         verify(() => mockMessageBloc.add(AddMessageEvent(
-              message: InvalidNameFailureMessage,
+              message: invalidNameFailureMessage,
               isError: true,
             ))).called(1);
       },

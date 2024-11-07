@@ -20,6 +20,7 @@ class ExerciseListHeader extends StatelessWidget {
           const Icon(
             Icons.list,
             color: AppColors.black,
+            size: 30,
           ),
           const SizedBox(width: 10),
           Text(

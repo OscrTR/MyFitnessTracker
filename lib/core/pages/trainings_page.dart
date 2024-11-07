@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:my_fitness_tracker/features/training_management/presentation/pages/trainings_list_page.dart';
 import '../app_colors.dart';
 import '../../features/exercise_management/presentation/pages/exercise_list_page.dart';
 
@@ -35,7 +36,8 @@ class TrainingsPage extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 20),
-            const Expanded(child: ExercisePage()),
+            const Expanded(child: TrainingsListPage()),
+            // const Expanded(child: ExercisePage()),
           ],
         ),
       ),

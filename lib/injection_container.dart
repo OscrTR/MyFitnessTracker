@@ -1,4 +1,9 @@
 import 'package:get_it/get_it.dart';
+import 'package:my_fitness_tracker/features/training_management/data/datasources/training_local_data_source.dart';
+import 'package:my_fitness_tracker/features/training_management/data/repositories/training_repository_impl.dart';
+import 'package:my_fitness_tracker/features/training_management/domain/repositories/training_repository.dart';
+import 'package:my_fitness_tracker/features/training_management/domain/usecases/fetch_trainings.dart';
+import 'package:my_fitness_tracker/features/training_management/presentation/bloc/training_management_bloc.dart';
 import 'package:sqflite/sqflite.dart';
 
 import 'core/database/sqlite_database_helper.dart';
@@ -23,7 +28,10 @@ Future<void> init() async {
   // Ensure the Database is ready before registering anything that depends on it
   await sl.isReady<Database>();
 
-  // Features - Exercise Management
+  //! Core
+  sl.registerLazySingleton(() => MessageBloc());
+
+  //! Features - Exercise Management
   // Bloc
   sl.registerFactory(() => ExerciseManagementBloc(
       createExercise: sl(),
@@ -32,8 +40,6 @@ Future<void> init() async {
       deleteExercise: sl(),
       getExercise: sl(),
       messageBloc: sl()));
-
-  sl.registerLazySingleton(() => MessageBloc());
 
   // Usecases
   sl.registerLazySingleton(() => CreateExercise(sl()));
@@ -50,7 +56,21 @@ Future<void> init() async {
   sl.registerLazySingleton<ExerciseLocalDataSource>(
       () => SQLiteExerciseLocalDataSource(database: sl()));
 
-  // Core
+  //! Features - Training Management
+  // Bloc
+  sl.registerFactory(
+      () => TrainingManagementBloc(fetchTrainings: sl(), messageBloc: sl()));
+
+  // Usecases
+  sl.registerLazySingleton(() => FetchTrainings(sl()));
+
+  // Repository
+  sl.registerLazySingleton<TrainingRepository>(
+      () => TrainingRepositoryImpl(localDataSource: sl()));
+
+  // Data sources
+  sl.registerLazySingleton<TrainingLocalDataSource>(
+      () => SQLiteTrainingLocalDataSource(database: sl()));
 
   // External
 }

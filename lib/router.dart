@@ -90,7 +90,9 @@ final router = GoRouter(
         bool isExerciseDetailPage =
             GoRouterState.of(context).uri.toString() == '/exercise_detail';
         return Scaffold(
-            body: SafeArea(
+          body: Stack(
+            children: [
+              SafeArea(
                 child: BlocListener<MessageBloc, MessageState>(
                     listener: (context, state) {
                       if (state is MessageLoaded) {
@@ -119,10 +121,18 @@ final router = GoRouter(
                         }
                       }
                     },
-                    child: child)),
-            bottomNavigationBar: isExerciseDetailPage
-                ? null
-                : const BottomNavigationBarWidget());
+                    child: child),
+              ),
+              if (!isExerciseDetailPage)
+                const Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  child: BottomNavigationBarWidget(),
+                ),
+            ],
+          ),
+        );
       },
     ),
   ],

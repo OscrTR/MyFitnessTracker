@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:my_fitness_tracker/features/training_management/presentation/bloc/training_management_bloc.dart';
 
 import 'app_theme.dart';
 import 'core/messages/bloc/message_bloc.dart';
@@ -36,6 +37,10 @@ class MyApp extends StatelessWidget {
         BlocProvider<ExerciseManagementBloc>(
           create: (BuildContext context) =>
               sl<ExerciseManagementBloc>()..add(FetchExercisesEvent()),
+        ),
+        BlocProvider<TrainingManagementBloc>(
+          create: (BuildContext context) =>
+              sl<TrainingManagementBloc>()..add(FetchTrainingsEvent()),
         ),
       ],
       child: MaterialApp.router(

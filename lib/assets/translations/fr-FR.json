@@ -19,6 +19,13 @@
   "trainings_page_exercise": "Exercice",
 
   "exercise_page_exercises": "Exercices",
+  "training_page_create_exercise": "Créez un exercice",
+  "training_page_yoga": "Yoga",
+  "training_page_create_yoga": "Créez une routine de yoga",
+  "training_page_workout": "Musculation",
+  "training_page_create_workout": "Créez un entraînement de musculation",
+  "training_page_run": "Course",
+  "training_page_create_run": "Créez un entraînement de course",
 
   "exercise_detail_page_title_create": "Créer un exercice",
   "exercise_detail_page_title_edit": "Modifier un exercise",
