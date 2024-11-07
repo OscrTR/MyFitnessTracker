@@ -1,9 +1,11 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:my_fitness_tracker/core/app_colors.dart';
 import 'package:my_fitness_tracker/core/widgets/dash_border_painter_widget.dart';
+import 'package:my_fitness_tracker/features/training_management/domain/entities/training.dart';
 import 'package:my_fitness_tracker/features/training_management/presentation/bloc/training_management_bloc.dart';
 
 class TrainingsListPage extends StatelessWidget {
@@ -45,7 +47,12 @@ class TrainingsListPage extends StatelessWidget {
               if (state is TrainingsLoaded) {
                 if (state.trainings.isEmpty) {
                   return GestureDetector(
-                    onTap: () {},
+                    onTap: () {
+                      GoRouter.of(context).go(
+                        '/training_detail',
+                        extra: TrainingType.yoga,
+                      );
+                    },
                     child: CustomPaint(
                       painter: DashedBorderPainter(
                         color: AppColors.lightBlack,
@@ -113,7 +120,12 @@ class TrainingsListPage extends StatelessWidget {
               if (state is TrainingsLoaded) {
                 if (state.trainings.isEmpty) {
                   return GestureDetector(
-                    onTap: () {},
+                    onTap: () {
+                      GoRouter.of(context).go(
+                        '/training_detail',
+                        extra: TrainingType.run,
+                      );
+                    },
                     child: CustomPaint(
                       painter: DashedBorderPainter(
                         color: AppColors.lightBlack,
@@ -182,7 +194,12 @@ class TrainingsListPage extends StatelessWidget {
               if (state is TrainingsLoaded) {
                 if (state.trainings.isEmpty) {
                   return GestureDetector(
-                    onTap: () {},
+                    onTap: () {
+                      GoRouter.of(context).go(
+                        '/training_detail',
+                        extra: TrainingType.workout,
+                      );
+                    },
                     child: CustomPaint(
                       painter: DashedBorderPainter(
                         color: AppColors.lightBlack,
@@ -249,7 +266,9 @@ class TrainingsListPage extends StatelessWidget {
               if (state is TrainingsLoaded) {
                 if (state.trainings.isEmpty) {
                   return GestureDetector(
-                    onTap: () {},
+                    onTap: () {
+                      GoRouter.of(context).go('/exercise_detail');
+                    },
                     child: CustomPaint(
                       painter: DashedBorderPainter(
                         color: AppColors.lightBlack,

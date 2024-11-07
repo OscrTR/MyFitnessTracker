@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:my_fitness_tracker/features/training_management/domain/entities/training.dart';
 import 'package:my_fitness_tracker/features/training_management/presentation/pages/trainings_list_page.dart';
 import '../app_colors.dart';
 import '../../features/exercise_management/presentation/pages/exercise_list_page.dart';
@@ -65,6 +66,42 @@ void _showNewDialog(BuildContext context) {
             },
             child: SizedBox(
               child: Text(context.tr('trainings_page_exercise')),
+            ),
+          ),
+          GestureDetector(
+            onTap: () {
+              GoRouter.of(context).go(
+                '/training_detail',
+                extra: TrainingType.yoga,
+              );
+              Navigator.pop(context, 'New yoga training');
+            },
+            child: SizedBox(
+              child: Text(context.tr('trainings_page_yoga')),
+            ),
+          ),
+          GestureDetector(
+            onTap: () {
+              GoRouter.of(context).go(
+                '/training_detail',
+                extra: TrainingType.run,
+              );
+              Navigator.pop(context, 'New run training');
+            },
+            child: SizedBox(
+              child: Text(context.tr('trainings_page_run')),
+            ),
+          ),
+          GestureDetector(
+            onTap: () {
+              GoRouter.of(context).go(
+                '/training_detail',
+                extra: TrainingType.workout,
+              );
+              Navigator.pop(context, 'New workout training');
+            },
+            child: SizedBox(
+              child: Text(context.tr('trainings_page_workout')),
             ),
           ),
         ],
