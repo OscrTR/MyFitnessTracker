@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
-import 'package:my_fitness_tracker/features/training_management/domain/entities/training.dart';
-import 'package:my_fitness_tracker/features/training_management/presentation/pages/training_details_page.dart';
+import 'features/training_management/domain/entities/training.dart';
+import 'features/training_management/presentation/pages/training_details_page.dart';
 import 'package:top_snackbar_flutter/custom_snack_bar.dart';
 import 'package:top_snackbar_flutter/top_snack_bar.dart';
 
@@ -90,11 +90,10 @@ final router = GoRouter(
         GoRoute(
           path: '/training_detail',
           pageBuilder: (context, state) {
-            final trainingType = state.extra as TrainingType?;
+            final trainingType =
+                state.extra as TrainingType? ?? TrainingType.workout;
             return CustomTransitionPage(
-              child: TrainingDetailsPage(
-                trainingType: trainingType ?? TrainingType.yoga,
-              ),
+              child: TrainingDetailsPage(trainingType: trainingType),
               transitionsBuilder:
                   (context, animation, secondaryAnimation, child) {
                 return child;

@@ -5,12 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
-import '../../domain/entities/exercise.dart';
-import '../../../../core/app_colors.dart';
-import '../bloc/exercise_management_bloc.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 
+import '../../../../core/app_colors.dart';
+import '../../domain/entities/exercise.dart';
+import '../bloc/exercise_management_bloc.dart';
 import '../widgets/exercise_detail_back_app_bar_widget.dart';
 import '../widgets/exercise_detail_custom_text_field_widget.dart';
 import '../widgets/exercise_detail_image_picker_widget.dart';

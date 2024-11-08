@@ -1,5 +1,5 @@
-import 'training_exercise_model.dart';
 import '../../domain/entities/multiset.dart';
+import 'training_exercise_model.dart';
 
 class MultisetModel extends Multiset {
   const MultisetModel({

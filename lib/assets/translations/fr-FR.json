@@ -14,7 +14,7 @@
   "message_exercise_creation_success": "Exercice {} créé avec succès.",
   "message_exercise_update_success": "Exercice {} mis à jour avec succès.",
   "message_exercise_deletion_success": "Exercice {} supprimé avec succès.",
-  "message_exercise_creation_name_error": "Nom d'exercice invalide.",
+  "message_name_error": "Nom invalide.",
 
   "error_state": "Erreur d'état",
 

@@ -1,7 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_fitness_tracker/features/training_management/presentation/bloc/training_management_bloc.dart';
+import 'features/training_management/presentation/bloc/training_management_bloc.dart';
 
 import 'app_theme.dart';
 import 'core/messages/bloc/message_bloc.dart';

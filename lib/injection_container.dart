@@ -1,9 +1,9 @@
 import 'package:get_it/get_it.dart';
-import 'package:my_fitness_tracker/features/training_management/data/datasources/training_local_data_source.dart';
-import 'package:my_fitness_tracker/features/training_management/data/repositories/training_repository_impl.dart';
-import 'package:my_fitness_tracker/features/training_management/domain/repositories/training_repository.dart';
-import 'package:my_fitness_tracker/features/training_management/domain/usecases/fetch_trainings.dart';
-import 'package:my_fitness_tracker/features/training_management/presentation/bloc/training_management_bloc.dart';
+import 'features/training_management/data/datasources/training_local_data_source.dart';
+import 'features/training_management/data/repositories/training_repository_impl.dart';
+import 'features/training_management/domain/repositories/training_repository.dart';
+import 'features/training_management/domain/usecases/fetch_trainings.dart';
+import 'features/training_management/presentation/bloc/training_management_bloc.dart';
 import 'package:sqflite/sqflite.dart';
 
 import 'core/database/sqlite_database_helper.dart';
