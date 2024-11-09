@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 
 import '../../../../assets/app_colors.dart';
 
-class CustomTextField extends StatelessWidget {
+class BigTextFieldWidget extends StatelessWidget {
   final TextEditingController controller;
   final String hintText;
 
-  const CustomTextField(
+  const BigTextFieldWidget(
       {required this.controller, required this.hintText, super.key});
 
   @override

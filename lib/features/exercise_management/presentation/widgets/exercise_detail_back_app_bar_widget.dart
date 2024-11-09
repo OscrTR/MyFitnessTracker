@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/app_colors.dart';
+import '../../../../assets/app_colors.dart';
 
 class BackAppBar extends StatelessWidget {
   final String title;

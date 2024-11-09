@@ -7,7 +7,7 @@ import 'features/training_management/presentation/pages/training_details_page.da
 import 'package:top_snackbar_flutter/custom_snack_bar.dart';
 import 'package:top_snackbar_flutter/top_snack_bar.dart';
 
-import 'core/app_colors.dart';
+import 'assets/app_colors.dart';
 import 'core/messages/bloc/message_bloc.dart';
 import 'core/pages/history_page.dart';
 import 'core/pages/home_page.dart';

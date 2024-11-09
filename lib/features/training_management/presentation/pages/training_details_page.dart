@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:my_fitness_tracker/features/training_management/presentation/widgets/keyed_wrapper_widget.dart';
 import '../../../exercise_management/presentation/widgets/exercise_detail_custom_text_field_widget.dart';
 import '../../domain/entities/training.dart';
 import '../bloc/training_management_bloc.dart';
@@ -22,7 +23,6 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
   @override
   void initState() {
     super.initState();
-    // Trigger the event only once in initState
     context
         .read<TrainingManagementBloc>()
         .add(LoadInitialSelectedTrainingData(widget.trainingType));
@@ -53,14 +53,34 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                           .add(UpdateTrainingTypeEvent(type));
                     },
                   ),
-                  const SizedBox(height: 30),
-                  ListView(
-                    shrinkWrap: true,
-                    children: state.selectedTrainingWidgetList,
-                  ),
+                  const SizedBox(height: 20),
+                  if (state.selectedTrainingWidgetList.length <= 1)
+                    ListView(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        children: state.selectedTrainingWidgetList),
+                  if (state.selectedTrainingWidgetList.length > 1)
+                    ReorderableListView(
+                        physics: const NeverScrollableScrollPhysics(),
+                        proxyDecorator: (child, index, animation) => child,
+                        onReorder: (oldIndex, newIndex) {
+                          if (oldIndex < newIndex) newIndex--;
+
+                          // Create a new list with reordered items
+                          final updatedList = List<KeyedWrapperWidget>.from(
+                              state.selectedTrainingWidgetList);
+                          final item = updatedList.removeAt(oldIndex);
+                          updatedList.insert(newIndex, item);
+
+                          // Update the list order in the Bloc
+                          context.read<TrainingManagementBloc>().add(
+                              UpdateSelectedTrainingWidgetsEvent(updatedList));
+                        },
+                        shrinkWrap: true,
+                        children: state.selectedTrainingWidgetList),
                   const SizedBox(height: 20),
                   const TrainingActionsWidget(),
-                  const SizedBox(height: 40),
+                  const SizedBox(height: 30),
                   SaveButtonWidget(
                     training: state.selectedTraining,
                     onSave: () {

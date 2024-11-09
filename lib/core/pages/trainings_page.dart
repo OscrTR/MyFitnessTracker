@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../features/training_management/domain/entities/training.dart';
 import '../../features/training_management/presentation/pages/trainings_list_page.dart';
-import '../app_colors.dart';
+import '../../assets/app_colors.dart';
 
 class TrainingsPage extends StatelessWidget {
   const TrainingsPage({super.key});

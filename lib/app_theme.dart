@@ -1,16 +1,27 @@
 import 'package:flutter/material.dart';
 
-import 'core/app_colors.dart';
+import 'assets/app_colors.dart';
 
 final ThemeData appTheme = ThemeData(
-  scaffoldBackgroundColor: Colors.white,
   fontFamily: 'Inter',
   colorScheme: ColorScheme.fromSeed(
     seedColor: AppColors.white,
     primary: AppColors.black,
     onPrimary: AppColors.white,
+    primaryContainer: AppColors.black,
     secondary: AppColors.lightGrey,
+    onSecondary: AppColors.black,
+    secondaryContainer: AppColors.lightGrey,
+    onSecondaryContainer: AppColors.black,
+    tertiary: AppColors.lightGrey,
+    onTertiary: AppColors.black,
+    tertiaryContainer: AppColors.lightGrey,
+    onTertiaryContainer: AppColors.black,
+    surface: AppColors.lightGrey,
+    onSurface: AppColors.black,
   ),
+  unselectedWidgetColor: AppColors.lightBlack,
+  scaffoldBackgroundColor: Colors.white,
   popupMenuTheme: const PopupMenuThemeData(color: AppColors.lightGrey),
   outlinedButtonTheme: OutlinedButtonThemeData(
     style: OutlinedButton.styleFrom(

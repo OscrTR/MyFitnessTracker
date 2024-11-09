@@ -1,7 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../../core/app_colors.dart';
+import '../../../../assets/app_colors.dart';
 import '../bloc/training_management_bloc.dart';
 
 class TrainingActionsWidget extends StatelessWidget {

@@ -1,7 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
-import '../../../../core/app_colors.dart';
+import '../../../../assets/app_colors.dart';
 
 class ExerciseListHeader extends StatelessWidget {
   const ExerciseListHeader({super.key});
