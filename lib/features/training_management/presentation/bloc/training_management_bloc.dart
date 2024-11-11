@@ -2,6 +2,8 @@ import 'package:bloc/bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
+import 'package:my_fitness_tracker/features/training_management/domain/entities/multiset.dart';
+import 'package:my_fitness_tracker/features/training_management/domain/entities/training_exercise.dart';
 import 'package:my_fitness_tracker/features/training_management/presentation/widgets/keyed_wrapper_widget.dart';
 import '../../../../core/error/failures.dart';
 import '../../../../core/messages/bloc/message_bloc.dart';
@@ -34,8 +36,7 @@ class TrainingManagementBloc
         (failure) => messageBloc.add(AddMessageEvent(
             message: _mapFailureToMessage(failure), isError: true)),
         (trainings) {
-          emit(TrainingManagementLoaded(
-              trainings: trainings, nameController: nameController));
+          emit(TrainingManagementLoaded(trainings: trainings));
         },
       );
     });
@@ -75,6 +76,25 @@ class TrainingManagementBloc
         emit(currentState.clearSelectedTraining());
       }
     });
+    on<UpdateSelectedTrainingProperty>((event, emit) {
+      if (state is TrainingManagementLoaded) {
+        final currentState = state as TrainingManagementLoaded;
+        final updatedTraining = currentState.selectedTraining?.copyWith(
+          id: event.id ?? currentState.selectedTraining!.id,
+          name: event.name ?? currentState.selectedTraining!.name,
+          type: event.type ?? currentState.selectedTraining!.type,
+          isSelected:
+              event.isSelected ?? currentState.selectedTraining!.isSelected,
+          trainingExercises: event.trainingExercises ??
+              currentState.selectedTraining!.trainingExercises,
+          multisets:
+              event.multisets ?? currentState.selectedTraining!.multisets,
+        );
+
+        emit(currentState.copyWith(selectedTraining: updatedTraining));
+      }
+    });
+
     on<UpdateTrainingTypeEvent>((event, emit) {
       if (state is TrainingManagementLoaded) {
         final currentState = state as TrainingManagementLoaded;

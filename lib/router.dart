@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
-import 'features/training_management/domain/entities/training.dart';
 import 'features/training_management/presentation/pages/training_details_page.dart';
 import 'package:top_snackbar_flutter/custom_snack_bar.dart';
 import 'package:top_snackbar_flutter/top_snack_bar.dart';
@@ -78,8 +77,12 @@ final router = GoRouter(
         GoRoute(
           path: '/exercise_detail',
           pageBuilder: (context, state) {
+            final fromTrainingCreation =
+                (state.extra as String?) == 'training_detail';
             return CustomTransitionPage(
-              child: const ExerciseDetailPage(),
+              child: ExerciseDetailPage(
+                fromTrainingCreation: fromTrainingCreation,
+              ),
               transitionsBuilder:
                   (context, animation, secondaryAnimation, child) {
                 return child;
@@ -90,10 +93,8 @@ final router = GoRouter(
         GoRoute(
           path: '/training_detail',
           pageBuilder: (context, state) {
-            final trainingType =
-                state.extra as TrainingType? ?? TrainingType.workout;
             return CustomTransitionPage(
-              child: TrainingDetailsPage(trainingType: trainingType),
+              child: const TrainingDetailsPage(),
               transitionsBuilder:
                   (context, animation, secondaryAnimation, child) {
                 return child;
@@ -112,35 +113,41 @@ final router = GoRouter(
           body: Stack(
             children: [
               SafeArea(
-                child: BlocListener<MessageBloc, MessageState>(
-                    listener: (context, state) {
-                      if (state is MessageLoaded) {
-                        if (!state.isError) {
-                          showTopSnackBar(
-                            Overlay.of(context),
-                            CustomSnackBar.success(
-                                icon: const Icon(null),
-                                textStyle: const TextStyle(
-                                    fontSize: 16, color: AppColors.black),
-                                backgroundColor: const Color(0xffadebb3),
-                                message: state.message),
-                          );
-                        }
+                child: GestureDetector(
+                  onTap: () {
+                    // Unfocus the text field and close the keyboard when tapping outside
+                    FocusScope.of(context).unfocus();
+                  },
+                  child: BlocListener<MessageBloc, MessageState>(
+                      listener: (context, state) {
+                        if (state is MessageLoaded) {
+                          if (!state.isError) {
+                            showTopSnackBar(
+                              Overlay.of(context),
+                              CustomSnackBar.success(
+                                  icon: const Icon(null),
+                                  textStyle: const TextStyle(
+                                      fontSize: 16, color: AppColors.black),
+                                  backgroundColor: const Color(0xffadebb3),
+                                  message: state.message),
+                            );
+                          }
 
-                        if (state.isError) {
-                          showTopSnackBar(
-                            Overlay.of(context),
-                            CustomSnackBar.error(
-                                icon: const Icon(null),
-                                textStyle: const TextStyle(
-                                    fontSize: 16, color: AppColors.black),
-                                backgroundColor: const Color(0xffff857a),
-                                message: state.message),
-                          );
+                          if (state.isError) {
+                            showTopSnackBar(
+                              Overlay.of(context),
+                              CustomSnackBar.error(
+                                  icon: const Icon(null),
+                                  textStyle: const TextStyle(
+                                      fontSize: 16, color: AppColors.black),
+                                  backgroundColor: const Color(0xffff857a),
+                                  message: state.message),
+                            );
+                          }
                         }
-                      }
-                    },
-                    child: child),
+                      },
+                      child: child),
+                ),
               ),
               if (!isExerciseDetailPage && !isTrainingDetailPage)
                 const Positioned(

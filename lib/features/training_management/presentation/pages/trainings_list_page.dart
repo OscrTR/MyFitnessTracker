@@ -76,12 +76,14 @@ class TrainingSection extends StatelessWidget {
                 (state is TrainingManagementLoaded &&
                     state.trainings.isEmpty)) {
               return CreateButton(
-                textKey: 'training_page_create_${trainingType.name}',
-                onTap: () => GoRouter.of(context).go(
-                  '/training_detail',
-                  extra: trainingType,
-                ),
-              );
+                  textKey: 'training_page_create_${trainingType.name}',
+                  onTap: () {
+                    context.read<TrainingManagementBloc>().add(
+                          UpdateSelectedTrainingProperty(type: trainingType),
+                        );
+
+                    GoRouter.of(context).go('/training_detail');
+                  });
             }
             if (state is TrainingManagementLoaded) {
               return TrainingList(trainings: state.trainings);

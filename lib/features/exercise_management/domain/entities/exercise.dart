@@ -13,6 +13,20 @@ class Exercise extends Equatable {
     this.description,
   });
 
+  Exercise copyWith({
+    int? id,
+    String? name,
+    String? imagePath,
+    String? description,
+  }) {
+    return Exercise(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      imagePath: imagePath ?? this.imagePath,
+      description: description ?? this.description,
+    );
+  }
+
   @override
   List<Object?> get props => [id, name, imagePath, description];
 }

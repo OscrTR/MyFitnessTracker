@@ -4,7 +4,7 @@ abstract class TrainingManagementEvent extends Equatable {
   const TrainingManagementEvent();
 
   @override
-  List<Object> get props => [];
+  List<Object?> get props => [];
 }
 
 //! Trainings
@@ -52,6 +52,36 @@ class ClearSelectedTrainingEvent extends TrainingManagementEvent {
 }
 
 class SaveSelectedTrainingEvent extends TrainingManagementEvent {}
+
+class InitializeSelectedTrainingEvent extends TrainingManagementEvent {
+  final TrainingType type;
+
+  const InitializeSelectedTrainingEvent({required this.type});
+  @override
+  List<Object> get props => [type];
+}
+
+class UpdateSelectedTrainingProperty extends TrainingManagementEvent {
+  final int? id;
+  final String? name;
+  final TrainingType? type;
+  final bool? isSelected;
+  final List<TrainingExercise>? trainingExercises;
+  final List<Multiset>? multisets;
+
+  const UpdateSelectedTrainingProperty({
+    this.id,
+    this.name,
+    this.type,
+    this.isSelected,
+    this.trainingExercises,
+    this.multisets,
+  });
+
+  @override
+  List<Object?> get props =>
+      [id, name, type, isSelected, trainingExercises, multisets];
+}
 
 class UpdateTrainingTypeEvent extends TrainingManagementEvent {
   final TrainingType selectedTrainingType;

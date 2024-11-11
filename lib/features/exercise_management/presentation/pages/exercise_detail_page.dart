@@ -16,7 +16,8 @@ import '../widgets/exercise_detail_custom_text_field_widget.dart';
 import '../widgets/exercise_detail_image_picker_widget.dart';
 
 class ExerciseDetailPage extends StatefulWidget {
-  const ExerciseDetailPage({super.key});
+  final bool fromTrainingCreation;
+  const ExerciseDetailPage({super.key, required this.fromTrainingCreation});
 
   @override
   State<ExerciseDetailPage> createState() => _ExerciseDetailPageState();
@@ -92,7 +93,9 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
                       ? 'exercise_detail_page_title_create'
                       : 'exercise_detail_page_title_edit'),
                   onBack: () {
-                    GoRouter.of(context).go('/trainings');
+                    widget.fromTrainingCreation
+                        ? GoRouter.of(context).go('/training_detail')
+                        : GoRouter.of(context).go('/trainings');
                     BlocProvider.of<ExerciseManagementBloc>(context)
                         .add(const ClearSelectedExerciseEvent());
                   },
@@ -141,7 +144,9 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
                                 imagePath: _image?.path ?? ''),
                           );
                     BlocProvider.of<ExerciseManagementBloc>(context).add(event);
-                    GoRouter.of(context).go('/trainings');
+                    widget.fromTrainingCreation
+                        ? GoRouter.of(context).go('/training_detail')
+                        : GoRouter.of(context).go('/trainings');
                     BlocProvider.of<ExerciseManagementBloc>(context)
                         .add(const ClearSelectedExerciseEvent());
                   },

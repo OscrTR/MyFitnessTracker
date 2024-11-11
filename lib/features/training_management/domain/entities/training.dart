@@ -22,6 +22,24 @@ class Training extends Equatable {
     required this.multisets,
   });
 
+  Training copyWith({
+    int? id,
+    String? name,
+    TrainingType? type,
+    bool? isSelected,
+    List<TrainingExercise>? trainingExercises,
+    List<Multiset>? multisets,
+  }) {
+    return Training(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      type: type ?? this.type,
+      isSelected: isSelected ?? this.isSelected,
+      trainingExercises: trainingExercises ?? this.trainingExercises,
+      multisets: multisets ?? this.multisets,
+    );
+  }
+
   @override
   List<Object?> get props =>
       [id, name, type, isSelected, trainingExercises, multisets];

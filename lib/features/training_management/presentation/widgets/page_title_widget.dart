@@ -32,7 +32,13 @@ class PageTitleWidget extends StatelessWidget {
           ),
           Center(
             child: Text(
-              context.tr('training_detail_page_title_edit'),
+              (context.read<TrainingManagementBloc>().state
+                              as TrainingManagementLoaded)
+                          .selectedTraining
+                          ?.id !=
+                      null
+                  ? context.tr('training_detail_page_title_edit')
+                  : context.tr('training_detail_page_title_create'),
               style: Theme.of(context).textTheme.titleLarge,
             ),
           ),
