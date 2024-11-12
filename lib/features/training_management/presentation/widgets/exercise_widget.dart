@@ -29,15 +29,13 @@ class _ExerciseWidgetState extends State<ExerciseWidget> {
 
   Exercise selectedExercise = const Exercise(name: '');
   TrainingExercise trainingExercise = const TrainingExercise();
-
-// TODO
-  String? selectedSetsChoice = 'Reps';
+  late bool isSetsInReps;
 
   final Map<String, TextEditingController> _controllers = {
     'sets': TextEditingController(),
     'duration': TextEditingController(),
-    'repsMin': TextEditingController(),
-    'repsMax': TextEditingController(),
+    'minReps': TextEditingController(),
+    'maxReps': TextEditingController(),
     'setRest': TextEditingController(),
     'exerciseRest': TextEditingController(),
     'specialInstructions': TextEditingController(),
@@ -59,10 +57,12 @@ class _ExerciseWidgetState extends State<ExerciseWidget> {
       final exercise =
           currentState.selectedTraining?.trainingExercises[widget.widgetId];
 
+      isSetsInReps = exercise?.isSetsInReps ?? true;
+
       _controllers['sets']?.text = exercise?.sets?.toString() ?? '';
       _controllers['duration']?.text = exercise?.duration?.toString() ?? '';
-      _controllers['repsMin']?.text = exercise?.minReps?.toString() ?? '';
-      _controllers['repsMax']?.text = exercise?.maxReps?.toString() ?? '';
+      _controllers['minReps']?.text = exercise?.minReps?.toString() ?? '';
+      _controllers['maxReps']?.text = exercise?.maxReps?.toString() ?? '';
       _controllers['setRest']?.text = exercise?.setRest?.toString() ?? '';
       _controllers['exerciseRest']?.text =
           exercise?.exerciseRest?.toString() ?? '';
@@ -105,12 +105,27 @@ class _ExerciseWidgetState extends State<ExerciseWidget> {
         sets: key == 'sets'
             ? int.tryParse(_controllers['sets']?.text ?? '')
             : null,
+        minReps: key == 'minReps'
+            ? int.tryParse(_controllers['minReps']?.text ?? '')
+            : null,
+        maxReps: key == 'maxReps'
+            ? int.tryParse(_controllers['maxReps']?.text ?? '')
+            : null,
         duration: key == 'duration'
             ? int.tryParse(_controllers['duration']?.text ?? '')
             : null,
         setRest: key == 'setRest'
             ? int.tryParse(_controllers['setRest']?.text ?? '')
             : null,
+        exerciseRest: key == 'exerciseRest'
+            ? int.tryParse(_controllers['exerciseRest']?.text ?? '')
+            : null,
+        specialInstructions: key == 'specialInstructions'
+            ? _controllers['specialInstructions']?.text ?? ''
+            : null,
+        objectives:
+            key == 'objectives' ? _controllers['objectives']?.text ?? '' : null,
+
         // Add more fields if necessary
       );
 
@@ -139,11 +154,6 @@ class _ExerciseWidgetState extends State<ExerciseWidget> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildHeader(),
-          OutlinedButton(
-              onPressed: () {
-                print(context.read<TrainingManagementBloc>().state);
-              },
-              child: const Text('clic')),
           _buildExerciseDropdown(),
           const SizedBox(height: 10),
           _buildExerciseDetails(),
@@ -411,32 +421,57 @@ class _ExerciseWidgetState extends State<ExerciseWidget> {
   }
 
   Widget _buildSetsChoiceOptions() {
-    return Column(
-      children: [
-        _buildSetsChoiceOption(
-            'Reps', _controllers['repsMin'], _controllers['repsMax']),
-        _buildSetsChoiceOption('Duration', _controllers['duration']),
-      ],
+    return BlocBuilder<TrainingManagementBloc, TrainingManagementState>(
+      builder: (context, state) {
+        if (state is TrainingManagementLoaded) {
+          final isSetsInReps = state.selectedTraining!
+                  .trainingExercises[widget.widgetId].isSetsInReps ??
+              true;
+
+          return Column(
+            children: [
+              _buildSetsChoiceOption(
+                'Reps',
+                true,
+                isSetsInReps,
+                _controllers['minReps'],
+                _controllers['maxReps'],
+              ),
+              _buildSetsChoiceOption(
+                'Duration',
+                false,
+                isSetsInReps,
+                _controllers['duration'],
+              ),
+            ],
+          );
+        }
+
+        return const SizedBox();
+      },
     );
   }
 
-  Widget _buildSetsChoiceOption(String choice,
-      [TextEditingController? controller1,
-      TextEditingController? controller2]) {
+  Widget _buildSetsChoiceOption(
+    String choice,
+    bool choiceValue,
+    bool currentSelection, [
+    TextEditingController? controller1,
+    TextEditingController? controller2,
+  ]) {
     return GestureDetector(
-      onTap: () {},
+      onTap: () => _updateBloc(choiceValue),
       child: Row(
         children: [
           SizedBox(
             width: 20,
-            child: Radio<String>(
-              value: choice,
-              groupValue: selectedSetsChoice,
-              onChanged: (value) => setState(() => selectedSetsChoice = value!),
+            child: Radio<bool>(
+              value: choiceValue,
+              groupValue: currentSelection,
+              onChanged: (value) => _updateBloc(value!),
               activeColor: AppColors.black,
-              fillColor: WidgetStateProperty.resolveWith<Color>(
-                  (Set<WidgetState> states) {
-                return selectedSetsChoice == choice
+              fillColor: WidgetStateProperty.resolveWith<Color>((states) {
+                return currentSelection == choiceValue
                     ? AppColors.black
                     : AppColors.lightBlack;
               }),
@@ -447,8 +482,10 @@ class _ExerciseWidgetState extends State<ExerciseWidget> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(choice,
-                    style: const TextStyle(color: AppColors.lightBlack)),
+                Text(
+                  choice,
+                  style: const TextStyle(color: AppColors.lightBlack),
+                ),
                 Row(
                   children: [
                     if (controller1 != null)
@@ -465,6 +502,24 @@ class _ExerciseWidgetState extends State<ExerciseWidget> {
         ],
       ),
     );
+  }
+
+  void _updateBloc(bool choiceValue) {
+    final bloc = context.read<TrainingManagementBloc>();
+
+    if (bloc.state is TrainingManagementLoaded) {
+      final currentState = bloc.state as TrainingManagementLoaded;
+      final updatedTrainingExercisesList = List<TrainingExercise>.from(
+          currentState.selectedTraining!.trainingExercises);
+
+      final updatedExercise = updatedTrainingExercisesList[widget.widgetId]
+          .copyWith(isSetsInReps: choiceValue);
+
+      updatedTrainingExercisesList[widget.widgetId] = updatedExercise;
+
+      bloc.add(UpdateSelectedTrainingProperty(
+          trainingExercises: updatedTrainingExercisesList));
+    }
   }
 
   Widget _buildSetRestRow() {
