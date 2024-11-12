@@ -26,26 +26,29 @@ class ExerciseWidget extends StatefulWidget {
 
 class _ExerciseWidgetState extends State<ExerciseWidget> {
   Timer? _debounceTimer;
-  late TextEditingController _setsController;
-  late int? _exerciseId;
-
-  final _repsMinController = TextEditingController();
-  final _repsMaxController = TextEditingController();
-  final _durationController = TextEditingController();
-  final _setRestController = TextEditingController();
-  final _exerciseRestController = TextEditingController();
-  final _specialInstructionsController = TextEditingController();
-  final _objectivesController = TextEditingController();
 
   Exercise selectedExercise = const Exercise(name: '');
   TrainingExercise trainingExercise = const TrainingExercise();
 
+// TODO
   String? selectedSetsChoice = 'Reps';
+
+  final Map<String, TextEditingController> _controllers = {
+    'sets': TextEditingController(),
+    'duration': TextEditingController(),
+    'repsMin': TextEditingController(),
+    'repsMax': TextEditingController(),
+    'setRest': TextEditingController(),
+    'exerciseRest': TextEditingController(),
+    'specialInstructions': TextEditingController(),
+    'objectives': TextEditingController(),
+  };
 
   @override
   void initState() {
-    super.initState();
     _initializeControllers();
+    _attachListeners();
+    super.initState();
   }
 
   void _initializeControllers() {
@@ -53,62 +56,75 @@ class _ExerciseWidgetState extends State<ExerciseWidget> {
     final currentState = bloc.state;
 
     if (currentState is TrainingManagementLoaded) {
-      _setsController = TextEditingController(
-        text: currentState
-                .selectedTraining?.trainingExercises[widget.widgetId].sets
-                ?.toString() ??
-            '',
-      );
-      _exerciseId = currentState
-          .selectedTraining?.trainingExercises[widget.widgetId].exerciseId;
-      print('_exerciseId is $_exerciseId');
-    } else {
-      _setsController = TextEditingController();
+      final exercise =
+          currentState.selectedTraining?.trainingExercises[widget.widgetId];
+
+      _controllers['sets']?.text = exercise?.sets?.toString() ?? '';
+      _controllers['duration']?.text = exercise?.duration?.toString() ?? '';
+      _controllers['repsMin']?.text = exercise?.minReps?.toString() ?? '';
+      _controllers['repsMax']?.text = exercise?.maxReps?.toString() ?? '';
+      _controllers['setRest']?.text = exercise?.setRest?.toString() ?? '';
+      _controllers['exerciseRest']?.text =
+          exercise?.exerciseRest?.toString() ?? '';
+      _controllers['specialInstructions']?.text =
+          exercise?.specialInstructions?.toString() ?? '';
+      _controllers['objectives']?.text = exercise?.objectives?.toString() ?? '';
     }
-    _setsController.addListener(_onSetsChanged);
+  }
+
+  void _attachListeners() {
+    _controllers.forEach((key, controller) {
+      controller.addListener(() => _onControllerChanged(key));
+    });
   }
 
   @override
   void dispose() {
     _debounceTimer?.cancel();
-    _disposeControllers();
+    for (var controller in _controllers.values) {
+      controller.dispose();
+    }
     super.dispose();
   }
 
-  void _disposeControllers() {
-    _setsController.dispose();
-    _repsMinController.dispose();
-    _repsMaxController.dispose();
-    _durationController.dispose();
-    _setRestController.dispose();
-    _exerciseRestController.dispose();
-    _specialInstructionsController.dispose();
-    _objectivesController.dispose();
+  void _onControllerChanged(String key) {
+    _debounce(() => _updateInBloc(key));
   }
 
-  void _onSetsChanged() {
-    _debounce(_updateSetsInBloc);
+  void _updateInBloc(String key) {
+    final bloc = context.read<TrainingManagementBloc>();
+
+    if (bloc.state is TrainingManagementLoaded) {
+      final currentState = bloc.state as TrainingManagementLoaded;
+      final updatedTrainingExercisesList = List<TrainingExercise>.from(
+        currentState.selectedTraining!.trainingExercises,
+      );
+
+      final updatedExercise =
+          updatedTrainingExercisesList[widget.widgetId].copyWith(
+        sets: key == 'sets'
+            ? int.tryParse(_controllers['sets']?.text ?? '')
+            : null,
+        duration: key == 'duration'
+            ? int.tryParse(_controllers['duration']?.text ?? '')
+            : null,
+        setRest: key == 'setRest'
+            ? int.tryParse(_controllers['setRest']?.text ?? '')
+            : null,
+        // Add more fields if necessary
+      );
+
+      updatedTrainingExercisesList[widget.widgetId] = updatedExercise;
+
+      bloc.add(UpdateSelectedTrainingProperty(
+          trainingExercises: updatedTrainingExercisesList));
+    }
   }
 
   void _debounce(Function() action,
       [Duration delay = const Duration(milliseconds: 500)]) {
     _debounceTimer?.cancel();
     _debounceTimer = Timer(delay, action);
-  }
-
-  void _updateSetsInBloc() {
-    final bloc = context.read<TrainingManagementBloc>();
-    if (bloc.state is TrainingManagementLoaded) {
-      final currentState = bloc.state as TrainingManagementLoaded;
-      final updatedTrainingExercisesList = List<TrainingExercise>.from(
-          currentState.selectedTraining!.trainingExercises);
-      updatedTrainingExercisesList[widget.widgetId] =
-          updatedTrainingExercisesList[widget.widgetId].copyWith(
-        sets: int.tryParse(_setsController.text),
-      );
-      bloc.add(UpdateSelectedTrainingProperty(
-          trainingExercises: updatedTrainingExercisesList));
-    }
   }
 
   @override
@@ -142,11 +158,11 @@ class _ExerciseWidgetState extends State<ExerciseWidget> {
           _buildExerciseRestRow(),
           const SizedBox(height: 10),
           BigTextFieldWidget(
-              controller: _specialInstructionsController,
+              controller: _controllers['specialInstructions']!,
               hintText: 'Special instructions'),
           const SizedBox(height: 10),
           BigTextFieldWidget(
-              controller: _objectivesController, hintText: 'Objectives')
+              controller: _controllers['objectives']!, hintText: 'Objectives')
         ],
       ),
     );
@@ -389,7 +405,7 @@ class _ExerciseWidgetState extends State<ExerciseWidget> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         const Text('Sets', style: TextStyle(color: AppColors.lightBlack)),
-        SmallTextFieldWidget(controller: _setsController),
+        SmallTextFieldWidget(controller: _controllers['sets']!),
       ],
     );
   }
@@ -397,8 +413,9 @@ class _ExerciseWidgetState extends State<ExerciseWidget> {
   Widget _buildSetsChoiceOptions() {
     return Column(
       children: [
-        _buildSetsChoiceOption('Reps', _repsMinController, _repsMaxController),
-        _buildSetsChoiceOption('Duration', _durationController),
+        _buildSetsChoiceOption(
+            'Reps', _controllers['repsMin'], _controllers['repsMax']),
+        _buildSetsChoiceOption('Duration', _controllers['duration']),
       ],
     );
   }
@@ -407,7 +424,7 @@ class _ExerciseWidgetState extends State<ExerciseWidget> {
       [TextEditingController? controller1,
       TextEditingController? controller2]) {
     return GestureDetector(
-      onTap: () => setState(() => selectedSetsChoice = choice),
+      onTap: () {},
       child: Row(
         children: [
           SizedBox(
@@ -456,7 +473,7 @@ class _ExerciseWidgetState extends State<ExerciseWidget> {
       children: [
         const Text('Set rest (seconds)',
             style: TextStyle(color: AppColors.lightBlack)),
-        SmallTextFieldWidget(controller: _setRestController),
+        SmallTextFieldWidget(controller: _controllers['setRest']!),
       ],
     );
   }
@@ -467,7 +484,7 @@ class _ExerciseWidgetState extends State<ExerciseWidget> {
       children: [
         const Text('Exercise rest (seconds)',
             style: TextStyle(color: AppColors.lightBlack)),
-        SmallTextFieldWidget(controller: _exerciseRestController),
+        SmallTextFieldWidget(controller: _controllers['exerciseRest']!),
       ],
     );
   }

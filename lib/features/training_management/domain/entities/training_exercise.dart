@@ -18,11 +18,15 @@ class TrainingExercise extends Equatable {
   final int? intervalDuration;
   final int? intervalRest;
   final int? sets;
-  final int? reps;
+  final bool? isSetsInReps;
+  final int? minReps;
+  final int? maxReps;
+  final int? actualReps;
   final int? duration;
   final int? setRest;
   final int? exerciseRest;
   final bool? manualStart;
+  final int? position;
 
   const TrainingExercise({
     this.id,
@@ -40,11 +44,15 @@ class TrainingExercise extends Equatable {
     this.intervalDuration,
     this.intervalRest,
     this.sets,
-    this.reps,
+    this.isSetsInReps,
+    this.minReps,
+    this.maxReps,
+    this.actualReps,
     this.duration,
     this.setRest,
     this.exerciseRest,
     this.manualStart,
+    this.position,
   });
 
   TrainingExercise copyWith({
@@ -63,11 +71,15 @@ class TrainingExercise extends Equatable {
     int? intervalDuration,
     int? intervalRest,
     int? sets,
-    int? reps,
+    bool? isSetsInReps,
+    int? minReps,
+    int? maxReps,
+    int? actualReps,
     int? duration,
     int? setRest,
     int? exerciseRest,
     bool? manualStart,
+    int? position,
   }) {
     return TrainingExercise(
       id: id ?? this.id,
@@ -85,11 +97,15 @@ class TrainingExercise extends Equatable {
       intervalDuration: intervalDuration ?? this.intervalDuration,
       intervalRest: intervalRest ?? this.intervalRest,
       sets: sets ?? this.sets,
-      reps: reps ?? this.reps,
+      isSetsInReps: isSetsInReps ?? this.isSetsInReps,
+      minReps: minReps ?? this.minReps,
+      maxReps: maxReps ?? this.maxReps,
+      actualReps: actualReps ?? this.actualReps,
       duration: duration ?? this.duration,
       setRest: setRest ?? this.setRest,
       exerciseRest: exerciseRest ?? this.exerciseRest,
       manualStart: manualStart ?? this.manualStart,
+      position: position ?? this.position,
     );
   }
 
@@ -110,10 +126,14 @@ class TrainingExercise extends Equatable {
         intervalDuration,
         intervalRest,
         sets,
-        reps,
+        isSetsInReps,
+        minReps,
+        maxReps,
+        actualReps,
         duration,
         setRest,
         exerciseRest,
         manualStart,
+        position,
       ];
 }

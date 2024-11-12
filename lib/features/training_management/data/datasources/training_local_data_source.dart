@@ -108,6 +108,7 @@ class SQLiteTrainingLocalDataSource implements TrainingLocalDataSource {
             'multiset_rest': row['multiset_rest'],
             'special_instructions': row['special_instructions'],
             'objectives': row['objectives'],
+            'position': row['position'],
             'training_exercises': [],
           };
         }).toList();
@@ -132,7 +133,10 @@ class SQLiteTrainingLocalDataSource implements TrainingLocalDataSource {
             'imagePath': row['imagePath'],
             'training_exercise_type': row['training_exercise_type'],
             'sets': row['sets'],
-            'reps': row['reps'],
+            'is_sets_in_reps': row['is_sets_in_reps'],
+            'min_reps': row['min_reps'],
+            'max_reps': row['max_reps'],
+            'actual_reps': row['actual_reps'],
             'duration': row['duration'],
             'set_rest': row['set_rest'],
             'exercise_rest': row['exercise_rest'],
@@ -146,6 +150,7 @@ class SQLiteTrainingLocalDataSource implements TrainingLocalDataSource {
             'interval_rest': row['interval_rest'],
             'special_instructions': row['special_instructions'],
             'objectives': row['objectives'],
+            'position': row['position'],
           };
         }).toList();
       }

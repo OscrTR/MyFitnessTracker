@@ -28,6 +28,7 @@ void main() {
   const specialInstructions = 'Focus on form';
   const objectives = 'Improve endurance';
   const exerciseId = 1;
+  const multisetOrder = 0;
 
   const trainingExercise = TrainingExercise(
     id: 1,
@@ -38,7 +39,10 @@ void main() {
     trainingId: trainingId,
     exerciseId: exerciseId,
     sets: 3,
-    reps: 5,
+    isSetsInReps: true,
+    minReps: 8,
+    maxReps: 12,
+    actualReps: 5,
     duration: 30,
     setRest: 10,
     exerciseRest: 15,
@@ -50,18 +54,19 @@ void main() {
     intervalDistance: null,
     intervalDuration: null,
     intervalRest: null,
+    position: 1,
   );
 
   const multiset = Multiset(
-    id: multisetId,
-    trainingId: trainingId,
-    trainingExercises: [trainingExercise],
-    sets: sets,
-    setRest: setRest,
-    multisetRest: multisetRest,
-    specialInstructions: specialInstructions,
-    objectives: objectives,
-  );
+      id: multisetId,
+      trainingId: trainingId,
+      trainingExercises: [trainingExercise],
+      sets: sets,
+      setRest: setRest,
+      multisetRest: multisetRest,
+      specialInstructions: specialInstructions,
+      objectives: objectives,
+      position: multisetOrder);
 
   const training = Training(
     name: 'My first training',

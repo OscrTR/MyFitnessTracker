@@ -10,38 +10,41 @@ import '../../../../fixtures/fixture_reader.dart';
 void main() {
   group('MultisetModel', () {
     const multisetModel = MultisetModel(
-      id: 1,
-      trainingId: 101,
-      trainingExercises: [
-        TrainingExerciseModel(
-          id: 1,
-          trainingId: 101,
-          multisetId: 1,
-          exerciseId: 202,
-          trainingExerciseType: TrainingExerciseType.yoga,
-          specialInstructions: 'Focus on breathing',
-          objectives: 'Endurance',
-          targetDistance: 5000,
-          targetDuration: 1800,
-          targetRythm: 80,
-          intervals: 5,
-          intervalDistance: 1000,
-          intervalDuration: 300,
-          intervalRest: 60,
-          sets: 3,
-          reps: 15,
-          duration: 600,
-          setRest: 120,
-          exerciseRest: 90,
-          manualStart: true,
-        ),
-      ],
-      sets: 3,
-      setRest: 120,
-      multisetRest: 300,
-      specialInstructions: 'Complete with good form',
-      objectives: 'Overall strength',
-    );
+        id: 1,
+        trainingId: 101,
+        trainingExercises: [
+          TrainingExerciseModel(
+              id: 1,
+              trainingId: 101,
+              multisetId: 1,
+              exerciseId: 202,
+              trainingExerciseType: TrainingExerciseType.yoga,
+              specialInstructions: 'Focus on breathing',
+              objectives: 'Endurance',
+              targetDistance: 5000,
+              targetDuration: 1800,
+              targetRythm: 80,
+              intervals: 5,
+              intervalDistance: 1000,
+              intervalDuration: 300,
+              intervalRest: 60,
+              sets: 3,
+              isSetsInReps: true,
+              minReps: 8,
+              maxReps: 12,
+              actualReps: 15,
+              duration: 600,
+              setRest: 120,
+              exerciseRest: 90,
+              manualStart: true,
+              position: 0),
+        ],
+        sets: 3,
+        setRest: 120,
+        multisetRest: 300,
+        specialInstructions: 'Complete with good form',
+        objectives: 'Overall strength',
+        position: 0);
 
     test(
       'should be a sublass of Multiset entity',
@@ -70,6 +73,7 @@ void main() {
         "multiset_rest": 300,
         "special_instructions": "Complete with good form",
         "objectives": "Overall strength",
+        "position": 0
       };
       expect(result, expectedMap);
     });

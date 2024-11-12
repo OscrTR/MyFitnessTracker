@@ -111,7 +111,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                   //         final item = updatedList.removeAt(oldIndex);
                   //         updatedList.insert(newIndex, item);
 
-                  //         // Update the list order in the Bloc
+                  //         // Update the list position in the Bloc
                   //         context.read<TrainingManagementBloc>().add(
                   //             UpdateSelectedTrainingWidgetsEvent(updatedList));
                   //       },

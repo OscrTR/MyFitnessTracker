@@ -42,6 +42,7 @@ class SQLiteDatabaseHelper {
             multiset_rest INTEGER,
             special_instructions TEXT,
             objectives TEXT,
+            position INTEGER,
             FOREIGN KEY(training_id) REFERENCES trainings(id) ON DELETE CASCADE
           )
         ''');
@@ -54,7 +55,10 @@ class SQLiteDatabaseHelper {
             exercise_id INTEGER,
             training_exercise_type INTEGER,
             sets INTEGER,
-            reps INTEGER,
+            is_sets_in_reps INTEGER,
+            min_reps INTEGER,
+            max_reps INTEGER,
+            actual_reps INTEGER,
             duration INTEGER,
             set_rest INTEGER,
             exercise_rest INTEGER,
@@ -68,6 +72,7 @@ class SQLiteDatabaseHelper {
             interval_rest INTEGER,
             special_instructions TEXT,
             objectives TEXT,
+            position INTEGER,
             FOREIGN KEY(training_id) REFERENCES trainings(id) ON DELETE CASCADE,
             FOREIGN KEY(multiset_id) REFERENCES multisets(id) ON DELETE CASCADE,
             FOREIGN KEY(exercise_id) REFERENCES exercises(id) ON DELETE CASCADE

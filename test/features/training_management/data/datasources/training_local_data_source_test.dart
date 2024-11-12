@@ -52,6 +52,7 @@ final trainingBaseJson = {
       'multiset_rest': 120,
       'special_instructions': 'Do it slowly',
       'objectives': 'Increase strength',
+      'position': 0
     }
   ],
   'training_exercises': [
@@ -168,6 +169,7 @@ void main() {
               'multiset_rest': 120,
               'special_instructions': 'Do it slowly',
               'objectives': 'Increase strength',
+              'position': 0
             }
           ],
           'training_exercises': [
@@ -214,6 +216,7 @@ void main() {
               'multiset_rest': 120,
               'special_instructions': 'Do it slowly',
               'objectives': 'Increase strength',
+              'position': 0
             }
           ],
           'training_exercises': []
@@ -304,6 +307,7 @@ void main() {
               'multiset_rest': 120,
               'special_instructions': 'Do it slowly',
               'objectives': 'Increase strength',
+              'position': 0
             }
           ],
           'training_exercises': [
@@ -443,6 +447,7 @@ void main() {
               'multiset_rest': 120,
               'special_instructions': 'Do it slowly',
               'objectives': 'Increase strength',
+              'position': 0
             },
             {
               'id': 2,
@@ -460,6 +465,7 @@ void main() {
               'multiset_rest': 120,
               'special_instructions': 'ADDED COZ NO ID',
               'objectives': 'Increase strength',
+              'position': 0
             }
           ],
           'training_exercises': [
@@ -589,6 +595,7 @@ Future<void> _createTables(Database db) async {
       multiset_rest INTEGER,
       special_instructions TEXT,
       objectives TEXT,
+      position INTEGER,
       FOREIGN KEY(training_id) REFERENCES trainings(id) ON DELETE CASCADE
     )
   ''');
@@ -600,7 +607,10 @@ Future<void> _createTables(Database db) async {
       exercise_id INTEGER,
       training_exercise_type INTEGER,
       sets INTEGER,
-      reps INTEGER,
+      is_sets_in_reps INTEGER,
+      min_reps INTEGER,
+      max_reps INTEGER,
+      actual_reps INTEGER,
       duration INTEGER,
       set_rest INTEGER,
       exercise_rest INTEGER,
@@ -614,6 +624,7 @@ Future<void> _createTables(Database db) async {
       interval_rest INTEGER,
       special_instructions TEXT,
       objectives TEXT,
+      position INTEGER,
       FOREIGN KEY(training_id) REFERENCES trainings(id) ON DELETE CASCADE,
       FOREIGN KEY(multiset_id) REFERENCES multisets(id) ON DELETE CASCADE,
       FOREIGN KEY(exercise_id) REFERENCES exercises(id) ON DELETE CASCADE
@@ -647,27 +658,30 @@ TrainingExerciseModel createTrainingExercise({
   bool manualStart = true,
 }) {
   return TrainingExerciseModel(
-    id: id,
-    trainingId: trainingId,
-    multisetId: multisetId,
-    exerciseId: exerciseId,
-    trainingExerciseType: type,
-    sets: sets,
-    reps: reps,
-    duration: duration,
-    setRest: setRest,
-    exerciseRest: exerciseRest,
-    manualStart: manualStart,
-    targetDistance: targetDistance,
-    targetDuration: targetDuration,
-    targetRythm: targetRythm,
-    intervals: intervals,
-    intervalDistance: intervalDistance,
-    intervalDuration: intervalDuration,
-    intervalRest: intervalRest,
-    specialInstructions: specialInstructions,
-    objectives: objectives,
-  );
+      id: id,
+      trainingId: trainingId,
+      multisetId: multisetId,
+      exerciseId: exerciseId,
+      trainingExerciseType: type,
+      sets: sets,
+      isSetsInReps: true,
+      minReps: 8,
+      maxReps: 12,
+      actualReps: reps,
+      duration: duration,
+      setRest: setRest,
+      exerciseRest: exerciseRest,
+      manualStart: manualStart,
+      targetDistance: targetDistance,
+      targetDuration: targetDuration,
+      targetRythm: targetRythm,
+      intervals: intervals,
+      intervalDistance: intervalDistance,
+      intervalDuration: intervalDuration,
+      intervalRest: intervalRest,
+      specialInstructions: specialInstructions,
+      objectives: objectives,
+      position: 0);
 }
 
 MultisetModel createMultiset({
@@ -678,15 +692,15 @@ MultisetModel createMultiset({
   List<TrainingExerciseModel> trainingExercises = const [],
 }) {
   return MultisetModel(
-    id: id,
-    trainingId: trainingId,
-    sets: 4,
-    setRest: 60,
-    multisetRest: 120,
-    specialInstructions: specialInstructions,
-    objectives: objectives,
-    trainingExercises: trainingExercises,
-  );
+      id: id,
+      trainingId: trainingId,
+      sets: 4,
+      setRest: 60,
+      multisetRest: 120,
+      specialInstructions: specialInstructions,
+      objectives: objectives,
+      trainingExercises: trainingExercises,
+      position: 0);
 }
 
 TrainingModel createTraining({

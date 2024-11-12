@@ -11,17 +11,18 @@ class Multiset extends Equatable {
   final int multisetRest;
   final String specialInstructions;
   final String objectives;
+  final int position;
 
-  const Multiset({
-    this.id,
-    required this.trainingId,
-    required this.trainingExercises,
-    required this.sets,
-    required this.setRest,
-    required this.multisetRest,
-    required this.specialInstructions,
-    required this.objectives,
-  });
+  const Multiset(
+      {this.id,
+      required this.trainingId,
+      required this.trainingExercises,
+      required this.sets,
+      required this.setRest,
+      required this.multisetRest,
+      required this.specialInstructions,
+      required this.objectives,
+      required this.position});
 
   @override
   List<Object?> get props => [
@@ -32,6 +33,7 @@ class Multiset extends Equatable {
         setRest,
         multisetRest,
         specialInstructions,
-        objectives
+        objectives,
+        position
       ];
 }
