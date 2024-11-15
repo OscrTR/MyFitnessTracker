@@ -3,8 +3,10 @@ import 'dart:async';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:my_fitness_tracker/features/training_management/domain/entities/training_exercise.dart';
 import 'package:my_fitness_tracker/features/training_management/presentation/widgets/exercise_widget.dart';
 import 'package:my_fitness_tracker/features/training_management/presentation/widgets/keyed_wrapper_widget.dart';
+import 'package:my_fitness_tracker/features/training_management/presentation/widgets/run_exercise_widget.dart';
 import '../../../exercise_management/presentation/widgets/exercise_detail_custom_text_field_widget.dart';
 import '../bloc/training_management_bloc.dart';
 import '../widgets/page_title_widget.dart';
@@ -94,8 +96,11 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                           .map((entry) {
                         int index = entry.key;
                         var tExercise = entry.value;
-                        // Use index as a fallback ID if tExercise.id is null
-                        return ExerciseWidget(widgetId: tExercise.id ?? index);
+                        if (tExercise.trainingExerciseType ==
+                            TrainingExerciseType.run) {
+                          return RunExerciseWidget(widgetId: index);
+                        }
+                        return ExerciseWidget(widgetId: index);
                       }).toList(),
                     ),
                   // if (state.selectedTrainingWidgetList.length > 1)

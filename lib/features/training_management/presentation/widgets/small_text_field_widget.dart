@@ -3,8 +3,10 @@ import 'package:my_fitness_tracker/assets/app_colors.dart';
 
 class SmallTextFieldWidget extends StatelessWidget {
   final TextEditingController controller;
+  final Color? textColor;
 
-  const SmallTextFieldWidget({super.key, required this.controller});
+  const SmallTextFieldWidget(
+      {super.key, required this.controller, this.textColor});
 
   @override
   Widget build(BuildContext context) {
@@ -15,10 +17,11 @@ class SmallTextFieldWidget extends StatelessWidget {
         child: TextField(
           controller: controller,
           textAlign: TextAlign.center,
+          style: TextStyle(color: textColor ?? AppColors.black),
           keyboardType: TextInputType.number,
           decoration: InputDecoration(
             isCollapsed: true,
-            contentPadding: const EdgeInsets.symmetric(vertical: 5),
+            contentPadding: const EdgeInsets.only(top: 5, bottom: 5, left: 2),
             labelStyle: Theme.of(context)
                 .textTheme
                 .bodyMedium!

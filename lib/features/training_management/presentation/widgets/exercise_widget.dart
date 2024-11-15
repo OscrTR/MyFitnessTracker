@@ -33,11 +33,14 @@ class _ExerciseWidgetState extends State<ExerciseWidget> {
 
   final Map<String, TextEditingController> _controllers = {
     'sets': TextEditingController(),
-    'duration': TextEditingController(),
+    'durationMinutes': TextEditingController(),
+    'durationSeconds': TextEditingController(),
     'minReps': TextEditingController(),
     'maxReps': TextEditingController(),
-    'setRest': TextEditingController(),
-    'exerciseRest': TextEditingController(),
+    'setRestMinutes': TextEditingController(),
+    'setRestSeconds': TextEditingController(),
+    'exerciseRestMinutes': TextEditingController(),
+    'exerciseRestSeconds': TextEditingController(),
     'specialInstructions': TextEditingController(),
     'objectives': TextEditingController(),
   };
@@ -60,12 +63,28 @@ class _ExerciseWidgetState extends State<ExerciseWidget> {
       isSetsInReps = exercise?.isSetsInReps ?? true;
 
       _controllers['sets']?.text = exercise?.sets?.toString() ?? '';
-      _controllers['duration']?.text = exercise?.duration?.toString() ?? '';
+      _controllers['durationMinutes']?.text = (exercise?.duration != null
+          ? (exercise!.duration! % 3600 ~/ 60).toString()
+          : '');
+      _controllers['durationSeconds']?.text = (exercise?.duration != null
+          ? (exercise!.duration! % 60).toString()
+          : '');
       _controllers['minReps']?.text = exercise?.minReps?.toString() ?? '';
       _controllers['maxReps']?.text = exercise?.maxReps?.toString() ?? '';
-      _controllers['setRest']?.text = exercise?.setRest?.toString() ?? '';
-      _controllers['exerciseRest']?.text =
-          exercise?.exerciseRest?.toString() ?? '';
+      _controllers['setRestMinutes']?.text = (exercise?.setRest != null
+          ? (exercise!.setRest! % 3600 ~/ 60).toString()
+          : '');
+      _controllers['setRestSeconds']?.text = (exercise?.setRest != null
+          ? (exercise!.setRest! % 60).toString()
+          : '');
+      _controllers['exerciseRestMinutes']?.text =
+          (exercise?.exerciseRest != null
+              ? (exercise!.exerciseRest! % 3600 ~/ 60).toString()
+              : '');
+      _controllers['exerciseRestSeconds']?.text =
+          (exercise?.exerciseRest != null
+              ? (exercise!.exerciseRest! % 60).toString()
+              : '');
       _controllers['specialInstructions']?.text =
           exercise?.specialInstructions?.toString() ?? '';
       _controllers['objectives']?.text = exercise?.objectives?.toString() ?? '';
@@ -111,15 +130,28 @@ class _ExerciseWidgetState extends State<ExerciseWidget> {
         maxReps: key == 'maxReps'
             ? int.tryParse(_controllers['maxReps']?.text ?? '')
             : null,
-        duration: key == 'duration'
-            ? int.tryParse(_controllers['duration']?.text ?? '')
+        duration: key == 'durationMinutes' || key == 'durationSeconds'
+            ? ((int.tryParse(_controllers['durationMinutes']?.text ?? '') ??
+                        0) *
+                    60) +
+                ((int.tryParse(_controllers['durationSeconds']?.text ?? '') ??
+                    0))
             : null,
-        setRest: key == 'setRest'
-            ? int.tryParse(_controllers['setRest']?.text ?? '')
+        setRest: key == 'setRestMinutes' || key == 'setRestSeconds'
+            ? ((int.tryParse(_controllers['setRestMinutes']?.text ?? '') ?? 0) *
+                    60) +
+                ((int.tryParse(_controllers['setRestSeconds']?.text ?? '') ??
+                    0))
             : null,
-        exerciseRest: key == 'exerciseRest'
-            ? int.tryParse(_controllers['exerciseRest']?.text ?? '')
-            : null,
+        exerciseRest:
+            key == 'exerciseRestMinutes' || key == 'exerciseRestSeconds'
+                ? ((int.tryParse(_controllers['durationMinutes']?.text ?? '') ??
+                            0) *
+                        60) +
+                    ((int.tryParse(
+                            _controllers['exerciseRestSeconds']?.text ?? '') ??
+                        0))
+                : null,
         specialInstructions: key == 'specialInstructions'
             ? _controllers['specialInstructions']?.text ?? ''
             : null,
@@ -411,12 +443,15 @@ class _ExerciseWidgetState extends State<ExerciseWidget> {
   }
 
   Widget _buildSetsRow() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        const Text('Sets', style: TextStyle(color: AppColors.lightBlack)),
-        SmallTextFieldWidget(controller: _controllers['sets']!),
-      ],
+    return SizedBox(
+      height: 48,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          const Text('Sets', style: TextStyle(color: AppColors.lightBlack)),
+          SmallTextFieldWidget(controller: _controllers['sets']!),
+        ],
+      ),
     );
   }
 
@@ -434,6 +469,7 @@ class _ExerciseWidgetState extends State<ExerciseWidget> {
                 'Reps',
                 true,
                 isSetsInReps,
+                true,
                 _controllers['minReps'],
                 _controllers['maxReps'],
               ),
@@ -441,7 +477,9 @@ class _ExerciseWidgetState extends State<ExerciseWidget> {
                 'Duration',
                 false,
                 isSetsInReps,
-                _controllers['duration'],
+                false,
+                _controllers['durationMinutes'],
+                _controllers['durationSeconds'],
               ),
             ],
           );
@@ -455,7 +493,8 @@ class _ExerciseWidgetState extends State<ExerciseWidget> {
   Widget _buildSetsChoiceOption(
     String choice,
     bool choiceValue,
-    bool currentSelection, [
+    bool currentSelection,
+    bool isReps, [
     TextEditingController? controller1,
     TextEditingController? controller2,
   ]) {
@@ -489,11 +528,35 @@ class _ExerciseWidgetState extends State<ExerciseWidget> {
                 Row(
                   children: [
                     if (controller1 != null)
-                      SmallTextFieldWidget(controller: controller1),
+                      SmallTextFieldWidget(
+                        controller: controller1,
+                        textColor: currentSelection == choiceValue
+                            ? AppColors.black
+                            : AppColors.lightBlack,
+                      ),
+                    if (controller2 != null && isReps)
+                      Text(' - ',
+                          style: TextStyle(
+                            fontSize: 20,
+                            color: currentSelection == choiceValue
+                                ? AppColors.black
+                                : AppColors.lightBlack,
+                          )),
+                    if (controller2 != null && !isReps)
+                      Text(' : ',
+                          style: TextStyle(
+                            fontSize: 20,
+                            color: currentSelection == choiceValue
+                                ? AppColors.black
+                                : AppColors.lightBlack,
+                          )),
                     if (controller2 != null)
-                      const Text(' - ', style: TextStyle(fontSize: 20)),
-                    if (controller2 != null)
-                      SmallTextFieldWidget(controller: controller2),
+                      SmallTextFieldWidget(
+                        controller: controller2,
+                        textColor: currentSelection == choiceValue
+                            ? AppColors.black
+                            : AppColors.lightBlack,
+                      ),
                   ],
                 ),
               ],
@@ -523,24 +586,43 @@ class _ExerciseWidgetState extends State<ExerciseWidget> {
   }
 
   Widget _buildSetRestRow() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        const Text('Set rest (seconds)',
-            style: TextStyle(color: AppColors.lightBlack)),
-        SmallTextFieldWidget(controller: _controllers['setRest']!),
-      ],
+    return SizedBox(
+      height: 48,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          const Text('Set rest', style: TextStyle(color: AppColors.lightBlack)),
+          Row(
+            children: [
+              SmallTextFieldWidget(controller: _controllers['setRestMinutes']!),
+              const Text(' : ', style: TextStyle(fontSize: 20)),
+              SmallTextFieldWidget(controller: _controllers['setRestSeconds']!),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
   Widget _buildExerciseRestRow() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        const Text('Exercise rest (seconds)',
-            style: TextStyle(color: AppColors.lightBlack)),
-        SmallTextFieldWidget(controller: _controllers['exerciseRest']!),
-      ],
+    return SizedBox(
+      height: 48,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          const Text('Exercise rest',
+              style: TextStyle(color: AppColors.lightBlack)),
+          Row(
+            children: [
+              SmallTextFieldWidget(
+                  controller: _controllers['exerciseRestMinutes']!),
+              const Text(' : ', style: TextStyle(fontSize: 20)),
+              SmallTextFieldWidget(
+                  controller: _controllers['exerciseRestSeconds']!),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

@@ -53,4 +53,6 @@ final ThemeData appTheme = ThemeData(
     labelMedium: TextStyle(
         fontSize: 12, fontWeight: FontWeight.w400, color: AppColors.black),
   ),
+  checkboxTheme: const CheckboxThemeData(
+      side: BorderSide(color: AppColors.lightBlack, width: 2)),
 );

@@ -17,7 +17,6 @@ class TrainingActionsWidget extends StatelessWidget {
             Expanded(
               child: GestureDetector(
                 onTap: () {
-                  // TODO : ajouter un exercice vide à la liste des exercices
                   context.read<TrainingManagementBloc>().add(
                           const UpdateSelectedTrainingProperty(
                               trainingExercises: [
@@ -47,9 +46,9 @@ class TrainingActionsWidget extends StatelessWidget {
                                 manualStart: null)
                           ]));
 
-                  context
-                      .read<TrainingManagementBloc>()
-                      .add(AddExerciseToSelectedTrainingEvent());
+                  // context
+                  //     .read<TrainingManagementBloc>()
+                  //     .add(AddExerciseToSelectedTrainingEvent());
                 },
                 child: Container(
                   height: 60,
@@ -69,9 +68,37 @@ class TrainingActionsWidget extends StatelessWidget {
             Expanded(
               child: GestureDetector(
                 onTap: () {
-                  context
-                      .read<TrainingManagementBloc>()
-                      .add(AddRunToSelectedTrainingEvent());
+                  context.read<TrainingManagementBloc>().add(
+                          const UpdateSelectedTrainingProperty(
+                              trainingExercises: [
+                            TrainingExercise(
+                                id: null,
+                                trainingId: null,
+                                multisetId: null,
+                                exerciseId: null,
+                                trainingExerciseType: TrainingExerciseType.run,
+                                specialInstructions: null,
+                                objectives: null,
+                                runExerciseTarget: RunExerciseTarget.distance,
+                                targetDistance: null,
+                                targetDuration: null,
+                                isTargetRythmSelected: false,
+                                targetRythm: null,
+                                intervals: null,
+                                isIntervalInDistance: true,
+                                intervalDistance: null,
+                                intervalDuration: null,
+                                intervalRest: null,
+                                sets: null,
+                                isSetsInReps: null,
+                                minReps: null,
+                                maxReps: null,
+                                actualReps: null,
+                                duration: null,
+                                setRest: null,
+                                exerciseRest: null,
+                                manualStart: null)
+                          ]));
                 },
                 child: Container(
                   height: 60,

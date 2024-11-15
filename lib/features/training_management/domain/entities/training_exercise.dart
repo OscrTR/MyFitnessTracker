@@ -2,6 +2,8 @@ import 'package:equatable/equatable.dart';
 
 enum TrainingExerciseType { run, yoga, workout }
 
+enum RunExerciseTarget { distance, duration, intervals }
+
 class TrainingExercise extends Equatable {
   final int? id;
   final int? trainingId;
@@ -10,10 +12,13 @@ class TrainingExercise extends Equatable {
   final TrainingExerciseType? trainingExerciseType;
   final String? specialInstructions;
   final String? objectives;
+  final RunExerciseTarget? runExerciseTarget;
   final int? targetDistance;
   final int? targetDuration;
+  final bool? isTargetRythmSelected;
   final int? targetRythm;
   final int? intervals;
+  final bool? isIntervalInDistance;
   final int? intervalDistance;
   final int? intervalDuration;
   final int? intervalRest;
@@ -36,10 +41,13 @@ class TrainingExercise extends Equatable {
     this.trainingExerciseType,
     this.specialInstructions,
     this.objectives,
+    this.runExerciseTarget,
     this.targetDistance,
     this.targetDuration,
+    this.isTargetRythmSelected,
     this.targetRythm,
     this.intervals,
+    this.isIntervalInDistance,
     this.intervalDistance,
     this.intervalDuration,
     this.intervalRest,
@@ -63,10 +71,13 @@ class TrainingExercise extends Equatable {
     TrainingExerciseType? trainingExerciseType,
     String? specialInstructions,
     String? objectives,
+    RunExerciseTarget? runExerciseTarget,
     int? targetDistance,
     int? targetDuration,
+    bool? isTargetRythmSelected,
     int? targetRythm,
     int? intervals,
+    bool? isIntervalInDistance,
     int? intervalDistance,
     int? intervalDuration,
     int? intervalRest,
@@ -89,10 +100,14 @@ class TrainingExercise extends Equatable {
       trainingExerciseType: trainingExerciseType ?? this.trainingExerciseType,
       specialInstructions: specialInstructions ?? this.specialInstructions,
       objectives: objectives ?? this.objectives,
+      runExerciseTarget: runExerciseTarget ?? this.runExerciseTarget,
       targetDistance: targetDistance ?? this.targetDistance,
       targetDuration: targetDuration ?? this.targetDuration,
+      isTargetRythmSelected:
+          isTargetRythmSelected ?? this.isTargetRythmSelected,
       targetRythm: targetRythm ?? this.targetRythm,
       intervals: intervals ?? this.intervals,
+      isIntervalInDistance: isIntervalInDistance ?? this.isIntervalInDistance,
       intervalDistance: intervalDistance ?? this.intervalDistance,
       intervalDuration: intervalDuration ?? this.intervalDuration,
       intervalRest: intervalRest ?? this.intervalRest,
@@ -118,10 +133,13 @@ class TrainingExercise extends Equatable {
         trainingExerciseType,
         specialInstructions,
         objectives,
+        runExerciseTarget,
         targetDistance,
         targetDuration,
+        isTargetRythmSelected,
         targetRythm,
         intervals,
+        isIntervalInDistance,
         intervalDistance,
         intervalDuration,
         intervalRest,
