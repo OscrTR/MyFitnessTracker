@@ -14,7 +14,6 @@ class TrainingManagementLoading extends TrainingManagementState {}
 class TrainingManagementLoaded extends TrainingManagementState {
   final List<Training> trainings;
   final Training? selectedTraining;
-  final List<Widget> selectedTrainingWidgetList;
 
   const TrainingManagementLoaded({
     this.trainings = const [],
@@ -24,7 +23,6 @@ class TrainingManagementLoaded extends TrainingManagementState {
         isSelected: true,
         trainingExercises: [],
         multisets: []),
-    this.selectedTrainingWidgetList = const [],
   });
 
   TrainingManagementLoaded copyWith({

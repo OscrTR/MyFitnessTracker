@@ -41,6 +41,7 @@ class _ExerciseWidgetState extends State<ExerciseWidget> {
 
   void _initializeControllers() {
     _controllers = {
+      'exercise': TextEditingController(),
       'sets': TextEditingController(),
       'durationMinutes': TextEditingController(),
       'durationSeconds': TextEditingController(),
@@ -269,8 +270,11 @@ class _ExerciseWidgetState extends State<ExerciseWidget> {
         : null;
 
     return SearchField(
+      controller: _controllers['exercise'],
       onSuggestionTap: (query) {
         if (query.searchKey == 'Create New Exercise') {
+          _controllers['exercise']!.clear();
+          FocusScope.of(context).unfocus();
           navigateToCreateExercise();
           return;
         }
@@ -294,9 +298,11 @@ class _ExerciseWidgetState extends State<ExerciseWidget> {
             .where(
                 (element) => element.name.toLowerCase() == query.toLowerCase())
             .toList();
+
         if (filteredExercises.isNotEmpty) {
           updateExerciseIdInBloc(filteredExercises[0].id!);
         }
+
         final filter = (context.read<ExerciseManagementBloc>().state
                 as ExerciseManagementLoaded)
             .exercises
