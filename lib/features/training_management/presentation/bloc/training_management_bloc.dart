@@ -4,15 +4,10 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:my_fitness_tracker/features/training_management/domain/entities/multiset.dart';
 import 'package:my_fitness_tracker/features/training_management/domain/entities/training_exercise.dart';
-import 'package:my_fitness_tracker/features/training_management/presentation/widgets/keyed_wrapper_widget.dart';
 import '../../../../core/error/failures.dart';
 import '../../../../core/messages/bloc/message_bloc.dart';
 import '../../domain/entities/training.dart';
 import '../../domain/usecases/fetch_trainings.dart';
-import '../widgets/multiset_widget.dart';
-import '../widgets/run_widget.dart';
-
-import '../widgets/exercise_widget.dart';
 
 part 'training_management_event.dart';
 part 'training_management_state.dart';
@@ -24,7 +19,7 @@ class TrainingManagementBloc
     extends Bloc<TrainingManagementEvent, TrainingManagementState> {
   final FetchTrainings fetchTrainings;
   final MessageBloc messageBloc;
-  int _widgetIdCounter = 0;
+
   final TextEditingController nameController = TextEditingController();
   TrainingManagementBloc(
       {required this.fetchTrainings, required this.messageBloc})
@@ -62,9 +57,7 @@ class TrainingManagementBloc
               message: _mapFailureToMessage(failure), isError: true)),
           (trainings) {
             emit(
-              currentState.copyWith(
-                  selectedTraining: selectedTraining,
-                  selectedTrainingType: event.trainingType),
+              currentState.copyWith(selectedTraining: selectedTraining),
             );
           },
         );
@@ -94,25 +87,21 @@ class TrainingManagementBloc
         emit(currentState.copyWith(selectedTraining: updatedTraining));
       }
     });
+    on<AddExerciseToTrainingEvent>((event, emit) {
+      if (state is TrainingManagementLoaded) {
+        final currentState = state as TrainingManagementLoaded;
+        final trainingExercises = List<TrainingExercise>.from(
+            currentState.selectedTraining?.trainingExercises ?? []);
+        trainingExercises.add(event.trainingExercise);
 
-    on<UpdateTrainingTypeEvent>((event, emit) {
-      if (state is TrainingManagementLoaded) {
-        final currentState = state as TrainingManagementLoaded;
-        emit(
-          currentState.copyWith(
-              selectedTrainingType: event.selectedTrainingType),
+        final updatedTraining = currentState.selectedTraining?.copyWith(
+          trainingExercises: trainingExercises,
         );
+
+        emit(currentState.copyWith(selectedTraining: updatedTraining));
       }
     });
-    on<UpdateSelectedTrainingWidgetsEvent>((event, emit) {
-      if (state is TrainingManagementLoaded) {
-        final currentState = state as TrainingManagementLoaded;
-        print('Old ${currentState.selectedTrainingWidgetList}');
-        emit(currentState.copyWith(
-            selectedTrainingWidgetList: event.updatedList));
-        print('New ${currentState.selectedTrainingWidgetList}');
-      }
-    });
+
     on<SaveSelectedTrainingEvent>((event, emit) {
       if (state is TrainingManagementLoaded) {
         final currentState = state as TrainingManagementLoaded;
@@ -121,63 +110,10 @@ class TrainingManagementBloc
     });
 
     //! Multisets
-    on<AddMultisetToSelectedTrainingEvent>((event, emit) {
-      if (state is TrainingManagementLoaded) {
-        final currentState = state as TrainingManagementLoaded;
-        final updatedWidgetList =
-            List<Widget>.from(currentState.selectedTrainingWidgetList)
-              ..add(const MultisetWidget());
-        emit(
-          currentState.copyWith(selectedTrainingWidgetList: updatedWidgetList),
-        );
-      }
-    });
+
     //! Runs
-    on<AddRunToSelectedTrainingEvent>((event, emit) {
-      if (state is TrainingManagementLoaded) {
-        final currentState = state as TrainingManagementLoaded;
-        final updatedWidgetList =
-            List<Widget>.from(currentState.selectedTrainingWidgetList)
-              ..add(const RunWidget());
-        emit(
-          currentState.copyWith(selectedTrainingWidgetList: updatedWidgetList),
-        );
-      }
-    });
+
     //! Exercises
-    on<AddExerciseToSelectedTrainingEvent>((event, emit) {
-      if (state is TrainingManagementLoaded) {
-        final currentState = state as TrainingManagementLoaded;
-
-        final uniqueId = _widgetIdCounter++;
-
-        final updatedWidgetList =
-            List<Widget>.from(currentState.selectedTrainingWidgetList)
-              ..add(KeyedWrapperWidget(
-                  widget: ExerciseWidget(
-                    widgetId: uniqueId,
-                  ),
-                  uniqueId: uniqueId));
-        emit(
-          currentState.copyWith(selectedTrainingWidgetList: updatedWidgetList),
-        );
-      }
-    });
-    on<RemoveExerciseFromSelectedTrainingEvent>((event, emit) {
-      if (state is TrainingManagementLoaded) {
-        final currentState = state as TrainingManagementLoaded;
-
-        final updatedWidgetList =
-            currentState.selectedTrainingWidgetList.where((widgetWrapper) {
-          return (widgetWrapper as KeyedWrapperWidget).uniqueId !=
-              event.widgetId;
-        }).toList();
-
-        emit(
-          currentState.copyWith(selectedTrainingWidgetList: updatedWidgetList),
-        );
-      }
-    });
   }
 
   @override

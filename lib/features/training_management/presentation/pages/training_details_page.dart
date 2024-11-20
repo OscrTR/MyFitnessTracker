@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_fitness_tracker/features/training_management/domain/entities/training_exercise.dart';
 import 'package:my_fitness_tracker/features/training_management/presentation/widgets/exercise_widget.dart';
-import 'package:my_fitness_tracker/features/training_management/presentation/widgets/keyed_wrapper_widget.dart';
 import 'package:my_fitness_tracker/features/training_management/presentation/widgets/run_exercise_widget.dart';
 import '../../../exercise_management/presentation/widgets/exercise_detail_custom_text_field_widget.dart';
 import '../bloc/training_management_bloc.dart';
@@ -85,8 +84,13 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                     },
                   ),
                   const SizedBox(height: 20),
+                  OutlinedButton(
+                      onPressed: () {
+                        print(context.read<TrainingManagementBloc>().state);
+                      },
+                      child: Text('clic')),
                   if (state.selectedTraining != null &&
-                      state.selectedTraining!.trainingExercises.isNotEmpty)
+                      state.selectedTraining!.trainingExercises.length < 2)
                     ListView(
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
@@ -103,25 +107,52 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                         return ExerciseWidget(widgetId: index);
                       }).toList(),
                     ),
-                  // if (state.selectedTrainingWidgetList.length > 1)
-                  //   ReorderableListView(
-                  //       physics: const NeverScrollableScrollPhysics(),
-                  //       proxyDecorator: (child, index, animation) => child,
-                  //       onReorder: (oldIndex, newIndex) {
-                  //         if (oldIndex < newIndex) newIndex--;
+                  if (state.selectedTraining!.trainingExercises.length > 1)
+                    ReorderableListView(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      onReorder: (int oldIndex, int newIndex) {
+                        if (newIndex > oldIndex) {
+                          newIndex--;
+                        }
 
-                  //         // Create a new list with reordered items
-                  //         final updatedList = List<KeyedWrapperWidget>.from(
-                  //             state.selectedTrainingWidgetList);
-                  //         final item = updatedList.removeAt(oldIndex);
-                  //         updatedList.insert(newIndex, item);
+                        // Create a mutable copy of the list
+                        final trainingExercises = List<TrainingExercise>.from(
+                          state.selectedTraining!.trainingExercises,
+                        );
 
-                  //         // Update the list position in the Bloc
-                  //         context.read<TrainingManagementBloc>().add(
-                  //             UpdateSelectedTrainingWidgetsEvent(updatedList));
-                  //       },
-                  //       shrinkWrap: true,
-                  //       children: state.selectedTrainingWidgetList),
+                        // Remove and reinsert the item
+                        final movedExercise =
+                            trainingExercises.removeAt(oldIndex);
+                        trainingExercises.insert(newIndex, movedExercise);
+
+                        for (int i = 0; i < trainingExercises.length; i++) {
+                          trainingExercises[i] =
+                              trainingExercises[i].copyWith(position: i);
+                        }
+
+                        // Dispatch the updated list to the bloc
+                        context.read<TrainingManagementBloc>().add(
+                              UpdateSelectedTrainingProperty(
+                                trainingExercises: trainingExercises,
+                              ),
+                            );
+                      },
+                      children: state.selectedTraining!.trainingExercises
+                          .map((exercise) {
+                        if (exercise.trainingExerciseType ==
+                            TrainingExerciseType.run) {
+                          return RunExerciseWidget(
+                            key: ValueKey(exercise.position!),
+                            widgetId: exercise.position!,
+                          );
+                        }
+                        return ExerciseWidget(
+                          key: ValueKey(exercise.position!),
+                          widgetId: exercise.position!,
+                        );
+                      }).toList(),
+                    ),
                   const SizedBox(height: 20),
                   const TrainingActionsWidget(),
                   const SizedBox(height: 30),

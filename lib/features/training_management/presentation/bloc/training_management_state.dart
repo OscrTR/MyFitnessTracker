@@ -30,8 +30,6 @@ class TrainingManagementLoaded extends TrainingManagementState {
   TrainingManagementLoaded copyWith({
     List<Training>? trainings,
     Training? selectedTraining,
-    TrainingType? selectedTrainingType,
-    List<Widget>? selectedTrainingWidgetList,
     bool? isSelected,
     String? name,
     TrainingType? type,
@@ -50,16 +48,12 @@ class TrainingManagementLoaded extends TrainingManagementState {
         multisets:
             selectedTraining?.multisets ?? this.selectedTraining?.multisets,
       ),
-      selectedTrainingWidgetList:
-          selectedTrainingWidgetList ?? this.selectedTrainingWidgetList,
     );
   }
 
   TrainingManagementLoaded clearSelectedTraining() {
     return copyWith(
       selectedTraining: null,
-      selectedTrainingType: null,
-      selectedTrainingWidgetList: const [],
     );
   }
 
@@ -67,7 +61,6 @@ class TrainingManagementLoaded extends TrainingManagementState {
   List<Object?> get props => [
         trainings,
         selectedTraining,
-        selectedTrainingWidgetList,
       ];
 }
 

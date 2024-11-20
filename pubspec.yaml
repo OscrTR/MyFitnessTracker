@@ -32,7 +32,7 @@ dependencies:
   image_picker: ^1.1.2
   path_provider: ^2.1.4
   top_snackbar_flutter: ^3.1.0
-  dropdown_search: ^6.0.1
+  searchfield: ^1.1.8
 
 dev_dependencies:
   flutter_test:

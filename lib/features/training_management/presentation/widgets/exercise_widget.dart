@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -14,6 +13,7 @@ import 'package:my_fitness_tracker/features/training_management/presentation/blo
 import 'package:my_fitness_tracker/features/training_management/presentation/widgets/big_text_field_widget.dart';
 import 'package:my_fitness_tracker/features/training_management/presentation/widgets/more_widget.dart';
 import 'package:my_fitness_tracker/features/training_management/presentation/widgets/small_text_field_widget.dart';
+import 'package:searchfield/searchfield.dart';
 
 class ExerciseWidget extends StatefulWidget {
   final int widgetId;
@@ -30,20 +30,7 @@ class _ExerciseWidgetState extends State<ExerciseWidget> {
   Exercise selectedExercise = const Exercise(name: '');
   TrainingExercise trainingExercise = const TrainingExercise();
   late bool isSetsInReps;
-
-  final Map<String, TextEditingController> _controllers = {
-    'sets': TextEditingController(),
-    'durationMinutes': TextEditingController(),
-    'durationSeconds': TextEditingController(),
-    'minReps': TextEditingController(),
-    'maxReps': TextEditingController(),
-    'setRestMinutes': TextEditingController(),
-    'setRestSeconds': TextEditingController(),
-    'exerciseRestMinutes': TextEditingController(),
-    'exerciseRestSeconds': TextEditingController(),
-    'specialInstructions': TextEditingController(),
-    'objectives': TextEditingController(),
-  };
+  late final Map<String, TextEditingController> _controllers;
 
   @override
   void initState() {
@@ -53,6 +40,19 @@ class _ExerciseWidgetState extends State<ExerciseWidget> {
   }
 
   void _initializeControllers() {
+    _controllers = {
+      'sets': TextEditingController(),
+      'durationMinutes': TextEditingController(),
+      'durationSeconds': TextEditingController(),
+      'minReps': TextEditingController(),
+      'maxReps': TextEditingController(),
+      'setRestMinutes': TextEditingController(),
+      'setRestSeconds': TextEditingController(),
+      'exerciseRestMinutes': TextEditingController(),
+      'exerciseRestSeconds': TextEditingController(),
+      'specialInstructions': TextEditingController(),
+      'objectives': TextEditingController(),
+    };
     final bloc = context.read<TrainingManagementBloc>();
     final currentState = bloc.state;
 
@@ -177,6 +177,7 @@ class _ExerciseWidgetState extends State<ExerciseWidget> {
   @override
   Widget build(BuildContext context) {
     return Container(
+      margin: const EdgeInsets.only(top: 20),
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
           color: AppColors.white,
@@ -186,7 +187,7 @@ class _ExerciseWidgetState extends State<ExerciseWidget> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildHeader(),
-          _buildExerciseDropdown(),
+          _buildExerciseSearch(),
           const SizedBox(height: 10),
           _buildExerciseDetails(),
           const SizedBox(height: 10),
@@ -220,167 +221,124 @@ class _ExerciseWidgetState extends State<ExerciseWidget> {
     );
   }
 
-  Widget _buildExerciseDropdown() {
-    final exerciseId = (context.read<TrainingManagementBloc>().state
-            as TrainingManagementLoaded)
-        .selectedTraining
-        ?.trainingExercises[widget.widgetId]
-        .exerciseId;
-
-    final exercises = context.select<ExerciseManagementBloc, List<Exercise>>(
-      (bloc) => bloc.state is ExerciseManagementLoaded
-          ? (bloc.state as ExerciseManagementLoaded).exercises
-          : [],
-    );
-
-    const ExerciseModel noExercise = ExerciseModel(name: 'no exercise');
-
-    final Exercise initialExercise = (context
-            .read<ExerciseManagementBloc>()
-            .state as ExerciseManagementLoaded)
-        .exercises
-        .firstWhere(
-          (el) => el.id == exerciseId,
-          orElse: () => noExercise,
-        );
-
-    return DropdownSearch<Exercise>(
-      items: (f, cs) {
-        return exercises;
-      },
-      selectedItem: initialExercise != noExercise ? initialExercise : null,
-      compareFn: (Exercise? exercise, Exercise? selectedExercise) =>
-          exercise?.id == selectedExercise?.id,
-      itemAsString: (Exercise? exercise) => exercise?.name ?? '',
-      onChanged: _dropDownOnChanged,
-      decoratorProps: _dropDownDecoratorProps(),
-      popupProps: _popupMenuProps(),
-    );
-  }
-
-  void _dropDownOnChanged(selectedItem) {
-    trainingExercise = trainingExercise.copyWith(exerciseId: selectedItem.id);
-    selectedExercise = selectedExercise.copyWith(
-        id: selectedItem.id,
-        name: selectedItem.name,
-        description: selectedItem.description,
-        imagePath: selectedItem.imagePath);
-
-    final bloc = context.read<TrainingManagementBloc>();
-
-    if (bloc.state is TrainingManagementLoaded) {
+  Widget _buildExerciseSearch() {
+    void updateExerciseIdInBloc(int id) {
+      final bloc = context.read<TrainingManagementBloc>();
       final currentState = bloc.state as TrainingManagementLoaded;
-      // Check if training exercise exists at specific position in list
-      if (currentState.selectedTraining != null) {
-        // Copy the list to avoid modifying the original
-        final updatedTrainingExercisesList = List<TrainingExercise>.from(
-          currentState.selectedTraining!.trainingExercises,
-        );
 
-        // Update the specific training exercise at widget.widgetId (index)
-        updatedTrainingExercisesList[widget.widgetId] =
-            updatedTrainingExercisesList[widget.widgetId]
-                .copyWith(exerciseId: selectedExercise.id);
+      final updatedTrainingExercisesList = List<TrainingExercise>.from(
+        currentState.selectedTraining!.trainingExercises,
+      );
 
-        context.read<TrainingManagementBloc>().add(
-            UpdateSelectedTrainingProperty(
-                trainingExercises: updatedTrainingExercisesList));
-      }
+      final updatedExercise =
+          updatedTrainingExercisesList[widget.widgetId].copyWith(
+        exerciseId: id,
+      );
+
+      updatedTrainingExercisesList[widget.widgetId] = updatedExercise;
+
+      bloc.add(UpdateSelectedTrainingProperty(
+          trainingExercises: updatedTrainingExercisesList));
+      FocusScope.of(context).unfocus();
     }
-  }
 
-  PopupProps<Exercise> _popupMenuProps() {
-    return PopupProps.menu(
-      menuProps:
-          const MenuProps(elevation: 0, backgroundColor: Colors.transparent),
-      showSearchBox: true,
-      searchFieldProps: TextFieldProps(
-        decoration: InputDecoration(
-          hintText: 'Search...',
-          hintStyle: Theme.of(context)
-              .textTheme
-              .bodyMedium!
-              .copyWith(color: AppColors.lightBlack),
-          enabledBorder: const UnderlineInputBorder(
-            borderSide: BorderSide(
-              color: AppColors.lightBlack,
-              width: 1,
-            ),
-          ),
-          focusedBorder: const UnderlineInputBorder(
-            borderSide: BorderSide(
-              color: AppColors.lightBlack,
-              width: 1,
-            ),
-          ),
-        ),
-      ),
-      containerBuilder: (context, popupWidget) {
-        return Container(
-          margin: const EdgeInsets.only(top: 10),
-          decoration: BoxDecoration(
-            color: AppColors.white,
-            borderRadius: BorderRadius.circular(15),
-            border: Border.all(
-              color: AppColors.black,
-              width: 1,
-            ),
-          ),
-          child: Column(
+    void navigateToCreateExercise() {
+      GoRouter.of(context).push('/exercise_detail', extra: 'training_detail');
+    }
+
+    String initialExerciseName = '';
+
+    final exercisesList = (context.read<ExerciseManagementBloc>().state
+            as ExerciseManagementLoaded)
+        .exercises
+        .where((element) =>
+            element.id ==
+            (context.read<TrainingManagementBloc>().state
+                    as TrainingManagementLoaded)
+                .selectedTraining!
+                .trainingExercises[widget.widgetId]
+                .exerciseId)
+        .toList();
+
+    if (exercisesList.isNotEmpty) {
+      initialExerciseName = exercisesList[0].name;
+    }
+
+    final initialItem = initialExerciseName != ''
+        ? SearchFieldListItem(initialExerciseName)
+        : null;
+
+    return SearchField(
+      onSuggestionTap: (query) {
+        if (query.searchKey == 'Create New Exercise') {
+          navigateToCreateExercise();
+          return;
+        }
+
+        List<Exercise> filteredExercises = (context
+                .read<ExerciseManagementBloc>()
+                .state as ExerciseManagementLoaded)
+            .exercises
+            .where((element) =>
+                element.name.toLowerCase() == query.searchKey.toLowerCase())
+            .toList();
+        if (filteredExercises.isNotEmpty) {
+          updateExerciseIdInBloc(filteredExercises[0].id!);
+        }
+      },
+      onSearchTextChanged: (query) {
+        List<Exercise> filteredExercises = (context
+                .read<ExerciseManagementBloc>()
+                .state as ExerciseManagementLoaded)
+            .exercises
+            .where(
+                (element) => element.name.toLowerCase() == query.toLowerCase())
+            .toList();
+        if (filteredExercises.isNotEmpty) {
+          updateExerciseIdInBloc(filteredExercises[0].id!);
+        }
+        final filter = (context.read<ExerciseManagementBloc>().state
+                as ExerciseManagementLoaded)
+            .exercises
+            .where((element) =>
+                element.name.toLowerCase().contains(query.toLowerCase()))
+            .toList();
+
+        // Add "Create New Exercise" option if no exact matches are found
+        final suggestions =
+            filter.map((e) => SearchFieldListItem(e.name)).toList();
+
+        suggestions.add(SearchFieldListItem(
+          'Create New Exercise',
+          child: const Row(
             children: [
-              Expanded(child: popupWidget),
-              Container(
-                margin: const EdgeInsets.symmetric(vertical: 10),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                decoration: const BoxDecoration(
-                    color: AppColors.black,
-                    borderRadius: BorderRadius.all(Radius.circular(10))),
-                child: GestureDetector(
-                  onTap: () {
-                    Navigator.pop(context);
-                    context
-                        .read<ExerciseManagementBloc>()
-                        .add(const ClearSelectedExerciseEvent());
-                    GoRouter.of(context)
-                        .push('/exercise_detail', extra: 'training_detail');
-                  },
-                  child: const Text(
-                    'Create a new exercise',
-                    style: TextStyle(color: AppColors.white),
-                  ),
-                ),
-              )
+              Icon(Icons.add, color: AppColors.black),
+              SizedBox(width: 8),
+              Text('Create New Exercise'),
             ],
           ),
-        );
-      },
-    );
-  }
+        ));
 
-  DropDownDecoratorProps _dropDownDecoratorProps() {
-    return DropDownDecoratorProps(
-      decoration: InputDecoration(
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(15),
-          borderSide: const BorderSide(
-            color: AppColors.lightBlack,
-            width: 1,
+        return suggestions;
+      },
+      initialValue: initialItem,
+      maxSuggestionsInViewPort: 5,
+      hint: 'Search an exercise',
+      suggestions: (context.read<ExerciseManagementBloc>().state
+              as ExerciseManagementLoaded)
+          .exercises
+          .map((e) => SearchFieldListItem(e.name))
+          .toList()
+        ..add(SearchFieldListItem(
+          'Create New Exercise',
+          child: const Row(
+            children: [
+              Icon(Icons.add, color: AppColors.black),
+              SizedBox(width: 8),
+              Text('Create New Exercise'),
+            ],
           ),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(15),
-          borderSide: const BorderSide(
-            color: AppColors.black,
-            width: 1,
-          ),
-        ),
-        hintText: 'No exercise selected yet',
-        hintStyle: Theme.of(context)
-            .textTheme
-            .bodyMedium!
-            .copyWith(color: AppColors.lightBlack),
-      ),
+        )),
     );
   }
 

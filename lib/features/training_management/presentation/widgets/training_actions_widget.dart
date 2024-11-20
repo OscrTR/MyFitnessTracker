@@ -17,38 +17,42 @@ class TrainingActionsWidget extends StatelessWidget {
             Expanded(
               child: GestureDetector(
                 onTap: () {
+                  final currentExercises = (context
+                              .read<TrainingManagementBloc>()
+                              .state as TrainingManagementLoaded)
+                          .selectedTraining
+                          ?.trainingExercises ??
+                      [];
+                  final nextPosition = currentExercises.length;
                   context.read<TrainingManagementBloc>().add(
-                          const UpdateSelectedTrainingProperty(
-                              trainingExercises: [
-                            TrainingExercise(
-                                id: null,
-                                trainingId: null,
-                                multisetId: null,
-                                exerciseId: null,
-                                trainingExerciseType: null,
-                                specialInstructions: null,
-                                objectives: null,
-                                targetDistance: null,
-                                targetDuration: null,
-                                targetRythm: null,
-                                intervals: null,
-                                intervalDistance: null,
-                                intervalDuration: null,
-                                intervalRest: null,
-                                sets: null,
-                                isSetsInReps: null,
-                                minReps: null,
-                                maxReps: null,
-                                actualReps: null,
-                                duration: null,
-                                setRest: null,
-                                exerciseRest: null,
-                                manualStart: null)
-                          ]));
-
-                  // context
-                  //     .read<TrainingManagementBloc>()
-                  //     .add(AddExerciseToSelectedTrainingEvent());
+                        AddExerciseToTrainingEvent(
+                          TrainingExercise(
+                              id: null,
+                              trainingId: null,
+                              multisetId: null,
+                              exerciseId: null,
+                              trainingExerciseType: null,
+                              specialInstructions: null,
+                              objectives: null,
+                              targetDistance: null,
+                              targetDuration: null,
+                              targetRythm: null,
+                              intervals: null,
+                              intervalDistance: null,
+                              intervalDuration: null,
+                              intervalRest: null,
+                              sets: null,
+                              isSetsInReps: null,
+                              minReps: null,
+                              maxReps: null,
+                              actualReps: null,
+                              duration: null,
+                              setRest: null,
+                              exerciseRest: null,
+                              manualStart: null,
+                              position: nextPosition),
+                        ),
+                      );
                 },
                 child: Container(
                   height: 60,
@@ -68,37 +72,45 @@ class TrainingActionsWidget extends StatelessWidget {
             Expanded(
               child: GestureDetector(
                 onTap: () {
+                  final currentExercises = (context
+                              .read<TrainingManagementBloc>()
+                              .state as TrainingManagementLoaded)
+                          .selectedTraining
+                          ?.trainingExercises ??
+                      [];
+                  final nextPosition = currentExercises.length;
                   context.read<TrainingManagementBloc>().add(
-                          const UpdateSelectedTrainingProperty(
-                              trainingExercises: [
-                            TrainingExercise(
-                                id: null,
-                                trainingId: null,
-                                multisetId: null,
-                                exerciseId: null,
-                                trainingExerciseType: TrainingExerciseType.run,
-                                specialInstructions: null,
-                                objectives: null,
-                                runExerciseTarget: RunExerciseTarget.distance,
-                                targetDistance: null,
-                                targetDuration: null,
-                                isTargetRythmSelected: false,
-                                targetRythm: null,
-                                intervals: null,
-                                isIntervalInDistance: true,
-                                intervalDistance: null,
-                                intervalDuration: null,
-                                intervalRest: null,
-                                sets: null,
-                                isSetsInReps: null,
-                                minReps: null,
-                                maxReps: null,
-                                actualReps: null,
-                                duration: null,
-                                setRest: null,
-                                exerciseRest: null,
-                                manualStart: null)
-                          ]));
+                        AddExerciseToTrainingEvent(
+                          TrainingExercise(
+                              id: null,
+                              trainingId: null,
+                              multisetId: null,
+                              exerciseId: null,
+                              trainingExerciseType: TrainingExerciseType.run,
+                              specialInstructions: null,
+                              objectives: null,
+                              runExerciseTarget: RunExerciseTarget.distance,
+                              targetDistance: null,
+                              targetDuration: null,
+                              isTargetRythmSelected: false,
+                              targetRythm: null,
+                              intervals: null,
+                              isIntervalInDistance: true,
+                              intervalDistance: null,
+                              intervalDuration: null,
+                              intervalRest: null,
+                              sets: null,
+                              isSetsInReps: null,
+                              minReps: null,
+                              maxReps: null,
+                              actualReps: null,
+                              duration: null,
+                              setRest: null,
+                              exerciseRest: null,
+                              manualStart: null,
+                              position: nextPosition),
+                        ),
+                      );
                 },
                 child: Container(
                   height: 60,

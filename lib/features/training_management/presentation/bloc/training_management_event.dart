@@ -83,22 +83,13 @@ class UpdateSelectedTrainingProperty extends TrainingManagementEvent {
       [id, name, type, isSelected, trainingExercises, multisets];
 }
 
-class UpdateTrainingTypeEvent extends TrainingManagementEvent {
-  final TrainingType selectedTrainingType;
+class AddExerciseToTrainingEvent extends TrainingManagementEvent {
+  final TrainingExercise trainingExercise;
 
-  const UpdateTrainingTypeEvent(this.selectedTrainingType);
-
-  @override
-  List<Object> get props => [selectedTrainingType];
-}
-
-class UpdateSelectedTrainingWidgetsEvent extends TrainingManagementEvent {
-  final List<KeyedWrapperWidget> updatedList;
-
-  const UpdateSelectedTrainingWidgetsEvent(this.updatedList);
+  const AddExerciseToTrainingEvent(this.trainingExercise);
 
   @override
-  List<Object> get props => [updatedList];
+  List<Object> get props => [trainingExercise];
 }
 
 //! Exercises
