@@ -210,7 +210,7 @@ class _RunExerciseWidgetState extends State<RunExerciseWidget> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         const Text('Exercise', style: TextStyle(color: AppColors.lightBlack)),
-        MoreWidget(widgetId: widget.widgetId),
+        MoreWidget(trainingExercisePosition: widget.widgetId),
       ],
     );
   }

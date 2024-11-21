@@ -28,7 +28,7 @@ class TrainingActionsWidget extends StatelessWidget {
                   final nextPosition = currentExercises.length;
 
                   context.read<TrainingManagementBloc>().add(
-                        AddExerciseToTrainingEvent(
+                        AddExerciseToSelectedTrainingEvent(
                           TrainingExercise(
                             id: null,
                             trainingId: null,
@@ -85,7 +85,7 @@ class TrainingActionsWidget extends StatelessWidget {
                       [];
                   final nextPosition = currentExercises.length;
                   context.read<TrainingManagementBloc>().add(
-                        AddExerciseToTrainingEvent(
+                        AddExerciseToSelectedTrainingEvent(
                           TrainingExercise(
                             id: null,
                             trainingId: null,

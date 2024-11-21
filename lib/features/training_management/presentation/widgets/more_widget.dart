@@ -6,9 +6,9 @@ import 'package:my_fitness_tracker/features/training_management/presentation/blo
 import '../../../../assets/app_colors.dart';
 
 class MoreWidget extends StatelessWidget {
-  final int widgetId;
+  final int trainingExercisePosition;
 
-  const MoreWidget({super.key, required this.widgetId});
+  const MoreWidget({super.key, required this.trainingExercisePosition});
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +16,8 @@ class MoreWidget extends StatelessWidget {
       onSelected: (value) {
         final bloc = BlocProvider.of<TrainingManagementBloc>(context);
         if (value == 'delete') {
-          bloc.add(RemoveExerciseFromSelectedTrainingEvent(widgetId));
+          bloc.add(RemoveExerciseFromSelectedTrainingEvent(
+              trainingExercisePosition));
         }
       },
       itemBuilder: (BuildContext context) => [

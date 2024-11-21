@@ -87,13 +87,37 @@ class TrainingManagementBloc
         emit(currentState.copyWith(selectedTraining: updatedTraining));
       }
     });
-    on<AddExerciseToTrainingEvent>((event, emit) {
+    on<AddExerciseToSelectedTrainingEvent>((event, emit) {
       if (state is TrainingManagementLoaded) {
         final currentState = state as TrainingManagementLoaded;
         final trainingExercises = List<TrainingExercise>.from(
             currentState.selectedTraining?.trainingExercises ?? []);
         trainingExercises.add(event.trainingExercise);
 
+        final updatedTraining = currentState.selectedTraining?.copyWith(
+          trainingExercises: trainingExercises,
+        );
+
+        emit(currentState.copyWith(selectedTraining: updatedTraining));
+      }
+    });
+
+    on<RemoveExerciseFromSelectedTrainingEvent>((event, emit) {
+      if (state is TrainingManagementLoaded) {
+        final currentState = state as TrainingManagementLoaded;
+        // Get the current list of exercises
+        final trainingExercises = List<TrainingExercise>.from(
+          currentState.selectedTraining?.trainingExercises ?? [],
+        );
+        // Remove the exercise at the specified position
+        trainingExercises.removeAt(event.trainingExercisePosition);
+
+        // Recalculate positions for remaining exercises
+        for (int i = 0; i < trainingExercises.length; i++) {
+          trainingExercises[i] = trainingExercises[i].copyWith(position: i);
+        }
+
+        // Create the updated training object
         final updatedTraining = currentState.selectedTraining?.copyWith(
           trainingExercises: trainingExercises,
         );
