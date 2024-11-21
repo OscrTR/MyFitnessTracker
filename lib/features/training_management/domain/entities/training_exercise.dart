@@ -124,6 +124,38 @@ class TrainingExercise extends Equatable {
     );
   }
 
+  TrainingExercise copyWithExerciseIdNull() {
+    return TrainingExercise(
+      id: id,
+      trainingId: trainingId,
+      multisetId: multisetId,
+      exerciseId: null,
+      trainingExerciseType: trainingExerciseType,
+      specialInstructions: specialInstructions,
+      objectives: objectives,
+      runExerciseTarget: runExerciseTarget,
+      targetDistance: targetDistance,
+      targetDuration: targetDuration,
+      isTargetRythmSelected: isTargetRythmSelected,
+      targetRythm: targetRythm,
+      intervals: intervals,
+      isIntervalInDistance: isIntervalInDistance,
+      intervalDistance: intervalDistance,
+      intervalDuration: intervalDuration,
+      intervalRest: intervalRest,
+      sets: sets,
+      isSetsInReps: isSetsInReps,
+      minReps: minReps,
+      maxReps: maxReps,
+      actualReps: actualReps,
+      duration: duration,
+      setRest: setRest,
+      exerciseRest: exerciseRest,
+      manualStart: manualStart,
+      position: position,
+    );
+  }
+
   @override
   List<Object?> get props => [
         id,

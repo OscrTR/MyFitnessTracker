@@ -223,7 +223,7 @@ class _ExerciseWidgetState extends State<ExerciseWidget> {
   }
 
   Widget _buildExerciseSearch() {
-    void updateExerciseIdInBloc(int id) {
+    void updateExerciseIdInBloc(int? id) {
       final bloc = context.read<TrainingManagementBloc>();
       final currentState = bloc.state as TrainingManagementLoaded;
 
@@ -231,16 +231,20 @@ class _ExerciseWidgetState extends State<ExerciseWidget> {
         currentState.selectedTraining!.trainingExercises,
       );
 
-      final updatedExercise =
-          updatedTrainingExercisesList[widget.widgetId].copyWith(
-        exerciseId: id,
-      );
+      final updatedExercise = id != null
+          ? updatedTrainingExercisesList[widget.widgetId].copyWith(
+              exerciseId: id,
+            )
+          : updatedTrainingExercisesList[widget.widgetId]
+              .copyWithExerciseIdNull();
 
       updatedTrainingExercisesList[widget.widgetId] = updatedExercise;
 
       bloc.add(UpdateSelectedTrainingProperty(
           trainingExercises: updatedTrainingExercisesList));
-      FocusScope.of(context).unfocus();
+      if (id != null) {
+        FocusScope.of(context).unfocus();
+      }
     }
 
     void navigateToCreateExercise() {
@@ -301,6 +305,8 @@ class _ExerciseWidgetState extends State<ExerciseWidget> {
 
         if (filteredExercises.isNotEmpty) {
           updateExerciseIdInBloc(filteredExercises[0].id!);
+        } else {
+          updateExerciseIdInBloc(null);
         }
 
         final filter = (context.read<ExerciseManagementBloc>().state
