@@ -32,6 +32,7 @@ class TrainingExercise extends Equatable {
   final int? exerciseRest;
   final bool? manualStart;
   final int? position;
+  final String? key;
 
   const TrainingExercise({
     this.id,
@@ -61,6 +62,7 @@ class TrainingExercise extends Equatable {
     this.exerciseRest,
     this.manualStart,
     this.position,
+    this.key,
   });
 
   TrainingExercise copyWith({
@@ -91,6 +93,7 @@ class TrainingExercise extends Equatable {
     int? exerciseRest,
     bool? manualStart,
     int? position,
+    String? key,
   }) {
     return TrainingExercise(
       id: id ?? this.id,
@@ -121,6 +124,7 @@ class TrainingExercise extends Equatable {
       exerciseRest: exerciseRest ?? this.exerciseRest,
       manualStart: manualStart ?? this.manualStart,
       position: position ?? this.position,
+      key: key ?? this.key,
     );
   }
 
@@ -153,6 +157,7 @@ class TrainingExercise extends Equatable {
       exerciseRest: exerciseRest,
       manualStart: manualStart,
       position: position,
+      key: key,
     );
   }
 
@@ -185,5 +190,6 @@ class TrainingExercise extends Equatable {
         exerciseRest,
         manualStart,
         position,
+        key,
       ];
 }

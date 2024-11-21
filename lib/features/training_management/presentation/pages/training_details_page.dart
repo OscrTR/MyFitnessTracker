@@ -140,18 +140,28 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                       },
                       children: state.selectedTraining!.trainingExercises
                           .map((exercise) {
-                        if (exercise.trainingExerciseType ==
-                            TrainingExerciseType.run) {
-                          return RunExerciseWidget(
-                            key: ValueKey(exercise.position!),
-                            widgetId: exercise.position!,
-                          );
-                        }
-                        return ExerciseWidget(
-                          key: ValueKey(exercise.position!),
-                          widgetId: exercise.position!,
-                        );
+                        return exercise.trainingExerciseType ==
+                                TrainingExerciseType.run
+                            ? RunExerciseWidget(
+                                key: ValueKey(
+                                    exercise.key), // Use the generated key
+                                widgetId: state
+                                    .selectedTraining!.trainingExercises
+                                    .indexOf(exercise),
+                              )
+                            : ExerciseWidget(
+                                key: ValueKey(
+                                    exercise.key), // Use the generated key
+                                widgetId: state
+                                    .selectedTraining!.trainingExercises
+                                    .indexOf(exercise),
+                              );
                       }).toList(),
+                      proxyDecorator: (child, index, animation) => Material(
+                        color: Colors.transparent,
+                        elevation: 0,
+                        child: child,
+                      ),
                     ),
                   const SizedBox(height: 20),
                   const TrainingActionsWidget(),

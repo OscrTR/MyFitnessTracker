@@ -144,15 +144,15 @@ class _ExerciseWidgetState extends State<ExerciseWidget> {
                 ((int.tryParse(_controllers['setRestSeconds']?.text ?? '') ??
                     0))
             : null,
-        exerciseRest:
-            key == 'exerciseRestMinutes' || key == 'exerciseRestSeconds'
-                ? ((int.tryParse(_controllers['durationMinutes']?.text ?? '') ??
-                            0) *
-                        60) +
-                    ((int.tryParse(
-                            _controllers['exerciseRestSeconds']?.text ?? '') ??
-                        0))
-                : null,
+        exerciseRest: key == 'exerciseRestMinutes' ||
+                key == 'exerciseRestSeconds'
+            ? ((int.tryParse(_controllers['exerciseRestMinutes']?.text ?? '') ??
+                        0) *
+                    60) +
+                ((int.tryParse(
+                        _controllers['exerciseRestSeconds']?.text ?? '') ??
+                    0))
+            : null,
         specialInstructions: key == 'specialInstructions'
             ? _controllers['specialInstructions']?.text ?? ''
             : null,
@@ -178,7 +178,7 @@ class _ExerciseWidgetState extends State<ExerciseWidget> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(top: 20),
+      margin: const EdgeInsets.only(top: 10, bottom: 10),
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
           color: AppColors.white,

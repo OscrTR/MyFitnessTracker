@@ -2,11 +2,13 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_fitness_tracker/features/training_management/domain/entities/training_exercise.dart';
+import 'package:uuid/uuid.dart';
 import '../../../../assets/app_colors.dart';
 import '../bloc/training_management_bloc.dart';
 
 class TrainingActionsWidget extends StatelessWidget {
   const TrainingActionsWidget({super.key});
+  final uuid = const Uuid();
 
   @override
   Widget build(BuildContext context) {
@@ -24,33 +26,36 @@ class TrainingActionsWidget extends StatelessWidget {
                           ?.trainingExercises ??
                       [];
                   final nextPosition = currentExercises.length;
+
                   context.read<TrainingManagementBloc>().add(
                         AddExerciseToTrainingEvent(
                           TrainingExercise(
-                              id: null,
-                              trainingId: null,
-                              multisetId: null,
-                              exerciseId: null,
-                              trainingExerciseType: null,
-                              specialInstructions: null,
-                              objectives: null,
-                              targetDistance: null,
-                              targetDuration: null,
-                              targetRythm: null,
-                              intervals: null,
-                              intervalDistance: null,
-                              intervalDuration: null,
-                              intervalRest: null,
-                              sets: null,
-                              isSetsInReps: null,
-                              minReps: null,
-                              maxReps: null,
-                              actualReps: null,
-                              duration: null,
-                              setRest: null,
-                              exerciseRest: null,
-                              manualStart: null,
-                              position: nextPosition),
+                            id: null,
+                            trainingId: null,
+                            multisetId: null,
+                            exerciseId: null,
+                            trainingExerciseType: null,
+                            specialInstructions: null,
+                            objectives: null,
+                            targetDistance: null,
+                            targetDuration: null,
+                            targetRythm: null,
+                            intervals: null,
+                            intervalDistance: null,
+                            intervalDuration: null,
+                            intervalRest: null,
+                            sets: null,
+                            isSetsInReps: null,
+                            minReps: null,
+                            maxReps: null,
+                            actualReps: null,
+                            duration: null,
+                            setRest: null,
+                            exerciseRest: null,
+                            manualStart: null,
+                            position: nextPosition,
+                            key: uuid.v4(),
+                          ),
                         ),
                       );
                 },
@@ -82,33 +87,35 @@ class TrainingActionsWidget extends StatelessWidget {
                   context.read<TrainingManagementBloc>().add(
                         AddExerciseToTrainingEvent(
                           TrainingExercise(
-                              id: null,
-                              trainingId: null,
-                              multisetId: null,
-                              exerciseId: null,
-                              trainingExerciseType: TrainingExerciseType.run,
-                              specialInstructions: null,
-                              objectives: null,
-                              runExerciseTarget: RunExerciseTarget.distance,
-                              targetDistance: null,
-                              targetDuration: null,
-                              isTargetRythmSelected: false,
-                              targetRythm: null,
-                              intervals: null,
-                              isIntervalInDistance: true,
-                              intervalDistance: null,
-                              intervalDuration: null,
-                              intervalRest: null,
-                              sets: null,
-                              isSetsInReps: null,
-                              minReps: null,
-                              maxReps: null,
-                              actualReps: null,
-                              duration: null,
-                              setRest: null,
-                              exerciseRest: null,
-                              manualStart: null,
-                              position: nextPosition),
+                            id: null,
+                            trainingId: null,
+                            multisetId: null,
+                            exerciseId: null,
+                            trainingExerciseType: TrainingExerciseType.run,
+                            specialInstructions: null,
+                            objectives: null,
+                            runExerciseTarget: RunExerciseTarget.distance,
+                            targetDistance: null,
+                            targetDuration: null,
+                            isTargetRythmSelected: false,
+                            targetRythm: null,
+                            intervals: null,
+                            isIntervalInDistance: true,
+                            intervalDistance: null,
+                            intervalDuration: null,
+                            intervalRest: null,
+                            sets: null,
+                            isSetsInReps: null,
+                            minReps: null,
+                            maxReps: null,
+                            actualReps: null,
+                            duration: null,
+                            setRest: null,
+                            exerciseRest: null,
+                            manualStart: null,
+                            position: nextPosition,
+                            key: uuid.v4(),
+                          ),
                         ),
                       );
                 },
