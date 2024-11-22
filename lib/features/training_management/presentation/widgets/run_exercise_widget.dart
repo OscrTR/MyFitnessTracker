@@ -10,8 +10,8 @@ import 'package:my_fitness_tracker/features/training_management/presentation/wid
 import 'package:my_fitness_tracker/features/training_management/presentation/widgets/small_text_field_widget.dart';
 
 class RunExerciseWidget extends StatefulWidget {
-  final int widgetId;
-  const RunExerciseWidget({super.key, required this.widgetId});
+  final String customKey;
+  const RunExerciseWidget({super.key, required this.customKey});
 
   @override
   State<RunExerciseWidget> createState() => _RunExerciseWidgetState();
@@ -56,42 +56,42 @@ class _RunExerciseWidgetState extends State<RunExerciseWidget> {
     final currentState = bloc.state;
 
     if (currentState is TrainingManagementLoaded) {
-      final exercise =
-          currentState.selectedTraining?.trainingExercises[widget.widgetId];
+      final trainingExercises =
+          currentState.selectedTraining?.trainingExercises ?? [];
+      final exercise = trainingExercises
+          .firstWhere((exercise) => exercise.key == widget.customKey);
       _controllers['specialInstructions']?.text =
-          exercise?.specialInstructions?.toString() ?? '';
-      _controllers['objectives']?.text = exercise?.objectives?.toString() ?? '';
-      _controllers['distance']?.text = (exercise?.targetDistance != null
-          ? (exercise!.targetDistance! ~/ 1000).toString()
+          exercise.specialInstructions?.toString() ?? '';
+      _controllers['objectives']?.text = exercise.objectives?.toString() ?? '';
+      _controllers['distance']?.text = (exercise.targetDistance != null
+          ? (exercise.targetDistance! ~/ 1000).toString()
           : '');
-      _controllers['durationHours']?.text = (exercise?.duration != null
-          ? (exercise!.duration! ~/ 3600).toString()
+      _controllers['durationHours']?.text = (exercise.duration != null
+          ? (exercise.duration! ~/ 3600).toString()
           : '');
-      _controllers['durationMinutes']?.text = (exercise?.duration != null
-          ? (exercise!.duration! % 3600 ~/ 60).toString()
+      _controllers['durationMinutes']?.text = (exercise.duration != null
+          ? (exercise.duration! % 3600 ~/ 60).toString()
           : '');
-      _controllers['durationSeconds']?.text = (exercise?.duration != null
-          ? (exercise!.duration! % 60).toString()
+      _controllers['durationSeconds']?.text = (exercise.duration != null
+          ? (exercise.duration! % 60).toString()
           : '');
-      _controllers['intervals']?.text = exercise?.intervals?.toString() ?? '';
-      _controllers['rythmMinutes']?.text = (exercise?.targetRythm != null
-          ? (exercise!.targetRythm! % 3600 ~/ 60).toString()
+      _controllers['intervals']?.text = exercise.intervals?.toString() ?? '';
+      _controllers['rythmMinutes']?.text = (exercise.targetRythm != null
+          ? (exercise.targetRythm! % 3600 ~/ 60).toString()
           : '');
-      _controllers['rythmSeconds']?.text = (exercise?.targetRythm != null
-          ? (exercise!.targetRythm! % 60).toString()
+      _controllers['rythmSeconds']?.text = (exercise.targetRythm != null
+          ? (exercise.targetRythm! % 60).toString()
           : '');
       _controllers['intervalDistance']?.text =
-          (exercise?.intervalDistance != null
-              ? (exercise!.intervalDistance! ~/ 1000).toString()
+          (exercise.intervalDistance != null
+              ? (exercise.intervalDistance! ~/ 1000).toString()
               : '');
-      _controllers['intervalMinutes']?.text =
-          (exercise?.intervalDuration != null
-              ? (exercise!.intervalDuration! % 3600 ~/ 60).toString()
-              : '');
-      _controllers['intervalSeconds']?.text =
-          (exercise?.intervalDuration != null
-              ? (exercise!.intervalDuration! % 60).toString()
-              : '');
+      _controllers['intervalMinutes']?.text = (exercise.intervalDuration != null
+          ? (exercise.intervalDuration! % 3600 ~/ 60).toString()
+          : '');
+      _controllers['intervalSeconds']?.text = (exercise.intervalDuration != null
+          ? (exercise.intervalDuration! % 60).toString()
+          : '');
     }
   }
 
@@ -120,56 +120,67 @@ class _RunExerciseWidgetState extends State<RunExerciseWidget> {
         currentState.selectedTraining!.trainingExercises,
       );
 
-      final updatedExercise =
-          updatedTrainingExercisesList[widget.widgetId].copyWith(
-        targetDistance: key == 'distance'
-            ? ((double.tryParse((_controllers['distance']?.text ?? '')
-                            .replaceAll(',', '.')) ??
-                        0) *
-                    1000)
-                .toInt()
-            : null,
-        targetDuration: key == 'durationHours' ||
-                key == 'durationMinutes' ||
-                key == 'durationSeconds'
-            ? ((int.tryParse(_controllers['durationHours']?.text ?? '') ?? 0) *
-                    3600) +
-                ((int.tryParse(_controllers['durationMinutes']?.text ?? '') ??
-                        0) *
-                    60) +
-                ((int.tryParse(_controllers['durationSeconds']?.text ?? '') ??
-                    0))
-            : null,
-        intervals: key == 'intervals'
-            ? int.tryParse(_controllers['intervals']?.text ?? '')
-            : null,
-        targetRythm: key == 'rythmMinutes' || key == 'rythmSeconds'
-            ? ((int.tryParse(_controllers['rythmMinutes']?.text ?? '') ?? 0) *
-                    60) +
-                ((int.tryParse(_controllers['rythmSeconds']?.text ?? '') ?? 0))
-            : null,
-        intervalDistance: key == 'intervalDistance'
-            ? ((double.tryParse((_controllers['intervalDistance']?.text ?? '')
-                            .replaceAll(',', '.')) ??
-                        0) *
-                    1000)
-                .toInt()
-            : null,
-        intervalDuration: key == 'intervalMinutes' || key == 'intervalSeconds'
-            ? ((int.tryParse(_controllers['intervalMinutes']?.text ?? '') ??
-                        0) *
-                    60) +
-                ((int.tryParse(_controllers['intervalSeconds']?.text ?? '') ??
-                    0))
-            : null,
-        specialInstructions: key == 'specialInstructions'
-            ? _controllers['specialInstructions']?.text ?? ''
-            : null,
-        objectives:
-            key == 'objectives' ? _controllers['objectives']?.text ?? '' : null,
+      final index = updatedTrainingExercisesList.indexWhere(
+        (exercise) => exercise.key == widget.customKey,
       );
 
-      updatedTrainingExercisesList[widget.widgetId] = updatedExercise;
+      if (index != -1) {
+        final updatedExercise = updatedTrainingExercisesList[index].copyWith(
+          targetDistance: key == 'distance'
+              ? ((double.tryParse((_controllers['distance']?.text ?? '')
+                              .replaceAll(',', '.')) ??
+                          0) *
+                      1000)
+                  .toInt()
+              : null,
+          targetDuration: key == 'durationHours' ||
+                  key == 'durationMinutes' ||
+                  key == 'durationSeconds'
+              ? ((int.tryParse(_controllers['durationHours']?.text ?? '') ??
+                          0) *
+                      3600) +
+                  ((int.tryParse(_controllers['durationMinutes']?.text ?? '') ??
+                          0) *
+                      60) +
+                  ((int.tryParse(_controllers['durationSeconds']?.text ?? '') ??
+                      0))
+              : null,
+          intervals: key == 'intervals'
+              ? int.tryParse(_controllers['intervals']?.text ?? '')
+              : null,
+          targetRythm: key == 'rythmMinutes' || key == 'rythmSeconds'
+              ? ((int.tryParse(_controllers['rythmMinutes']?.text ?? '') ?? 0) *
+                      60) +
+                  ((int.tryParse(_controllers['rythmSeconds']?.text ?? '') ??
+                      0))
+              : null,
+          intervalDistance: key == 'intervalDistance'
+              ? ((double.tryParse((_controllers['intervalDistance']?.text ?? '')
+                              .replaceAll(',', '.')) ??
+                          0) *
+                      1000)
+                  .toInt()
+              : null,
+          intervalDuration: key == 'intervalMinutes' || key == 'intervalSeconds'
+              ? ((int.tryParse(_controllers['intervalMinutes']?.text ?? '') ??
+                          0) *
+                      60) +
+                  ((int.tryParse(_controllers['intervalSeconds']?.text ?? '') ??
+                      0))
+              : null,
+          specialInstructions: key == 'specialInstructions'
+              ? _controllers['specialInstructions']?.text ?? ''
+              : null,
+          objectives: key == 'objectives'
+              ? _controllers['objectives']?.text ?? ''
+              : null,
+        );
+
+        updatedTrainingExercisesList[index] = updatedExercise;
+      } else {
+        // Handle the case where the key is not found (optional)
+        print('Exercise with key ${widget.customKey} not found.');
+      }
 
       bloc.add(UpdateSelectedTrainingProperty(
           trainingExercises: updatedTrainingExercisesList));
@@ -210,7 +221,7 @@ class _RunExerciseWidgetState extends State<RunExerciseWidget> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         const Text('Exercise', style: TextStyle(color: AppColors.lightBlack)),
-        MoreWidget(trainingExercisePosition: widget.widgetId),
+        MoreWidget(trainingExerciseKey: widget.customKey),
       ],
     );
   }
@@ -219,8 +230,9 @@ class _RunExerciseWidgetState extends State<RunExerciseWidget> {
     return BlocBuilder<TrainingManagementBloc, TrainingManagementState>(
       builder: (context, state) {
         if (state is TrainingManagementLoaded) {
-          final runExerciseTarget = state.selectedTraining!
-                  .trainingExercises[widget.widgetId].runExerciseTarget ??
+          final runExerciseTarget = state.selectedTraining!.trainingExercises
+                  .firstWhere((exercise) => exercise.key == widget.customKey)
+                  .runExerciseTarget ??
               RunExerciseTarget.distance;
 
           return Column(
@@ -345,11 +357,15 @@ class _RunExerciseWidgetState extends State<RunExerciseWidget> {
       final currentState = bloc.state as TrainingManagementLoaded;
       final updatedTrainingExercisesList = List<TrainingExercise>.from(
           currentState.selectedTraining!.trainingExercises);
+      final index = updatedTrainingExercisesList.indexWhere(
+        (exercise) => exercise.key == widget.customKey,
+      );
 
-      final updatedExercise = updatedTrainingExercisesList[widget.widgetId]
+      final updatedExercise = updatedTrainingExercisesList
+          .firstWhere((exercise) => exercise.key == widget.customKey)
           .copyWith(runExerciseTarget: choiceValue);
 
-      updatedTrainingExercisesList[widget.widgetId] = updatedExercise;
+      updatedTrainingExercisesList[index] = updatedExercise;
 
       bloc.add(UpdateSelectedTrainingProperty(
           trainingExercises: updatedTrainingExercisesList));
@@ -360,8 +376,9 @@ class _RunExerciseWidgetState extends State<RunExerciseWidget> {
     return BlocBuilder<TrainingManagementBloc, TrainingManagementState>(
       builder: (context, state) {
         if (state is TrainingManagementLoaded) {
-          final isIntervalInDistance = state.selectedTraining!
-                  .trainingExercises[widget.widgetId].isIntervalInDistance ??
+          final isIntervalInDistance = state.selectedTraining!.trainingExercises
+                  .firstWhere((exercise) => exercise.key == widget.customKey)
+                  .isIntervalInDistance ??
               true;
 
           return Column(
@@ -398,7 +415,8 @@ class _RunExerciseWidgetState extends State<RunExerciseWidget> {
     final runExerciseTarget = (context.read<TrainingManagementBloc>().state
                 as TrainingManagementLoaded)
             .selectedTraining!
-            .trainingExercises[widget.widgetId]
+            .trainingExercises
+            .firstWhere((exercise) => exercise.key == widget.customKey)
             .runExerciseTarget ??
         RunExerciseTarget.distance;
 
@@ -482,11 +500,15 @@ class _RunExerciseWidgetState extends State<RunExerciseWidget> {
       final currentState = bloc.state as TrainingManagementLoaded;
       final updatedTrainingExercisesList = List<TrainingExercise>.from(
           currentState.selectedTraining!.trainingExercises);
+      final index = updatedTrainingExercisesList.indexWhere(
+        (exercise) => exercise.key == widget.customKey,
+      );
 
-      final updatedExercise = updatedTrainingExercisesList[widget.widgetId]
+      final updatedExercise = updatedTrainingExercisesList
+          .firstWhere((exercise) => exercise.key == widget.customKey)
           .copyWith(isIntervalInDistance: choiceValue);
 
-      updatedTrainingExercisesList[widget.widgetId] = updatedExercise;
+      updatedTrainingExercisesList[index] = updatedExercise;
 
       bloc.add(UpdateSelectedTrainingProperty(
           trainingExercises: updatedTrainingExercisesList));
@@ -497,8 +519,9 @@ class _RunExerciseWidgetState extends State<RunExerciseWidget> {
     return BlocBuilder<TrainingManagementBloc, TrainingManagementState>(
         builder: (context, state) {
       if (state is TrainingManagementLoaded) {
-        final isTargetRythmSelected = state.selectedTraining!
-                .trainingExercises[widget.widgetId].isTargetRythmSelected ??
+        final isTargetRythmSelected = state.selectedTraining!.trainingExercises
+                .firstWhere((exercise) => exercise.key == widget.customKey)
+                .isTargetRythmSelected ??
             false;
 
         return Row(
@@ -535,12 +558,16 @@ class _RunExerciseWidgetState extends State<RunExerciseWidget> {
                             List<TrainingExercise>.from(currentState
                                 .selectedTraining!.trainingExercises);
 
-                        final updatedExercise =
-                            updatedTrainingExercisesList[widget.widgetId]
-                                .copyWith(isTargetRythmSelected: value);
+                        final index = updatedTrainingExercisesList.indexWhere(
+                          (exercise) => exercise.key == widget.customKey,
+                        );
 
-                        updatedTrainingExercisesList[widget.widgetId] =
-                            updatedExercise;
+                        final updatedExercise = updatedTrainingExercisesList
+                            .firstWhere(
+                                (exercise) => exercise.key == widget.customKey)
+                            .copyWith(isTargetRythmSelected: value);
+
+                        updatedTrainingExercisesList[index] = updatedExercise;
 
                         bloc.add(UpdateSelectedTrainingProperty(
                             trainingExercises: updatedTrainingExercisesList));

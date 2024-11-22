@@ -5,8 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_fitness_tracker/features/training_management/domain/entities/training_exercise.dart';
 import 'package:my_fitness_tracker/features/training_management/presentation/widgets/exercise_widget.dart';
+import 'package:my_fitness_tracker/features/training_management/presentation/widgets/multiset_widget.dart';
 import 'package:my_fitness_tracker/features/training_management/presentation/widgets/run_exercise_widget.dart';
 import '../../../exercise_management/presentation/widgets/exercise_detail_custom_text_field_widget.dart';
+import '../../domain/entities/multiset.dart';
 import '../bloc/training_management_bloc.dart';
 import '../widgets/page_title_widget.dart';
 import '../widgets/save_button_widget.dart';
@@ -63,6 +65,17 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
     return BlocBuilder<TrainingManagementBloc, TrainingManagementState>(
       builder: (context, state) {
         if (state is TrainingManagementLoaded) {
+          final exercisesAndMultisetsList = [
+            ...state.selectedTraining!.trainingExercises
+                .map((e) => {'type': 'exercise', 'data': e}),
+            ...state.selectedTraining!.multisets
+                .map((m) => {'type': 'multiset', 'data': m}),
+          ];
+          exercisesAndMultisetsList.sort((a, b) {
+            final aPosition = (a['data'] as dynamic).position ?? 0;
+            final bPosition = (b['data'] as dynamic).position ?? 0;
+            return aPosition.compareTo(bPosition);
+          });
           return SingleChildScrollView(
             child: Padding(
               padding: const EdgeInsets.all(20),
@@ -90,24 +103,36 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                       },
                       child: Text('clic')),
                   if (state.selectedTraining != null &&
-                      state.selectedTraining!.trainingExercises.length < 2)
+                      exercisesAndMultisetsList.length < 2)
                     ListView(
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
-                      children: state.selectedTraining!.trainingExercises
+                      children: exercisesAndMultisetsList
                           .asMap()
                           .entries
                           .map((entry) {
                         int index = entry.key;
-                        var tExercise = entry.value;
-                        if (tExercise.trainingExerciseType ==
-                            TrainingExerciseType.run) {
-                          return RunExerciseWidget(widgetId: index);
+                        var item = entry.value;
+
+                        if (item['type'] == 'exercise') {
+                          var tExercise = item['data'] as TrainingExercise;
+                          if (tExercise.trainingExerciseType ==
+                              TrainingExerciseType.run) {
+                            return RunExerciseWidget(
+                              customKey: tExercise.key!,
+                            );
+                          }
+                          return ExerciseWidget(
+                            customKey: tExercise.key!,
+                          );
+                        } else if (item['type'] == 'multiset') {
+                          return MultisetWidget(widgetId: index);
                         }
-                        return ExerciseWidget(widgetId: index);
+                        return const SizedBox
+                            .shrink(); // Fallback for unknown types
                       }).toList(),
                     ),
-                  if (state.selectedTraining!.trainingExercises.length > 1)
+                  if (exercisesAndMultisetsList.length > 1)
                     ReorderableListView(
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
@@ -116,46 +141,67 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                           newIndex--;
                         }
 
-                        // Create a mutable copy of the list
-                        final trainingExercises = List<TrainingExercise>.from(
-                          state.selectedTraining!.trainingExercises,
-                        );
+                        final combinedList = List<Map<String, dynamic>>.from(
+                            exercisesAndMultisetsList);
 
                         // Remove and reinsert the item
-                        final movedExercise =
-                            trainingExercises.removeAt(oldIndex);
-                        trainingExercises.insert(newIndex, movedExercise);
+                        final movedItem = combinedList.removeAt(oldIndex);
+                        combinedList.insert(newIndex, movedItem);
 
-                        for (int i = 0; i < trainingExercises.length; i++) {
-                          trainingExercises[i] =
-                              trainingExercises[i].copyWith(position: i);
-                        }
+                        // Update positions for exercises
+                        final updatedExercises = combinedList
+                            .where((item) => item['type'] == 'exercise')
+                            .map((item) {
+                          final exercise = item['data'] as TrainingExercise;
+                          final newPosition = combinedList.indexOf(item);
+                          return exercise.copyWith(position: newPosition);
+                        }).toList();
 
-                        // Dispatch the updated list to the bloc
+                        final updatedMultisets = combinedList
+                            .where((item) => item['type'] == 'multiset')
+                            .map((item) {
+                          final multiset = item['data'] as Multiset;
+                          final newPosition = combinedList.indexOf(item);
+                          return multiset.copyWith(position: newPosition);
+                        }).toList();
+
+                        // Dispatch the updated training exercises to the bloc
                         context.read<TrainingManagementBloc>().add(
                               UpdateSelectedTrainingProperty(
-                                trainingExercises: trainingExercises,
-                              ),
+                                  trainingExercises: updatedExercises,
+                                  multisets: updatedMultisets),
                             );
                       },
-                      children: state.selectedTraining!.trainingExercises
-                          .map((exercise) {
-                        return exercise.trainingExerciseType ==
-                                TrainingExerciseType.run
-                            ? RunExerciseWidget(
-                                key: ValueKey(
-                                    exercise.key), // Use the generated key
-                                widgetId: state
-                                    .selectedTraining!.trainingExercises
-                                    .indexOf(exercise),
-                              )
-                            : ExerciseWidget(
-                                key: ValueKey(
-                                    exercise.key), // Use the generated key
-                                widgetId: state
-                                    .selectedTraining!.trainingExercises
-                                    .indexOf(exercise),
-                              );
+                      children: exercisesAndMultisetsList
+                          .asMap()
+                          .entries
+                          .map((entry) {
+                        int index = entry.key;
+                        var item = entry.value;
+
+                        if (item['type'] == 'exercise') {
+                          var tExercise = item['data'] as TrainingExercise;
+                          if (tExercise.trainingExerciseType ==
+                              TrainingExerciseType.run) {
+                            return RunExerciseWidget(
+                              key: ValueKey(
+                                  tExercise.key), // Unique key for exercises
+                              customKey: tExercise.key!,
+                            );
+                          }
+                          return ExerciseWidget(
+                            key: ValueKey(
+                                tExercise.key), // Unique key for exercises
+                            customKey: tExercise.key!,
+                          );
+                        } else if (item['type'] == 'multiset') {
+                          return MultisetWidget(
+                            key: ValueKey(index), // Unique key for multisets
+                            widgetId: index,
+                          );
+                        }
+                        return const SizedBox
+                            .shrink(); // Fallback for unknown types
                       }).toList(),
                       proxyDecorator: (child, index, animation) => Material(
                         color: Colors.transparent,

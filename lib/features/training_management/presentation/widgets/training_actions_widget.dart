@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:my_fitness_tracker/features/training_management/domain/entities/multiset.dart';
 import 'package:my_fitness_tracker/features/training_management/domain/entities/training_exercise.dart';
 import 'package:uuid/uuid.dart';
 import '../../../../assets/app_colors.dart';
@@ -25,7 +26,14 @@ class TrainingActionsWidget extends StatelessWidget {
                           .selectedTraining
                           ?.trainingExercises ??
                       [];
-                  final nextPosition = currentExercises.length;
+                  final currentMultisets = (context
+                              .read<TrainingManagementBloc>()
+                              .state as TrainingManagementLoaded)
+                          .selectedTraining
+                          ?.multisets ??
+                      [];
+                  final nextPosition =
+                      currentExercises.length + currentMultisets.length;
 
                   context.read<TrainingManagementBloc>().add(
                         AddExerciseToSelectedTrainingEvent(
@@ -83,7 +91,14 @@ class TrainingActionsWidget extends StatelessWidget {
                           .selectedTraining
                           ?.trainingExercises ??
                       [];
-                  final nextPosition = currentExercises.length;
+                  final currentMultisets = (context
+                              .read<TrainingManagementBloc>()
+                              .state as TrainingManagementLoaded)
+                          .selectedTraining
+                          ?.multisets ??
+                      [];
+                  final nextPosition =
+                      currentExercises.length + currentMultisets.length;
                   context.read<TrainingManagementBloc>().add(
                         AddExerciseToSelectedTrainingEvent(
                           TrainingExercise(
@@ -137,9 +152,36 @@ class TrainingActionsWidget extends StatelessWidget {
         const SizedBox(height: 20),
         GestureDetector(
           onTap: () {
+            final currentExercises = (context
+                        .read<TrainingManagementBloc>()
+                        .state as TrainingManagementLoaded)
+                    .selectedTraining
+                    ?.trainingExercises ??
+                [];
+            final currentMultisets = (context
+                        .read<TrainingManagementBloc>()
+                        .state as TrainingManagementLoaded)
+                    .selectedTraining
+                    ?.multisets ??
+                [];
+            final nextPosition =
+                currentExercises.length + currentMultisets.length;
+
             context
                 .read<TrainingManagementBloc>()
-                .add(AddMultisetToSelectedTrainingEvent());
+                .add(AddMultisetToSelectedTrainingEvent(
+                  Multiset(
+                    trainingId: null,
+                    trainingExercises: const [],
+                    sets: null,
+                    setRest: null,
+                    multisetRest: null,
+                    specialInstructions: null,
+                    objectives: null,
+                    position: nextPosition,
+                    key: uuid.v4(),
+                  ),
+                ));
           },
           child: Container(
             height: 60,

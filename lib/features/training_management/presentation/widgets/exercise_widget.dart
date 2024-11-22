@@ -16,9 +16,9 @@ import 'package:my_fitness_tracker/features/training_management/presentation/wid
 import 'package:searchfield/searchfield.dart';
 
 class ExerciseWidget extends StatefulWidget {
-  final int widgetId;
+  final String customKey;
 
-  const ExerciseWidget({super.key, required this.widgetId});
+  const ExerciseWidget({super.key, required this.customKey});
 
   @override
   State<ExerciseWidget> createState() => _ExerciseWidgetState();
@@ -58,37 +58,36 @@ class _ExerciseWidgetState extends State<ExerciseWidget> {
     final currentState = bloc.state;
 
     if (currentState is TrainingManagementLoaded) {
-      final exercise =
-          currentState.selectedTraining?.trainingExercises[widget.widgetId];
+      final trainingExercises =
+          currentState.selectedTraining?.trainingExercises ?? [];
+      final exercise = trainingExercises
+          .firstWhere((exercise) => exercise.key == widget.customKey);
 
-      isSetsInReps = exercise?.isSetsInReps ?? true;
+      isSetsInReps = exercise.isSetsInReps ?? true;
 
-      _controllers['sets']?.text = exercise?.sets?.toString() ?? '';
-      _controllers['durationMinutes']?.text = (exercise?.duration != null
-          ? (exercise!.duration! % 3600 ~/ 60).toString()
+      _controllers['sets']?.text = exercise.sets?.toString() ?? '';
+      _controllers['durationMinutes']?.text = (exercise.duration != null
+          ? (exercise.duration! % 3600 ~/ 60).toString()
           : '');
-      _controllers['durationSeconds']?.text = (exercise?.duration != null
-          ? (exercise!.duration! % 60).toString()
+      _controllers['durationSeconds']?.text = (exercise.duration != null
+          ? (exercise.duration! % 60).toString()
           : '');
-      _controllers['minReps']?.text = exercise?.minReps?.toString() ?? '';
-      _controllers['maxReps']?.text = exercise?.maxReps?.toString() ?? '';
-      _controllers['setRestMinutes']?.text = (exercise?.setRest != null
-          ? (exercise!.setRest! % 3600 ~/ 60).toString()
+      _controllers['minReps']?.text = exercise.minReps?.toString() ?? '';
+      _controllers['maxReps']?.text = exercise.maxReps?.toString() ?? '';
+      _controllers['setRestMinutes']?.text = (exercise.setRest != null
+          ? (exercise.setRest! % 3600 ~/ 60).toString()
           : '');
-      _controllers['setRestSeconds']?.text = (exercise?.setRest != null
-          ? (exercise!.setRest! % 60).toString()
+      _controllers['setRestSeconds']?.text =
+          (exercise.setRest != null ? (exercise.setRest! % 60).toString() : '');
+      _controllers['exerciseRestMinutes']?.text = (exercise.exerciseRest != null
+          ? (exercise.exerciseRest! % 3600 ~/ 60).toString()
           : '');
-      _controllers['exerciseRestMinutes']?.text =
-          (exercise?.exerciseRest != null
-              ? (exercise!.exerciseRest! % 3600 ~/ 60).toString()
-              : '');
-      _controllers['exerciseRestSeconds']?.text =
-          (exercise?.exerciseRest != null
-              ? (exercise!.exerciseRest! % 60).toString()
-              : '');
+      _controllers['exerciseRestSeconds']?.text = (exercise.exerciseRest != null
+          ? (exercise.exerciseRest! % 60).toString()
+          : '');
       _controllers['specialInstructions']?.text =
-          exercise?.specialInstructions?.toString() ?? '';
-      _controllers['objectives']?.text = exercise?.objectives?.toString() ?? '';
+          exercise.specialInstructions?.toString() ?? '';
+      _controllers['objectives']?.text = exercise.objectives?.toString() ?? '';
     }
   }
 
@@ -120,49 +119,59 @@ class _ExerciseWidgetState extends State<ExerciseWidget> {
         currentState.selectedTraining!.trainingExercises,
       );
 
-      final updatedExercise =
-          updatedTrainingExercisesList[widget.widgetId].copyWith(
-        sets: key == 'sets'
-            ? int.tryParse(_controllers['sets']?.text ?? '')
-            : null,
-        minReps: key == 'minReps'
-            ? int.tryParse(_controllers['minReps']?.text ?? '')
-            : null,
-        maxReps: key == 'maxReps'
-            ? int.tryParse(_controllers['maxReps']?.text ?? '')
-            : null,
-        duration: key == 'durationMinutes' || key == 'durationSeconds'
-            ? ((int.tryParse(_controllers['durationMinutes']?.text ?? '') ??
-                        0) *
-                    60) +
-                ((int.tryParse(_controllers['durationSeconds']?.text ?? '') ??
-                    0))
-            : null,
-        setRest: key == 'setRestMinutes' || key == 'setRestSeconds'
-            ? ((int.tryParse(_controllers['setRestMinutes']?.text ?? '') ?? 0) *
-                    60) +
-                ((int.tryParse(_controllers['setRestSeconds']?.text ?? '') ??
-                    0))
-            : null,
-        exerciseRest: key == 'exerciseRestMinutes' ||
-                key == 'exerciseRestSeconds'
-            ? ((int.tryParse(_controllers['exerciseRestMinutes']?.text ?? '') ??
-                        0) *
-                    60) +
-                ((int.tryParse(
-                        _controllers['exerciseRestSeconds']?.text ?? '') ??
-                    0))
-            : null,
-        specialInstructions: key == 'specialInstructions'
-            ? _controllers['specialInstructions']?.text ?? ''
-            : null,
-        objectives:
-            key == 'objectives' ? _controllers['objectives']?.text ?? '' : null,
-
-        // Add more fields if necessary
+      final index = updatedTrainingExercisesList.indexWhere(
+        (exercise) => exercise.key == widget.customKey,
       );
 
-      updatedTrainingExercisesList[widget.widgetId] = updatedExercise;
+      if (index != -1) {
+        final updatedExercise = updatedTrainingExercisesList[index].copyWith(
+          sets: key == 'sets'
+              ? int.tryParse(_controllers['sets']?.text ?? '')
+              : null,
+          minReps: key == 'minReps'
+              ? int.tryParse(_controllers['minReps']?.text ?? '')
+              : null,
+          maxReps: key == 'maxReps'
+              ? int.tryParse(_controllers['maxReps']?.text ?? '')
+              : null,
+          duration: key == 'durationMinutes' || key == 'durationSeconds'
+              ? ((int.tryParse(_controllers['durationMinutes']?.text ?? '') ??
+                          0) *
+                      60) +
+                  ((int.tryParse(_controllers['durationSeconds']?.text ?? '') ??
+                      0))
+              : null,
+          setRest: key == 'setRestMinutes' || key == 'setRestSeconds'
+              ? ((int.tryParse(_controllers['setRestMinutes']?.text ?? '') ??
+                          0) *
+                      60) +
+                  ((int.tryParse(_controllers['setRestSeconds']?.text ?? '') ??
+                      0))
+              : null,
+          exerciseRest: key == 'exerciseRestMinutes' ||
+                  key == 'exerciseRestSeconds'
+              ? ((int.tryParse(_controllers['exerciseRestMinutes']?.text ??
+                              '') ??
+                          0) *
+                      60) +
+                  ((int.tryParse(
+                          _controllers['exerciseRestSeconds']?.text ?? '') ??
+                      0))
+              : null,
+          specialInstructions: key == 'specialInstructions'
+              ? _controllers['specialInstructions']?.text ?? ''
+              : null,
+          objectives: key == 'objectives'
+              ? _controllers['objectives']?.text ?? ''
+              : null,
+        );
+
+        // Replace the old exercise with the updated one in the list
+        updatedTrainingExercisesList[index] = updatedExercise;
+      } else {
+        // Handle the case where the key is not found (optional)
+        print('Exercise with key ${widget.customKey} not found.');
+      }
 
       bloc.add(UpdateSelectedTrainingProperty(
           trainingExercises: updatedTrainingExercisesList));
@@ -217,7 +226,7 @@ class _ExerciseWidgetState extends State<ExerciseWidget> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         const Text('Exercise', style: TextStyle(color: AppColors.lightBlack)),
-        MoreWidget(trainingExercisePosition: widget.widgetId),
+        MoreWidget(trainingExerciseKey: widget.customKey),
       ],
     );
   }
@@ -231,14 +240,21 @@ class _ExerciseWidgetState extends State<ExerciseWidget> {
         currentState.selectedTraining!.trainingExercises,
       );
 
+      final index = updatedTrainingExercisesList.indexWhere(
+        (exercise) => exercise.key == widget.customKey,
+      );
+
       final updatedExercise = id != null
-          ? updatedTrainingExercisesList[widget.widgetId].copyWith(
-              exerciseId: id,
-            )
-          : updatedTrainingExercisesList[widget.widgetId]
+          ? updatedTrainingExercisesList
+              .firstWhere((exercise) => exercise.key == widget.customKey)
+              .copyWith(
+                exerciseId: id,
+              )
+          : updatedTrainingExercisesList
+              .firstWhere((exercise) => exercise.key == widget.customKey)
               .copyWithExerciseIdNull();
 
-      updatedTrainingExercisesList[widget.widgetId] = updatedExercise;
+      updatedTrainingExercisesList[index] = updatedExercise;
 
       bloc.add(UpdateSelectedTrainingProperty(
           trainingExercises: updatedTrainingExercisesList));
@@ -261,7 +277,8 @@ class _ExerciseWidgetState extends State<ExerciseWidget> {
             (context.read<TrainingManagementBloc>().state
                     as TrainingManagementLoaded)
                 .selectedTraining!
-                .trainingExercises[widget.widgetId]
+                .trainingExercises
+                .firstWhere((exercise) => exercise.key == widget.customKey)
                 .exerciseId)
         .toList();
 
@@ -358,8 +375,9 @@ class _ExerciseWidgetState extends State<ExerciseWidget> {
     return BlocBuilder<TrainingManagementBloc, TrainingManagementState>(
       builder: (context, state) {
         if (state is TrainingManagementLoaded) {
-          final exerciseId = state
-              .selectedTraining?.trainingExercises[widget.widgetId].exerciseId;
+          final exerciseId = state.selectedTraining?.trainingExercises
+              .firstWhere((exercise) => exercise.key == widget.customKey)
+              .exerciseId;
 
           const ExerciseModel noExercise = ExerciseModel(name: 'no exercise');
 
@@ -429,8 +447,9 @@ class _ExerciseWidgetState extends State<ExerciseWidget> {
     return BlocBuilder<TrainingManagementBloc, TrainingManagementState>(
       builder: (context, state) {
         if (state is TrainingManagementLoaded) {
-          final isSetsInReps = state.selectedTraining!
-                  .trainingExercises[widget.widgetId].isSetsInReps ??
+          final isSetsInReps = state.selectedTraining!.trainingExercises
+                  .firstWhere((exercise) => exercise.key == widget.customKey)
+                  .isSetsInReps ??
               true;
 
           return Column(
@@ -545,10 +564,15 @@ class _ExerciseWidgetState extends State<ExerciseWidget> {
       final updatedTrainingExercisesList = List<TrainingExercise>.from(
           currentState.selectedTraining!.trainingExercises);
 
-      final updatedExercise = updatedTrainingExercisesList[widget.widgetId]
+      final index = updatedTrainingExercisesList.indexWhere(
+        (exercise) => exercise.key == widget.customKey,
+      );
+
+      final updatedExercise = updatedTrainingExercisesList
+          .firstWhere((exercise) => exercise.key == widget.customKey)
           .copyWith(isSetsInReps: choiceValue);
 
-      updatedTrainingExercisesList[widget.widgetId] = updatedExercise;
+      updatedTrainingExercisesList[index] = updatedExercise;
 
       bloc.add(UpdateSelectedTrainingProperty(
           trainingExercises: updatedTrainingExercisesList));

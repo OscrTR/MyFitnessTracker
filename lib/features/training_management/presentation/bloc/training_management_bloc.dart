@@ -105,21 +105,76 @@ class TrainingManagementBloc
     on<RemoveExerciseFromSelectedTrainingEvent>((event, emit) {
       if (state is TrainingManagementLoaded) {
         final currentState = state as TrainingManagementLoaded;
-        // Get the current list of exercises
         final trainingExercises = List<TrainingExercise>.from(
           currentState.selectedTraining?.trainingExercises ?? [],
         );
-        // Remove the exercise at the specified position
-        trainingExercises.removeAt(event.trainingExercisePosition);
+        trainingExercises.removeWhere(
+            (exercise) => exercise.key == event.trainingExerciseKey);
 
-        // Recalculate positions for remaining exercises
-        for (int i = 0; i < trainingExercises.length; i++) {
-          trainingExercises[i] = trainingExercises[i].copyWith(position: i);
-        }
+        final exercisesAndMultisetsList = [
+          ...currentState.selectedTraining!.trainingExercises
+              .map((e) => {'type': 'exercise', 'data': e}),
+          ...currentState.selectedTraining!.multisets
+              .map((m) => {'type': 'multiset', 'data': m}),
+        ];
+        exercisesAndMultisetsList.sort((a, b) {
+          final aPosition = (a['data'] as dynamic).position ?? 0;
+          final bPosition = (b['data'] as dynamic).position ?? 0;
+          return aPosition.compareTo(bPosition);
+        });
 
-        // Create the updated training object
+        final combinedList =
+            List<Map<String, dynamic>>.from(exercisesAndMultisetsList);
+
+        // Remove the item
+        combinedList.removeWhere((item) {
+          // Replace the condition with your specific criteria
+          return (item['type'] == 'exercise') &&
+              (item['data'] as TrainingExercise).key ==
+                  event.trainingExerciseKey;
+        });
+        combinedList.removeWhere((item) {
+          // Replace the condition with your specific criteria
+          return item['type'] == 'multiset' &&
+              (item['data'] as Multiset).key == event.trainingExerciseKey;
+        });
+
+        // Update positions for exercises
+        final updatedExercises = combinedList
+            .where((item) => item['type'] == 'exercise')
+            .map((item) {
+          final exercise = item['data'] as TrainingExercise;
+          final newPosition = combinedList.indexOf(item);
+          return exercise.copyWith(position: newPosition);
+        }).toList();
+
+        final updatedMultisets = combinedList
+            .where((item) => item['type'] == 'multiset')
+            .map((item) {
+          final multiset = item['data'] as Multiset;
+          final newPosition = combinedList.indexOf(item);
+          return multiset.copyWith(position: newPosition);
+        }).toList();
+
         final updatedTraining = currentState.selectedTraining?.copyWith(
-          trainingExercises: trainingExercises,
+          trainingExercises: updatedExercises,
+          multisets: updatedMultisets,
+        );
+
+        emit(currentState.copyWith(selectedTraining: updatedTraining));
+      }
+    });
+
+    on<AddMultisetToSelectedTrainingEvent>((event, emit) {
+      if (state is TrainingManagementLoaded) {
+        final currentState = state as TrainingManagementLoaded;
+        final multisets =
+            List<Multiset>.from(currentState.selectedTraining?.multisets ?? []);
+
+        multisets.add(event.multiset);
+
+        final updatedTraining = currentState.selectedTraining?.copyWith(
+          multisets: multisets,
         );
 
         emit(currentState.copyWith(selectedTraining: updatedTraining));

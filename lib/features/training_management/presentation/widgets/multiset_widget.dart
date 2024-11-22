@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 class MultisetWidget extends StatefulWidget {
-  const MultisetWidget({super.key});
+  final int widgetId;
+  const MultisetWidget({super.key, required this.widgetId});
 
   @override
   State<MultisetWidget> createState() => _MultisetWidgetState();
@@ -10,6 +11,6 @@ class MultisetWidget extends StatefulWidget {
 class _MultisetWidgetState extends State<MultisetWidget> {
   @override
   Widget build(BuildContext context) {
-    return const Text('Placeholder for multiset');
+    return Text('Placeholder for multiset ${widget.widgetId}');
   }
 }

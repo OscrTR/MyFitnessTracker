@@ -258,7 +258,7 @@ class SQLiteTrainingLocalDataSource implements TrainingLocalDataSource {
       currentMultisetsIds.add(multisetId);
 
       await _handleTrainingExercises(
-          multiset.trainingExercises, trainingId, multisetId, txn);
+          multiset.trainingExercises!, trainingId, multisetId, txn);
     }
 
     return currentMultisetsIds;
