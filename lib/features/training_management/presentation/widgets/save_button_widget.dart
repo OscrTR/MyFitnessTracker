@@ -1,21 +1,37 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:my_fitness_tracker/features/training_management/presentation/bloc/training_management_bloc.dart';
 import '../../../../assets/app_colors.dart';
-import '../../domain/entities/training.dart';
 
 class SaveButtonWidget extends StatelessWidget {
-  final Training? training;
   final VoidCallback onSave;
 
-  const SaveButtonWidget({super.key, this.training, required this.onSave});
+  const SaveButtonWidget({super.key, required this.onSave});
 
   @override
   Widget build(BuildContext context) {
+    final bool isNewTraining = (context.read<TrainingManagementBloc>().state
+                as TrainingManagementLoaded)
+            .selectedTraining!
+            .id ==
+        null;
+
+    bool isActive = false;
+
+    if (isNewTraining &&
+        (context.read<TrainingManagementBloc>().state
+                as TrainingManagementLoaded)
+            .hasExercisesOrMultisets) {
+      isActive = true;
+    }
+
+    // Todo : si existing training, vérifier différence entre selected training et current training
     return GestureDetector(
-      onTap: onSave,
+      onTap: isActive ? onSave : null,
       child: Container(
         decoration: BoxDecoration(
-          color: training == null ? AppColors.lightGrey : AppColors.black,
+          color: isActive ? AppColors.black : AppColors.lightGrey,
           borderRadius: BorderRadius.circular(15),
         ),
         padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -24,11 +40,9 @@ class SaveButtonWidget extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              context.tr(training == null ? 'global_create' : 'global_save'),
+              context.tr(isNewTraining ? 'global_create' : 'global_save'),
               style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                    color: training == null
-                        ? AppColors.lightBlack
-                        : AppColors.white,
+                    color: isActive ? AppColors.white : AppColors.lightBlack,
                   ),
             ),
           ],

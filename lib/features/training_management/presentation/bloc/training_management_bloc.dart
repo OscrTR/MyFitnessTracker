@@ -7,7 +7,11 @@ import 'package:my_fitness_tracker/features/training_management/domain/entities/
 import '../../../../core/error/failures.dart';
 import '../../../../core/messages/bloc/message_bloc.dart';
 import '../../domain/entities/training.dart';
-import '../../domain/usecases/fetch_trainings.dart';
+import '../../domain/usecases/create_training.dart' as create;
+import '../../domain/usecases/fetch_trainings.dart' as fetch;
+import '../../domain/usecases/get_training.dart' as get_tr;
+import '../../domain/usecases/update_training.dart' as update;
+import '../../domain/usecases/delete_training.dart' as delete;
 
 part 'training_management_event.dart';
 part 'training_management_state.dart';
@@ -17,12 +21,21 @@ final String invalidNameFailureMessage = tr('message_name_error');
 
 class TrainingManagementBloc
     extends Bloc<TrainingManagementEvent, TrainingManagementState> {
-  final FetchTrainings fetchTrainings;
+  final create.CreateTraining createTraining;
+  final fetch.FetchTrainings fetchTrainings;
+  final get_tr.GetTraining getTraining;
+  final update.UpdateTraining updateTraining;
+  final delete.DeleteTraining deleteTraining;
   final MessageBloc messageBloc;
 
   final TextEditingController nameController = TextEditingController();
   TrainingManagementBloc(
-      {required this.fetchTrainings, required this.messageBloc})
+      {required this.createTraining,
+      required this.fetchTrainings,
+      required this.getTraining,
+      required this.updateTraining,
+      required this.deleteTraining,
+      required this.messageBloc})
       : super(TrainingManagementInitial()) {
     //! Trainings
     on<FetchTrainingsEvent>((event, emit) async {
@@ -274,10 +287,26 @@ class TrainingManagementBloc
       }
     });
 
-    on<SaveSelectedTrainingEvent>((event, emit) {
+    on<SaveSelectedTrainingEvent>((event, emit) async {
       if (state is TrainingManagementLoaded) {
         final currentState = state as TrainingManagementLoaded;
-        print(currentState.selectedTraining);
+
+        final result =
+            await createTraining(create.Params(currentState.selectedTraining!));
+
+        result.fold(
+          (failure) {
+            messageBloc.add(AddMessageEvent(
+                message: _mapFailureToMessage(failure), isError: true));
+          },
+          (result) {
+            messageBloc.add(const AddMessageEvent(
+                message: 'Training created', isError: false));
+            final updatedTrainings = List<Training>.from(currentState.trainings)
+              ..add(result);
+            emit(currentState.copyWith(trainings: updatedTrainings));
+          },
+        );
       }
     });
   }

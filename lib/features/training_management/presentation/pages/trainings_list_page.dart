@@ -15,34 +15,41 @@ class TrainingsListPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    return Scaffold(
       body: SingleChildScrollView(
         child: Column(
           children: [
-            SizedBox(height: 20),
-            TrainingSection(
+            OutlinedButton(
+                onPressed: () {
+                  print((context.read<TrainingManagementBloc>().state
+                          as TrainingManagementLoaded)
+                      .trainings);
+                },
+                child: const Text('clic')),
+            const SizedBox(height: 20),
+            const TrainingSection(
               titleKey: 'training_page_yoga',
               icon: Icons.self_improvement,
               color: AppColors.purple,
               trainingType: TrainingType.yoga,
             ),
-            SizedBox(height: 40),
-            TrainingSection(
+            const SizedBox(height: 40),
+            const TrainingSection(
               titleKey: 'training_page_run',
               icon: Symbols.sprint,
               color: AppColors.blue,
               trainingType: TrainingType.run,
             ),
-            SizedBox(height: 40),
-            TrainingSection(
+            const SizedBox(height: 40),
+            const TrainingSection(
               titleKey: 'training_page_workout',
               icon: Icons.fitness_center,
               color: AppColors.orange,
               trainingType: TrainingType.workout,
             ),
-            SizedBox(height: 40),
-            ExerciseSection(),
-            SizedBox(height: 100),
+            const SizedBox(height: 40),
+            const ExerciseSection(),
+            const SizedBox(height: 100),
           ],
         ),
       ),
@@ -73,20 +80,26 @@ class TrainingSection extends StatelessWidget {
         BlocBuilder<TrainingManagementBloc, TrainingManagementState>(
           builder: (context, state) {
             if (state is TrainingManagementInitial ||
-                (state is TrainingManagementLoaded &&
-                    state.trainings.isEmpty)) {
-              return CreateButton(
-                  textKey: 'training_page_create_${trainingType.name}',
-                  onTap: () {
-                    context.read<TrainingManagementBloc>().add(
-                          UpdateSelectedTrainingProperty(type: trainingType),
-                        );
+                (state is TrainingManagementLoaded)) {
+              final filteredTrainings = (state as TrainingManagementLoaded)
+                  .trainings
+                  .where((training) {
+                return training.type == trainingType;
+              }).toList();
 
-                    GoRouter.of(context).go('/training_detail');
-                  });
-            }
-            if (state is TrainingManagementLoaded) {
-              return TrainingList(trainings: state.trainings);
+              if (filteredTrainings.isEmpty) {
+                return CreateButton(
+                    textKey: 'training_page_create_${trainingType.name}',
+                    onTap: () {
+                      context.read<TrainingManagementBloc>().add(
+                            UpdateSelectedTrainingProperty(type: trainingType),
+                          );
+
+                      GoRouter.of(context).go('/training_detail');
+                    });
+              } else {
+                return TrainingList(trainings: filteredTrainings);
+              }
             }
             return Center(child: Text(context.tr('error_state')));
           },

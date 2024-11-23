@@ -55,6 +55,23 @@ class TrainingManagementLoaded extends TrainingManagementState {
     );
   }
 
+  bool get hasExercisesOrMultisets {
+    if (selectedTraining == null) {
+      return false;
+    }
+    // Check if trainingExercises is not empty
+    if (selectedTraining!.trainingExercises.isNotEmpty) {
+      return true;
+    }
+    // Check if at least one multiset has non-empty trainingExercises
+    for (final multiset in selectedTraining!.multisets) {
+      if (multiset.trainingExercises!.isNotEmpty) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   @override
   List<Object?> get props => [
         trainings,

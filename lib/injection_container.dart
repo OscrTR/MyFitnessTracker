@@ -1,4 +1,8 @@
 import 'package:get_it/get_it.dart';
+import 'package:my_fitness_tracker/features/training_management/domain/usecases/create_training.dart';
+import 'package:my_fitness_tracker/features/training_management/domain/usecases/delete_training.dart';
+import 'package:my_fitness_tracker/features/training_management/domain/usecases/get_training.dart';
+import 'package:my_fitness_tracker/features/training_management/domain/usecases/update_training.dart';
 import 'features/training_management/data/datasources/training_local_data_source.dart';
 import 'features/training_management/data/repositories/training_repository_impl.dart';
 import 'features/training_management/domain/repositories/training_repository.dart';
@@ -58,11 +62,21 @@ Future<void> init() async {
 
   //! Features - Training Management
   // Bloc
-  sl.registerFactory(
-      () => TrainingManagementBloc(fetchTrainings: sl(), messageBloc: sl()));
+  sl.registerFactory(() => TrainingManagementBloc(
+        createTraining: sl(),
+        fetchTrainings: sl(),
+        getTraining: sl(),
+        updateTraining: sl(),
+        deleteTraining: sl(),
+        messageBloc: sl(),
+      ));
 
   // Usecases
+  sl.registerLazySingleton(() => CreateTraining(sl()));
   sl.registerLazySingleton(() => FetchTrainings(sl()));
+  sl.registerLazySingleton(() => GetTraining(sl()));
+  sl.registerLazySingleton(() => UpdateTraining(sl()));
+  sl.registerLazySingleton(() => DeleteTraining(sl()));
 
   // Repository
   sl.registerLazySingleton<TrainingRepository>(

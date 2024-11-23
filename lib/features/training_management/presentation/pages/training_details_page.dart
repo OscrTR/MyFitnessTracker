@@ -213,7 +213,6 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                   const TrainingActionsWidget(),
                   const SizedBox(height: 30),
                   SaveButtonWidget(
-                    training: state.selectedTraining,
                     onSave: () {
                       context
                           .read<TrainingManagementBloc>()
