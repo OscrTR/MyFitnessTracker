@@ -79,11 +79,8 @@ class TrainingSection extends StatelessWidget {
         const SizedBox(height: 20),
         BlocBuilder<TrainingManagementBloc, TrainingManagementState>(
           builder: (context, state) {
-            if (state is TrainingManagementInitial ||
-                (state is TrainingManagementLoaded)) {
-              final filteredTrainings = (state as TrainingManagementLoaded)
-                  .trainings
-                  .where((training) {
+            if ((state is TrainingManagementLoaded)) {
+              final filteredTrainings = state.trainings.where((training) {
                 return training.type == trainingType;
               }).toList();
 

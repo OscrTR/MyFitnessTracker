@@ -304,7 +304,8 @@ class TrainingManagementBloc
                 message: 'Training created', isError: false));
             final updatedTrainings = List<Training>.from(currentState.trainings)
               ..add(result);
-            emit(currentState.copyWith(trainings: updatedTrainings));
+            emit(currentState.copyWith(
+                trainings: updatedTrainings, resetSelectedTraining: true));
           },
         );
       }

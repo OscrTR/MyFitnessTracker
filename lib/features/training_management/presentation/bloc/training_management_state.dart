@@ -33,19 +33,28 @@ class TrainingManagementLoaded extends TrainingManagementState {
     TrainingType? type,
     List<TrainingExercise>? trainingExercises,
     List<Multiset>? multisets,
+    bool resetSelectedTraining = false,
   }) {
     return TrainingManagementLoaded(
       trainings: trainings ?? this.trainings,
-      selectedTraining: (selectedTraining ?? this.selectedTraining)?.copyWith(
-        name: selectedTraining?.name ?? this.selectedTraining?.name,
-        type: selectedTraining?.type ?? this.selectedTraining?.type,
-        isSelected:
-            selectedTraining?.isSelected ?? this.selectedTraining?.isSelected,
-        trainingExercises: selectedTraining?.trainingExercises ??
-            this.selectedTraining?.trainingExercises,
-        multisets:
-            selectedTraining?.multisets ?? this.selectedTraining?.multisets,
-      ),
+      selectedTraining: resetSelectedTraining
+          ? const Training(
+              name: 'Unnamed training',
+              type: TrainingType.workout,
+              isSelected: true,
+              trainingExercises: [],
+              multisets: [],
+            )
+          : (selectedTraining ?? this.selectedTraining)?.copyWith(
+              name: selectedTraining?.name ?? this.selectedTraining?.name,
+              type: selectedTraining?.type ?? this.selectedTraining?.type,
+              isSelected: selectedTraining?.isSelected ??
+                  this.selectedTraining?.isSelected,
+              trainingExercises: selectedTraining?.trainingExercises ??
+                  this.selectedTraining?.trainingExercises,
+              multisets: selectedTraining?.multisets ??
+                  this.selectedTraining?.multisets,
+            ),
     );
   }
 

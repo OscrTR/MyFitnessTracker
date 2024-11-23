@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:my_fitness_tracker/features/training_management/domain/entities/training_exercise.dart';
 import 'package:my_fitness_tracker/features/training_management/presentation/widgets/exercise_widget.dart';
 import 'package:my_fitness_tracker/features/training_management/presentation/widgets/multiset_widget.dart';
@@ -97,11 +98,6 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                     },
                   ),
                   const SizedBox(height: 20),
-                  OutlinedButton(
-                      onPressed: () {
-                        print(context.read<TrainingManagementBloc>().state);
-                      },
-                      child: Text('clic')),
                   if (state.selectedTraining != null &&
                       exercisesAndMultisetsList.length < 2)
                     ListView(
@@ -217,6 +213,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                       context
                           .read<TrainingManagementBloc>()
                           .add(SaveSelectedTrainingEvent());
+                      GoRouter.of(context).go('/trainings');
                     },
                   ),
                 ],
