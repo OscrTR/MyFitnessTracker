@@ -111,9 +111,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                           .asMap()
                           .entries
                           .map((entry) {
-                        int index = entry.key;
                         var item = entry.value;
-
                         if (item['type'] == 'exercise') {
                           var tExercise = item['data'] as TrainingExercise;
                           if (tExercise.trainingExerciseType ==
@@ -126,7 +124,8 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                             customKey: tExercise.key!,
                           );
                         } else if (item['type'] == 'multiset') {
-                          return MultisetWidget(widgetId: index);
+                          var tMultiset = item['data'] as Multiset;
+                          return MultisetWidget(customKey: tMultiset.key!);
                         }
                         return const SizedBox
                             .shrink(); // Fallback for unknown types
@@ -195,9 +194,10 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                             customKey: tExercise.key!,
                           );
                         } else if (item['type'] == 'multiset') {
+                          var tMultiset = item['data'] as Multiset;
                           return MultisetWidget(
                             key: ValueKey(index), // Unique key for multisets
-                            widgetId: index,
+                            customKey: tMultiset.key!,
                           );
                         }
                         return const SizedBox
