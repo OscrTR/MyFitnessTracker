@@ -103,14 +103,26 @@ class RemoveExerciseFromSelectedTrainingEvent extends TrainingManagementEvent {
 
 class AddExerciseToSelectedTrainingMultisetEvent
     extends TrainingManagementEvent {
-  final String key;
+  final String multisetKey;
   final TrainingExercise trainingExercise;
 
   const AddExerciseToSelectedTrainingMultisetEvent(
-      this.key, this.trainingExercise);
+      this.multisetKey, this.trainingExercise);
 
   @override
-  List<Object> get props => [key, trainingExercise];
+  List<Object> get props => [multisetKey, trainingExercise];
+}
+
+class RemoveExerciseFromSelectedTrainingMultisetEvent
+    extends TrainingManagementEvent {
+  final String multisetKey;
+  final String exerciseKey;
+
+  const RemoveExerciseFromSelectedTrainingMultisetEvent(
+      this.multisetKey, this.exerciseKey);
+
+  @override
+  List<Object> get props => [multisetKey, exerciseKey];
 }
 
 //! Multiset

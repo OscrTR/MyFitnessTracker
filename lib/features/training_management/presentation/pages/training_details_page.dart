@@ -125,7 +125,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                           );
                         } else if (item['type'] == 'multiset') {
                           var tMultiset = item['data'] as Multiset;
-                          return MultisetWidget(customKey: tMultiset.key!);
+                          return MultisetWidget(multisetKey: tMultiset.key!);
                         }
                         return const SizedBox
                             .shrink(); // Fallback for unknown types
@@ -197,7 +197,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                           var tMultiset = item['data'] as Multiset;
                           return MultisetWidget(
                             key: ValueKey(index), // Unique key for multisets
-                            customKey: tMultiset.key!,
+                            multisetKey: tMultiset.key!,
                           );
                         }
                         return const SizedBox

@@ -9,15 +9,20 @@ import 'package:my_fitness_tracker/features/training_management/presentation/wid
 import 'package:my_fitness_tracker/features/training_management/presentation/widgets/more_widget.dart';
 import 'package:my_fitness_tracker/features/training_management/presentation/widgets/small_text_field_widget.dart';
 
-class RunExerciseWidget extends StatefulWidget {
-  final String customKey;
-  const RunExerciseWidget({super.key, required this.customKey});
+import '../../domain/entities/multiset.dart';
+
+class MultisetRunExerciseWidget extends StatefulWidget {
+  final String multisetKey;
+  final String exerciseKey;
+  const MultisetRunExerciseWidget(
+      {super.key, required this.multisetKey, required this.exerciseKey});
 
   @override
-  State<RunExerciseWidget> createState() => _RunExerciseWidgetState();
+  State<MultisetRunExerciseWidget> createState() =>
+      _MultisetRunExerciseWidgetState();
 }
 
-class _RunExerciseWidgetState extends State<RunExerciseWidget> {
+class _MultisetRunExerciseWidgetState extends State<MultisetRunExerciseWidget> {
   Timer? _debounceTimer;
 
   final Map<String, TextEditingController> _controllers = {
@@ -56,10 +61,13 @@ class _RunExerciseWidgetState extends State<RunExerciseWidget> {
     final currentState = bloc.state;
 
     if (currentState is TrainingManagementLoaded) {
-      final trainingExercises =
-          currentState.selectedTraining?.trainingExercises ?? [];
+      final trainingExercises = currentState.selectedTraining?.multisets
+              .firstWhere((multiset) => multiset.key == widget.multisetKey)
+              .trainingExercises ??
+          [];
       final exercise = trainingExercises
-          .firstWhere((exercise) => exercise.key == widget.customKey);
+          .firstWhere((exercise) => exercise.key == widget.exerciseKey);
+
       _controllers['specialInstructions']?.text =
           exercise.specialInstructions?.toString() ?? '';
       _controllers['objectives']?.text = exercise.objectives?.toString() ?? '';
@@ -117,11 +125,13 @@ class _RunExerciseWidgetState extends State<RunExerciseWidget> {
     if (bloc.state is TrainingManagementLoaded) {
       final currentState = bloc.state as TrainingManagementLoaded;
       final updatedTrainingExercisesList = List<TrainingExercise>.from(
-        currentState.selectedTraining!.trainingExercises,
+        currentState.selectedTraining!.multisets
+            .firstWhere((multiset) => multiset.key == widget.multisetKey)
+            .trainingExercises!,
       );
 
       final index = updatedTrainingExercisesList.indexWhere(
-        (exercise) => exercise.key == widget.customKey,
+        (exercise) => exercise.key == widget.exerciseKey,
       );
 
       if (index != -1) {
@@ -179,11 +189,23 @@ class _RunExerciseWidgetState extends State<RunExerciseWidget> {
         updatedTrainingExercisesList[index] = updatedExercise;
       } else {
         // Handle the case where the key is not found (optional)
-        print('Exercise with key ${widget.customKey} not found.');
+        print('Exercise with key ${widget.exerciseKey} not found.');
       }
 
-      bloc.add(UpdateSelectedTrainingProperty(
-          trainingExercises: updatedTrainingExercisesList));
+      final updatedMultiset = currentState.selectedTraining!.multisets
+          .firstWhere((multiset) => multiset.key == widget.multisetKey)
+          .copyWith(trainingExercises: updatedTrainingExercisesList);
+
+      final updatedMultisetsList =
+          List<Multiset>.from(currentState.selectedTraining!.multisets);
+
+      final multisetIndex = updatedMultisetsList.indexWhere(
+        (multiset) => multiset.key == widget.multisetKey,
+      );
+
+      updatedMultisetsList[multisetIndex] = updatedMultiset;
+
+      bloc.add(UpdateSelectedTrainingProperty(multisets: updatedMultisetsList));
     }
   }
 
@@ -221,7 +243,8 @@ class _RunExerciseWidgetState extends State<RunExerciseWidget> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         const Text('Exercise', style: TextStyle(color: AppColors.lightBlack)),
-        MoreWidget(exerciseKey: widget.customKey),
+        MoreWidget(
+            multisetKey: widget.multisetKey, exerciseKey: widget.exerciseKey),
       ],
     );
   }
@@ -230,8 +253,10 @@ class _RunExerciseWidgetState extends State<RunExerciseWidget> {
     return BlocBuilder<TrainingManagementBloc, TrainingManagementState>(
       builder: (context, state) {
         if (state is TrainingManagementLoaded) {
-          final runExerciseTarget = state.selectedTraining!.trainingExercises
-                  .firstWhere((exercise) => exercise.key == widget.customKey)
+          final runExerciseTarget = state.selectedTraining!.multisets
+                  .firstWhere((multiset) => multiset.key == widget.multisetKey)
+                  .trainingExercises!
+                  .firstWhere((exercise) => exercise.key == widget.exerciseKey)
                   .runExerciseTarget ??
               RunExerciseTarget.distance;
 
@@ -356,13 +381,17 @@ class _RunExerciseWidgetState extends State<RunExerciseWidget> {
     if (bloc.state is TrainingManagementLoaded) {
       final currentState = bloc.state as TrainingManagementLoaded;
       final updatedTrainingExercisesList = List<TrainingExercise>.from(
-          currentState.selectedTraining!.trainingExercises);
+        currentState.selectedTraining!.multisets
+            .firstWhere((multiset) => multiset.key == widget.multisetKey)
+            .trainingExercises!,
+      );
+
       final index = updatedTrainingExercisesList.indexWhere(
-        (exercise) => exercise.key == widget.customKey,
+        (exercise) => exercise.key == widget.exerciseKey,
       );
 
       final updatedExercise = updatedTrainingExercisesList
-          .firstWhere((exercise) => exercise.key == widget.customKey)
+          .firstWhere((exercise) => exercise.key == widget.exerciseKey)
           .copyWith(runExerciseTarget: choiceValue);
 
       updatedTrainingExercisesList[index] = updatedExercise;
@@ -376,8 +405,10 @@ class _RunExerciseWidgetState extends State<RunExerciseWidget> {
     return BlocBuilder<TrainingManagementBloc, TrainingManagementState>(
       builder: (context, state) {
         if (state is TrainingManagementLoaded) {
-          final isIntervalInDistance = state.selectedTraining!.trainingExercises
-                  .firstWhere((exercise) => exercise.key == widget.customKey)
+          final isIntervalInDistance = state.selectedTraining!.multisets
+                  .firstWhere((multiset) => multiset.key == widget.multisetKey)
+                  .trainingExercises!
+                  .firstWhere((exercise) => exercise.key == widget.exerciseKey)
                   .isIntervalInDistance ??
               true;
 
@@ -415,8 +446,10 @@ class _RunExerciseWidgetState extends State<RunExerciseWidget> {
     final runExerciseTarget = (context.read<TrainingManagementBloc>().state
                 as TrainingManagementLoaded)
             .selectedTraining!
-            .trainingExercises
-            .firstWhere((exercise) => exercise.key == widget.customKey)
+            .multisets
+            .firstWhere((multiset) => multiset.key == widget.multisetKey)
+            .trainingExercises!
+            .firstWhere((exercise) => exercise.key == widget.exerciseKey)
             .runExerciseTarget ??
         RunExerciseTarget.distance;
 
@@ -499,13 +532,17 @@ class _RunExerciseWidgetState extends State<RunExerciseWidget> {
     if (bloc.state is TrainingManagementLoaded) {
       final currentState = bloc.state as TrainingManagementLoaded;
       final updatedTrainingExercisesList = List<TrainingExercise>.from(
-          currentState.selectedTraining!.trainingExercises);
+        currentState.selectedTraining!.multisets
+            .firstWhere((multiset) => multiset.key == widget.multisetKey)
+            .trainingExercises!,
+      );
+
       final index = updatedTrainingExercisesList.indexWhere(
-        (exercise) => exercise.key == widget.customKey,
+        (exercise) => exercise.key == widget.exerciseKey,
       );
 
       final updatedExercise = updatedTrainingExercisesList
-          .firstWhere((exercise) => exercise.key == widget.customKey)
+          .firstWhere((exercise) => exercise.key == widget.exerciseKey)
           .copyWith(isIntervalInDistance: choiceValue);
 
       updatedTrainingExercisesList[index] = updatedExercise;
@@ -519,8 +556,10 @@ class _RunExerciseWidgetState extends State<RunExerciseWidget> {
     return BlocBuilder<TrainingManagementBloc, TrainingManagementState>(
         builder: (context, state) {
       if (state is TrainingManagementLoaded) {
-        final isTargetRythmSelected = state.selectedTraining!.trainingExercises
-                .firstWhere((exercise) => exercise.key == widget.customKey)
+        final isTargetRythmSelected = state.selectedTraining!.multisets
+                .firstWhere((multiset) => multiset.key == widget.multisetKey)
+                .trainingExercises!
+                .firstWhere((exercise) => exercise.key == widget.exerciseKey)
                 .isTargetRythmSelected ??
             false;
 
@@ -555,16 +594,20 @@ class _RunExerciseWidgetState extends State<RunExerciseWidget> {
                         final currentState =
                             bloc.state as TrainingManagementLoaded;
                         final updatedTrainingExercisesList =
-                            List<TrainingExercise>.from(currentState
-                                .selectedTraining!.trainingExercises);
+                            List<TrainingExercise>.from(
+                          currentState.selectedTraining!.multisets
+                              .firstWhere((multiset) =>
+                                  multiset.key == widget.multisetKey)
+                              .trainingExercises!,
+                        );
 
                         final index = updatedTrainingExercisesList.indexWhere(
-                          (exercise) => exercise.key == widget.customKey,
+                          (exercise) => exercise.key == widget.exerciseKey,
                         );
 
                         final updatedExercise = updatedTrainingExercisesList
-                            .firstWhere(
-                                (exercise) => exercise.key == widget.customKey)
+                            .firstWhere((exercise) =>
+                                exercise.key == widget.exerciseKey)
                             .copyWith(isTargetRythmSelected: value);
 
                         updatedTrainingExercisesList[index] = updatedExercise;

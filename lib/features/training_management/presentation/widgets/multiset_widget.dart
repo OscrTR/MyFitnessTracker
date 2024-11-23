@@ -8,14 +8,16 @@ import 'package:my_fitness_tracker/features/training_management/domain/entities/
 import 'package:my_fitness_tracker/features/training_management/presentation/bloc/training_management_bloc.dart';
 import 'package:my_fitness_tracker/features/training_management/presentation/widgets/big_text_field_widget.dart';
 import 'package:my_fitness_tracker/features/training_management/presentation/widgets/more_widget.dart';
+import 'package:my_fitness_tracker/features/training_management/presentation/widgets/multiset_exercise_widget.dart';
+import 'package:my_fitness_tracker/features/training_management/presentation/widgets/multiset_run_exercise_widget.dart';
 import 'package:my_fitness_tracker/features/training_management/presentation/widgets/small_text_field_widget.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../../assets/app_colors.dart';
 
 class MultisetWidget extends StatefulWidget {
-  final String customKey;
-  const MultisetWidget({super.key, required this.customKey});
+  final String multisetKey;
+  const MultisetWidget({super.key, required this.multisetKey});
 
   @override
   State<MultisetWidget> createState() => _MultisetWidgetState();
@@ -56,8 +58,8 @@ class _MultisetWidgetState extends State<MultisetWidget> {
 
     if (currentState is TrainingManagementLoaded) {
       final multisets = currentState.selectedTraining?.multisets ?? [];
-      final multiset =
-          multisets.firstWhere((multiset) => multiset.key == widget.customKey);
+      final multiset = multisets
+          .firstWhere((multiset) => multiset.key == widget.multisetKey);
 
       _controllers['sets']?.text = multiset.sets?.toString() ?? '';
       _controllers['setRestMinutes']?.text = (multiset.setRest != null
@@ -103,7 +105,7 @@ class _MultisetWidgetState extends State<MultisetWidget> {
       );
 
       final index = updatedMultisetsList.indexWhere(
-        (multiset) => multiset.key == widget.customKey,
+        (multiset) => multiset.key == widget.multisetKey,
       );
 
       if (index != -1) {
@@ -140,7 +142,7 @@ class _MultisetWidgetState extends State<MultisetWidget> {
         updatedMultisetsList[index] = updatedMultiset;
       } else {
         // Handle the case where the key is not found (optional)
-        print('Multiset with key ${widget.customKey} not found.');
+        print('Multiset with key ${widget.multisetKey} not found.');
       }
 
       bloc.add(UpdateSelectedTrainingProperty(multisets: updatedMultisetsList));
@@ -171,6 +173,8 @@ class _MultisetWidgetState extends State<MultisetWidget> {
             BigTextFieldWidget(
                 controller: _controllers['objectives']!,
                 hintText: 'Objectives'),
+            const SizedBox(height: 10),
+            _buildExercisesList(),
             const SizedBox(height: 20),
             _buildActionButtons(),
           ],
@@ -182,7 +186,7 @@ class _MultisetWidgetState extends State<MultisetWidget> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         const Text('Multiset', style: TextStyle(color: AppColors.lightBlack)),
-        MoreWidget(trainingExerciseKey: widget.customKey),
+        MoreWidget(multisetKey: widget.multisetKey),
       ],
     );
   }
@@ -247,7 +251,7 @@ class _MultisetWidgetState extends State<MultisetWidget> {
                 as TrainingManagementLoaded)
             .selectedTraining
             ?.multisets
-            .firstWhere((multiset) => multiset.key == widget.customKey)
+            .firstWhere((multiset) => multiset.key == widget.multisetKey)
             .trainingExercises ??
         [];
     final nextPosition = multisetExercises.length;
@@ -259,7 +263,7 @@ class _MultisetWidgetState extends State<MultisetWidget> {
             onTap: () {
               context.read<TrainingManagementBloc>().add(
                     AddExerciseToSelectedTrainingMultisetEvent(
-                      widget.customKey,
+                      widget.multisetKey,
                       TrainingExercise(
                         id: null,
                         trainingId: null,
@@ -309,7 +313,7 @@ class _MultisetWidgetState extends State<MultisetWidget> {
             onTap: () {
               context.read<TrainingManagementBloc>().add(
                     AddExerciseToSelectedTrainingMultisetEvent(
-                      widget.customKey,
+                      widget.multisetKey,
                       TrainingExercise(
                         id: null,
                         trainingId: null,
@@ -358,5 +362,31 @@ class _MultisetWidgetState extends State<MultisetWidget> {
         )
       ],
     );
+  }
+
+  Widget _buildExercisesList() {
+    final multisetExercises = (context.read<TrainingManagementBloc>().state
+                as TrainingManagementLoaded)
+            .selectedTraining
+            ?.multisets
+            .firstWhere((multiset) => multiset.key == widget.multisetKey)
+            .trainingExercises ??
+        [];
+    return ListView.separated(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemBuilder: (context, index) {
+          final exercise = multisetExercises[index];
+          if (exercise.trainingExerciseType != TrainingExerciseType.run) {
+            return MultisetExerciseWidget(
+                multisetKey: widget.multisetKey, exerciseKey: exercise.key!);
+          }
+          return MultisetRunExerciseWidget(
+              multisetKey: widget.multisetKey, exerciseKey: exercise.key!);
+        },
+        separatorBuilder: (context, index) {
+          return const SizedBox(height: 10);
+        },
+        itemCount: multisetExercises.length);
   }
 }
