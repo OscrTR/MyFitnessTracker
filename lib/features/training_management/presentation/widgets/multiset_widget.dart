@@ -1,12 +1,15 @@
 import 'dart:async';
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_fitness_tracker/features/training_management/domain/entities/multiset.dart';
+import 'package:my_fitness_tracker/features/training_management/domain/entities/training_exercise.dart';
 import 'package:my_fitness_tracker/features/training_management/presentation/bloc/training_management_bloc.dart';
 import 'package:my_fitness_tracker/features/training_management/presentation/widgets/big_text_field_widget.dart';
 import 'package:my_fitness_tracker/features/training_management/presentation/widgets/more_widget.dart';
 import 'package:my_fitness_tracker/features/training_management/presentation/widgets/small_text_field_widget.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../../../assets/app_colors.dart';
 
@@ -166,7 +169,10 @@ class _MultisetWidgetState extends State<MultisetWidget> {
                 hintText: 'Special instructions'),
             const SizedBox(height: 10),
             BigTextFieldWidget(
-                controller: _controllers['objectives']!, hintText: 'Objectives')
+                controller: _controllers['objectives']!,
+                hintText: 'Objectives'),
+            const SizedBox(height: 20),
+            _buildActionButtons(),
           ],
         ));
   }
@@ -232,6 +238,125 @@ class _MultisetWidgetState extends State<MultisetWidget> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildActionButtons() {
+    const uuid = Uuid();
+    final multisetExercises = (context.read<TrainingManagementBloc>().state
+                as TrainingManagementLoaded)
+            .selectedTraining
+            ?.multisets
+            .firstWhere((multiset) => multiset.key == widget.customKey)
+            .trainingExercises ??
+        [];
+    final nextPosition = multisetExercises.length;
+
+    return Row(
+      children: [
+        Expanded(
+          child: GestureDetector(
+            onTap: () {
+              context.read<TrainingManagementBloc>().add(
+                    AddExerciseToSelectedTrainingMultisetEvent(
+                      widget.customKey,
+                      TrainingExercise(
+                        id: null,
+                        trainingId: null,
+                        multisetId: null,
+                        exerciseId: null,
+                        trainingExerciseType: null,
+                        specialInstructions: null,
+                        objectives: null,
+                        targetDistance: null,
+                        targetDuration: null,
+                        targetRythm: null,
+                        intervals: null,
+                        intervalDistance: null,
+                        intervalDuration: null,
+                        intervalRest: null,
+                        sets: null,
+                        isSetsInReps: null,
+                        minReps: null,
+                        maxReps: null,
+                        actualReps: null,
+                        duration: null,
+                        setRest: null,
+                        exerciseRest: null,
+                        manualStart: null,
+                        position: nextPosition,
+                        key: uuid.v4(),
+                      ),
+                    ),
+                  );
+            },
+            child: Container(
+              height: 60,
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              decoration: BoxDecoration(
+                border: Border.all(color: AppColors.lightBlack),
+                borderRadius: BorderRadius.circular(15),
+              ),
+              child: Center(
+                child: Text(context.tr('training_detail_page_add_exercise')),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 20),
+        Expanded(
+          child: GestureDetector(
+            onTap: () {
+              context.read<TrainingManagementBloc>().add(
+                    AddExerciseToSelectedTrainingMultisetEvent(
+                      widget.customKey,
+                      TrainingExercise(
+                        id: null,
+                        trainingId: null,
+                        multisetId: null,
+                        exerciseId: null,
+                        trainingExerciseType: TrainingExerciseType.run,
+                        specialInstructions: null,
+                        objectives: null,
+                        runExerciseTarget: RunExerciseTarget.distance,
+                        targetDistance: null,
+                        targetDuration: null,
+                        isTargetRythmSelected: false,
+                        targetRythm: null,
+                        intervals: null,
+                        isIntervalInDistance: true,
+                        intervalDistance: null,
+                        intervalDuration: null,
+                        intervalRest: null,
+                        sets: null,
+                        isSetsInReps: null,
+                        minReps: null,
+                        maxReps: null,
+                        actualReps: null,
+                        duration: null,
+                        setRest: null,
+                        exerciseRest: null,
+                        manualStart: null,
+                        position: nextPosition,
+                        key: uuid.v4(),
+                      ),
+                    ),
+                  );
+            },
+            child: Container(
+              height: 60,
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              decoration: BoxDecoration(
+                border: Border.all(color: AppColors.lightBlack),
+                borderRadius: BorderRadius.circular(15),
+              ),
+              child: Center(
+                child: Text(context.tr('training_detail_page_add_run')),
+              ),
+            ),
+          ),
+        )
+      ],
     );
   }
 }

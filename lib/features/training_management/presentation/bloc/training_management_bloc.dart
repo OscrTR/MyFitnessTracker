@@ -165,6 +165,49 @@ class TrainingManagementBloc
       }
     });
 
+    on<AddExerciseToSelectedTrainingMultisetEvent>((event, emit) {
+      if (state is TrainingManagementLoaded) {
+        final currentState = state as TrainingManagementLoaded;
+
+        // Find the multiset by key and retrieve its trainingExercises
+        final multisetIndex = currentState.selectedTraining?.multisets
+            .indexWhere((multiset) => multiset.key == event.key);
+
+        if (multisetIndex != null && multisetIndex != -1) {
+          final multisetExercises = List<TrainingExercise>.from(
+            currentState.selectedTraining!.multisets[multisetIndex]
+                    .trainingExercises ??
+                [],
+          );
+
+          // Add the new exercise to the multiset's exercises
+          multisetExercises.add(event.trainingExercise);
+
+          // Create an updated multiset
+          final updatedMultiset = currentState
+              .selectedTraining!.multisets[multisetIndex]
+              .copyWith(trainingExercises: multisetExercises);
+
+          // Replace the old multiset with the updated one in the multisets list
+          final updatedMultisets = List<Multiset>.from(
+            currentState.selectedTraining!.multisets,
+          );
+          updatedMultisets[multisetIndex] = updatedMultiset;
+
+          // Update the training with the modified multisets list
+          final updatedTraining = currentState.selectedTraining?.copyWith(
+            multisets: updatedMultisets,
+          );
+
+          // Emit the updated state
+          emit(currentState.copyWith(selectedTraining: updatedTraining));
+        } else {
+          // Handle the case where the multiset with the given key does not exist
+          print('Multiset with key ${event.key} not found.');
+        }
+      }
+    });
+
     on<AddMultisetToSelectedTrainingEvent>((event, emit) {
       if (state is TrainingManagementLoaded) {
         final currentState = state as TrainingManagementLoaded;
