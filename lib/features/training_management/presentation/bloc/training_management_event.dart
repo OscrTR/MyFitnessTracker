@@ -47,6 +47,16 @@ class LoadInitialSelectedTrainingData extends TrainingManagementEvent {
   List<Object> get props => [trainingType];
 }
 
+class SelectTrainingEvent extends TrainingManagementEvent {
+  final int? id;
+  final Training? training;
+
+  const SelectTrainingEvent({required this.id, required this.training});
+
+  @override
+  List<Object?> get props => [id, training];
+}
+
 class ClearSelectedTrainingEvent extends TrainingManagementEvent {
   const ClearSelectedTrainingEvent();
 }

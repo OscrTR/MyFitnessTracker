@@ -15,41 +15,34 @@ class TrainingsListPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return const Scaffold(
       body: SingleChildScrollView(
         child: Column(
           children: [
-            OutlinedButton(
-                onPressed: () {
-                  print((context.read<TrainingManagementBloc>().state
-                          as TrainingManagementLoaded)
-                      .trainings);
-                },
-                child: const Text('clic')),
-            const SizedBox(height: 20),
-            const TrainingSection(
+            SizedBox(height: 20),
+            TrainingSection(
               titleKey: 'training_page_yoga',
               icon: Icons.self_improvement,
               color: AppColors.purple,
               trainingType: TrainingType.yoga,
             ),
-            const SizedBox(height: 40),
-            const TrainingSection(
+            SizedBox(height: 40),
+            TrainingSection(
               titleKey: 'training_page_run',
               icon: Symbols.sprint,
               color: AppColors.blue,
               trainingType: TrainingType.run,
             ),
-            const SizedBox(height: 40),
-            const TrainingSection(
+            SizedBox(height: 40),
+            TrainingSection(
               titleKey: 'training_page_workout',
               icon: Icons.fitness_center,
               color: AppColors.orange,
               trainingType: TrainingType.workout,
             ),
-            const SizedBox(height: 40),
-            const ExerciseSection(),
-            const SizedBox(height: 100),
+            SizedBox(height: 40),
+            ExerciseSection(),
+            SizedBox(height: 100),
           ],
         ),
       ),
@@ -95,7 +88,18 @@ class TrainingSection extends StatelessWidget {
                       GoRouter.of(context).go('/training_detail');
                     });
               } else {
-                return TrainingList(trainings: filteredTrainings);
+                Color color = AppColors.white;
+                if (trainingType == TrainingType.yoga) {
+                  color = AppColors.purple;
+                } else if (trainingType == TrainingType.run) {
+                  color = AppColors.blue;
+                } else if (trainingType == TrainingType.workout) {
+                  color = AppColors.orange;
+                }
+                return TrainingList(
+                  trainings: filteredTrainings,
+                  color: color,
+                );
               }
             }
             return Center(child: Text(context.tr('error_state')));
@@ -226,8 +230,9 @@ class CreateButton extends StatelessWidget {
 
 class TrainingList extends StatelessWidget {
   final List<Training> trainings;
+  final Color color;
 
-  const TrainingList({super.key, required this.trainings});
+  const TrainingList({super.key, required this.trainings, required this.color});
 
   @override
   Widget build(BuildContext context) {
@@ -238,7 +243,73 @@ class TrainingList extends StatelessWidget {
       itemCount: trainings.length,
       itemBuilder: (context, index) {
         final training = trainings[index];
-        return Text(training.name);
+        return Stack(children: [
+          Container(
+            height: 100,
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+                border: Border.all(color: AppColors.lightGrey),
+                borderRadius: BorderRadius.circular(15)),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  training.name,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                GestureDetector(
+                  onTap: () {},
+                  child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 5, horizontal: 8),
+                      decoration: BoxDecoration(
+                          color: color,
+                          borderRadius: BorderRadius.circular(15)),
+                      child: const Row(
+                        children: [Text('Start'), Icon(Icons.chevron_right)],
+                      )),
+                )
+              ],
+            ),
+          ),
+          Positioned(
+            top: -10,
+            right: 0,
+            child: PopupMenuButton(
+              onSelected: (value) {
+                final bloc = BlocProvider.of<TrainingManagementBloc>(context);
+                if (value == 'edit') {
+                  print(training);
+                  // TODO : selectionner le training concerné puis rediriger vers la page d'edition
+                  bloc.add(
+                      SelectTrainingEvent(id: training.id, training: null));
+                  GoRouter.of(context).go('/training_detail');
+                }
+                if (value == 'delete') {
+                  bloc.add(DeleteTrainingEvent(training.id!));
+                }
+              },
+              itemBuilder: (BuildContext context) => [
+                PopupMenuItem(
+                  value: 'edit',
+                  child: Row(
+                    children: [Text(context.tr('global_edit'))],
+                  ),
+                ),
+                PopupMenuItem(
+                  value: 'delete',
+                  child: Row(
+                    children: [Text(context.tr('global_delete'))],
+                  ),
+                ),
+              ],
+              icon: const Icon(
+                Icons.more_horiz,
+                color: AppColors.lightBlack,
+              ),
+            ),
+          )
+        ]);
       },
     );
   }

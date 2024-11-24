@@ -49,6 +49,25 @@ class TrainingManagementBloc
       );
     });
 
+    on<DeleteTrainingEvent>((event, emit) async {
+      if (state is TrainingManagementLoaded) {
+        final currentState = state as TrainingManagementLoaded;
+
+        final result = await deleteTraining(delete.Params(event.id));
+
+        result.fold(
+          (failure) => messageBloc.add(AddMessageEvent(
+              message: _mapFailureToMessage(failure), isError: true)),
+          (success) {
+            final updatedTrainings = currentState.trainings
+                .where((training) => training.id != event.id)
+                .toList();
+            emit(currentState.copyWith(trainings: updatedTrainings));
+          },
+        );
+      }
+    });
+
     //! Selected training
     on<LoadInitialSelectedTrainingData>((event, emit) async {
       if (state is TrainingManagementLoaded) {
@@ -74,6 +93,26 @@ class TrainingManagementBloc
             );
           },
         );
+      }
+    });
+    on<SelectTrainingEvent>((event, emit) async {
+      if (state is TrainingManagementLoaded) {
+        final currentState = state as TrainingManagementLoaded;
+
+        Training? training = event.training;
+
+        if (event.id != null) {
+          final result = await getTraining(get_tr.Params(event.id!));
+          result.fold(
+            (failure) => messageBloc.add(AddMessageEvent(
+                message: _mapFailureToMessage(failure), isError: true)),
+            (trainings) {
+              training = trainings;
+            },
+          );
+        }
+
+        emit(currentState.copyWith(selectedTraining: training));
       }
     });
     on<ClearSelectedTrainingEvent>((event, emit) {
