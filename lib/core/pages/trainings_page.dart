@@ -1,6 +1,8 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:my_fitness_tracker/features/training_management/presentation/bloc/training_management_bloc.dart';
 import '../../features/training_management/domain/entities/training.dart';
 import '../../features/training_management/presentation/pages/trainings_list_page.dart';
 import '../../assets/app_colors.dart';
@@ -68,6 +70,10 @@ void _showNewDialog(BuildContext context) {
           ),
           GestureDetector(
             onTap: () {
+              context.read<TrainingManagementBloc>().add(
+                    const UpdateSelectedTrainingProperty(
+                        type: TrainingType.yoga),
+                  );
               GoRouter.of(context).go(
                 '/training_detail',
                 extra: TrainingType.yoga,
@@ -80,6 +86,10 @@ void _showNewDialog(BuildContext context) {
           ),
           GestureDetector(
             onTap: () {
+              context.read<TrainingManagementBloc>().add(
+                    const UpdateSelectedTrainingProperty(
+                        type: TrainingType.run),
+                  );
               GoRouter.of(context).go(
                 '/training_detail',
                 extra: TrainingType.run,
@@ -92,6 +102,10 @@ void _showNewDialog(BuildContext context) {
           ),
           GestureDetector(
             onTap: () {
+              context.read<TrainingManagementBloc>().add(
+                    const UpdateSelectedTrainingProperty(
+                        type: TrainingType.workout),
+                  );
               GoRouter.of(context).go(
                 '/training_detail',
                 extra: TrainingType.workout,
