@@ -106,8 +106,8 @@ class TrainingManagementBloc
           result.fold(
             (failure) => messageBloc.add(AddMessageEvent(
                 message: _mapFailureToMessage(failure), isError: true)),
-            (trainings) {
-              training = trainings;
+            (success) {
+              training = success;
             },
           );
         }
@@ -330,21 +330,41 @@ class TrainingManagementBloc
       if (state is TrainingManagementLoaded) {
         final currentState = state as TrainingManagementLoaded;
 
-        final result =
+        // Ensure selectedTraining is not null
+        if (currentState.selectedTraining == null) {
+          messageBloc.add(AddMessageEvent(
+              message: 'No training selected to save.', isError: true));
+          return;
+        }
+
+        final createResult =
             await createTraining(create.Params(currentState.selectedTraining!));
 
-        result.fold(
-          (failure) {
+        await createResult.fold(
+          (failure) async {
             messageBloc.add(AddMessageEvent(
                 message: _mapFailureToMessage(failure), isError: true));
           },
-          (result) {
+          (success) async {
             messageBloc.add(const AddMessageEvent(
-                message: 'Training created', isError: false));
-            final updatedTrainings = List<Training>.from(currentState.trainings)
-              ..add(result);
-            emit(currentState.copyWith(
-                trainings: updatedTrainings, resetSelectedTraining: true));
+                message: 'Training created successfully.', isError: false));
+
+            final fetchResult = await fetchTrainings(null);
+
+            await fetchResult.fold(
+              (failure) async {
+                messageBloc.add(AddMessageEvent(
+                    message: _mapFailureToMessage(failure), isError: true));
+              },
+              (trainings) async {
+                if (!emit.isDone) {
+                  emit(currentState.copyWith(
+                    trainings: trainings,
+                    resetSelectedTraining: true,
+                  ));
+                }
+              },
+            );
           },
         );
       }

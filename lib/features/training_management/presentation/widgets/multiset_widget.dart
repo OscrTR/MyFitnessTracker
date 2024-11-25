@@ -269,7 +269,7 @@ class _MultisetWidgetState extends State<MultisetWidget> {
                         trainingId: null,
                         multisetId: null,
                         exerciseId: null,
-                        trainingExerciseType: null,
+                        trainingExerciseType: TrainingExerciseType.workout,
                         specialInstructions: null,
                         objectives: null,
                         targetDistance: null,
@@ -290,6 +290,7 @@ class _MultisetWidgetState extends State<MultisetWidget> {
                         manualStart: null,
                         position: nextPosition,
                         key: uuid.v4(),
+                        runExerciseTarget: RunExerciseTarget.distance,
                       ),
                     ),
                   );

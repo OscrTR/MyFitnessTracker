@@ -8,9 +8,9 @@ abstract class TrainingRepository {
 
   Future<Either<Failure, List<Training>>> fetchTrainings();
 
-  Future<Either<Failure, Training>> createTraining(Training training);
+  Future<Either<Failure, void>> createTraining(Training training);
 
-  Future<Either<Failure, Training>> updateTraining(Training training);
+  Future<Either<Failure, void>> updateTraining(Training training);
 
   Future<Either<Failure, void>> deleteTraining(int id);
 }

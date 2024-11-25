@@ -6,13 +6,13 @@ import '../../../../core/usecases/usecase.dart';
 import '../entities/training.dart';
 import '../repositories/training_repository.dart';
 
-class UpdateTraining extends Usecase<Training, Params> {
+class UpdateTraining extends Usecase<void, Params> {
   final TrainingRepository repository;
 
   UpdateTraining(this.repository);
 
   @override
-  Future<Either<Failure, Training>> call(Params params) async {
+  Future<Either<Failure, void>> call(Params params) async {
     try {
       if (params.training.name.isEmpty) {
         return const Left(InvalidNameFailure());

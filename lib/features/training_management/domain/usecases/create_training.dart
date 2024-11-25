@@ -6,13 +6,13 @@ import '../../../../core/usecases/usecase.dart';
 import '../entities/training.dart';
 import '../repositories/training_repository.dart';
 
-class CreateTraining extends Usecase<Training, Params> {
+class CreateTraining extends Usecase<void, Params> {
   final TrainingRepository repository;
 
   CreateTraining(this.repository);
 
   @override
-  Future<Either<Failure, Training>> call(Params params) async {
+  Future<Either<Failure, void>> call(Params params) async {
     try {
       return await repository.createTraining(params.training);
     } catch (e) {

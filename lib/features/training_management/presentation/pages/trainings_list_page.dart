@@ -15,10 +15,17 @@ class TrainingsListPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    return Scaffold(
       body: SingleChildScrollView(
         child: Column(
           children: [
+            OutlinedButton(
+                onPressed: () {
+                  print((context.read<TrainingManagementBloc>().state
+                          as TrainingManagementLoaded)
+                      .trainings);
+                },
+                child: Text('clic')),
             SizedBox(height: 20),
             TrainingSection(
               titleKey: 'training_page_yoga',
@@ -283,7 +290,7 @@ class TrainingList extends StatelessWidget {
                   // TODO : selectionner le training concerné puis rediriger vers la page d'edition
                   bloc.add(
                       SelectTrainingEvent(id: training.id, training: null));
-                  GoRouter.of(context).go('/training_detail');
+                  // GoRouter.of(context).go('/training_detail');
                 }
                 if (value == 'delete') {
                   bloc.add(DeleteTrainingEvent(training.id!));

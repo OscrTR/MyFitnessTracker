@@ -12,10 +12,10 @@ class TrainingRepositoryImpl implements TrainingRepository {
   TrainingRepositoryImpl({required this.localDataSource});
 
   @override
-  Future<Either<Failure, Training>> createTraining(Training training) async {
+  Future<Either<Failure, void>> createTraining(Training training) async {
     try {
-      final createdTraining = await localDataSource.createTraining(training);
-      return Right(createdTraining);
+      await localDataSource.createTraining(training);
+      return const Right(null);
     } on LocalDatabaseException {
       return const Left(DatabaseFailure());
     }
@@ -50,10 +50,10 @@ class TrainingRepositoryImpl implements TrainingRepository {
   }
 
   @override
-  Future<Either<Failure, Training>> updateTraining(Training training) async {
+  Future<Either<Failure, void>> updateTraining(Training training) async {
     try {
-      final updatedTraining = await localDataSource.updateTraining(training);
-      return Right(updatedTraining);
+      await localDataSource.updateTraining(training);
+      return const Right(null);
     } on LocalDatabaseException {
       return const Left(DatabaseFailure());
     }

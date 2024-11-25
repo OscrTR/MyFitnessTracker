@@ -8,13 +8,13 @@ import 'package:sqflite/sqflite.dart';
 import '../../domain/entities/training_exercise.dart';
 
 abstract class TrainingLocalDataSource {
-  Future<TrainingModel> createTraining(Training training);
+  Future<void> createTraining(Training training);
 
   Future<List<TrainingModel>> fetchTrainings();
 
   Future<TrainingModel> getTraining(int trainingId);
 
-  Future<TrainingModel> updateTraining(Training training);
+  Future<void> updateTraining(Training training);
 
   Future<void> deleteTraining(int id);
 }
@@ -25,7 +25,7 @@ class SQLiteTrainingLocalDataSource implements TrainingLocalDataSource {
   SQLiteTrainingLocalDataSource({required this.database});
 
   @override
-  Future<TrainingModel> createTraining(Training training) async {
+  Future<void> createTraining(Training training) async {
     try {
       return await _runInTransaction((txn) async {
         final trainingId = await _insertOrUpdateTraining(
@@ -34,7 +34,8 @@ class SQLiteTrainingLocalDataSource implements TrainingLocalDataSource {
         );
 
         await _manageMultisetsAndExercises(training, trainingId, txn);
-        return TrainingModel.fromTrainingWithId(training, trainingId);
+        // final createdTraining = await getTraining(trainingId);
+        print('created training');
       });
     } catch (e) {
       throw LocalDatabaseException(e.toString());
@@ -184,7 +185,7 @@ class SQLiteTrainingLocalDataSource implements TrainingLocalDataSource {
   }
 
   @override
-  Future<TrainingModel> updateTraining(Training training) async {
+  Future<void> updateTraining(Training training) async {
     try {
       return await _runInTransaction((txn) async {
         final trainingId = training.id!;
@@ -195,7 +196,6 @@ class SQLiteTrainingLocalDataSource implements TrainingLocalDataSource {
 
         await _manageMultisetsAndExercises(training, trainingId, txn,
             isUpdate: true);
-        return TrainingModel.fromTrainingWithId(training, trainingId);
       });
     } catch (e) {
       throw LocalDatabaseException(
