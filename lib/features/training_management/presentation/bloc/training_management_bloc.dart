@@ -137,6 +137,43 @@ class TrainingManagementBloc
         emit(currentState.copyWith(selectedTraining: updatedTraining));
       }
     });
+
+    on<UpdateTrainingEvent>((event, emit) async {
+      if (state is TrainingManagementLoaded) {
+        final currentState = state as TrainingManagementLoaded;
+
+        final updatedResult =
+            await updateTraining(update.Params(currentState.selectedTraining!));
+
+        await updatedResult.fold(
+          (failure) async {
+            messageBloc.add(AddMessageEvent(
+                message: _mapFailureToMessage(failure), isError: true));
+          },
+          (success) async {
+            messageBloc.add(const AddMessageEvent(
+                message: 'Training updated successfully.', isError: false));
+
+            final fetchResult = await fetchTrainings(null);
+
+            await fetchResult.fold(
+              (failure) async {
+                messageBloc.add(AddMessageEvent(
+                    message: _mapFailureToMessage(failure), isError: true));
+              },
+              (trainings) async {
+                if (!emit.isDone) {
+                  emit(currentState.copyWith(
+                    trainings: trainings,
+                    resetSelectedTraining: true,
+                  ));
+                }
+              },
+            );
+          },
+        );
+      }
+    });
     on<AddExerciseToSelectedTrainingEvent>((event, emit) {
       if (state is TrainingManagementLoaded) {
         final currentState = state as TrainingManagementLoaded;

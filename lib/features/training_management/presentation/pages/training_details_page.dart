@@ -210,10 +210,22 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                   const SizedBox(height: 30),
                   SaveButtonWidget(
                     onSave: () {
-                      context
-                          .read<TrainingManagementBloc>()
-                          .add(SaveSelectedTrainingEvent());
-                      GoRouter.of(context).go('/trainings');
+                      final bloc = context.read<TrainingManagementBloc>();
+                      final trainingId =
+                          (bloc.state as TrainingManagementLoaded)
+                              .selectedTraining
+                              ?.id;
+                      if (trainingId != null) {
+                        context
+                            .read<TrainingManagementBloc>()
+                            .add(UpdateTrainingEvent());
+                        GoRouter.of(context).go('/trainings');
+                      } else {
+                        context
+                            .read<TrainingManagementBloc>()
+                            .add(SaveSelectedTrainingEvent());
+                        GoRouter.of(context).go('/trainings');
+                      }
                     },
                   ),
                 ],
