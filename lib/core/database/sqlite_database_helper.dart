@@ -43,6 +43,7 @@ class SQLiteDatabaseHelper {
             special_instructions TEXT,
             objectives TEXT,
             position INTEGER,
+            key TEXT,
             FOREIGN KEY(training_id) REFERENCES trainings(id) ON DELETE CASCADE
           )
         ''');
@@ -76,6 +77,7 @@ class SQLiteDatabaseHelper {
             special_instructions TEXT,
             objectives TEXT,
             position INTEGER,
+            key TEXT,
             FOREIGN KEY(training_id) REFERENCES trainings(id) ON DELETE CASCADE,
             FOREIGN KEY(multiset_id) REFERENCES multisets(id) ON DELETE CASCADE,
             FOREIGN KEY(exercise_id) REFERENCES exercises(id) ON DELETE CASCADE

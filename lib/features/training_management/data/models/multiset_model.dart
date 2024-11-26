@@ -12,6 +12,7 @@ class MultisetModel extends Multiset {
     required super.specialInstructions,
     required super.objectives,
     required super.position,
+    required super.key,
   });
 
   factory MultisetModel.fromJson(Map<String, dynamic> json) {
@@ -28,6 +29,7 @@ class MultisetModel extends Multiset {
       specialInstructions: json['special_instructions'] as String,
       objectives: json['objectives'] as String,
       position: json['position'] as int,
+      key: json['key'] as String,
     );
   }
 
@@ -41,21 +43,23 @@ class MultisetModel extends Multiset {
       'special_instructions': specialInstructions,
       'objectives': objectives,
       'position': position,
+      'key': key,
     };
   }
 
   factory MultisetModel.fromMultisetWithId(Multiset multiset, int trainingId) {
     return MultisetModel(
-        id: multiset.id,
-        trainingId:
-            trainingId, // Ensure this line assigns the passed trainingId
-        sets: multiset.sets,
-        setRest: multiset.setRest,
-        multisetRest: multiset.multisetRest,
-        specialInstructions: multiset.specialInstructions,
-        objectives: multiset.objectives,
-        trainingExercises: multiset.trainingExercises,
-        position: multiset.position);
+      id: multiset.id,
+      trainingId: trainingId, // Ensure this line assigns the passed trainingId
+      sets: multiset.sets,
+      setRest: multiset.setRest,
+      multisetRest: multiset.multisetRest,
+      specialInstructions: multiset.specialInstructions,
+      objectives: multiset.objectives,
+      trainingExercises: multiset.trainingExercises,
+      position: multiset.position,
+      key: multiset.key,
+    );
   }
 
   factory MultisetModel.fromMultiset(Multiset multiset) {
@@ -68,6 +72,7 @@ class MultisetModel extends Multiset {
         multisetRest: multiset.multisetRest,
         specialInstructions: multiset.specialInstructions,
         objectives: multiset.objectives,
-        position: multiset.position);
+        position: multiset.position,
+        key: multiset.key);
   }
 }

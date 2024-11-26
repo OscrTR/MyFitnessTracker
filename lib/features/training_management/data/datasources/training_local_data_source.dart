@@ -111,6 +111,7 @@ class SQLiteTrainingLocalDataSource implements TrainingLocalDataSource {
             'objectives': row['objectives'],
             'position': row['position'],
             'training_exercises': [],
+            'key': row['key'],
           };
         }).toList();
       }
@@ -155,6 +156,7 @@ class SQLiteTrainingLocalDataSource implements TrainingLocalDataSource {
             'special_instructions': row['special_instructions'],
             'objectives': row['objectives'],
             'position': row['position'],
+            'key': row['key'],
           };
         }).toList();
       }

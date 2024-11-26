@@ -278,8 +278,18 @@ class _MultisetExerciseWidgetState extends State<MultisetExerciseWidget> {
 
       updatedTrainingExercisesList[index] = updatedExercise;
 
-      bloc.add(UpdateSelectedTrainingProperty(
-          trainingExercises: updatedTrainingExercisesList));
+      final updatedMultiset = currentState.selectedTraining!.multisets
+          .firstWhere((multiset) => multiset.key == widget.multisetKey)
+          .copyWith(trainingExercises: updatedTrainingExercisesList);
+
+      final updatedMultisets =
+          List<Multiset>.from(currentState.selectedTraining!.multisets);
+
+      updatedMultisets
+          .removeWhere((multiset) => multiset.key == widget.multisetKey);
+      updatedMultisets.add(updatedMultiset);
+
+      bloc.add(UpdateSelectedTrainingProperty(multisets: updatedMultisets));
       if (id != null) {
         FocusScope.of(context).unfocus();
       }
@@ -318,7 +328,7 @@ class _MultisetExerciseWidgetState extends State<MultisetExerciseWidget> {
       controller: _controllers['exercise'],
       onSuggestionTap: (query) {
         if (query.searchKey == 'Create New Exercise') {
-          _controllers['exercise']!.clear();
+          _controllers['exercise']?.clear();
           FocusScope.of(context).unfocus();
           navigateToCreateExercise();
           return;

@@ -304,8 +304,9 @@ class TrainingManagementBloc
           // Emit the updated state
           emit(currentState.copyWith(selectedTraining: updatedTraining));
         } else {
-          // Handle the case where the multiset with the given key does not exist
-          print('Multiset with key ${event.multisetKey} not found.');
+          messageBloc.add(AddMessageEvent(
+              message: 'Multiset with key ${event.multisetKey} not found.',
+              isError: true));
         }
       }
     });
@@ -332,7 +333,7 @@ class TrainingManagementBloc
 
         // Ensure selectedTraining is not null
         if (currentState.selectedTraining == null) {
-          messageBloc.add(AddMessageEvent(
+          messageBloc.add(const AddMessageEvent(
               message: 'No training selected to save.', isError: true));
           return;
         }

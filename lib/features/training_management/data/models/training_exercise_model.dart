@@ -29,6 +29,7 @@ class TrainingExerciseModel extends TrainingExercise {
     required super.exerciseRest,
     required super.manualStart,
     required super.position,
+    required super.key,
   });
 
   factory TrainingExerciseModel.fromJson(Map<String, dynamic> json) {
@@ -64,6 +65,7 @@ class TrainingExerciseModel extends TrainingExercise {
       exerciseRest: json['exercise_rest'] as int?,
       manualStart: (json['manual_start'] as int?) == 1 ? true : false,
       position: json['position'] as int?,
+      key: json['key'] as String,
     );
   }
 
@@ -96,6 +98,7 @@ class TrainingExerciseModel extends TrainingExercise {
       'exercise_rest': exerciseRest,
       'manual_start': manualStart == true ? 1 : 0,
       'position': position,
+      'key': key,
     };
   }
 
@@ -131,38 +134,41 @@ class TrainingExerciseModel extends TrainingExercise {
       exerciseRest: exercise.exerciseRest,
       manualStart: exercise.manualStart,
       position: exercise.position,
+      key: exercise.key,
     );
   }
 
   factory TrainingExerciseModel.fromTrainingExercise(
       TrainingExercise exercise) {
     return TrainingExerciseModel(
-        id: exercise.id,
-        trainingId: exercise.trainingId,
-        multisetId: exercise.multisetId,
-        exerciseId: exercise.exerciseId,
-        trainingExerciseType: exercise.trainingExerciseType,
-        specialInstructions: exercise.specialInstructions,
-        objectives: exercise.objectives,
-        runExerciseTarget: exercise.runExerciseTarget,
-        targetDistance: exercise.targetDistance,
-        targetDuration: exercise.targetDuration,
-        isTargetRythmSelected: exercise.isTargetRythmSelected,
-        targetRythm: exercise.targetRythm,
-        intervals: exercise.intervals,
-        isIntervalInDistance: exercise.isIntervalInDistance,
-        intervalDistance: exercise.intervalDistance,
-        intervalDuration: exercise.intervalDuration,
-        intervalRest: exercise.intervalRest,
-        sets: exercise.sets,
-        isSetsInReps: exercise.isSetsInReps,
-        minReps: exercise.minReps,
-        maxReps: exercise.maxReps,
-        actualReps: exercise.actualReps,
-        duration: exercise.duration,
-        setRest: exercise.setRest,
-        exerciseRest: exercise.exerciseRest,
-        manualStart: exercise.manualStart,
-        position: exercise.position);
+      id: exercise.id,
+      trainingId: exercise.trainingId,
+      multisetId: exercise.multisetId,
+      exerciseId: exercise.exerciseId,
+      trainingExerciseType: exercise.trainingExerciseType,
+      specialInstructions: exercise.specialInstructions,
+      objectives: exercise.objectives,
+      runExerciseTarget: exercise.runExerciseTarget,
+      targetDistance: exercise.targetDistance,
+      targetDuration: exercise.targetDuration,
+      isTargetRythmSelected: exercise.isTargetRythmSelected,
+      targetRythm: exercise.targetRythm,
+      intervals: exercise.intervals,
+      isIntervalInDistance: exercise.isIntervalInDistance,
+      intervalDistance: exercise.intervalDistance,
+      intervalDuration: exercise.intervalDuration,
+      intervalRest: exercise.intervalRest,
+      sets: exercise.sets,
+      isSetsInReps: exercise.isSetsInReps,
+      minReps: exercise.minReps,
+      maxReps: exercise.maxReps,
+      actualReps: exercise.actualReps,
+      duration: exercise.duration,
+      setRest: exercise.setRest,
+      exerciseRest: exercise.exerciseRest,
+      manualStart: exercise.manualStart,
+      position: exercise.position,
+      key: exercise.key,
+    );
   }
 }
