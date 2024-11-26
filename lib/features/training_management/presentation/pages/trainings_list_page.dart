@@ -15,17 +15,10 @@ class TrainingsListPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return const Scaffold(
       body: SingleChildScrollView(
         child: Column(
           children: [
-            OutlinedButton(
-                onPressed: () {
-                  print((context.read<TrainingManagementBloc>().state
-                          as TrainingManagementLoaded)
-                      .trainings);
-                },
-                child: Text('clic')),
             SizedBox(height: 20),
             TrainingSection(
               titleKey: 'training_page_yoga',
@@ -79,6 +72,16 @@ class TrainingSection extends StatelessWidget {
         const SizedBox(height: 20),
         BlocBuilder<TrainingManagementBloc, TrainingManagementState>(
           builder: (context, state) {
+            if ((state is TrainingManagementInitial)) {
+              return Container(
+                height: 100,
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                    border: Border.all(color: AppColors.lightGrey),
+                    borderRadius: BorderRadius.circular(15)),
+              );
+            }
+
             if ((state is TrainingManagementLoaded)) {
               final filteredTrainings = state.trainings.where((training) {
                 return training.type == trainingType;
