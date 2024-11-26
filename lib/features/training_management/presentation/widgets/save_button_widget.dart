@@ -26,7 +26,10 @@ class SaveButtonWidget extends StatelessWidget {
       isActive = true;
     }
 
-    // Todo : si existing training, vérifier différence entre selected training et current training
+    if (!isNewTraining) {
+      isActive = true;
+    }
+
     return GestureDetector(
       onTap: isActive ? onSave : null,
       child: Container(

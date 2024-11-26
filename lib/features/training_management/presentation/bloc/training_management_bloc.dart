@@ -99,18 +99,16 @@ class TrainingManagementBloc
       if (state is TrainingManagementLoaded) {
         final currentState = state as TrainingManagementLoaded;
 
-        Training? training = event.training;
+        Training? training;
 
-        if (event.id != null) {
-          final result = await getTraining(get_tr.Params(event.id!));
-          result.fold(
-            (failure) => messageBloc.add(AddMessageEvent(
-                message: _mapFailureToMessage(failure), isError: true)),
-            (success) {
-              training = success;
-            },
-          );
-        }
+        final result = await getTraining(get_tr.Params(event.id));
+        result.fold(
+          (failure) => messageBloc.add(AddMessageEvent(
+              message: _mapFailureToMessage(failure), isError: true)),
+          (success) {
+            training = success;
+          },
+        );
 
         emit(currentState.copyWith(selectedTraining: training));
       }

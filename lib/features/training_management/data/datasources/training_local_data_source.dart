@@ -34,8 +34,6 @@ class SQLiteTrainingLocalDataSource implements TrainingLocalDataSource {
         );
 
         await _manageMultisetsAndExercises(training, trainingId, txn);
-        // final createdTraining = await getTraining(trainingId);
-        print('created training');
       });
     } catch (e) {
       throw LocalDatabaseException(e.toString());

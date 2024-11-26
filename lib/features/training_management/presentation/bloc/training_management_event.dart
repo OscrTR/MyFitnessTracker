@@ -48,13 +48,12 @@ class LoadInitialSelectedTrainingData extends TrainingManagementEvent {
 }
 
 class SelectTrainingEvent extends TrainingManagementEvent {
-  final int? id;
-  final Training? training;
+  final int id;
 
-  const SelectTrainingEvent({required this.id, required this.training});
+  const SelectTrainingEvent({required this.id});
 
   @override
-  List<Object?> get props => [id, training];
+  List<Object?> get props => [id];
 }
 
 class ClearSelectedTrainingEvent extends TrainingManagementEvent {

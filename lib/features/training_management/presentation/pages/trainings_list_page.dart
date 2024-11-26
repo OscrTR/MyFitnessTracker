@@ -289,8 +289,7 @@ class TrainingList extends StatelessWidget {
               onSelected: (value) {
                 final bloc = BlocProvider.of<TrainingManagementBloc>(context);
                 if (value == 'edit') {
-                  bloc.add(
-                      SelectTrainingEvent(id: training.id, training: null));
+                  bloc.add(SelectTrainingEvent(id: training.id!));
                   GoRouter.of(context).go('/training_detail');
                 }
                 if (value == 'delete') {
