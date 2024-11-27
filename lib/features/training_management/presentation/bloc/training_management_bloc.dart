@@ -178,6 +178,71 @@ class TrainingManagementBloc
       }
     });
 
+    on<StartTrainingEvent>((event, emit) async {
+      if (state is! TrainingManagementLoaded) return;
+
+      final currentState = state as TrainingManagementLoaded;
+
+      try {
+        // Fetch the training
+        final getResult = await getTraining(get_tr.Params(event.trainingId));
+
+        final training = getResult.fold<Training?>(
+          (failure) {
+            messageBloc.add(AddMessageEvent(
+              message: _mapFailureToMessage(failure),
+              isError: true,
+            ));
+            return null;
+          },
+          (training) => training,
+        );
+
+        if (training == null) return;
+
+        // Update the training to unselected
+        final updatedTraining = training.copyWith(isSelected: true);
+        final updateResult =
+            await updateTraining(update.Params(updatedTraining));
+
+        final updateSuccess = updateResult.fold<bool>(
+          (failure) {
+            messageBloc.add(AddMessageEvent(
+              message: _mapFailureToMessage(failure),
+              isError: true,
+            ));
+            return false;
+          },
+          (_) => true,
+        );
+
+        if (!updateSuccess) return;
+
+        // Fetch updated trainings
+        final fetchResult = await fetchTrainings(null);
+
+        fetchResult.fold(
+          (failure) {
+            messageBloc.add(AddMessageEvent(
+              message: _mapFailureToMessage(failure),
+              isError: true,
+            ));
+          },
+          (trainings) {
+            if (!emit.isDone) {
+              emit(currentState.copyWith(trainings: trainings));
+            }
+          },
+        );
+      } catch (e) {
+        // Handle any unexpected exceptions
+        messageBloc.add(AddMessageEvent(
+          message: 'An unexpected error occurred: ${e.toString()}',
+          isError: true,
+        ));
+      }
+    });
+
     on<ClearSelectedTrainingEvent>((event, emit) {
       if (state is TrainingManagementLoaded) {
         final currentState = state as TrainingManagementLoaded;

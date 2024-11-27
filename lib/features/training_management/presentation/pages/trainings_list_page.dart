@@ -268,7 +268,11 @@ class TrainingList extends StatelessWidget {
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
                 GestureDetector(
-                  onTap: () {},
+                  onTap: () {
+                    final bloc =
+                        BlocProvider.of<TrainingManagementBloc>(context);
+                    bloc.add(StartTrainingEvent(training.id!));
+                  },
                   child: Container(
                       padding: const EdgeInsets.symmetric(
                           vertical: 5, horizontal: 8),

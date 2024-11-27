@@ -156,7 +156,12 @@ Widget _buildSelectedWidgets() {
                             ),
                             Text(training.name),
                             GestureDetector(
-                              onTap: () {},
+                              onTap: () {
+                                final bloc =
+                                    BlocProvider.of<TrainingManagementBloc>(
+                                        context);
+                                bloc.add(StartTrainingEvent(training.id!));
+                              },
                               child: Container(
                                 width: 80,
                                 padding:
@@ -188,7 +193,7 @@ Widget _buildSelectedWidgets() {
                               }
                             },
                             itemBuilder: (BuildContext context) => [
-                              PopupMenuItem(
+                              const PopupMenuItem(
                                 value: 'unselect',
                                 child: Row(
                                   children: [Text('Unselect')],
