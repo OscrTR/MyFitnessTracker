@@ -21,6 +21,15 @@ class GetTrainingEvent extends TrainingManagementEvent {
 
 class UpdateTrainingEvent extends TrainingManagementEvent {}
 
+class UnselectTrainingEvent extends TrainingManagementEvent {
+  final int trainingId;
+
+  const UnselectTrainingEvent(this.trainingId);
+
+  @override
+  List<Object> get props => [trainingId];
+}
+
 class DeleteTrainingEvent extends TrainingManagementEvent {
   final int id;
 

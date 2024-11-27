@@ -136,27 +136,28 @@ Widget _buildSelectedWidgets() {
                     icon = Icons.fitness_center;
                   }
                   return Container(
-                      padding: const EdgeInsets.all(20),
-                      width: 180,
-                      decoration: BoxDecoration(
-                          color: color,
-                          borderRadius: BorderRadius.circular(15)),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Icon(icon),
-                              const SizedBox(width: 10),
-                              Text(training.type.name[0].toUpperCase() +
-                                  training.type.name.substring(1)),
-                            ],
-                          ),
-                          Text(training.name),
-                          GestureDetector(
-                            onTap: () {},
-                            child: Container(
+                    padding: const EdgeInsets.all(20),
+                    width: 180,
+                    decoration: BoxDecoration(
+                        color: color, borderRadius: BorderRadius.circular(15)),
+                    child: Stack(
+                      children: [
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Icon(icon),
+                                const SizedBox(width: 10),
+                                Text(training.type.name[0].toUpperCase() +
+                                    training.type.name.substring(1)),
+                              ],
+                            ),
+                            Text(training.name),
+                            GestureDetector(
+                              onTap: () {},
+                              child: Container(
                                 width: 80,
                                 padding:
                                     const EdgeInsets.symmetric(vertical: 5),
@@ -169,10 +170,40 @@ Widget _buildSelectedWidgets() {
                                     Text('Start'),
                                     Icon(Icons.chevron_right)
                                   ],
-                                )),
-                          )
-                        ],
-                      ));
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        Positioned(
+                          top: -10,
+                          right: -12,
+                          child: PopupMenuButton(
+                            onSelected: (value) {
+                              final bloc =
+                                  BlocProvider.of<TrainingManagementBloc>(
+                                      context);
+                              if (value == 'unselect') {
+                                bloc.add(UnselectTrainingEvent(training.id!));
+                              }
+                            },
+                            itemBuilder: (BuildContext context) => [
+                              PopupMenuItem(
+                                value: 'unselect',
+                                child: Row(
+                                  children: [Text('Unselect')],
+                                ),
+                              ),
+                            ],
+                            icon: const Icon(
+                              Icons.more_horiz,
+                              color: AppColors.lightBlack,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
                 },
                 separatorBuilder: (context, index) =>
                     const SizedBox(width: 10.0),
