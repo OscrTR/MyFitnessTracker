@@ -116,7 +116,7 @@ Widget _buildSelectedWidgets() {
           return Container(
             padding: const EdgeInsets.only(left: 20),
             height: 180,
-            child: ListView.separated(
+            child: ListView.builder(
                 scrollDirection: Axis.horizontal,
                 itemBuilder: (context, index) {
                   final training = state.trainings
@@ -137,6 +137,7 @@ Widget _buildSelectedWidgets() {
                   }
                   return Container(
                     padding: const EdgeInsets.all(20),
+                    margin: const EdgeInsets.only(right: 10),
                     width: 180,
                     decoration: BoxDecoration(
                         color: color, borderRadius: BorderRadius.circular(15)),
@@ -210,8 +211,6 @@ Widget _buildSelectedWidgets() {
                     ),
                   );
                 },
-                separatorBuilder: (context, index) =>
-                    const SizedBox(width: 10.0),
                 itemCount: state.trainings
                     .where((training) => training.isSelected)
                     .length),
