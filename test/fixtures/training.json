@@ -32,7 +32,8 @@
         "set_rest": 120,
         "exercise_rest": 90,
         "manual_start": 1,
-        "position": 1
+        "position": 1,
+        "key": "abcd"
       }
     ],
     "multisets": [
@@ -45,6 +46,7 @@
         "special_instructions": "Complete with good form",
         "objectives": "Overall strength",
         "position": 0,
+        "key": "efgh",
         "training_exercises": [
           {
             "id": 1,
@@ -73,7 +75,8 @@
             "set_rest": 120,
             "exercise_rest": 90,
             "manual_start": 1,
-            "position": 0
+            "position": 0,
+            "key": "ijkl"
           }
         ]
       }

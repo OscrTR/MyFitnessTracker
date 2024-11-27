@@ -52,7 +52,8 @@ final trainingBaseJson = {
       'multiset_rest': 120,
       'special_instructions': 'Do it slowly',
       'objectives': 'Increase strength',
-      'position': 0
+      'position': 0,
+      'key': 'efgh',
     }
   ],
   'training_exercises': [
@@ -90,13 +91,10 @@ void main() {
         expect(exerciseResult.id, isNotNull);
 
         // Act : create the training
-        final trainingResult = await dataSource.createTraining(trainingBase);
-        expect(trainingResult.name, trainingBase.name);
-        expect(trainingResult.id, isNotNull);
+        await dataSource.createTraining(trainingBase);
 
         // Assert : get the training and compare it with the actual training
-        final createdTraining =
-            await dataSource.getTraining(trainingResult.id!);
+        final createdTraining = await dataSource.getTraining(1);
         expect(createdTraining, TrainingModel.fromJson(trainingBaseJson));
       },
     );
@@ -169,7 +167,8 @@ void main() {
               'multiset_rest': 120,
               'special_instructions': 'Do it slowly',
               'objectives': 'Increase strength',
-              'position': 0
+              'position': 0,
+              'key': 'efgh'
             }
           ],
           'training_exercises': [
@@ -216,7 +215,8 @@ void main() {
               'multiset_rest': 120,
               'special_instructions': 'Do it slowly',
               'objectives': 'Increase strength',
-              'position': 0
+              'position': 0,
+              'key': 'efgh'
             }
           ],
           'training_exercises': []
@@ -307,7 +307,8 @@ void main() {
               'multiset_rest': 120,
               'special_instructions': 'Do it slowly',
               'objectives': 'Increase strength',
-              'position': 0
+              'position': 0,
+              'key': 'efgh'
             }
           ],
           'training_exercises': [
@@ -447,7 +448,8 @@ void main() {
               'multiset_rest': 120,
               'special_instructions': 'Do it slowly',
               'objectives': 'Increase strength',
-              'position': 0
+              'position': 0,
+              'key': 'efgh'
             },
             {
               'id': 2,
@@ -465,7 +467,8 @@ void main() {
               'multiset_rest': 120,
               'special_instructions': 'ADDED COZ NO ID',
               'objectives': 'Increase strength',
-              'position': 0
+              'position': 0,
+              'key': 'efgh'
             }
           ],
           'training_exercises': [
@@ -546,9 +549,7 @@ Future<void> _initTraining(ExerciseLocalDataSource exerciseLocalDataSource,
   expect(exerciseResult.name, exercise.name);
   expect(exerciseResult.id, isNotNull);
 
-  final trainingResult = await dataSource.createTraining(trainingBase);
-  expect(trainingResult.name, trainingBase.name);
-  expect(trainingResult.id, isNotNull);
+  await dataSource.createTraining(trainingBase);
 
   final createdTraining = await dataSource.getTraining(1);
   expect(createdTraining, TrainingModel.fromJson(trainingBaseJson));
@@ -596,6 +597,7 @@ Future<void> _createTables(Database db) async {
       special_instructions TEXT,
       objectives TEXT,
       position INTEGER,
+      key TEXT,
       FOREIGN KEY(training_id) REFERENCES trainings(id) ON DELETE CASCADE
     )
   ''');
@@ -628,6 +630,7 @@ Future<void> _createTables(Database db) async {
       special_instructions TEXT,
       objectives TEXT,
       position INTEGER,
+      key TEXT,
       FOREIGN KEY(training_id) REFERENCES trainings(id) ON DELETE CASCADE,
       FOREIGN KEY(multiset_id) REFERENCES multisets(id) ON DELETE CASCADE,
       FOREIGN KEY(exercise_id) REFERENCES exercises(id) ON DELETE CASCADE
@@ -661,33 +664,35 @@ TrainingExerciseModel createTrainingExercise({
   bool manualStart = true,
 }) {
   return TrainingExerciseModel(
-      id: id,
-      trainingId: trainingId,
-      multisetId: multisetId,
-      exerciseId: exerciseId,
-      trainingExerciseType: type,
-      sets: sets,
-      isSetsInReps: true,
-      minReps: 8,
-      maxReps: 12,
-      actualReps: reps,
-      duration: duration,
-      setRest: setRest,
-      exerciseRest: exerciseRest,
-      manualStart: manualStart,
-      runExerciseTarget: RunExerciseTarget.distance,
-      targetDistance: targetDistance,
-      targetDuration: targetDuration,
-      isTargetRythmSelected: false,
-      targetRythm: targetRythm,
-      intervals: intervals,
-      isIntervalInDistance: true,
-      intervalDistance: intervalDistance,
-      intervalDuration: intervalDuration,
-      intervalRest: intervalRest,
-      specialInstructions: specialInstructions,
-      objectives: objectives,
-      position: 0);
+    id: id,
+    trainingId: trainingId,
+    multisetId: multisetId,
+    exerciseId: exerciseId,
+    trainingExerciseType: type,
+    sets: sets,
+    isSetsInReps: true,
+    minReps: 8,
+    maxReps: 12,
+    actualReps: reps,
+    duration: duration,
+    setRest: setRest,
+    exerciseRest: exerciseRest,
+    manualStart: manualStart,
+    runExerciseTarget: RunExerciseTarget.distance,
+    targetDistance: targetDistance,
+    targetDuration: targetDuration,
+    isTargetRythmSelected: false,
+    targetRythm: targetRythm,
+    intervals: intervals,
+    isIntervalInDistance: true,
+    intervalDistance: intervalDistance,
+    intervalDuration: intervalDuration,
+    intervalRest: intervalRest,
+    specialInstructions: specialInstructions,
+    objectives: objectives,
+    position: 0,
+    key: 'abcd',
+  );
 }
 
 MultisetModel createMultiset({
@@ -698,15 +703,17 @@ MultisetModel createMultiset({
   List<TrainingExerciseModel> trainingExercises = const [],
 }) {
   return MultisetModel(
-      id: id,
-      trainingId: trainingId,
-      sets: 4,
-      setRest: 60,
-      multisetRest: 120,
-      specialInstructions: specialInstructions,
-      objectives: objectives,
-      trainingExercises: trainingExercises,
-      position: 0);
+    id: id,
+    trainingId: trainingId,
+    sets: 4,
+    setRest: 60,
+    multisetRest: 120,
+    specialInstructions: specialInstructions,
+    objectives: objectives,
+    trainingExercises: trainingExercises,
+    position: 0,
+    key: 'efgh',
+  );
 }
 
 TrainingModel createTraining({

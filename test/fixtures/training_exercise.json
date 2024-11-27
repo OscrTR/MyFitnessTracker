@@ -26,6 +26,7 @@
     "set_rest": 120,
     "exercise_rest": 90,
     "manual_start": 1,
-    "position": 0
+    "position": 0,
+    "key": "abcd"
   }
 ]

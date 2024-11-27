@@ -82,7 +82,7 @@ void main() {
       () async {
         // Arrange
         when(() => mockTrainingRepository.createTraining(training))
-            .thenAnswer((_) async => const Right(training));
+            .thenAnswer((_) async => const Right(null));
 
         // Act
         final result = await createTraining(const Params(training));
