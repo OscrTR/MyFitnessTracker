@@ -3,14 +3,15 @@ import 'dart:async';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_fitness_tracker/features/training_management/domain/entities/multiset.dart';
-import 'package:my_fitness_tracker/features/training_management/domain/entities/training_exercise.dart';
-import 'package:my_fitness_tracker/features/training_management/presentation/bloc/training_management_bloc.dart';
-import 'package:my_fitness_tracker/features/training_management/presentation/widgets/big_text_field_widget.dart';
-import 'package:my_fitness_tracker/features/training_management/presentation/widgets/more_widget.dart';
-import 'package:my_fitness_tracker/features/training_management/presentation/widgets/multiset_exercise_widget.dart';
-import 'package:my_fitness_tracker/features/training_management/presentation/widgets/multiset_run_exercise_widget.dart';
-import 'package:my_fitness_tracker/features/training_management/presentation/widgets/small_text_field_widget.dart';
+import '../../../../core/messages/bloc/message_bloc.dart';
+import '../../domain/entities/multiset.dart';
+import '../../domain/entities/training_exercise.dart';
+import '../bloc/training_management_bloc.dart';
+import 'big_text_field_widget.dart';
+import 'more_widget.dart';
+import 'multiset_exercise_widget.dart';
+import 'multiset_run_exercise_widget.dart';
+import 'small_text_field_widget.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../../assets/app_colors.dart';
@@ -141,8 +142,10 @@ class _MultisetWidgetState extends State<MultisetWidget> {
         // Replace the old exercise with the updated one in the list
         updatedMultisetsList[index] = updatedMultiset;
       } else {
-        // Handle the case where the key is not found (optional)
-        print('Multiset with key ${widget.multisetKey} not found.');
+        context.read<MessageBloc>().add(AddMessageEvent(
+            message:
+                tr('message_multiset_not_found', args: [widget.multisetKey]),
+            isError: true));
       }
 
       bloc.add(UpdateSelectedTrainingProperty(multisets: updatedMultisetsList));
@@ -168,11 +171,11 @@ class _MultisetWidgetState extends State<MultisetWidget> {
             const SizedBox(height: 10),
             BigTextFieldWidget(
                 controller: _controllers['specialInstructions']!,
-                hintText: 'Special instructions'),
+                hintText: tr('global_special_instructions')),
             const SizedBox(height: 10),
             BigTextFieldWidget(
                 controller: _controllers['objectives']!,
-                hintText: 'Objectives'),
+                hintText: tr('global_objectives')),
             const SizedBox(height: 10),
             _buildExercisesList(),
             const SizedBox(height: 20),
@@ -185,7 +188,8 @@ class _MultisetWidgetState extends State<MultisetWidget> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        const Text('Multiset', style: TextStyle(color: AppColors.lightBlack)),
+        Text(tr('global_multiset'),
+            style: const TextStyle(color: AppColors.lightBlack)),
         MoreWidget(multisetKey: widget.multisetKey),
       ],
     );
@@ -197,7 +201,8 @@ class _MultisetWidgetState extends State<MultisetWidget> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const Text('Sets', style: TextStyle(color: AppColors.lightBlack)),
+          Text(tr('exercise_sets'),
+              style: const TextStyle(color: AppColors.lightBlack)),
           SmallTextFieldWidget(controller: _controllers['sets']!),
         ],
       ),
@@ -210,7 +215,8 @@ class _MultisetWidgetState extends State<MultisetWidget> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const Text('Set rest', style: TextStyle(color: AppColors.lightBlack)),
+          Text(tr('exercise_set_rest'),
+              style: const TextStyle(color: AppColors.lightBlack)),
           Row(
             children: [
               SmallTextFieldWidget(controller: _controllers['setRestMinutes']!),
@@ -229,8 +235,8 @@ class _MultisetWidgetState extends State<MultisetWidget> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const Text('Multiset rest',
-              style: TextStyle(color: AppColors.lightBlack)),
+          Text(tr('exercise_multiset_rest'),
+              style: const TextStyle(color: AppColors.lightBlack)),
           Row(
             children: [
               SmallTextFieldWidget(

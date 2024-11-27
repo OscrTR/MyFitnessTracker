@@ -1,8 +1,8 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_fitness_tracker/features/training_management/domain/entities/multiset.dart';
-import 'package:my_fitness_tracker/features/training_management/domain/entities/training_exercise.dart';
+import '../../domain/entities/multiset.dart';
+import '../../domain/entities/training_exercise.dart';
 import 'package:uuid/uuid.dart';
 import '../../../../assets/app_colors.dart';
 import '../bloc/training_management_bloc.dart';

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:my_fitness_tracker/assets/app_colors.dart';
+import '../../../../assets/app_colors.dart';
 
 class SmallTextFieldWidget extends StatelessWidget {
   final TextEditingController controller;

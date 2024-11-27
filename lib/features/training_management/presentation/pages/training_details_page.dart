@@ -4,10 +4,10 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:my_fitness_tracker/features/training_management/domain/entities/training_exercise.dart';
-import 'package:my_fitness_tracker/features/training_management/presentation/widgets/exercise_widget.dart';
-import 'package:my_fitness_tracker/features/training_management/presentation/widgets/multiset_widget.dart';
-import 'package:my_fitness_tracker/features/training_management/presentation/widgets/run_exercise_widget.dart';
+import '../../domain/entities/training_exercise.dart';
+import '../widgets/exercise_widget.dart';
+import '../widgets/multiset_widget.dart';
+import '../widgets/run_exercise_widget.dart';
 import '../../../exercise_management/presentation/widgets/exercise_detail_custom_text_field_widget.dart';
 import '../../domain/entities/multiset.dart';
 import '../bloc/training_management_bloc.dart';
@@ -86,7 +86,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                   const SizedBox(height: 30),
                   CustomTextField(
                     controller: _nameController,
-                    hintText: 'Name',
+                    hintText: tr('global_name'),
                   ),
                   const SizedBox(height: 20),
                   TrainingTypeSelectionWidget(
@@ -113,11 +113,11 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                           if (tExercise.trainingExerciseType ==
                               TrainingExerciseType.run) {
                             return RunExerciseWidget(
-                              customKey: tExercise.key!,
+                              exerciseKey: tExercise.key!,
                             );
                           }
                           return ExerciseWidget(
-                            customKey: tExercise.key!,
+                            exerciseKey: tExercise.key!,
                           );
                         } else if (item['type'] == 'multiset') {
                           var tMultiset = item['data'] as Multiset;
@@ -181,13 +181,13 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                             return RunExerciseWidget(
                               key: ValueKey(
                                   tExercise.key), // Unique key for exercises
-                              customKey: tExercise.key!,
+                              exerciseKey: tExercise.key!,
                             );
                           }
                           return ExerciseWidget(
                             key: ValueKey(
                                 tExercise.key), // Unique key for exercises
-                            customKey: tExercise.key!,
+                            exerciseKey: tExercise.key!,
                           );
                         } else if (item['type'] == 'multiset') {
                           var tMultiset = item['data'] as Multiset;

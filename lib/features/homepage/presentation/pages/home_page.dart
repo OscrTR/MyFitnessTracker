@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:my_fitness_tracker/assets/app_colors.dart';
-import 'package:my_fitness_tracker/core/widgets/dash_border_painter_widget.dart';
-import 'package:my_fitness_tracker/features/training_management/domain/entities/training.dart';
-import 'package:my_fitness_tracker/features/training_management/presentation/bloc/training_management_bloc.dart';
+import '../../../../assets/app_colors.dart';
+import '../../../../core/widgets/dash_border_painter_widget.dart';
+import '../../../training_management/domain/entities/training.dart';
+import '../../../training_management/presentation/bloc/training_management_bloc.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -23,7 +23,7 @@ class HomePage extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Selected trainings',
+                  tr('home_page_selected_trainings'),
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
                 GestureDetector(
@@ -36,14 +36,14 @@ class HomePage extends StatelessWidget {
                       decoration: BoxDecoration(
                           color: AppColors.white,
                           borderRadius: BorderRadius.circular(15)),
-                      child: const Row(
+                      child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            'See all',
-                            style: TextStyle(color: AppColors.lightBlack),
+                            tr('home_page_see_all'),
+                            style: const TextStyle(color: AppColors.lightBlack),
                           ),
-                          Icon(
+                          const Icon(
                             Icons.chevron_right,
                             color: AppColors.lightBlack,
                           )
@@ -94,18 +94,18 @@ Widget _buildSelectedWidgets() {
                   dashLength: 5.0,
                   gapLength: 5.0,
                 ),
-                child: const SizedBox(
+                child: SizedBox(
                   height: 180,
                   width: 180,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        'Select a training',
-                        style: TextStyle(color: AppColors.lightBlack),
+                        tr('home_page_select_training'),
+                        style: const TextStyle(color: AppColors.lightBlack),
                       ),
-                      SizedBox(width: 5),
-                      Icon(Icons.add, color: AppColors.lightBlack),
+                      const SizedBox(width: 5),
+                      const Icon(Icons.add, color: AppColors.lightBlack),
                     ],
                   ),
                 ),
@@ -170,11 +170,11 @@ Widget _buildSelectedWidgets() {
                                 decoration: BoxDecoration(
                                     color: AppColors.white,
                                     borderRadius: BorderRadius.circular(15)),
-                                child: const Row(
+                                child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Text('Start'),
-                                    Icon(Icons.chevron_right)
+                                    Text(tr('global_start')),
+                                    const Icon(Icons.chevron_right)
                                   ],
                                 ),
                               ),
@@ -194,10 +194,10 @@ Widget _buildSelectedWidgets() {
                               }
                             },
                             itemBuilder: (BuildContext context) => [
-                              const PopupMenuItem(
+                              PopupMenuItem(
                                 value: 'unselect',
                                 child: Row(
-                                  children: [Text('Unselect')],
+                                  children: [Text(tr('home_page_unselect'))],
                                 ),
                               ),
                             ],

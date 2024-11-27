@@ -279,8 +279,11 @@ class TrainingList extends StatelessWidget {
                       decoration: BoxDecoration(
                           color: color,
                           borderRadius: BorderRadius.circular(15)),
-                      child: const Row(
-                        children: [Text('Start'), Icon(Icons.chevron_right)],
+                      child: Row(
+                        children: [
+                          Text(tr('global_start')),
+                          const Icon(Icons.chevron_right),
+                        ],
                       )),
                 )
               ],

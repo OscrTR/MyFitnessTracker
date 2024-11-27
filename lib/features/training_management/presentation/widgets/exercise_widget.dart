@@ -1,24 +1,26 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:my_fitness_tracker/assets/app_colors.dart';
-import 'package:my_fitness_tracker/features/exercise_management/data/models/exercise_model.dart';
-import 'package:my_fitness_tracker/features/exercise_management/domain/entities/exercise.dart';
-import 'package:my_fitness_tracker/features/exercise_management/presentation/bloc/exercise_management_bloc.dart';
-import 'package:my_fitness_tracker/features/training_management/domain/entities/training_exercise.dart';
-import 'package:my_fitness_tracker/features/training_management/presentation/bloc/training_management_bloc.dart';
-import 'package:my_fitness_tracker/features/training_management/presentation/widgets/big_text_field_widget.dart';
-import 'package:my_fitness_tracker/features/training_management/presentation/widgets/more_widget.dart';
-import 'package:my_fitness_tracker/features/training_management/presentation/widgets/small_text_field_widget.dart';
+import '../../../../assets/app_colors.dart';
+import '../../../../core/messages/bloc/message_bloc.dart';
+import '../../../exercise_management/data/models/exercise_model.dart';
+import '../../../exercise_management/domain/entities/exercise.dart';
+import '../../../exercise_management/presentation/bloc/exercise_management_bloc.dart';
+import '../../domain/entities/training_exercise.dart';
+import '../bloc/training_management_bloc.dart';
+import 'big_text_field_widget.dart';
+import 'more_widget.dart';
+import 'small_text_field_widget.dart';
 import 'package:searchfield/searchfield.dart';
 
 class ExerciseWidget extends StatefulWidget {
-  final String customKey;
+  final String exerciseKey;
 
-  const ExerciseWidget({super.key, required this.customKey});
+  const ExerciseWidget({super.key, required this.exerciseKey});
 
   @override
   State<ExerciseWidget> createState() => _ExerciseWidgetState();
@@ -61,7 +63,7 @@ class _ExerciseWidgetState extends State<ExerciseWidget> {
       final trainingExercises =
           currentState.selectedTraining?.trainingExercises ?? [];
       final exercise = trainingExercises
-          .firstWhere((exercise) => exercise.key == widget.customKey);
+          .firstWhere((exercise) => exercise.key == widget.exerciseKey);
 
       isSetsInReps = exercise.isSetsInReps ?? true;
 
@@ -120,7 +122,7 @@ class _ExerciseWidgetState extends State<ExerciseWidget> {
       );
 
       final index = updatedTrainingExercisesList.indexWhere(
-        (exercise) => exercise.key == widget.customKey,
+        (exercise) => exercise.key == widget.exerciseKey,
       );
 
       if (index != -1) {
@@ -169,8 +171,10 @@ class _ExerciseWidgetState extends State<ExerciseWidget> {
         // Replace the old exercise with the updated one in the list
         updatedTrainingExercisesList[index] = updatedExercise;
       } else {
-        // Handle the case where the key is not found (optional)
-        print('Exercise with key ${widget.customKey} not found.');
+        context.read<MessageBloc>().add(AddMessageEvent(
+            message:
+                tr('message_exercise_not_found', args: [widget.exerciseKey]),
+            isError: true));
       }
 
       bloc.add(UpdateSelectedTrainingProperty(
@@ -212,10 +216,11 @@ class _ExerciseWidgetState extends State<ExerciseWidget> {
           const SizedBox(height: 10),
           BigTextFieldWidget(
               controller: _controllers['specialInstructions']!,
-              hintText: 'Special instructions'),
+              hintText: tr('global_special_instructions')),
           const SizedBox(height: 10),
           BigTextFieldWidget(
-              controller: _controllers['objectives']!, hintText: 'Objectives')
+              controller: _controllers['objectives']!,
+              hintText: tr('global_objectives'))
         ],
       ),
     );
@@ -225,8 +230,9 @@ class _ExerciseWidgetState extends State<ExerciseWidget> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        const Text('Exercise', style: TextStyle(color: AppColors.lightBlack)),
-        MoreWidget(exerciseKey: widget.customKey),
+        Text(tr('global_exercise'),
+            style: const TextStyle(color: AppColors.lightBlack)),
+        MoreWidget(exerciseKey: widget.exerciseKey),
       ],
     );
   }
@@ -241,17 +247,17 @@ class _ExerciseWidgetState extends State<ExerciseWidget> {
       );
 
       final index = updatedTrainingExercisesList.indexWhere(
-        (exercise) => exercise.key == widget.customKey,
+        (exercise) => exercise.key == widget.exerciseKey,
       );
 
       final updatedExercise = id != null
           ? updatedTrainingExercisesList
-              .firstWhere((exercise) => exercise.key == widget.customKey)
+              .firstWhere((exercise) => exercise.key == widget.exerciseKey)
               .copyWith(
                 exerciseId: id,
               )
           : updatedTrainingExercisesList
-              .firstWhere((exercise) => exercise.key == widget.customKey)
+              .firstWhere((exercise) => exercise.key == widget.exerciseKey)
               .copyWithExerciseIdNull();
 
       updatedTrainingExercisesList[index] = updatedExercise;
@@ -278,7 +284,7 @@ class _ExerciseWidgetState extends State<ExerciseWidget> {
                     as TrainingManagementLoaded)
                 .selectedTraining!
                 .trainingExercises
-                .firstWhere((exercise) => exercise.key == widget.customKey)
+                .firstWhere((exercise) => exercise.key == widget.exerciseKey)
                 .exerciseId)
         .toList();
 
@@ -339,11 +345,11 @@ class _ExerciseWidgetState extends State<ExerciseWidget> {
 
         suggestions.add(SearchFieldListItem(
           'Create New Exercise',
-          child: const Row(
+          child: Row(
             children: [
-              Icon(Icons.add, color: AppColors.black),
-              SizedBox(width: 8),
-              Text('Create New Exercise'),
+              const Icon(Icons.add, color: AppColors.black),
+              const SizedBox(width: 8),
+              Text(tr('exercise_create_new')),
             ],
           ),
         ));
@@ -352,7 +358,7 @@ class _ExerciseWidgetState extends State<ExerciseWidget> {
       },
       initialValue: initialItem,
       maxSuggestionsInViewPort: 5,
-      hint: 'Search an exercise',
+      hint: tr('exercise_search'),
       suggestions: (context.read<ExerciseManagementBloc>().state
               as ExerciseManagementLoaded)
           .exercises
@@ -360,11 +366,11 @@ class _ExerciseWidgetState extends State<ExerciseWidget> {
           .toList()
         ..add(SearchFieldListItem(
           'Create New Exercise',
-          child: const Row(
+          child: Row(
             children: [
-              Icon(Icons.add, color: AppColors.black),
-              SizedBox(width: 8),
-              Text('Create New Exercise'),
+              const Icon(Icons.add, color: AppColors.black),
+              const SizedBox(width: 8),
+              Text(tr('exercise_create_new')),
             ],
           ),
         )),
@@ -376,7 +382,7 @@ class _ExerciseWidgetState extends State<ExerciseWidget> {
       builder: (context, state) {
         if (state is TrainingManagementLoaded) {
           final exerciseId = state.selectedTraining?.trainingExercises
-              .firstWhere((exercise) => exercise.key == widget.customKey)
+              .firstWhere((exercise) => exercise.key == widget.exerciseKey)
               .exerciseId;
 
           const ExerciseModel noExercise = ExerciseModel(name: 'no exercise');
@@ -436,7 +442,8 @@ class _ExerciseWidgetState extends State<ExerciseWidget> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const Text('Sets', style: TextStyle(color: AppColors.lightBlack)),
+          Text(tr('exercise_sets'),
+              style: const TextStyle(color: AppColors.lightBlack)),
           SmallTextFieldWidget(controller: _controllers['sets']!),
         ],
       ),
@@ -448,14 +455,14 @@ class _ExerciseWidgetState extends State<ExerciseWidget> {
       builder: (context, state) {
         if (state is TrainingManagementLoaded) {
           final isSetsInReps = state.selectedTraining!.trainingExercises
-                  .firstWhere((exercise) => exercise.key == widget.customKey)
+                  .firstWhere((exercise) => exercise.key == widget.exerciseKey)
                   .isSetsInReps ??
               true;
 
           return Column(
             children: [
               _buildSetsChoiceOption(
-                'Reps',
+                tr('exercise_reps'),
                 true,
                 isSetsInReps,
                 true,
@@ -463,7 +470,7 @@ class _ExerciseWidgetState extends State<ExerciseWidget> {
                 _controllers['maxReps'],
               ),
               _buildSetsChoiceOption(
-                'Duration',
+                tr('exercise_duration'),
                 false,
                 isSetsInReps,
                 false,
@@ -565,11 +572,11 @@ class _ExerciseWidgetState extends State<ExerciseWidget> {
           currentState.selectedTraining!.trainingExercises);
 
       final index = updatedTrainingExercisesList.indexWhere(
-        (exercise) => exercise.key == widget.customKey,
+        (exercise) => exercise.key == widget.exerciseKey,
       );
 
       final updatedExercise = updatedTrainingExercisesList
-          .firstWhere((exercise) => exercise.key == widget.customKey)
+          .firstWhere((exercise) => exercise.key == widget.exerciseKey)
           .copyWith(isSetsInReps: choiceValue);
 
       updatedTrainingExercisesList[index] = updatedExercise;
@@ -585,7 +592,8 @@ class _ExerciseWidgetState extends State<ExerciseWidget> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const Text('Set rest', style: TextStyle(color: AppColors.lightBlack)),
+          Text(tr('exercise_set_rest'),
+              style: const TextStyle(color: AppColors.lightBlack)),
           Row(
             children: [
               SmallTextFieldWidget(controller: _controllers['setRestMinutes']!),
@@ -604,8 +612,8 @@ class _ExerciseWidgetState extends State<ExerciseWidget> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const Text('Exercise rest',
-              style: TextStyle(color: AppColors.lightBlack)),
+          Text(tr('exercise_exercise_rest'),
+              style: const TextStyle(color: AppColors.lightBlack)),
           Row(
             children: [
               SmallTextFieldWidget(

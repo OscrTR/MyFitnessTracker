@@ -1,11 +1,11 @@
+import 'package:sqflite/sqflite.dart';
+
 import '../../../../core/error/exceptions.dart';
+import '../../domain/entities/training.dart';
+import '../../domain/entities/training_exercise.dart';
 import '../models/multiset_model.dart';
 import '../models/training_exercise_model.dart';
 import '../models/training_model.dart';
-import '../../domain/entities/training.dart';
-import 'package:sqflite/sqflite.dart';
-
-import '../../domain/entities/training_exercise.dart';
 
 abstract class TrainingLocalDataSource {
   Future<void> createTraining(Training training);

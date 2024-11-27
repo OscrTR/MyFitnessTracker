@@ -1,13 +1,15 @@
 import 'dart:async';
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_fitness_tracker/assets/app_colors.dart';
-import 'package:my_fitness_tracker/features/training_management/domain/entities/training_exercise.dart';
-import 'package:my_fitness_tracker/features/training_management/presentation/bloc/training_management_bloc.dart';
-import 'package:my_fitness_tracker/features/training_management/presentation/widgets/big_text_field_widget.dart';
-import 'package:my_fitness_tracker/features/training_management/presentation/widgets/more_widget.dart';
-import 'package:my_fitness_tracker/features/training_management/presentation/widgets/small_text_field_widget.dart';
+import '../../../../assets/app_colors.dart';
+import '../../../../core/messages/bloc/message_bloc.dart';
+import '../../domain/entities/training_exercise.dart';
+import '../bloc/training_management_bloc.dart';
+import 'big_text_field_widget.dart';
+import 'more_widget.dart';
+import 'small_text_field_widget.dart';
 
 import '../../domain/entities/multiset.dart';
 
@@ -188,8 +190,10 @@ class _MultisetRunExerciseWidgetState extends State<MultisetRunExerciseWidget> {
 
         updatedTrainingExercisesList[index] = updatedExercise;
       } else {
-        // Handle the case where the key is not found (optional)
-        print('Exercise with key ${widget.exerciseKey} not found.');
+        context.read<MessageBloc>().add(AddMessageEvent(
+            message:
+                tr('message_exercise_not_found', args: [widget.exerciseKey]),
+            isError: true));
       }
 
       final updatedMultiset = currentState.selectedTraining!.multisets
@@ -229,10 +233,11 @@ class _MultisetRunExerciseWidgetState extends State<MultisetRunExerciseWidget> {
           const SizedBox(height: 10),
           BigTextFieldWidget(
               controller: _controllers['specialInstructions']!,
-              hintText: 'Special instructions'),
+              hintText: tr('global_special_instructions')),
           const SizedBox(height: 10),
           BigTextFieldWidget(
-              controller: _controllers['objectives']!, hintText: 'Objectives')
+              controller: _controllers['objectives']!,
+              hintText: tr('global_objectives'))
         ],
       ),
     );
@@ -242,7 +247,8 @@ class _MultisetRunExerciseWidgetState extends State<MultisetRunExerciseWidget> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        const Text('Exercise', style: TextStyle(color: AppColors.lightBlack)),
+        Text(tr('global_exercise'),
+            style: const TextStyle(color: AppColors.lightBlack)),
         MoreWidget(
             multisetKey: widget.multisetKey, exerciseKey: widget.exerciseKey),
       ],
@@ -263,13 +269,13 @@ class _MultisetRunExerciseWidgetState extends State<MultisetRunExerciseWidget> {
           return Column(
             children: [
               _buildTargetChoiceOption(
-                'Distance (km)',
+                tr('exercise_distance'),
                 RunExerciseTarget.distance,
                 runExerciseTarget,
                 _controllers['distance'],
               ),
               _buildTargetChoiceOption(
-                'Duration',
+                tr('exercise_duration'),
                 RunExerciseTarget.duration,
                 runExerciseTarget,
                 _controllers['durationHours'],
@@ -277,7 +283,7 @@ class _MultisetRunExerciseWidgetState extends State<MultisetRunExerciseWidget> {
                 _controllers['durationSeconds'],
               ),
               _buildTargetChoiceOption(
-                'Intervals',
+                tr('exercise_intervals'),
                 RunExerciseTarget.intervals,
                 runExerciseTarget,
                 _controllers['intervals'],
@@ -415,13 +421,13 @@ class _MultisetRunExerciseWidgetState extends State<MultisetRunExerciseWidget> {
           return Column(
             children: [
               _buildIntervalsChoiceOption(
-                'Interval distance (km)',
+                tr('exercise_interval_distance'),
                 true,
                 isIntervalInDistance,
                 _controllers['intervalDistance'],
               ),
               _buildIntervalsChoiceOption(
-                'Interval duration',
+                tr('exercise_interval_duration'),
                 false,
                 isIntervalInDistance,
                 _controllers['intervalMinutes'],
@@ -623,8 +629,8 @@ class _MultisetRunExerciseWidgetState extends State<MultisetRunExerciseWidget> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('Rythm (duration/km)',
-                      style: TextStyle(color: AppColors.lightBlack)),
+                  Text(tr('exercise_rythm'),
+                      style: const TextStyle(color: AppColors.lightBlack)),
                   Row(
                     children: [
                       SmallTextFieldWidget(

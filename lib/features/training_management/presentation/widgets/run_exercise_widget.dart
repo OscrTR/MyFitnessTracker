@@ -1,17 +1,20 @@
 import 'dart:async';
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_fitness_tracker/assets/app_colors.dart';
-import 'package:my_fitness_tracker/features/training_management/domain/entities/training_exercise.dart';
-import 'package:my_fitness_tracker/features/training_management/presentation/bloc/training_management_bloc.dart';
-import 'package:my_fitness_tracker/features/training_management/presentation/widgets/big_text_field_widget.dart';
-import 'package:my_fitness_tracker/features/training_management/presentation/widgets/more_widget.dart';
-import 'package:my_fitness_tracker/features/training_management/presentation/widgets/small_text_field_widget.dart';
+import '../../../../assets/app_colors.dart';
+import '../../domain/entities/training_exercise.dart';
+import '../bloc/training_management_bloc.dart';
+import 'big_text_field_widget.dart';
+import 'more_widget.dart';
+import 'small_text_field_widget.dart';
+
+import '../../../../core/messages/bloc/message_bloc.dart';
 
 class RunExerciseWidget extends StatefulWidget {
-  final String customKey;
-  const RunExerciseWidget({super.key, required this.customKey});
+  final String exerciseKey;
+  const RunExerciseWidget({super.key, required this.exerciseKey});
 
   @override
   State<RunExerciseWidget> createState() => _RunExerciseWidgetState();
@@ -59,7 +62,7 @@ class _RunExerciseWidgetState extends State<RunExerciseWidget> {
       final trainingExercises =
           currentState.selectedTraining?.trainingExercises ?? [];
       final exercise = trainingExercises
-          .firstWhere((exercise) => exercise.key == widget.customKey);
+          .firstWhere((exercise) => exercise.key == widget.exerciseKey);
       _controllers['specialInstructions']?.text =
           exercise.specialInstructions?.toString() ?? '';
       _controllers['objectives']?.text = exercise.objectives?.toString() ?? '';
@@ -121,7 +124,7 @@ class _RunExerciseWidgetState extends State<RunExerciseWidget> {
       );
 
       final index = updatedTrainingExercisesList.indexWhere(
-        (exercise) => exercise.key == widget.customKey,
+        (exercise) => exercise.key == widget.exerciseKey,
       );
 
       if (index != -1) {
@@ -178,8 +181,10 @@ class _RunExerciseWidgetState extends State<RunExerciseWidget> {
 
         updatedTrainingExercisesList[index] = updatedExercise;
       } else {
-        // Handle the case where the key is not found (optional)
-        print('Exercise with key ${widget.customKey} not found.');
+        context.read<MessageBloc>().add(AddMessageEvent(
+            message:
+                tr('message_exercise_not_found', args: [widget.exerciseKey]),
+            isError: true));
       }
 
       bloc.add(UpdateSelectedTrainingProperty(
@@ -207,10 +212,11 @@ class _RunExerciseWidgetState extends State<RunExerciseWidget> {
           const SizedBox(height: 10),
           BigTextFieldWidget(
               controller: _controllers['specialInstructions']!,
-              hintText: 'Special instructions'),
+              hintText: tr('global_special_instructions')),
           const SizedBox(height: 10),
           BigTextFieldWidget(
-              controller: _controllers['objectives']!, hintText: 'Objectives')
+              controller: _controllers['objectives']!,
+              hintText: tr('global_objectives'))
         ],
       ),
     );
@@ -220,8 +226,9 @@ class _RunExerciseWidgetState extends State<RunExerciseWidget> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        const Text('Exercise', style: TextStyle(color: AppColors.lightBlack)),
-        MoreWidget(exerciseKey: widget.customKey),
+        Text(tr('global_exercise'),
+            style: const TextStyle(color: AppColors.lightBlack)),
+        MoreWidget(exerciseKey: widget.exerciseKey),
       ],
     );
   }
@@ -231,20 +238,20 @@ class _RunExerciseWidgetState extends State<RunExerciseWidget> {
       builder: (context, state) {
         if (state is TrainingManagementLoaded) {
           final runExerciseTarget = state.selectedTraining!.trainingExercises
-                  .firstWhere((exercise) => exercise.key == widget.customKey)
+                  .firstWhere((exercise) => exercise.key == widget.exerciseKey)
                   .runExerciseTarget ??
               RunExerciseTarget.distance;
 
           return Column(
             children: [
               _buildTargetChoiceOption(
-                'Distance (km)',
+                tr('exercise_distance'),
                 RunExerciseTarget.distance,
                 runExerciseTarget,
                 _controllers['distance'],
               ),
               _buildTargetChoiceOption(
-                'Duration',
+                tr('exercise_duration'),
                 RunExerciseTarget.duration,
                 runExerciseTarget,
                 _controllers['durationHours'],
@@ -252,7 +259,7 @@ class _RunExerciseWidgetState extends State<RunExerciseWidget> {
                 _controllers['durationSeconds'],
               ),
               _buildTargetChoiceOption(
-                'Intervals',
+                tr('exercise_intervals'),
                 RunExerciseTarget.intervals,
                 runExerciseTarget,
                 _controllers['intervals'],
@@ -358,11 +365,11 @@ class _RunExerciseWidgetState extends State<RunExerciseWidget> {
       final updatedTrainingExercisesList = List<TrainingExercise>.from(
           currentState.selectedTraining!.trainingExercises);
       final index = updatedTrainingExercisesList.indexWhere(
-        (exercise) => exercise.key == widget.customKey,
+        (exercise) => exercise.key == widget.exerciseKey,
       );
 
       final updatedExercise = updatedTrainingExercisesList
-          .firstWhere((exercise) => exercise.key == widget.customKey)
+          .firstWhere((exercise) => exercise.key == widget.exerciseKey)
           .copyWith(runExerciseTarget: choiceValue);
 
       updatedTrainingExercisesList[index] = updatedExercise;
@@ -377,20 +384,20 @@ class _RunExerciseWidgetState extends State<RunExerciseWidget> {
       builder: (context, state) {
         if (state is TrainingManagementLoaded) {
           final isIntervalInDistance = state.selectedTraining!.trainingExercises
-                  .firstWhere((exercise) => exercise.key == widget.customKey)
+                  .firstWhere((exercise) => exercise.key == widget.exerciseKey)
                   .isIntervalInDistance ??
               true;
 
           return Column(
             children: [
               _buildIntervalsChoiceOption(
-                'Interval distance (km)',
+                tr('exercise_interval_distance'),
                 true,
                 isIntervalInDistance,
                 _controllers['intervalDistance'],
               ),
               _buildIntervalsChoiceOption(
-                'Interval duration',
+                tr('exercise_interval_duration'),
                 false,
                 isIntervalInDistance,
                 _controllers['intervalMinutes'],
@@ -416,7 +423,7 @@ class _RunExerciseWidgetState extends State<RunExerciseWidget> {
                 as TrainingManagementLoaded)
             .selectedTraining!
             .trainingExercises
-            .firstWhere((exercise) => exercise.key == widget.customKey)
+            .firstWhere((exercise) => exercise.key == widget.exerciseKey)
             .runExerciseTarget ??
         RunExerciseTarget.distance;
 
@@ -501,11 +508,11 @@ class _RunExerciseWidgetState extends State<RunExerciseWidget> {
       final updatedTrainingExercisesList = List<TrainingExercise>.from(
           currentState.selectedTraining!.trainingExercises);
       final index = updatedTrainingExercisesList.indexWhere(
-        (exercise) => exercise.key == widget.customKey,
+        (exercise) => exercise.key == widget.exerciseKey,
       );
 
       final updatedExercise = updatedTrainingExercisesList
-          .firstWhere((exercise) => exercise.key == widget.customKey)
+          .firstWhere((exercise) => exercise.key == widget.exerciseKey)
           .copyWith(isIntervalInDistance: choiceValue);
 
       updatedTrainingExercisesList[index] = updatedExercise;
@@ -520,7 +527,7 @@ class _RunExerciseWidgetState extends State<RunExerciseWidget> {
         builder: (context, state) {
       if (state is TrainingManagementLoaded) {
         final isTargetRythmSelected = state.selectedTraining!.trainingExercises
-                .firstWhere((exercise) => exercise.key == widget.customKey)
+                .firstWhere((exercise) => exercise.key == widget.exerciseKey)
                 .isTargetRythmSelected ??
             false;
 
@@ -559,12 +566,12 @@ class _RunExerciseWidgetState extends State<RunExerciseWidget> {
                                 .selectedTraining!.trainingExercises);
 
                         final index = updatedTrainingExercisesList.indexWhere(
-                          (exercise) => exercise.key == widget.customKey,
+                          (exercise) => exercise.key == widget.exerciseKey,
                         );
 
                         final updatedExercise = updatedTrainingExercisesList
-                            .firstWhere(
-                                (exercise) => exercise.key == widget.customKey)
+                            .firstWhere((exercise) =>
+                                exercise.key == widget.exerciseKey)
                             .copyWith(isTargetRythmSelected: value);
 
                         updatedTrainingExercisesList[index] = updatedExercise;
@@ -580,8 +587,8 @@ class _RunExerciseWidgetState extends State<RunExerciseWidget> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('Rythm (duration/km)',
-                      style: TextStyle(color: AppColors.lightBlack)),
+                  Text(tr('exercise_rythm'),
+                      style: const TextStyle(color: AppColors.lightBlack)),
                   Row(
                     children: [
                       SmallTextFieldWidget(

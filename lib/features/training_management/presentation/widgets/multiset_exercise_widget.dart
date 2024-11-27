@@ -1,19 +1,21 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:my_fitness_tracker/assets/app_colors.dart';
-import 'package:my_fitness_tracker/features/exercise_management/data/models/exercise_model.dart';
-import 'package:my_fitness_tracker/features/exercise_management/domain/entities/exercise.dart';
-import 'package:my_fitness_tracker/features/exercise_management/presentation/bloc/exercise_management_bloc.dart';
-import 'package:my_fitness_tracker/features/training_management/domain/entities/multiset.dart';
-import 'package:my_fitness_tracker/features/training_management/domain/entities/training_exercise.dart';
-import 'package:my_fitness_tracker/features/training_management/presentation/bloc/training_management_bloc.dart';
-import 'package:my_fitness_tracker/features/training_management/presentation/widgets/big_text_field_widget.dart';
-import 'package:my_fitness_tracker/features/training_management/presentation/widgets/more_widget.dart';
-import 'package:my_fitness_tracker/features/training_management/presentation/widgets/small_text_field_widget.dart';
+import '../../../../assets/app_colors.dart';
+import '../../../../core/messages/bloc/message_bloc.dart';
+import '../../../exercise_management/data/models/exercise_model.dart';
+import '../../../exercise_management/domain/entities/exercise.dart';
+import '../../../exercise_management/presentation/bloc/exercise_management_bloc.dart';
+import '../../domain/entities/multiset.dart';
+import '../../domain/entities/training_exercise.dart';
+import '../bloc/training_management_bloc.dart';
+import 'big_text_field_widget.dart';
+import 'more_widget.dart';
+import 'small_text_field_widget.dart';
 import 'package:searchfield/searchfield.dart';
 
 class MultisetExerciseWidget extends StatefulWidget {
@@ -176,8 +178,10 @@ class _MultisetExerciseWidgetState extends State<MultisetExerciseWidget> {
         // Replace the old exercise with the updated one in the list
         updatedTrainingExercisesList[index] = updatedExercise;
       } else {
-        // Handle the case where the key is not found (optional)
-        print('Exercise with key ${widget.exerciseKey} not found.');
+        context.read<MessageBloc>().add(AddMessageEvent(
+            message:
+                tr('message_exercise_not_found', args: [widget.exerciseKey]),
+            isError: true));
       }
 
       final updatedMultiset = currentState.selectedTraining!.multisets
@@ -231,10 +235,11 @@ class _MultisetExerciseWidgetState extends State<MultisetExerciseWidget> {
           const SizedBox(height: 10),
           BigTextFieldWidget(
               controller: _controllers['specialInstructions']!,
-              hintText: 'Special instructions'),
+              hintText: tr('global_special_instructions')),
           const SizedBox(height: 10),
           BigTextFieldWidget(
-              controller: _controllers['objectives']!, hintText: 'Objectives')
+              controller: _controllers['objectives']!,
+              hintText: tr('global_objectives'))
         ],
       ),
     );
@@ -244,7 +249,8 @@ class _MultisetExerciseWidgetState extends State<MultisetExerciseWidget> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        const Text('Exercise', style: TextStyle(color: AppColors.lightBlack)),
+        Text(tr('global_exercise'),
+            style: const TextStyle(color: AppColors.lightBlack)),
         MoreWidget(
             multisetKey: widget.multisetKey, exerciseKey: widget.exerciseKey),
       ],
@@ -373,11 +379,11 @@ class _MultisetExerciseWidgetState extends State<MultisetExerciseWidget> {
 
         suggestions.add(SearchFieldListItem(
           'Create New Exercise',
-          child: const Row(
+          child: Row(
             children: [
-              Icon(Icons.add, color: AppColors.black),
-              SizedBox(width: 8),
-              Text('Create New Exercise'),
+              const Icon(Icons.add, color: AppColors.black),
+              const SizedBox(width: 8),
+              Text(tr('exercise_create_new')),
             ],
           ),
         ));
@@ -386,7 +392,7 @@ class _MultisetExerciseWidgetState extends State<MultisetExerciseWidget> {
       },
       initialValue: initialItem,
       maxSuggestionsInViewPort: 5,
-      hint: 'Search an exercise',
+      hint: tr('exercise_search'),
       suggestions: (context.read<ExerciseManagementBloc>().state
               as ExerciseManagementLoaded)
           .exercises
@@ -394,11 +400,11 @@ class _MultisetExerciseWidgetState extends State<MultisetExerciseWidget> {
           .toList()
         ..add(SearchFieldListItem(
           'Create New Exercise',
-          child: const Row(
+          child: Row(
             children: [
-              Icon(Icons.add, color: AppColors.black),
-              SizedBox(width: 8),
-              Text('Create New Exercise'),
+              const Icon(Icons.add, color: AppColors.black),
+              const SizedBox(width: 8),
+              Text(tr('exercise_create_new')),
             ],
           ),
         )),
@@ -472,7 +478,8 @@ class _MultisetExerciseWidgetState extends State<MultisetExerciseWidget> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const Text('Sets', style: TextStyle(color: AppColors.lightBlack)),
+          Text(tr('exercise_sets'),
+              style: const TextStyle(color: AppColors.lightBlack)),
           SmallTextFieldWidget(controller: _controllers['sets']!),
         ],
       ),
@@ -493,7 +500,7 @@ class _MultisetExerciseWidgetState extends State<MultisetExerciseWidget> {
           return Column(
             children: [
               _buildSetsChoiceOption(
-                'Reps',
+                tr('exercise_reps'),
                 true,
                 isSetsInReps,
                 true,
@@ -501,7 +508,7 @@ class _MultisetExerciseWidgetState extends State<MultisetExerciseWidget> {
                 _controllers['maxReps'],
               ),
               _buildSetsChoiceOption(
-                'Duration',
+                tr('exercise_duration'),
                 false,
                 isSetsInReps,
                 false,
@@ -626,7 +633,8 @@ class _MultisetExerciseWidgetState extends State<MultisetExerciseWidget> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const Text('Set rest', style: TextStyle(color: AppColors.lightBlack)),
+          Text(tr('exercise_set_rest'),
+              style: const TextStyle(color: AppColors.lightBlack)),
           Row(
             children: [
               SmallTextFieldWidget(controller: _controllers['setRestMinutes']!),
@@ -645,8 +653,8 @@ class _MultisetExerciseWidgetState extends State<MultisetExerciseWidget> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const Text('Exercise rest',
-              style: TextStyle(color: AppColors.lightBlack)),
+          Text(tr('exercise_exercise_rest'),
+              style: const TextStyle(color: AppColors.lightBlack)),
           Row(
             children: [
               SmallTextFieldWidget(

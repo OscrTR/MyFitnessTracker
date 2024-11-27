@@ -1,11 +1,11 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'features/training_management/presentation/bloc/training_management_bloc.dart';
 
 import 'app_theme.dart';
 import 'core/messages/bloc/message_bloc.dart';
 import 'features/exercise_management/presentation/bloc/exercise_management_bloc.dart';
+import 'features/training_management/presentation/bloc/training_management_bloc.dart';
 import 'injection_container.dart' as di;
 import 'injection_container.dart';
 import 'router.dart';
