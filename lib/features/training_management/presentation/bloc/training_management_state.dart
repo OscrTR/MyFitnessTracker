@@ -58,12 +58,6 @@ class TrainingManagementLoaded extends TrainingManagementState {
     );
   }
 
-  TrainingManagementLoaded clearSelectedTraining() {
-    return copyWith(
-      selectedTraining: null,
-    );
-  }
-
   bool get hasExercisesOrMultisets {
     if (selectedTraining == null) {
       return false;

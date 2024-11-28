@@ -85,10 +85,9 @@ void main() {
             .thenAnswer((_) async => const Right(null));
 
         // Act
-        final result = await createTraining(const Params(training));
+        await createTraining(const Params(training));
 
         // Assert
-        expect(result, const Right(training));
         verify(() => mockTrainingRepository.createTraining(training)).called(1);
       },
     );

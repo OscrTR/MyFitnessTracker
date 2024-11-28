@@ -10,15 +10,6 @@ abstract class TrainingManagementEvent extends Equatable {
 //! Trainings
 class FetchTrainingsEvent extends TrainingManagementEvent {}
 
-class GetTrainingEvent extends TrainingManagementEvent {
-  final int trainingId;
-
-  const GetTrainingEvent(this.trainingId);
-
-  @override
-  List<Object> get props => [trainingId];
-}
-
 class UpdateTrainingEvent extends TrainingManagementEvent {}
 
 class UnselectTrainingEvent extends TrainingManagementEvent {
@@ -49,14 +40,7 @@ class DeleteTrainingEvent extends TrainingManagementEvent {
 }
 
 //! Selected training
-class LoadInitialSelectedTrainingData extends TrainingManagementEvent {
-  final TrainingType trainingType;
-
-  const LoadInitialSelectedTrainingData(this.trainingType);
-
-  @override
-  List<Object> get props => [trainingType];
-}
+class LoadInitialSelectedTrainingData extends TrainingManagementEvent {}
 
 class SelectTrainingEvent extends TrainingManagementEvent {
   final int id;
@@ -72,14 +56,6 @@ class ClearSelectedTrainingEvent extends TrainingManagementEvent {
 }
 
 class SaveSelectedTrainingEvent extends TrainingManagementEvent {}
-
-class InitializeSelectedTrainingEvent extends TrainingManagementEvent {
-  final TrainingType type;
-
-  const InitializeSelectedTrainingEvent({required this.type});
-  @override
-  List<Object> get props => [type];
-}
 
 class UpdateSelectedTrainingProperty extends TrainingManagementEvent {
   final int? id;
@@ -121,6 +97,16 @@ class RemoveExerciseFromSelectedTrainingEvent extends TrainingManagementEvent {
   List<Object> get props => [trainingExerciseKey];
 }
 
+//! Multiset
+class AddMultisetToSelectedTrainingEvent extends TrainingManagementEvent {
+  final Multiset multiset;
+
+  const AddMultisetToSelectedTrainingEvent(this.multiset);
+
+  @override
+  List<Object> get props => [multiset];
+}
+
 class AddExerciseToSelectedTrainingMultisetEvent
     extends TrainingManagementEvent {
   final String multisetKey;
@@ -143,23 +129,4 @@ class RemoveExerciseFromSelectedTrainingMultisetEvent
 
   @override
   List<Object> get props => [multisetKey, exerciseKey];
-}
-
-//! Multiset
-class AddMultisetToSelectedTrainingEvent extends TrainingManagementEvent {
-  final Multiset multiset;
-
-  const AddMultisetToSelectedTrainingEvent(this.multiset);
-
-  @override
-  List<Object> get props => [multiset];
-}
-
-class CreateTrainingEvent extends TrainingManagementEvent {
-  final Training training;
-
-  const CreateTrainingEvent(this.training);
-
-  @override
-  List<Object> get props => [training];
 }

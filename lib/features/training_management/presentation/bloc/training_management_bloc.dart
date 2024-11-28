@@ -1,7 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:equatable/equatable.dart';
-import 'package:flutter/material.dart';
 import '../../domain/entities/multiset.dart';
 import '../../domain/entities/training_exercise.dart';
 import '../../../../core/error/failures.dart';
@@ -28,7 +27,6 @@ class TrainingManagementBloc
   final delete.DeleteTraining deleteTraining;
   final MessageBloc messageBloc;
 
-  final TextEditingController nameController = TextEditingController();
   TrainingManagementBloc(
       {required this.createTraining,
       required this.fetchTrainings,
@@ -81,8 +79,6 @@ class TrainingManagementBloc
           trainingExercises: [],
           multisets: [],
         );
-
-        nameController.text = selectedTraining.name;
 
         result.fold(
           (failure) => messageBloc.add(AddMessageEvent(
@@ -246,7 +242,7 @@ class TrainingManagementBloc
     on<ClearSelectedTrainingEvent>((event, emit) {
       if (state is TrainingManagementLoaded) {
         final currentState = state as TrainingManagementLoaded;
-        emit(currentState.clearSelectedTraining());
+        emit(currentState.copyWith(resetSelectedTraining: true));
       }
     });
     on<UpdateSelectedTrainingProperty>((event, emit) {
@@ -419,8 +415,10 @@ class TrainingManagementBloc
           // Emit the updated state
           emit(currentState.copyWith(selectedTraining: updatedTraining));
         } else {
-          // Handle the case where the multiset with the given key does not exist
-          print('Multiset with key ${event.multisetKey} not found.');
+          AddMessageEvent(
+              message:
+                  tr('message_multiset_not_found', args: [event.multisetKey]),
+              isError: true);
         }
       }
     });
@@ -535,12 +533,6 @@ class TrainingManagementBloc
         );
       }
     });
-  }
-
-  @override
-  Future<void> close() {
-    nameController.dispose();
-    return super.close();
   }
 }
 
