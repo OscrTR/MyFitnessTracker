@@ -14,6 +14,7 @@
   "global_multiset": "Multiset",
   "global_name": "Nom",
   "global_start": "Démarrer",
+  "global_validate": "Valider",
 
   "message_unexpected_error": "Erreur inattendue.",
   "message_database_failure": "Echec de la abse de données.",
@@ -39,6 +40,7 @@
   "exercise_set_rest": "Repos set",
   "exercise_exercise_rest": "Repos exercice",
   "exercise_multiset_rest": "Repos multiset",
+  "exercise_unknown": "Exercice inconnu",
 
   "home_page_selected_trainings": "Entraînements sélectionnés",
   "home_page_select_training": "Sélectionne un entraînement",

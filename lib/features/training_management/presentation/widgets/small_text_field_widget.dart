@@ -4,15 +4,27 @@ import '../../../../assets/app_colors.dart';
 class SmallTextFieldWidget extends StatelessWidget {
   final TextEditingController controller;
   final Color? textColor;
+  final Color? backgroungColor;
 
   const SmallTextFieldWidget(
-      {super.key, required this.controller, this.textColor});
+      {super.key,
+      required this.controller,
+      this.textColor,
+      this.backgroungColor});
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
+    return Container(
       width: 50,
-      height: 40,
+      height: 36,
+      decoration: BoxDecoration(
+        color: backgroungColor ?? AppColors.white,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          color: AppColors.lightBlack,
+          width: 1.0,
+        ),
+      ),
       child: Center(
         child: TextField(
           controller: controller,
@@ -27,20 +39,20 @@ class SmallTextFieldWidget extends StatelessWidget {
                 .bodyMedium!
                 .copyWith(color: AppColors.lightBlack),
             border: InputBorder.none,
-            enabledBorder: const OutlineInputBorder(
-              borderRadius: BorderRadius.all(Radius.circular(10)),
-              borderSide: BorderSide(
-                color: AppColors.lightBlack,
-                width: 1.0,
-              ),
-            ),
-            focusedBorder: const OutlineInputBorder(
-              borderRadius: BorderRadius.all(Radius.circular(10)),
-              borderSide: BorderSide(
-                color: AppColors.lightBlack,
-                width: 1.0,
-              ),
-            ),
+            // enabledBorder: const OutlineInputBorder(
+            //   borderRadius: BorderRadius.all(Radius.circular(10)),
+            //   borderSide: BorderSide(
+            //     color: AppColors.lightBlack,
+            //     width: 1.0,
+            //   ),
+            // ),
+            // focusedBorder: const OutlineInputBorder(
+            //   borderRadius: BorderRadius.all(Radius.circular(10)),
+            //   borderSide: BorderSide(
+            //     color: AppColors.lightBlack,
+            //     width: 1.0,
+            //   ),
+            // ),
           ),
         ),
       ),

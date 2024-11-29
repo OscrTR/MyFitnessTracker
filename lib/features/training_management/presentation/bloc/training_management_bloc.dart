@@ -196,7 +196,6 @@ class TrainingManagementBloc
 
         if (training == null) return;
 
-        // Update the training to unselected
         final updatedTraining = training.copyWith(isSelected: true);
         final updateResult =
             await updateTraining(update.Params(updatedTraining));
@@ -226,7 +225,8 @@ class TrainingManagementBloc
           },
           (trainings) {
             if (!emit.isDone) {
-              emit(currentState.copyWith(trainings: trainings));
+              emit(currentState.copyWith(
+                  trainings: trainings, activeTraining: updatedTraining));
             }
           },
         );

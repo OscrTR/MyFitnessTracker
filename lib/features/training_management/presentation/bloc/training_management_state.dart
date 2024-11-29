@@ -14,9 +14,11 @@ class TrainingManagementLoading extends TrainingManagementState {}
 class TrainingManagementLoaded extends TrainingManagementState {
   final List<Training> trainings;
   final Training? selectedTraining;
+  final Training? activeTraining;
 
   const TrainingManagementLoaded({
     this.trainings = const [],
+    this.activeTraining,
     this.selectedTraining = const Training(
         name: 'Unnamed training',
         type: TrainingType.workout,
@@ -28,6 +30,7 @@ class TrainingManagementLoaded extends TrainingManagementState {
   TrainingManagementLoaded copyWith({
     List<Training>? trainings,
     Training? selectedTraining,
+    Training? activeTraining,
     bool? isSelected,
     String? name,
     TrainingType? type,
@@ -37,6 +40,7 @@ class TrainingManagementLoaded extends TrainingManagementState {
   }) {
     return TrainingManagementLoaded(
       trainings: trainings ?? this.trainings,
+      activeTraining: activeTraining ?? this.activeTraining,
       selectedTraining: resetSelectedTraining
           ? const Training(
               name: 'Unnamed training',
@@ -79,6 +83,7 @@ class TrainingManagementLoaded extends TrainingManagementState {
   List<Object?> get props => [
         trainings,
         selectedTraining,
+        activeTraining,
       ];
 }
 

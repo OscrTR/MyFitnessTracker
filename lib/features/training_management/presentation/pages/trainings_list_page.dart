@@ -272,6 +272,7 @@ class TrainingList extends StatelessWidget {
                     final bloc =
                         BlocProvider.of<TrainingManagementBloc>(context);
                     bloc.add(StartTrainingEvent(training.id!));
+                    GoRouter.of(context).go('/active_training');
                   },
                   child: Container(
                       padding: const EdgeInsets.symmetric(

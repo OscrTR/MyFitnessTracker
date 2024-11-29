@@ -14,6 +14,7 @@
   "global_multiset": "Multiset",
   "global_name": "Name",
   "global_start": "Start",
+  "global_validate": "Validate",
 
   "message_unexpected_error": "Unexpected error.",
   "message_database_failure": "Database failure.",
@@ -39,6 +40,7 @@
   "exercise_set_rest": "Set rest",
   "exercise_exercise_rest": "Exercise rest",
   "exercise_multiset_rest": "Multiset rest",
+  "exercise_unknown": "Unknown exercise",
 
   "home_page_selected_trainings": "Selected trainings",
   "home_page_select_training": "Select a training",

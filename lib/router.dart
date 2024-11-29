@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
+import 'package:my_fitness_tracker/features/active_training/presentation/pages/active_training_page.dart';
 import 'features/training_management/presentation/pages/training_details_page.dart';
 import 'package:top_snackbar_flutter/custom_snack_bar.dart';
 import 'package:top_snackbar_flutter/top_snack_bar.dart';
@@ -102,12 +103,26 @@ final router = GoRouter(
             );
           },
         ),
+        GoRoute(
+          path: '/active_training',
+          pageBuilder: (context, state) {
+            return CustomTransitionPage(
+              child: const ActiveTrainingPage(),
+              transitionsBuilder:
+                  (context, animation, secondaryAnimation, child) {
+                return child;
+              },
+            );
+          },
+        ),
       ],
       builder: (context, state, child) {
         bool isExerciseDetailPage =
             GoRouterState.of(context).uri.toString() == '/exercise_detail';
         bool isTrainingDetailPage =
             GoRouterState.of(context).uri.toString() == '/training_detail';
+        bool isActiveTrainingPage =
+            GoRouterState.of(context).uri.toString() == '/active_training';
 
         return Scaffold(
           body: Stack(
@@ -149,7 +164,9 @@ final router = GoRouter(
                       child: child),
                 ),
               ),
-              if (!isExerciseDetailPage && !isTrainingDetailPage)
+              if (!isExerciseDetailPage &&
+                  !isTrainingDetailPage &&
+                  !isActiveTrainingPage)
                 const Positioned(
                   left: 0,
                   right: 0,
