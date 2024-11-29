@@ -73,16 +73,20 @@ class _ActiveExerciseWidgetState extends State<ActiveExerciseWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final exerciseBlocState = context.read<ExerciseManagementBloc>().state;
-    final matchingExercise = exerciseBlocState is ExerciseManagementLoaded
-        ? exerciseBlocState.exercises
-            .firstWhereOrNull((e) => e.id == widget.tExercise.exerciseId)
-        : null;
-    return Column(
-      children: [
-        _buildExerciseDetails(matchingExercise, context),
-        _buildExerciseRest(),
-      ],
+    return BlocBuilder<ExerciseManagementBloc, ExerciseManagementState>(
+      builder: (context, exerciseBlocState) {
+        final matchingExercise = exerciseBlocState is ExerciseManagementLoaded
+            ? exerciseBlocState.exercises
+                .firstWhereOrNull((e) => e.id == widget.tExercise.exerciseId)
+            : null;
+
+        return Column(
+          children: [
+            _buildExerciseDetails(matchingExercise, context),
+            _buildExerciseRest(),
+          ],
+        );
+      },
     );
   }
 
