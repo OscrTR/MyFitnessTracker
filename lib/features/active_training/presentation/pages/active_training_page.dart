@@ -27,13 +27,6 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage> {
       SingleChildScrollView(
         child: Column(
           children: [
-            OutlinedButton(
-                onPressed: () {
-                  final bloc = context.read<TrainingManagementBloc>();
-                  final currentState = bloc.state as TrainingManagementLoaded;
-                  print(currentState);
-                },
-                child: const Text('clic')),
             BlocBuilder<TrainingManagementBloc, TrainingManagementState>(
                 builder: (context, state) {
               if (state is TrainingManagementLoaded &&
@@ -58,6 +51,7 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage> {
                       _buildHeader(state, context),
                       const SizedBox(height: 30),
                       _buildTrainingItemList(sortedItems),
+                      const SizedBox(height: 90),
                     ],
                   ),
                 );
@@ -110,12 +104,14 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage> {
         final item = items[index];
         if (item['type'] == 'exercise') {
           final exercise = item['data'] as TrainingExercise;
+          final isLast = index == items.length - 1;
+
           return exercise.trainingExerciseType == TrainingExerciseType.run
               ? Text(exercise.id!.toString())
               : ActiveExerciseWidget(
                   tExercise: exercise,
                   timerWidgetKey: timerWidgetKey,
-                );
+                  isLast: isLast);
         } else if (item['type'] == 'multiset') {
           final multiset = item['data'] as Multiset;
           return Text(multiset.id!.toString());

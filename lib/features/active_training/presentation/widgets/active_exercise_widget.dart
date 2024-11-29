@@ -17,8 +17,12 @@ import '../../../training_management/presentation/widgets/small_text_field_widge
 class ActiveExerciseWidget extends StatefulWidget {
   final TrainingExercise tExercise;
   final GlobalKey<TimerWidgetState> timerWidgetKey;
+  final bool isLast;
   const ActiveExerciseWidget(
-      {super.key, required this.tExercise, required this.timerWidgetKey});
+      {super.key,
+      required this.tExercise,
+      required this.timerWidgetKey,
+      required this.isLast});
 
   @override
   State<ActiveExerciseWidget> createState() => _ActiveExerciseWidgetState();
@@ -94,16 +98,19 @@ class _ActiveExerciseWidgetState extends State<ActiveExerciseWidget> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const Icon(
-          Icons.snooze,
-          size: 20,
-        ),
-        const SizedBox(width: 5),
-        Text(
-          widget.tExercise.exerciseRest != null
-              ? _formatDuration(widget.tExercise.exerciseRest)
-              : '0:00',
-        ),
+        if (!widget.isLast)
+          const Icon(
+            Icons.snooze,
+            size: 20,
+          ),
+        if (!widget.isLast) const SizedBox(width: 5),
+        if (!widget.isLast)
+          Text(
+            widget.tExercise.exerciseRest != null
+                ? _formatDuration(widget.tExercise.exerciseRest)
+                : '0:00',
+          ),
+        if (widget.isLast) Text(tr('active_training_end')),
       ],
     );
   }
@@ -127,6 +134,7 @@ class _ActiveExerciseWidgetState extends State<ActiveExerciseWidget> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          const SizedBox(height: 10),
           ExpandablePanel(
             header: _buildExpandableHeader(matchingExercise),
             collapsed: const SizedBox(),

@@ -27,6 +27,8 @@
 
   "error_state": "State error",
 
+  "active_training_end": "End of training",
+
   "exercise_distance": "Distance (km)",
   "exercise_duration": "Duration",
   "exercise_intervals": "Intervals",
