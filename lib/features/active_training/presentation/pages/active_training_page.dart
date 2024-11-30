@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:my_fitness_tracker/features/active_training/presentation/widgets/active_multiset_widget.dart';
 import 'package:my_fitness_tracker/features/active_training/presentation/widgets/timer_widget.dart';
 
 import 'package:my_fitness_tracker/features/training_management/domain/entities/training_exercise.dart';
@@ -114,7 +115,11 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage> {
                   isLast: isLast);
         } else if (item['type'] == 'multiset') {
           final multiset = item['data'] as Multiset;
-          return Text(multiset.id!.toString());
+          final isLast = index == items.length - 1;
+          return ActiveMultisetWidget(
+              isLast: isLast,
+              multiset: multiset,
+              timerWidgetKey: timerWidgetKey);
         }
         return const SizedBox.shrink();
       },

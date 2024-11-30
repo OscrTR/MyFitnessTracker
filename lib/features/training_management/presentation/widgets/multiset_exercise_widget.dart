@@ -47,15 +47,15 @@ class _MultisetExerciseWidgetState extends State<MultisetExerciseWidget> {
   void _initializeControllers() {
     _controllers = {
       'exercise': TextEditingController(),
-      'sets': TextEditingController(),
+      // 'sets': TextEditingController(),
       'durationMinutes': TextEditingController(),
       'durationSeconds': TextEditingController(),
       'minReps': TextEditingController(),
       'maxReps': TextEditingController(),
-      'setRestMinutes': TextEditingController(),
-      'setRestSeconds': TextEditingController(),
-      'exerciseRestMinutes': TextEditingController(),
-      'exerciseRestSeconds': TextEditingController(),
+      // 'setRestMinutes': TextEditingController(),
+      // 'setRestSeconds': TextEditingController(),
+      // 'exerciseRestMinutes': TextEditingController(),
+      // 'exerciseRestSeconds': TextEditingController(),
       'specialInstructions': TextEditingController(),
       'objectives': TextEditingController(),
     };
@@ -72,7 +72,7 @@ class _MultisetExerciseWidgetState extends State<MultisetExerciseWidget> {
 
       isSetsInReps = exercise.isSetsInReps ?? true;
 
-      _controllers['sets']?.text = exercise.sets?.toString() ?? '';
+      // _controllers['sets']?.text = exercise.sets?.toString() ?? '';
       _controllers['durationMinutes']?.text = (exercise.duration != null
           ? (exercise.duration! % 3600 ~/ 60).toString()
           : '');
@@ -81,17 +81,17 @@ class _MultisetExerciseWidgetState extends State<MultisetExerciseWidget> {
           : '');
       _controllers['minReps']?.text = exercise.minReps?.toString() ?? '';
       _controllers['maxReps']?.text = exercise.maxReps?.toString() ?? '';
-      _controllers['setRestMinutes']?.text = (exercise.setRest != null
-          ? (exercise.setRest! % 3600 ~/ 60).toString()
-          : '');
-      _controllers['setRestSeconds']?.text =
-          (exercise.setRest != null ? (exercise.setRest! % 60).toString() : '');
-      _controllers['exerciseRestMinutes']?.text = (exercise.exerciseRest != null
-          ? (exercise.exerciseRest! % 3600 ~/ 60).toString()
-          : '');
-      _controllers['exerciseRestSeconds']?.text = (exercise.exerciseRest != null
-          ? (exercise.exerciseRest! % 60).toString()
-          : '');
+      // _controllers['setRestMinutes']?.text = (exercise.setRest != null
+      //     ? (exercise.setRest! % 3600 ~/ 60).toString()
+      //     : '');
+      // _controllers['setRestSeconds']?.text =
+      //     (exercise.setRest != null ? (exercise.setRest! % 60).toString() : '');
+      // _controllers['exerciseRestMinutes']?.text = (exercise.exerciseRest != null
+      //     ? (exercise.exerciseRest! % 3600 ~/ 60).toString()
+      //     : '');
+      // _controllers['exerciseRestSeconds']?.text = (exercise.exerciseRest != null
+      //     ? (exercise.exerciseRest! % 60).toString()
+      //     : '');
       _controllers['specialInstructions']?.text =
           exercise.specialInstructions?.toString() ?? '';
       _controllers['objectives']?.text = exercise.objectives?.toString() ?? '';
@@ -134,9 +134,9 @@ class _MultisetExerciseWidgetState extends State<MultisetExerciseWidget> {
 
       if (index != -1) {
         final updatedExercise = updatedTrainingExercisesList[index].copyWith(
-          sets: key == 'sets'
-              ? int.tryParse(_controllers['sets']?.text ?? '')
-              : null,
+          // sets: key == 'sets'
+          //     ? int.tryParse(_controllers['sets']?.text ?? '')
+          //     : null,
           minReps: key == 'minReps'
               ? int.tryParse(_controllers['minReps']?.text ?? '')
               : null,
@@ -150,23 +150,23 @@ class _MultisetExerciseWidgetState extends State<MultisetExerciseWidget> {
                   ((int.tryParse(_controllers['durationSeconds']?.text ?? '') ??
                       0))
               : null,
-          setRest: key == 'setRestMinutes' || key == 'setRestSeconds'
-              ? ((int.tryParse(_controllers['setRestMinutes']?.text ?? '') ??
-                          0) *
-                      60) +
-                  ((int.tryParse(_controllers['setRestSeconds']?.text ?? '') ??
-                      0))
-              : null,
-          exerciseRest: key == 'exerciseRestMinutes' ||
-                  key == 'exerciseRestSeconds'
-              ? ((int.tryParse(_controllers['exerciseRestMinutes']?.text ??
-                              '') ??
-                          0) *
-                      60) +
-                  ((int.tryParse(
-                          _controllers['exerciseRestSeconds']?.text ?? '') ??
-                      0))
-              : null,
+          // setRest: key == 'setRestMinutes' || key == 'setRestSeconds'
+          //     ? ((int.tryParse(_controllers['setRestMinutes']?.text ?? '') ??
+          //                 0) *
+          //             60) +
+          //         ((int.tryParse(_controllers['setRestSeconds']?.text ?? '') ??
+          //             0))
+          //     : null,
+          // exerciseRest: key == 'exerciseRestMinutes' ||
+          //         key == 'exerciseRestSeconds'
+          //     ? ((int.tryParse(_controllers['exerciseRestMinutes']?.text ??
+          //                     '') ??
+          //                 0) *
+          //             60) +
+          //         ((int.tryParse(
+          //                 _controllers['exerciseRestSeconds']?.text ?? '') ??
+          //             0))
+          //     : null,
           specialInstructions: key == 'specialInstructions'
               ? _controllers['specialInstructions']?.text ?? ''
               : null,
@@ -228,10 +228,10 @@ class _MultisetExerciseWidgetState extends State<MultisetExerciseWidget> {
             color: AppColors.lightBlack,
           ),
           const SizedBox(height: 10),
-          _buildSetsRow(),
+          // _buildSetsRow(),
           _buildSetsChoiceOptions(),
-          _buildSetRestRow(),
-          _buildExerciseRestRow(),
+          // _buildSetRestRow(),
+          // _buildExerciseRestRow(),
           const SizedBox(height: 10),
           BigTextFieldWidget(
               controller: _controllers['specialInstructions']!,
@@ -472,19 +472,19 @@ class _MultisetExerciseWidgetState extends State<MultisetExerciseWidget> {
     );
   }
 
-  Widget _buildSetsRow() {
-    return SizedBox(
-      height: 48,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(tr('exercise_sets'),
-              style: const TextStyle(color: AppColors.lightBlack)),
-          SmallTextFieldWidget(controller: _controllers['sets']!),
-        ],
-      ),
-    );
-  }
+  // Widget _buildSetsRow() {
+  //   return SizedBox(
+  //     height: 48,
+  //     child: Row(
+  //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //       children: [
+  //         Text(tr('exercise_sets'),
+  //             style: const TextStyle(color: AppColors.lightBlack)),
+  //         SmallTextFieldWidget(controller: _controllers['sets']!),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   Widget _buildSetsChoiceOptions() {
     return BlocBuilder<TrainingManagementBloc, TrainingManagementState>(
@@ -622,50 +622,60 @@ class _MultisetExerciseWidgetState extends State<MultisetExerciseWidget> {
 
       updatedTrainingExercisesList[index] = updatedExercise;
 
-      bloc.add(UpdateSelectedTrainingProperty(
-          trainingExercises: updatedTrainingExercisesList));
+      final updatedMultiset = currentState.selectedTraining!.multisets
+          .firstWhere((multiset) => multiset.key == widget.multisetKey)
+          .copyWith(trainingExercises: updatedTrainingExercisesList);
+
+      final updatedMultisets =
+          List<Multiset>.from(currentState.selectedTraining!.multisets);
+
+      updatedMultisets
+          .removeWhere((multiset) => multiset.key == widget.multisetKey);
+      updatedMultisets.add(updatedMultiset);
+
+      bloc.add(UpdateSelectedTrainingProperty(multisets: updatedMultisets));
     }
   }
 
-  Widget _buildSetRestRow() {
-    return SizedBox(
-      height: 48,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(tr('exercise_set_rest'),
-              style: const TextStyle(color: AppColors.lightBlack)),
-          Row(
-            children: [
-              SmallTextFieldWidget(controller: _controllers['setRestMinutes']!),
-              const Text(' : ', style: TextStyle(fontSize: 20)),
-              SmallTextFieldWidget(controller: _controllers['setRestSeconds']!),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
+  // Widget _buildSetRestRow() {
+  //   return SizedBox(
+  //     height: 48,
+  //     child: Row(
+  //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //       children: [
+  //         Text(tr('exercise_set_rest'),
+  //             style: const TextStyle(color: AppColors.lightBlack)),
+  //         Row(
+  //           children: [
+  //             SmallTextFieldWidget(controller: _controllers['setRestMinutes']!),
+  //             const Text(' : ', style: TextStyle(fontSize: 20)),
+  //             SmallTextFieldWidget(controller: _controllers['setRestSeconds']!),
+  //           ],
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
-  Widget _buildExerciseRestRow() {
-    return SizedBox(
-      height: 48,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(tr('exercise_exercise_rest'),
-              style: const TextStyle(color: AppColors.lightBlack)),
-          Row(
-            children: [
-              SmallTextFieldWidget(
-                  controller: _controllers['exerciseRestMinutes']!),
-              const Text(' : ', style: TextStyle(fontSize: 20)),
-              SmallTextFieldWidget(
-                  controller: _controllers['exerciseRestSeconds']!),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
+  // Widget _buildExerciseRestRow() {
+  //   return SizedBox(
+  //     height: 48,
+  //     child: Row(
+  //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //       children: [
+  //         Text(tr('exercise_exercise_rest'),
+  //             style: const TextStyle(color: AppColors.lightBlack)),
+  //         Row(
+  //           children: [
+  //             SmallTextFieldWidget(
+  //                 controller: _controllers['exerciseRestMinutes']!),
+  //             const Text(' : ', style: TextStyle(fontSize: 20)),
+  //             SmallTextFieldWidget(
+  //                 controller: _controllers['exerciseRestSeconds']!),
+  //           ],
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 }

@@ -402,8 +402,18 @@ class _MultisetRunExerciseWidgetState extends State<MultisetRunExerciseWidget> {
 
       updatedTrainingExercisesList[index] = updatedExercise;
 
-      bloc.add(UpdateSelectedTrainingProperty(
-          trainingExercises: updatedTrainingExercisesList));
+      final updatedMultiset = currentState.selectedTraining!.multisets
+          .firstWhere((multiset) => multiset.key == widget.multisetKey)
+          .copyWith(trainingExercises: updatedTrainingExercisesList);
+
+      final updatedMultisets =
+          List<Multiset>.from(currentState.selectedTraining!.multisets);
+
+      updatedMultisets
+          .removeWhere((multiset) => multiset.key == widget.multisetKey);
+      updatedMultisets.add(updatedMultiset);
+
+      bloc.add(UpdateSelectedTrainingProperty(multisets: updatedMultisets));
     }
   }
 

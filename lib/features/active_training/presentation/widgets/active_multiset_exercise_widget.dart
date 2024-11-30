@@ -7,6 +7,7 @@ import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_fitness_tracker/features/active_training/presentation/widgets/timer_widget.dart';
+import 'package:my_fitness_tracker/features/training_management/domain/entities/multiset.dart';
 
 import '../../../../assets/app_colors.dart';
 import '../../../exercise_management/domain/entities/exercise.dart';
@@ -14,21 +15,31 @@ import '../../../exercise_management/presentation/bloc/exercise_management_bloc.
 import '../../../training_management/domain/entities/training_exercise.dart';
 import '../../../training_management/presentation/widgets/small_text_field_widget.dart';
 
-class ActiveExerciseWidget extends StatefulWidget {
+String _formatDuration(int? seconds) {
+  final minutes = (seconds ?? 0) ~/ 60;
+  final remainingSeconds = (seconds ?? 0) % 60;
+  return '$minutes:${remainingSeconds.toString().padLeft(2, '0')}';
+}
+
+class ActiveMultisetExerciseWidget extends StatefulWidget {
+  final Multiset multiset;
   final TrainingExercise tExercise;
   final GlobalKey<TimerWidgetState> timerWidgetKey;
   final bool isLast;
-  const ActiveExerciseWidget(
+  const ActiveMultisetExerciseWidget(
       {super.key,
+      required this.multiset,
       required this.tExercise,
       required this.timerWidgetKey,
       required this.isLast});
 
   @override
-  State<ActiveExerciseWidget> createState() => _ActiveExerciseWidgetState();
+  State<ActiveMultisetExerciseWidget> createState() =>
+      _ActiveMultisetExerciseWidgetState();
 }
 
-class _ActiveExerciseWidgetState extends State<ActiveExerciseWidget> {
+class _ActiveMultisetExerciseWidgetState
+    extends State<ActiveMultisetExerciseWidget> {
   Timer? _debounceTimer;
   late final Map<String, TextEditingController>? _controllers;
 
@@ -39,10 +50,13 @@ class _ActiveExerciseWidgetState extends State<ActiveExerciseWidget> {
     super.initState();
   }
 
-  String _formatDuration(int? seconds) {
-    final minutes = (seconds ?? 0) ~/ 60;
-    final remainingSeconds = (seconds ?? 0) % 60;
-    return '$minutes:${remainingSeconds.toString().padLeft(2, '0')}';
+  @override
+  void dispose() {
+    _debounceTimer?.cancel();
+    for (var controller in _controllers!.values) {
+      controller.dispose();
+    }
+    super.dispose();
   }
 
   void _initializeControllers() {
@@ -58,15 +72,6 @@ class _ActiveExerciseWidgetState extends State<ActiveExerciseWidget> {
     });
   }
 
-  @override
-  void dispose() {
-    _debounceTimer?.cancel();
-    for (var controller in _controllers!.values) {
-      controller.dispose();
-    }
-    super.dispose();
-  }
-
   void _updateBloc(String key) {}
 
   void _debounce(Function() action,
@@ -77,52 +82,11 @@ class _ActiveExerciseWidgetState extends State<ActiveExerciseWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ExerciseManagementBloc, ExerciseManagementState>(
-      builder: (context, exerciseBlocState) {
-        final matchingExercise = exerciseBlocState is ExerciseManagementLoaded
-            ? exerciseBlocState.exercises
-                .firstWhereOrNull((e) => e.id == widget.tExercise.exerciseId)
-            : null;
-
-        return Column(
-          children: [
-            _buildExerciseDetails(matchingExercise, context),
-            _buildExerciseRest(),
-          ],
-        );
-      },
-    );
-  }
-
-  Row _buildExerciseRest() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        if (!widget.isLast)
-          const Icon(
-            Icons.snooze,
-            size: 20,
-          ),
-        if (!widget.isLast) const SizedBox(width: 5),
-        if (!widget.isLast)
-          Text(
-            widget.tExercise.exerciseRest != null
-                ? _formatDuration(widget.tExercise.exerciseRest)
-                : '0:00',
-          ),
-        if (widget.isLast) Text(tr('active_training_end')),
-      ],
-    );
-  }
-
-  Container _buildExerciseDetails(
-      Exercise? matchingExercise, BuildContext context) {
     final hasSpecialInstructions =
         widget.tExercise.specialInstructions != null &&
             widget.tExercise.specialInstructions!.isNotEmpty;
     final hasObjectives = widget.tExercise.objectives != null &&
         widget.tExercise.objectives!.isNotEmpty;
-
     return Container(
       margin: const EdgeInsets.only(top: 10, bottom: 10),
       padding: const EdgeInsets.all(10),
@@ -131,103 +95,48 @@ class _ActiveExerciseWidgetState extends State<ActiveExerciseWidget> {
         border: Border.all(color: AppColors.lightBlack),
         borderRadius: BorderRadius.circular(15),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 10),
-          ExpandablePanel(
-            header: _buildExpandableHeader(matchingExercise),
-            collapsed: const SizedBox(),
-            expanded: _buildExpandedContent(matchingExercise, context),
-            theme: const ExpandableThemeData(
-              hasIcon: false,
-              tapHeaderToExpand: true,
-            ),
-          ),
-          const SizedBox(height: 10),
-          if (hasSpecialInstructions)
-            _buildOptionalInfo(
-              title: 'global_special_instructions',
-              content: widget.tExercise.specialInstructions,
-              context: context,
-            ),
-          if (hasObjectives)
-            _buildOptionalInfo(
-              title: 'global_objectives',
-              content: widget.tExercise.objectives,
-              context: context,
-            ),
-          if (hasSpecialInstructions || hasObjectives) ...[
-            const Divider(),
+      child: BlocBuilder<ExerciseManagementBloc, ExerciseManagementState>(
+          builder: (context, exerciseBlocState) {
+        final matchingExercise = exerciseBlocState is ExerciseManagementLoaded
+            ? exerciseBlocState.exercises
+                .firstWhereOrNull((e) => e.id == widget.tExercise.exerciseId)
+            : null;
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
             const SizedBox(height: 10),
-          ],
-          const SizedBox(height: 10),
-          _buildSets(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildOptionalInfo({
-    required String title,
-    required String? content,
-    required BuildContext context,
-  }) {
-    if (content == null || content.isEmpty) return const SizedBox.shrink();
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          tr(title),
-          style: const TextStyle(color: AppColors.lightBlack),
-        ),
-        Text(
-          content,
-          style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                color: AppColors.lightBlack,
+            ExpandablePanel(
+              header: _buildExpandableHeader(matchingExercise),
+              collapsed: const SizedBox(),
+              expanded: _buildExpandedContent(matchingExercise, context),
+              theme: const ExpandableThemeData(
+                hasIcon: false,
+                tapHeaderToExpand: true,
               ),
-        ),
-        const SizedBox(height: 10),
-      ],
-    );
-  }
-
-  ListView _buildSets() {
-    final isSetsInReps = widget.tExercise.isSetsInReps ?? true;
-    final setDuration = widget.tExercise.duration ?? 0;
-
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: widget.tExercise.sets ?? 0,
-      itemBuilder: (context, index) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(vertical: 5),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Set ${index + 1}',
-                style: const TextStyle(color: AppColors.lightBlack),
+            ),
+            const SizedBox(height: 10),
+            if (hasSpecialInstructions)
+              _buildOptionalInfo(
+                title: 'global_special_instructions',
+                content: widget.tExercise.specialInstructions,
+                context: context,
               ),
-              isSetsInReps
-                  ? ActiveExerciseRow(
-                      controller: _controllers!['set${index + 1}']!,
-                      tExercise: widget.tExercise,
-                      timerWidgetKey: widget.timerWidgetKey,
-                      isLastSet: widget.tExercise.sets == index + 1,
-                    )
-                  : ActiveExerciseDurationRow(
-                      controller: _controllers!['set${index + 1}']!,
-                      tExercise: widget.tExercise,
-                      timerWidgetKey: widget.timerWidgetKey,
-                      isLastSet: widget.tExercise.sets == index + 1,
-                      setDuration: _formatDuration(setDuration),
-                    )
+            if (hasObjectives)
+              _buildOptionalInfo(
+                title: 'global_objectives',
+                content: widget.tExercise.objectives,
+                context: context,
+              ),
+            if (hasSpecialInstructions || hasObjectives) ...[
+              const Divider(),
+              const SizedBox(height: 10),
             ],
-          ),
+            const SizedBox(height: 10),
+            _buildSets(),
+          ],
         );
-      },
+      }),
     );
   }
 
@@ -313,45 +222,105 @@ class _ActiveExerciseWidgetState extends State<ActiveExerciseWidget> {
                 ),
               ],
             ),
-            Row(
-              children: [
-                const Icon(
-                  Icons.snooze,
-                  size: 20,
-                ),
-                const SizedBox(width: 5),
-                Text(
-                  widget.tExercise.setRest != null
-                      ? _formatDuration(widget.tExercise.exerciseRest)
-                      : '0:00',
-                ),
-                const SizedBox(width: 10),
-                Icon(
-                  controller?.expanded == true
-                      ? Icons.keyboard_arrow_up
-                      : Icons.keyboard_arrow_down,
-                ),
-              ],
+            Icon(
+              controller?.expanded == true
+                  ? Icons.keyboard_arrow_up
+                  : Icons.keyboard_arrow_down,
             ),
           ],
         );
       },
     );
   }
+
+  ListView _buildSets() {
+    final isSetsInReps = widget.tExercise.isSetsInReps ?? true;
+    final setDuration = widget.tExercise.duration ?? 0;
+
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: widget.multiset.sets ?? 0,
+      itemBuilder: (context, index) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 5),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Set ${index + 1}',
+                style: const TextStyle(color: AppColors.lightBlack),
+              ),
+              isSetsInReps
+                  ? ActiveExerciseRow(
+                      controller: _controllers!['set${index + 1}']!,
+                      tExercise: widget.tExercise,
+                      multiset: widget.multiset,
+                      timerWidgetKey: widget.timerWidgetKey,
+                      isLastSet: widget.multiset.sets == index + 1,
+                      isLastExercise:
+                          widget.multiset.trainingExercises!.length ==
+                              widget.tExercise.position! + 1,
+                    )
+                  : ActiveExerciseDurationRow(
+                      controller: _controllers!['set${index + 1}']!,
+                      tExercise: widget.tExercise,
+                      multiset: widget.multiset,
+                      timerWidgetKey: widget.timerWidgetKey,
+                      isLastSet: widget.multiset.sets == index + 1,
+                      isLastExercise:
+                          widget.multiset.trainingExercises!.length ==
+                              widget.tExercise.position! + 1,
+                      setDuration: _formatDuration(setDuration),
+                    )
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+Widget _buildOptionalInfo({
+  required String title,
+  required String? content,
+  required BuildContext context,
+}) {
+  if (content == null || content.isEmpty) return const SizedBox.shrink();
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(
+        tr(title),
+        style: const TextStyle(color: AppColors.lightBlack),
+      ),
+      Text(
+        content,
+        style: Theme.of(context).textTheme.bodySmall!.copyWith(
+              color: AppColors.lightBlack,
+            ),
+      ),
+      const SizedBox(height: 10),
+    ],
+  );
 }
 
 class ActiveExerciseRow extends StatefulWidget {
   final TrainingExercise tExercise;
+  final Multiset multiset;
   final GlobalKey<TimerWidgetState> timerWidgetKey;
   final bool isLastSet;
+  final bool isLastExercise;
   final TextEditingController controller;
 
   const ActiveExerciseRow({
     super.key,
     required this.controller,
     required this.tExercise,
+    required this.multiset,
     required this.timerWidgetKey,
     required this.isLastSet,
+    required this.isLastExercise,
   });
 
   @override
@@ -372,12 +341,14 @@ class ActiveExerciseRowState extends State<ActiveExerciseRow> {
         const SizedBox(width: 10),
         GestureDetector(
           onTap: () {
-            widget.timerWidgetKey.currentState?.resetSecondaryTimer();
-            widget.isLastSet
-                ? widget.timerWidgetKey.currentState
-                    ?.startSecondaryTimer(widget.tExercise.exerciseRest ?? 0)
-                : widget.timerWidgetKey.currentState
-                    ?.startSecondaryTimer(widget.tExercise.setRest ?? 0);
+            if (widget.isLastExercise) {
+              widget.timerWidgetKey.currentState?.resetSecondaryTimer();
+              widget.isLastSet
+                  ? widget.timerWidgetKey.currentState
+                      ?.startSecondaryTimer(widget.multiset.multisetRest ?? 0)
+                  : widget.timerWidgetKey.currentState
+                      ?.startSecondaryTimer(widget.multiset.setRest ?? 0);
+            }
             setState(() {
               isClicked = true;
             });
@@ -394,16 +365,20 @@ class ActiveExerciseRowState extends State<ActiveExerciseRow> {
 
 class ActiveExerciseDurationRow extends StatefulWidget {
   final TrainingExercise tExercise;
+  final Multiset multiset;
   final GlobalKey<TimerWidgetState> timerWidgetKey;
   final bool isLastSet;
+  final bool isLastExercise;
   final TextEditingController controller;
   final String setDuration;
   const ActiveExerciseDurationRow({
     super.key,
     required this.controller,
     required this.tExercise,
+    required this.multiset,
     required this.timerWidgetKey,
     required this.isLastSet,
+    required this.isLastExercise,
     required this.setDuration,
   });
 
@@ -423,15 +398,20 @@ class _ActiveExerciseDurationRowState extends State<ActiveExerciseDurationRow> {
           widget.timerWidgetKey.currentState?.resetSecondaryTimer();
           widget.isLastSet
               ? widget.timerWidgetKey.currentState
-                  ?.startSecondaryTimer(widget.tExercise.exerciseRest ?? 0)
+                  ?.startSecondaryTimer(widget.multiset.multisetRest ?? 0)
               : widget.timerWidgetKey.currentState
-                  ?.startSecondaryTimer(widget.tExercise.setRest ?? 0);
+                  ?.startSecondaryTimer(widget.multiset.setRest ?? 0);
         }
 
         widget.timerWidgetKey.currentState?.resetSecondaryTimer();
-        widget.timerWidgetKey.currentState?.startSecondaryTimer(
-            widget.tExercise.duration ?? 0,
-            onComplete: startRestAfterDuration);
+        if (widget.isLastExercise) {
+          widget.timerWidgetKey.currentState?.startSecondaryTimer(
+              widget.tExercise.duration ?? 0,
+              onComplete: startRestAfterDuration);
+        } else {
+          widget.timerWidgetKey.currentState
+              ?.startSecondaryTimer(widget.tExercise.duration ?? 0);
+        }
 
         setState(() {
           isClicked = true;

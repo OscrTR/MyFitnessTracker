@@ -32,7 +32,7 @@ class TimerWidgetState extends State<TimerWidget> {
     _initializeSecondaryTimer(widget.initialSecondaryTimerDuration ?? 0);
   }
 
-  void _initializeSecondaryTimer(int duration) {
+  void _initializeSecondaryTimer(int duration, {VoidCallback? onComplete}) {
     secondaryTimerValue = duration;
     secondaryTimer = PausableTimer.periodic(
       const Duration(seconds: 1),
@@ -43,16 +43,17 @@ class TimerWidgetState extends State<TimerWidget> {
           });
         } else {
           secondaryTimer?.cancel();
+          if (onComplete != null) onComplete();
         }
       },
     );
   }
 
-  void startSecondaryTimer(int duration) {
+  void startSecondaryTimer(int duration, {VoidCallback? onComplete}) {
     if (secondaryTimer != null) {
       secondaryTimer?.cancel();
     }
-    _initializeSecondaryTimer(duration);
+    _initializeSecondaryTimer(duration, onComplete: onComplete);
     globalTimer.start();
     secondaryTimer?.start();
   }
