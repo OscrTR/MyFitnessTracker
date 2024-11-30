@@ -113,12 +113,8 @@ class TimerWidgetState extends State<TimerWidget> {
                   width: secondaryTimer != null && secondaryTimerValue > 0
                       ? 70
                       : 140,
-                  child: Text(
-                    _formatTime(globalTimerValue),
-                    style: secondaryTimer != null && secondaryTimerValue > 0
-                        ? Theme.of(context).textTheme.bodySmall
-                        : Theme.of(context).textTheme.displayLarge,
-                  ),
+                  child: Text(_formatTime(globalTimerValue),
+                      style: Theme.of(context).textTheme.bodySmall),
                 ),
                 const SizedBox(width: 10),
                 if (secondaryTimer != null && secondaryTimerValue > 0)
