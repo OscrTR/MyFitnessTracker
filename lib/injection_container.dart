@@ -1,4 +1,5 @@
 import 'package:get_it/get_it.dart';
+import 'package:my_fitness_tracker/features/active_training/presentation/bloc/active_training_bloc.dart';
 import 'features/training_management/domain/usecases/create_training.dart';
 import 'features/training_management/domain/usecases/delete_training.dart';
 import 'features/training_management/domain/usecases/get_training.dart';
@@ -85,6 +86,10 @@ Future<void> init() async {
   // Data sources
   sl.registerLazySingleton<TrainingLocalDataSource>(
       () => SQLiteTrainingLocalDataSource(database: sl()));
+
+  //! Features - Training Management
+  // Bloc
+  sl.registerFactory(() => ActiveTrainingBloc());
 
   // External
 }

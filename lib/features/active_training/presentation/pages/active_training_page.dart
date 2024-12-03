@@ -3,6 +3,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_fitness_tracker/features/active_training/presentation/widgets/active_multiset_widget.dart';
+import 'package:my_fitness_tracker/features/active_training/presentation/widgets/active_run_widget.dart';
 import 'package:my_fitness_tracker/features/active_training/presentation/widgets/timer_widget.dart';
 
 import 'package:my_fitness_tracker/features/training_management/domain/entities/training_exercise.dart';
@@ -108,7 +109,10 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage> {
           final isLast = index == items.length - 1;
 
           return exercise.trainingExerciseType == TrainingExerciseType.run
-              ? Text(exercise.id!.toString())
+              ? ActiveRunWidget(
+                  tExercise: exercise,
+                  timerWidgetKey: timerWidgetKey,
+                )
               : ActiveExerciseWidget(
                   tExercise: exercise,
                   timerWidgetKey: timerWidgetKey,

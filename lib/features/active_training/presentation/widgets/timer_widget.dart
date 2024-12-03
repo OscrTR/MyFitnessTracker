@@ -1,77 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_fitness_tracker/assets/app_colors.dart';
-import 'package:pausable_timer/pausable_timer.dart';
+import 'package:my_fitness_tracker/features/active_training/presentation/bloc/active_training_bloc.dart';
 
 class TimerWidget extends StatefulWidget {
   final int? initialSecondaryTimerDuration;
+  final ValueChanged<int>? onSecondaryTimerTick;
 
-  const TimerWidget({super.key, this.initialSecondaryTimerDuration});
+  const TimerWidget(
+      {super.key,
+      this.initialSecondaryTimerDuration,
+      this.onSecondaryTimerTick});
 
   @override
   State<TimerWidget> createState() => TimerWidgetState();
 }
 
 class TimerWidgetState extends State<TimerWidget> {
-  late final PausableTimer globalTimer;
-  late PausableTimer? secondaryTimer;
-  int globalTimerValue = 0;
-  int secondaryTimerValue = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    globalTimer = PausableTimer.periodic(
-      const Duration(seconds: 1),
-      () {
-        setState(() {
-          globalTimerValue++;
-        });
-      },
-    )..start();
-
-    _initializeSecondaryTimer(widget.initialSecondaryTimerDuration ?? 0);
-  }
-
-  void _initializeSecondaryTimer(int duration, {VoidCallback? onComplete}) {
-    secondaryTimerValue = duration;
-    secondaryTimer = PausableTimer.periodic(
-      const Duration(seconds: 1),
-      () {
-        if (secondaryTimerValue > 0) {
-          setState(() {
-            secondaryTimerValue--;
-          });
-        } else {
-          secondaryTimer?.cancel();
-          if (onComplete != null) onComplete();
-        }
-      },
-    );
-  }
-
-  void startSecondaryTimer(int duration, {VoidCallback? onComplete}) {
-    if (secondaryTimer != null) {
-      secondaryTimer?.cancel();
-    }
-    _initializeSecondaryTimer(duration, onComplete: onComplete);
-    globalTimer.start();
-    secondaryTimer?.start();
-  }
-
-  void resetSecondaryTimer() {
-    secondaryTimer?.cancel();
-    setState(() {
-      secondaryTimerValue = 0;
-    });
-  }
-
-  @override
-  void dispose() {
-    globalTimer.cancel();
-    secondaryTimer?.cancel();
-    super.dispose();
-  }
-
   String _formatTime(int seconds, {bool includeHours = true}) {
     final hours = (seconds ~/ 3600).toString().padLeft(2, '0');
     final minutes = ((seconds % 3600) ~/ 60).toString().padLeft(2, '0');
@@ -82,6 +27,14 @@ class TimerWidgetState extends State<TimerWidget> {
     } else {
       return '$minutes:$secs';
     }
+  }
+
+  @override
+  void initState() {
+    context
+        .read<ActiveTrainingBloc>()
+        .add(const StartTimer(timerId: 'primaryTimer'));
+    super.initState();
   }
 
   @override
@@ -105,36 +58,33 @@ class TimerWidgetState extends State<TimerWidget> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Row(
-              children: [
-                // Timer Display
-                Container(
-                  padding: const EdgeInsets.only(top: 3),
-                  width: secondaryTimer != null && secondaryTimerValue > 0
-                      ? 70
-                      : 140,
-                  child: Text(_formatTime(globalTimerValue),
-                      style: Theme.of(context).textTheme.bodySmall),
-                ),
-                const SizedBox(width: 10),
-                if (secondaryTimer != null && secondaryTimerValue > 0)
-                  SizedBox(
-                    child: Text(
-                      _formatTime(secondaryTimerValue, includeHours: false),
+            BlocBuilder<ActiveTrainingBloc, ActiveTrainingState>(
+                builder: (context, state) {
+              if (state is ActiveTrainingLoaded) {
+                final primaryTimerValue = state.timers['primaryTimer'] ?? 0;
+                final secondaryTimerValue = state.timers['secondaryTimer'] ?? 0;
+                return Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.only(top: 3),
+                      width: 70,
+                      child: Text(_formatTime(primaryTimerValue),
+                          style: Theme.of(context).textTheme.bodySmall),
+                    ),
+                    const SizedBox(width: 10),
+                    Text(
+                      _formatTime(secondaryTimerValue),
                       style: Theme.of(context).textTheme.displayLarge,
                     ),
-                  ),
-              ],
-            ),
+                  ],
+                );
+              }
+              return const SizedBox();
+            }),
             GestureDetector(
               onTap: () {
-                if (globalTimer.isPaused) {
-                  globalTimer.start();
-                  secondaryTimer?.start();
-                } else {
-                  globalTimer.pause();
-                  secondaryTimer?.pause();
-                }
+                context.read<ActiveTrainingBloc>().add(const PauseTimer(null));
+
                 setState(() {}); // Reflect timer status change
               },
               child: Container(
@@ -143,10 +93,20 @@ class TimerWidgetState extends State<TimerWidget> {
                 decoration: BoxDecoration(
                     color: AppColors.black,
                     borderRadius: BorderRadius.circular(999)),
-                child: Icon(
-                  globalTimer.isPaused ? Icons.play_arrow : Icons.pause,
-                  color: AppColors.white,
-                ),
+                child: BlocBuilder<ActiveTrainingBloc, ActiveTrainingState>(
+                    builder: (context, state) {
+                  if (state is ActiveTrainingLoaded) {
+                    return Icon(
+                      state.isPaused ? Icons.play_arrow : Icons.pause,
+                      color: AppColors.white,
+                    );
+                  } else {
+                    return const Icon(
+                      Icons.pause,
+                      color: AppColors.white,
+                    );
+                  }
+                }),
               ),
             )
           ],

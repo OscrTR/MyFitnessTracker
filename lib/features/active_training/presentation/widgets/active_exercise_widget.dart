@@ -6,6 +6,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:my_fitness_tracker/features/active_training/presentation/bloc/active_training_bloc.dart';
 import 'package:my_fitness_tracker/features/active_training/presentation/widgets/timer_widget.dart';
 
 import '../../../../assets/app_colors.dart';
@@ -372,12 +373,17 @@ class ActiveExerciseRowState extends State<ActiveExerciseRow> {
         const SizedBox(width: 10),
         GestureDetector(
           onTap: () {
-            widget.timerWidgetKey.currentState?.resetSecondaryTimer();
             widget.isLastSet
-                ? widget.timerWidgetKey.currentState
-                    ?.startSecondaryTimer(widget.tExercise.exerciseRest ?? 0)
-                : widget.timerWidgetKey.currentState
-                    ?.startSecondaryTimer(widget.tExercise.setRest ?? 0);
+                ? context.read<ActiveTrainingBloc>().add(StartTimer(
+                      timerId: 'secondaryTimer',
+                      duration: widget.tExercise.exerciseRest ?? 0,
+                      isCountDown: true,
+                    ))
+                : context.read<ActiveTrainingBloc>().add(StartTimer(
+                      timerId: 'secondaryTimer',
+                      duration: widget.tExercise.setRest ?? 0,
+                      isCountDown: true,
+                    ));
             setState(() {
               isClicked = true;
             });
@@ -420,18 +426,24 @@ class _ActiveExerciseDurationRowState extends State<ActiveExerciseDurationRow> {
     return GestureDetector(
       onTap: () {
         void startRestAfterDuration() {
-          widget.timerWidgetKey.currentState?.resetSecondaryTimer();
           widget.isLastSet
-              ? widget.timerWidgetKey.currentState
-                  ?.startSecondaryTimer(widget.tExercise.exerciseRest ?? 0)
-              : widget.timerWidgetKey.currentState
-                  ?.startSecondaryTimer(widget.tExercise.setRest ?? 0);
+              ? context.read<ActiveTrainingBloc>().add(StartTimer(
+                    timerId: 'secondaryTimer',
+                    duration: widget.tExercise.exerciseRest ?? 0,
+                    isCountDown: true,
+                  ))
+              : context.read<ActiveTrainingBloc>().add(StartTimer(
+                    timerId: 'secondaryTimer',
+                    duration: widget.tExercise.setRest ?? 0,
+                    isCountDown: true,
+                  ));
         }
 
-        widget.timerWidgetKey.currentState?.resetSecondaryTimer();
-        widget.timerWidgetKey.currentState?.startSecondaryTimer(
-            widget.tExercise.duration ?? 0,
-            onComplete: startRestAfterDuration);
+        context.read<ActiveTrainingBloc>().add(StartTimer(
+            timerId: 'secondaryTimer',
+            duration: widget.tExercise.duration ?? 0,
+            isCountDown: true,
+            onComplete: startRestAfterDuration));
 
         setState(() {
           isClicked = true;
