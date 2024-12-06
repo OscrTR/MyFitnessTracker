@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
@@ -13,7 +15,7 @@ class ActiveTrainingBloc
   ActiveTrainingBloc() : super(ActiveTrainingInitial()) {
     // Initialize the periodic timer
 
-    on<StartTimer>((event, emit) {
+    on<StartTimer>((event, emit) async {
       final currentTimers = state is ActiveTrainingLoaded
           ? (state as ActiveTrainingLoaded).timers
           : {};
@@ -21,10 +23,12 @@ class ActiveTrainingBloc
       // Initialize or reset the timer for the given timerId
       final timerId = event.timerId;
 
-      _timers[timerId]?.cancel(); // Cancel any existing timer for this ID
+      _timers[timerId]?.cancel();
 
       int timerValue =
           event.isCountDown ? event.duration : (currentTimers[timerId] ?? 0);
+
+      final completer = Completer<void>();
 
       final timer = PausableTimer.periodic(
         const Duration(seconds: 1),
@@ -32,16 +36,41 @@ class ActiveTrainingBloc
           if (event.isCountDown) {
             if (timerValue > 0) {
               timerValue--;
-              add(TickSecondaryTimer(timerId: timerId, isCountDown: true));
+              add(TickTimer(timerId: timerId, isCountDown: true));
             } else {
               _timers[timerId]?.cancel();
               if (event.onComplete != null) {
                 event.onComplete!();
               }
+              completer.complete();
             }
           } else {
-            timerValue++;
-            add(TickSecondaryTimer(timerId: timerId));
+            if (event.isDistance) {
+              //TODO: Check if current distance equals to objective
+              // Check if the current distance equals the objective distance
+              //     final currentDistance = getCurrentDistance(timerId); // Replace with your logic
+              // if (currentDistance >= event.duration) {
+              //   _timers[timerId]?.cancel();
+              //   if (event.onComplete != null) {
+              //     event.onComplete!(); // Call onComplete when distance goal is reached
+              //   }
+              // completer.complete();
+            } else {
+              //TODO: check if current duration equals to objective
+              // Check if the current duration equals the objective duration
+
+              if (event.duration > 0 && timerValue >= event.duration) {
+                _timers[timerId]?.cancel();
+                if (event.onComplete != null) {
+                  event
+                      .onComplete!(); // Call onComplete when duration goal is reached
+                }
+                completer.complete();
+              } else {
+                timerValue++;
+                add(TickTimer(timerId: timerId)); // Update the timer value
+              }
+            }
           }
         },
       );
@@ -49,25 +78,51 @@ class ActiveTrainingBloc
       _timers[timerId] = timer;
       timer.start();
 
-      emit(ActiveTrainingLoaded({
-        ...currentTimers,
-        timerId: timerValue,
-      }, false));
+      if (state is ActiveTrainingLoaded) {
+        final currentState = state as ActiveTrainingLoaded;
+        if (timerId != 'primaryTimer' && timerId != 'secondaryTimer') {
+          emit(currentState.copyWith(
+            timers: {
+              ...currentTimers,
+              timerId: timerValue,
+            },
+            activeRunTimer: event.activeRunTimer,
+          ));
+        } else {
+          emit(currentState.copyWith(
+            timers: {
+              ...currentTimers,
+              timerId: timerValue,
+            },
+            activeRunTimer: event.activeRunTimer,
+          ));
+        }
+      } else {
+        emit(ActiveTrainingLoaded({
+          ...currentTimers,
+          timerId: timerValue,
+        }, false, event.activeRunTimer));
+      }
+      await completer.future;
     });
 
-    on<TickSecondaryTimer>((event, emit) {
+    on<TickTimer>((event, emit) {
       if (state is ActiveTrainingLoaded) {
-        final currentTimers = (state as ActiveTrainingLoaded).timers;
+        final currentState = state as ActiveTrainingLoaded;
+        final currentTimers = currentState.timers;
         final timerId = event.timerId;
 
         if (!currentTimers.containsKey(timerId)) return;
-
-        emit(ActiveTrainingLoaded({
-          ...currentTimers,
-          timerId: event.isCountDown
-              ? currentTimers[timerId]! - 1
-              : currentTimers[timerId]! + 1,
-        }, (state as ActiveTrainingLoaded).isPaused));
+        emit(
+          currentState.copyWith(
+            timers: {
+              ...currentTimers,
+              timerId: event.isCountDown
+                  ? currentTimers[timerId]! - 1
+                  : currentTimers[timerId]! + 1,
+            },
+          ),
+        );
       }
     });
 
@@ -75,17 +130,29 @@ class ActiveTrainingBloc
       final currentState = state as ActiveTrainingLoaded;
 
       if (currentState.isPaused) {
-        if (_timers[event.timerId] != null) {
-          _timers[event.timerId]?.start();
-        }
         _timers['primaryTimer']?.start();
         _timers['secondaryTimer']?.start();
         emit(currentState.copyWith(isPaused: false));
       } else {
-        _timers[event.timerId]?.pause();
         _timers['primaryTimer']?.pause();
         _timers['secondaryTimer']?.pause();
         emit(currentState.copyWith(isPaused: true));
+      }
+    });
+
+    on<ResetSecondaryTimer>((event, emit) {
+      if (state is ActiveTrainingLoaded) {
+        final currentState = state as ActiveTrainingLoaded;
+        final currentTimers = currentState.timers;
+
+        _timers['secondaryTimer']?.cancel();
+
+        final updatedTimers = Map<String, int>.from(currentTimers);
+        updatedTimers['secondaryTimer'] = 0;
+
+        emit(currentState.copyWith(
+          timers: updatedTimers,
+        ));
       }
     });
   }

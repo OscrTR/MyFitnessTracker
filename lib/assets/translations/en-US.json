@@ -40,6 +40,7 @@
   "exercise_sets": "Sets",
   "exercise_reps": "Reps",
   "exercise_set_rest": "Set rest",
+  "exercise_interval_rest": "Interval rest",
   "exercise_exercise_rest": "Exercise rest",
   "exercise_multiset_rest": "Multiset rest",
   "exercise_unknown": "Unknown exercise",

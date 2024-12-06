@@ -36,6 +36,10 @@ class _RunExerciseWidgetState extends State<RunExerciseWidget> {
     'intervalDistance': TextEditingController(),
     'intervalMinutes': TextEditingController(),
     'intervalSeconds': TextEditingController(),
+    'setRestMinutes': TextEditingController(),
+    'setRestSeconds': TextEditingController(),
+    'exerciseRestMinutes': TextEditingController(),
+    'exerciseRestSeconds': TextEditingController(),
   };
 
   @override
@@ -69,14 +73,14 @@ class _RunExerciseWidgetState extends State<RunExerciseWidget> {
       _controllers['distance']?.text = (exercise.targetDistance != null
           ? (exercise.targetDistance! ~/ 1000).toString()
           : '');
-      _controllers['durationHours']?.text = (exercise.duration != null
-          ? (exercise.duration! ~/ 3600).toString()
+      _controllers['durationHours']?.text = (exercise.targetDuration != null
+          ? (exercise.targetDuration! ~/ 3600).toString()
           : '');
-      _controllers['durationMinutes']?.text = (exercise.duration != null
-          ? (exercise.duration! % 3600 ~/ 60).toString()
+      _controllers['durationMinutes']?.text = (exercise.targetDuration != null
+          ? (exercise.targetDuration! % 3600 ~/ 60).toString()
           : '');
-      _controllers['durationSeconds']?.text = (exercise.duration != null
-          ? (exercise.duration! % 60).toString()
+      _controllers['durationSeconds']?.text = (exercise.targetDuration != null
+          ? (exercise.targetDuration! % 60).toString()
           : '');
       _controllers['intervals']?.text = exercise.intervals?.toString() ?? '';
       _controllers['rythmMinutes']?.text = (exercise.targetRythm != null
@@ -94,6 +98,17 @@ class _RunExerciseWidgetState extends State<RunExerciseWidget> {
           : '');
       _controllers['intervalSeconds']?.text = (exercise.intervalDuration != null
           ? (exercise.intervalDuration! % 60).toString()
+          : '');
+      _controllers['setRestMinutes']?.text = (exercise.setRest != null
+          ? (exercise.setRest! % 3600 ~/ 60).toString()
+          : '');
+      _controllers['setRestSeconds']?.text =
+          (exercise.setRest != null ? (exercise.setRest! % 60).toString() : '');
+      _controllers['exerciseRestMinutes']?.text = (exercise.exerciseRest != null
+          ? (exercise.exerciseRest! % 3600 ~/ 60).toString()
+          : '');
+      _controllers['exerciseRestSeconds']?.text = (exercise.exerciseRest != null
+          ? (exercise.exerciseRest! % 60).toString()
           : '');
     }
   }
@@ -177,6 +192,23 @@ class _RunExerciseWidgetState extends State<RunExerciseWidget> {
           objectives: key == 'objectives'
               ? _controllers['objectives']?.text ?? ''
               : null,
+          setRest: key == 'setRestMinutes' || key == 'setRestSeconds'
+              ? ((int.tryParse(_controllers['setRestMinutes']?.text ?? '') ??
+                          0) *
+                      60) +
+                  ((int.tryParse(_controllers['setRestSeconds']?.text ?? '') ??
+                      0))
+              : null,
+          exerciseRest: key == 'exerciseRestMinutes' ||
+                  key == 'exerciseRestSeconds'
+              ? ((int.tryParse(_controllers['exerciseRestMinutes']?.text ??
+                              '') ??
+                          0) *
+                      60) +
+                  ((int.tryParse(
+                          _controllers['exerciseRestSeconds']?.text ?? '') ??
+                      0))
+              : null,
         );
 
         updatedTrainingExercisesList[index] = updatedExercise;
@@ -209,6 +241,8 @@ class _RunExerciseWidgetState extends State<RunExerciseWidget> {
           _buildTargetChoiceOptions(),
           _buildIntervalsChoiceOptions(),
           _buildTargetRythm(),
+          _buildSetRestRow(),
+          _buildExerciseRestRow(),
           const SizedBox(height: 10),
           BigTextFieldWidget(
               controller: _controllers['specialInstructions']!,
@@ -230,6 +264,48 @@ class _RunExerciseWidgetState extends State<RunExerciseWidget> {
             style: const TextStyle(color: AppColors.lightBlack)),
         MoreWidget(exerciseKey: widget.exerciseKey),
       ],
+    );
+  }
+
+  Widget _buildExerciseRestRow() {
+    return SizedBox(
+      height: 48,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(tr('exercise_exercise_rest'),
+              style: const TextStyle(color: AppColors.lightBlack)),
+          Row(
+            children: [
+              SmallTextFieldWidget(
+                  controller: _controllers['exerciseRestMinutes']!),
+              const Text(' : ', style: TextStyle(fontSize: 20)),
+              SmallTextFieldWidget(
+                  controller: _controllers['exerciseRestSeconds']!),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSetRestRow() {
+    return SizedBox(
+      height: 48,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(tr('exercise_interval_rest'),
+              style: const TextStyle(color: AppColors.lightBlack)),
+          Row(
+            children: [
+              SmallTextFieldWidget(controller: _controllers['setRestMinutes']!),
+              const Text(' : ', style: TextStyle(fontSize: 20)),
+              SmallTextFieldWidget(controller: _controllers['setRestSeconds']!),
+            ],
+          ),
+        ],
+      ),
     );
   }
 

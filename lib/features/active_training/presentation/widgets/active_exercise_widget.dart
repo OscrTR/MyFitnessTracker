@@ -323,7 +323,7 @@ class _ActiveExerciseWidgetState extends State<ActiveExerciseWidget> {
                 const SizedBox(width: 5),
                 Text(
                   widget.tExercise.setRest != null
-                      ? _formatDuration(widget.tExercise.exerciseRest)
+                      ? _formatDuration(widget.tExercise.setRest)
                       : '0:00',
                 ),
                 const SizedBox(width: 10),

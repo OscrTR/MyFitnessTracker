@@ -40,6 +40,7 @@
   "exercise_sets": "Sets",
   "exercise_reps": "Reps",
   "exercise_set_rest": "Repos set",
+  "exercise_interval_rest": "Repos intervalle",
   "exercise_exercise_rest": "Repos exercice",
   "exercise_multiset_rest": "Repos multiset",
   "exercise_unknown": "Exercice inconnu",

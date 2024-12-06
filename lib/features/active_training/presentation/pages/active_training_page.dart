@@ -112,6 +112,7 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage> {
               ? ActiveRunWidget(
                   tExercise: exercise,
                   timerWidgetKey: timerWidgetKey,
+                  isLast: isLast,
                 )
               : ActiveExerciseWidget(
                   tExercise: exercise,

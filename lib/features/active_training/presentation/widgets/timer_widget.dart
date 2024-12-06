@@ -83,7 +83,7 @@ class TimerWidgetState extends State<TimerWidget> {
             }),
             GestureDetector(
               onTap: () {
-                context.read<ActiveTrainingBloc>().add(const PauseTimer(null));
+                context.read<ActiveTrainingBloc>().add(PauseTimer());
 
                 setState(() {}); // Reflect timer status change
               },

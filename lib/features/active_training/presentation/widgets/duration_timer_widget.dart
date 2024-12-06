@@ -12,14 +12,15 @@ String _formatTime(int seconds, {bool includeHours = true}) {
 }
 
 class DurationTimerWidget extends StatefulWidget {
-  final String timerId;
-  const DurationTimerWidget({super.key, required this.timerId});
+  final String activeRunId;
+  const DurationTimerWidget({super.key, required this.activeRunId});
 
   @override
   State<DurationTimerWidget> createState() => DurationTimerWidgetState();
 }
 
 class DurationTimerWidgetState extends State<DurationTimerWidget> {
+  int timerValue = 0;
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -30,7 +31,11 @@ class DurationTimerWidgetState extends State<DurationTimerWidget> {
           BlocBuilder<ActiveTrainingBloc, ActiveTrainingState>(
               builder: (context, state) {
             if (state is ActiveTrainingLoaded) {
-              final timerValue = state.timers[widget.timerId] ?? 0;
+              // print((state as ActiveTrainingLoaded).activeRunTimer);
+              // print(widget.activeRunId);
+              if (state.activeRunTimer == widget.activeRunId) {
+                timerValue = state.timers['secondaryTimer'] ?? 0;
+              }
               return Text(
                 _formatTime(timerValue),
                 style: const TextStyle(color: AppColors.lightBlack),
