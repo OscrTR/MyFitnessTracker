@@ -31,8 +31,6 @@ class DurationTimerWidgetState extends State<DurationTimerWidget> {
           BlocBuilder<ActiveTrainingBloc, ActiveTrainingState>(
               builder: (context, state) {
             if (state is ActiveTrainingLoaded) {
-              // print((state as ActiveTrainingLoaded).activeRunTimer);
-              // print(widget.activeRunId);
               if (state.activeRunTimer == widget.activeRunId) {
                 timerValue = state.timers['secondaryTimer'] ?? 0;
               }

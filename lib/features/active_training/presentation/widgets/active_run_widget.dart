@@ -366,9 +366,14 @@ class _IntervalWidgetState extends State<IntervalWidget> {
               if (!isClicked) {
                 context.read<ActiveTrainingBloc>().add(ResetSecondaryTimer());
                 context.read<ActiveTrainingBloc>().add(StartTimer(
-                    timerId: 'secondaryTimer',
-                    activeRunTimer: timerId,
-                    duration: widget.widget.tExercise.duration ?? 0));
+                      timerId: 'secondaryTimer',
+                      activeRunTimer: timerId,
+                      duration: widget.widget.tExercise.intervalDuration ?? 0,
+                      onComplete: () {
+                        print(
+                            'completed in ${widget.widget.tExercise.intervalDuration} seconds');
+                      },
+                    ));
                 isClicked = true;
                 setState(() {});
               }

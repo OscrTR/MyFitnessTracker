@@ -77,6 +77,9 @@ class ActiveTrainingBloc
 
       _timers[timerId] = timer;
       timer.start();
+      if (_timers['primaryTimer']!.isPaused) {
+        _timers['primaryTimer']?.start();
+      }
 
       if (state is ActiveTrainingLoaded) {
         final currentState = state as ActiveTrainingLoaded;
@@ -87,6 +90,7 @@ class ActiveTrainingBloc
               timerId: timerValue,
             },
             activeRunTimer: event.activeRunTimer,
+            isPaused: false,
           ));
         } else {
           emit(currentState.copyWith(
@@ -95,6 +99,7 @@ class ActiveTrainingBloc
               timerId: timerValue,
             },
             activeRunTimer: event.activeRunTimer,
+            isPaused: false,
           ));
         }
       } else {
