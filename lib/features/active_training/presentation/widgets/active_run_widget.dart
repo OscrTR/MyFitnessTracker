@@ -4,7 +4,9 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_fitness_tracker/features/active_training/presentation/bloc/active_training_bloc.dart';
+import 'package:my_fitness_tracker/features/active_training/presentation/widgets/distance_widget.dart';
 import 'package:my_fitness_tracker/features/active_training/presentation/widgets/duration_timer_widget.dart';
+import 'package:my_fitness_tracker/features/active_training/presentation/widgets/pace_widget.dart';
 import 'package:my_fitness_tracker/features/active_training/presentation/widgets/timer_widget.dart';
 import 'package:my_fitness_tracker/features/training_management/domain/entities/training_exercise.dart';
 import 'package:uuid/uuid.dart';
@@ -88,7 +90,7 @@ class _ActiveRunWidgetState extends State<ActiveRunWidget> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
+                    const Text(
                       'Duration',
                       style: TextStyle(color: AppColors.lightBlack),
                     ),
@@ -97,30 +99,24 @@ class _ActiveRunWidgetState extends State<ActiveRunWidget> {
                     ),
                   ],
                 ),
-                const Row(
+                Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
+                    const Text(
                       'Distance (km)',
                       style: TextStyle(color: AppColors.lightBlack),
                     ),
-                    Text(
-                      '0',
-                      style: TextStyle(color: AppColors.lightBlack),
-                    ),
+                    DistanceWidget(activeRunId: timerId)
                   ],
                 ),
-                const Row(
+                Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
+                    const Text(
                       'Pace (min/km)',
                       style: TextStyle(color: AppColors.lightBlack),
                     ),
-                    Text(
-                      '00:00',
-                      style: TextStyle(color: AppColors.lightBlack),
-                    ),
+                    PaceWidget(activeRunId: timerId),
                   ],
                 ),
                 const SizedBox(height: 10),
@@ -133,9 +129,11 @@ class _ActiveRunWidgetState extends State<ActiveRunWidget> {
                           .read<ActiveTrainingBloc>()
                           .add(ResetSecondaryTimer());
                       context.read<ActiveTrainingBloc>().add(StartTimer(
-                          timerId: 'secondaryTimer',
-                          activeRunTimer: timerId,
-                          duration: widget.tExercise.duration ?? 0));
+                            timerId: 'secondaryTimer',
+                            activeRunTimer: timerId,
+                            duration: widget.tExercise.duration ?? 0,
+                            isRunTimer: true,
+                          ));
                       isClicked = true;
                       setState(() {});
                     }
@@ -327,7 +325,7 @@ class _IntervalWidgetState extends State<IntervalWidget> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
+              const Text(
                 'Duration',
                 style: TextStyle(color: AppColors.lightBlack),
               ),
@@ -369,33 +367,35 @@ class _IntervalWidgetState extends State<IntervalWidget> {
               final isLastInterval =
                   widget.index + 1 == widget.widget.tExercise.intervals;
               if (!isClicked) {
-                final completer = Completer<String>();
+                final intervalCompleter = Completer<String>();
                 bloc.add(ResetSecondaryTimer());
                 bloc.add(StartTimer(
                   timerId: 'secondaryTimer',
                   activeRunTimer: widget.intervalIds[widget.index],
                   duration: widget.widget.tExercise.intervalDuration ?? 0,
-                  completer: completer,
+                  completer: intervalCompleter,
+                  isRunTimer: true,
                 ));
                 isClicked = true;
                 setState(() {});
-                await completer.future;
+                await intervalCompleter.future;
                 bloc.add(ResetSecondaryTimer());
-                final completer2 = Completer<String>();
+                final restCompleter = Completer<String>();
                 bloc.add(StartTimer(
                   timerId: 'secondaryTimer',
                   duration: widget.widget.tExercise.intervalRest ?? 0,
                   isCountDown: true,
                   activeRunTimer: 'secondaryTimer',
-                  completer: completer2,
+                  completer: restCompleter,
                 ));
-                await completer2.future;
+                await restCompleter.future;
                 if (!isLastInterval) {
                   bloc.add(StartTimer(
                     timerId: 'secondaryTimer',
                     activeRunTimer: widget.intervalIds[widget.index + 1],
                     duration: widget.widget.tExercise.intervalDuration ?? 0,
-                    completer: completer,
+                    completer: intervalCompleter,
+                    isRunTimer: true,
                   ));
                 }
               }
@@ -491,30 +491,24 @@ class _IntervalWidgetState2 extends State<IntervalWidget2> {
                             activeRunId: widget.intervalIds[index]),
                       ],
                     ),
-                    const Row(
+                    Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
+                        const Text(
                           'Distance (km)',
                           style: TextStyle(color: AppColors.lightBlack),
                         ),
-                        Text(
-                          '0',
-                          style: TextStyle(color: AppColors.lightBlack),
-                        ),
+                        DistanceWidget(activeRunId: widget.intervalIds[index])
                       ],
                     ),
-                    const Row(
+                    Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
+                        const Text(
                           'Pace (min/km)',
                           style: TextStyle(color: AppColors.lightBlack),
                         ),
-                        Text(
-                          '00:00',
-                          style: TextStyle(color: AppColors.lightBlack),
-                        ),
+                        PaceWidget(activeRunId: widget.intervalIds[index])
                       ],
                     ),
                     if (!isLastInterval)
@@ -560,6 +554,7 @@ class _IntervalWidgetState2 extends State<IntervalWidget2> {
                     activeRunTimer: widget.intervalIds[i],
                     duration: tExercise.intervalDuration ?? 0,
                     completer: intervalCompleter,
+                    isRunTimer: true,
                   ));
                   await intervalCompleter.future;
                   // After interval completion, start rest timer

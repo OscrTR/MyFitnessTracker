@@ -13,25 +13,28 @@ class ActiveTrainingLoaded extends ActiveTrainingState {
   final Map<String, int> timers;
   final bool isPaused;
   final String? activeRunTimer;
+  final double distance;
 
   const ActiveTrainingLoaded(
-    this.timers,
-    this.isPaused,
-    this.activeRunTimer,
-  );
+      {required this.timers,
+      this.isPaused = false,
+      this.activeRunTimer,
+      this.distance = 0});
 
   ActiveTrainingLoaded copyWith({
     Map<String, int>? timers,
     bool? isPaused,
     String? activeRunTimer,
+    double? distance,
   }) {
     return ActiveTrainingLoaded(
-      timers ?? this.timers,
-      isPaused ?? this.isPaused,
-      activeRunTimer ?? this.activeRunTimer,
+      timers: timers ?? this.timers,
+      isPaused: isPaused ?? this.isPaused,
+      activeRunTimer: activeRunTimer ?? this.activeRunTimer,
+      distance: distance ?? this.distance,
     );
   }
 
   @override
-  List<Object?> get props => [timers, isPaused, activeRunTimer];
+  List<Object?> get props => [timers, isPaused, activeRunTimer, distance];
 }

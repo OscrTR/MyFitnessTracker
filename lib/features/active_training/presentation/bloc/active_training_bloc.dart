@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:pausable_timer/pausable_timer.dart';
 
 part 'active_training_event.dart';
@@ -10,6 +11,8 @@ part 'active_training_state.dart';
 class ActiveTrainingBloc
     extends Bloc<ActiveTrainingEvent, ActiveTrainingState> {
   final Map<String, PausableTimer> _timers = {};
+  final RunTracker _runTracker = RunTracker();
+  double _distance = 0.0;
 
   ActiveTrainingBloc() : super(ActiveTrainingInitial()) {
     on<StartTimer>((event, emit) async {
@@ -19,6 +22,10 @@ class ActiveTrainingBloc
 
       final timerId = event.timerId;
       _timers[timerId]?.cancel();
+      if (event.isRunTimer) {
+        _runTracker.stopTracking();
+        _runTracker.startTracking();
+      }
 
       int timerValue =
           event.isCountDown ? event.duration : (currentTimers[timerId] ?? 0);
@@ -29,9 +36,18 @@ class ActiveTrainingBloc
           if (event.isCountDown) {
             if (timerValue > 0) {
               timerValue--;
-              add(TickTimer(timerId: timerId, isCountDown: true));
+              if (event.isRunTimer) {
+                _distance = _runTracker.totalDistance;
+                add(TickTimer(
+                    timerId: timerId, isCountDown: true, isRunTimer: true));
+              } else {
+                add(TickTimer(timerId: timerId, isCountDown: true));
+              }
             } else {
               _timers[timerId]?.cancel();
+              if (event.isRunTimer) {
+                _runTracker.stopTracking();
+              }
               event.completer?.complete('Countdown ended.');
             }
           } else {
@@ -46,15 +62,21 @@ class ActiveTrainingBloc
               //   }
               // completer.complete();
             } else {
-              //TODO: check if current duration equals to objective
               // Check if the current duration equals the objective duration
-
               if (event.duration > 0 && timerValue >= event.duration) {
                 _timers[timerId]?.cancel();
+                if (event.isRunTimer) {
+                  _runTracker.stopTracking();
+                }
                 event.completer?.complete('Duration ended.');
               } else {
                 timerValue++;
-                add(TickTimer(timerId: timerId)); // Update the timer value
+                if (event.isRunTimer) {
+                  _distance = _runTracker.totalDistance;
+                  add(TickTimer(timerId: timerId, isRunTimer: true));
+                } else {
+                  add(TickTimer(timerId: timerId));
+                }
               }
             }
           }
@@ -89,10 +111,14 @@ class ActiveTrainingBloc
           ));
         }
       } else {
-        emit(ActiveTrainingLoaded({
-          ...currentTimers,
-          timerId: timerValue,
-        }, false, event.activeRunTimer));
+        emit(ActiveTrainingLoaded(
+          timers: {
+            ...currentTimers,
+            timerId: timerValue,
+          },
+          isPaused: false,
+          activeRunTimer: event.activeRunTimer,
+        ));
       }
     });
 
@@ -111,6 +137,7 @@ class ActiveTrainingBloc
                   ? currentTimers[timerId]! - 1
                   : currentTimers[timerId]! + 1,
             },
+            distance: event.isRunTimer ? _distance : null,
           ),
         );
       }
@@ -152,5 +179,55 @@ class ActiveTrainingBloc
       timer.cancel();
     }
     return super.close();
+  }
+}
+
+class RunTracker {
+  StreamSubscription<Position>? _positionStreamSubscription;
+  Position? _previousPosition;
+  double totalDistance = 0.0; // In meters
+
+  void startTracking() async {
+    // Check permission
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      print('Location services are disabled.');
+      return;
+    }
+
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.deniedForever) {
+        print('Location permissions are permanently denied.');
+        return;
+      }
+    }
+
+    // Start listening to position updates
+    _positionStreamSubscription = Geolocator.getPositionStream(
+      locationSettings: const LocationSettings(
+        accuracy: LocationAccuracy.high,
+        distanceFilter: 5, // Notify every 5 meters
+      ),
+    ).listen((Position position) {
+      if (_previousPosition != null) {
+        totalDistance += Geolocator.distanceBetween(
+          _previousPosition!.latitude,
+          _previousPosition!.longitude,
+          position.latitude,
+          position.longitude,
+        );
+      }
+      _previousPosition = position;
+      print('Distance Traveled: $totalDistance meters');
+    });
+  }
+
+  void stopTracking() {
+    _positionStreamSubscription?.cancel();
+    _positionStreamSubscription = null;
+    _previousPosition = null;
+    totalDistance = 0.0;
   }
 }
