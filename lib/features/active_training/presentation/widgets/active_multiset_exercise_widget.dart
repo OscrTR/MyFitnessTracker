@@ -399,7 +399,7 @@ class _ActiveExerciseDurationRowState extends State<ActiveExerciseDurationRow> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
+      onTap: () async {
         void startRestAfterDuration() {
           widget.isLastSet
               ? context.read<ActiveTrainingBloc>().add(StartTimer(
@@ -415,11 +415,15 @@ class _ActiveExerciseDurationRowState extends State<ActiveExerciseDurationRow> {
         }
 
         if (widget.isLastExercise) {
+          final completer = Completer<String>();
           context.read<ActiveTrainingBloc>().add(StartTimer(
-              timerId: 'secondaryTimer',
-              duration: widget.tExercise.duration ?? 0,
-              isCountDown: true,
-              onComplete: startRestAfterDuration));
+                timerId: 'secondaryTimer',
+                duration: widget.tExercise.duration ?? 0,
+                isCountDown: true,
+                completer: completer,
+              ));
+          await completer.future;
+          startRestAfterDuration();
         } else {
           context.read<ActiveTrainingBloc>().add(StartTimer(
                 timerId: 'secondaryTimer',

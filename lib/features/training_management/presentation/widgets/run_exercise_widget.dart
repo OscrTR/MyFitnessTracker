@@ -36,8 +36,8 @@ class _RunExerciseWidgetState extends State<RunExerciseWidget> {
     'intervalDistance': TextEditingController(),
     'intervalMinutes': TextEditingController(),
     'intervalSeconds': TextEditingController(),
-    'setRestMinutes': TextEditingController(),
-    'setRestSeconds': TextEditingController(),
+    'intervalRestMinutes': TextEditingController(),
+    'intervalRestSeconds': TextEditingController(),
     'exerciseRestMinutes': TextEditingController(),
     'exerciseRestSeconds': TextEditingController(),
   };
@@ -99,11 +99,12 @@ class _RunExerciseWidgetState extends State<RunExerciseWidget> {
       _controllers['intervalSeconds']?.text = (exercise.intervalDuration != null
           ? (exercise.intervalDuration! % 60).toString()
           : '');
-      _controllers['setRestMinutes']?.text = (exercise.setRest != null
-          ? (exercise.setRest! % 3600 ~/ 60).toString()
+      _controllers['intervalRestMinutes']?.text = (exercise.intervalRest != null
+          ? (exercise.intervalRest! % 3600 ~/ 60).toString()
           : '');
-      _controllers['setRestSeconds']?.text =
-          (exercise.setRest != null ? (exercise.setRest! % 60).toString() : '');
+      _controllers['intervalRestSeconds']?.text = (exercise.intervalRest != null
+          ? (exercise.intervalRest! % 60).toString()
+          : '');
       _controllers['exerciseRestMinutes']?.text = (exercise.exerciseRest != null
           ? (exercise.exerciseRest! % 3600 ~/ 60).toString()
           : '');
@@ -192,11 +193,14 @@ class _RunExerciseWidgetState extends State<RunExerciseWidget> {
           objectives: key == 'objectives'
               ? _controllers['objectives']?.text ?? ''
               : null,
-          setRest: key == 'setRestMinutes' || key == 'setRestSeconds'
-              ? ((int.tryParse(_controllers['setRestMinutes']?.text ?? '') ??
+          intervalRest: key == 'intervalRestMinutes' ||
+                  key == 'intervalRestSeconds'
+              ? ((int.tryParse(_controllers['intervalRestMinutes']?.text ??
+                              '') ??
                           0) *
                       60) +
-                  ((int.tryParse(_controllers['setRestSeconds']?.text ?? '') ??
+                  ((int.tryParse(
+                          _controllers['intervalRestSeconds']?.text ?? '') ??
                       0))
               : null,
           exerciseRest: key == 'exerciseRestMinutes' ||
@@ -299,9 +303,11 @@ class _RunExerciseWidgetState extends State<RunExerciseWidget> {
               style: const TextStyle(color: AppColors.lightBlack)),
           Row(
             children: [
-              SmallTextFieldWidget(controller: _controllers['setRestMinutes']!),
+              SmallTextFieldWidget(
+                  controller: _controllers['intervalRestMinutes']!),
               const Text(' : ', style: TextStyle(fontSize: 20)),
-              SmallTextFieldWidget(controller: _controllers['setRestSeconds']!),
+              SmallTextFieldWidget(
+                  controller: _controllers['intervalRestSeconds']!),
             ],
           ),
         ],

@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:flutter/material.dart';
 import 'package:pausable_timer/pausable_timer.dart';
 
 part 'active_training_event.dart';
@@ -13,22 +12,16 @@ class ActiveTrainingBloc
   final Map<String, PausableTimer> _timers = {};
 
   ActiveTrainingBloc() : super(ActiveTrainingInitial()) {
-    // Initialize the periodic timer
-
     on<StartTimer>((event, emit) async {
       final currentTimers = state is ActiveTrainingLoaded
           ? (state as ActiveTrainingLoaded).timers
           : {};
 
-      // Initialize or reset the timer for the given timerId
       final timerId = event.timerId;
-
       _timers[timerId]?.cancel();
 
       int timerValue =
           event.isCountDown ? event.duration : (currentTimers[timerId] ?? 0);
-
-      final completer = Completer<void>();
 
       final timer = PausableTimer.periodic(
         const Duration(seconds: 1),
@@ -39,10 +32,7 @@ class ActiveTrainingBloc
               add(TickTimer(timerId: timerId, isCountDown: true));
             } else {
               _timers[timerId]?.cancel();
-              if (event.onComplete != null) {
-                event.onComplete!();
-              }
-              completer.complete();
+              event.completer?.complete('Countdown ended.');
             }
           } else {
             if (event.isDistance) {
@@ -61,11 +51,7 @@ class ActiveTrainingBloc
 
               if (event.duration > 0 && timerValue >= event.duration) {
                 _timers[timerId]?.cancel();
-                if (event.onComplete != null) {
-                  event
-                      .onComplete!(); // Call onComplete when duration goal is reached
-                }
-                completer.complete();
+                event.completer?.complete('Duration ended.');
               } else {
                 timerValue++;
                 add(TickTimer(timerId: timerId)); // Update the timer value
@@ -108,7 +94,6 @@ class ActiveTrainingBloc
           timerId: timerValue,
         }, false, event.activeRunTimer));
       }
-      await completer.future;
     });
 
     on<TickTimer>((event, emit) {

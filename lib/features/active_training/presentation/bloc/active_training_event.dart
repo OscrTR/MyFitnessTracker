@@ -13,7 +13,7 @@ class StartTimer extends ActiveTrainingEvent {
   final int duration;
   final bool isCountDown;
   final bool isDistance;
-  final VoidCallback? onComplete;
+  final Completer<String>? completer;
 
   const StartTimer(
       {required this.timerId,
@@ -21,11 +21,11 @@ class StartTimer extends ActiveTrainingEvent {
       this.duration = 0,
       this.isCountDown = false,
       this.isDistance = false,
-      this.onComplete});
+      this.completer});
 
   @override
   List<Object?> get props =>
-      [timerId, activeRunTimer, duration, isCountDown, isDistance, onComplete];
+      [timerId, activeRunTimer, duration, isCountDown, isDistance, completer];
 }
 
 class TickTimer extends ActiveTrainingEvent {
