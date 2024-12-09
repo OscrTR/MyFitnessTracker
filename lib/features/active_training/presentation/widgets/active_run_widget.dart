@@ -245,52 +245,36 @@ class _ActiveRunWidgetState extends State<ActiveRunWidget> {
   }
 
   Widget _buildIntervals(int intervals) {
-    return ListView.builder(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        itemCount: intervals,
-        itemBuilder: (context, index) {
-          final bool isLastInterval = intervals == index + 1;
-          return Column(
-            children: [
-              IntervalWidget(
-                index: index,
-                widget: widget,
+    final List<String> intervalIds = [];
+    for (var i = 0; i < widget.tExercise.intervals!; i++) {
+      intervalIds.add(uuid.v4());
+    }
+    return Column(
+      children: [
+        IntervalWidget2(
+          tExercise: widget.tExercise,
+          intervalIds: intervalIds,
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (!widget.isLast)
+              const Icon(
+                Icons.snooze,
+                size: 20,
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  if (!widget.isLast)
-                    const Icon(
-                      Icons.snooze,
-                      size: 20,
-                    ),
-                  if (!widget.isLast) const SizedBox(width: 5),
-                  if (!widget.isLast && !isLastInterval)
-                    Text(
-                      widget.tExercise.intervalRest != null
-                          ? formatDuration(widget.tExercise.intervalRest!)
-                          : '0:00',
-                    ),
-                  if (!widget.isLast && isLastInterval)
-                    Text(
-                      widget.tExercise.exerciseRest != null
-                          ? formatDuration(widget.tExercise.exerciseRest!)
-                          : '0:00',
-                    ),
-                  if (widget.isLast && !isLastInterval)
-                    Text(
-                      widget.tExercise.intervalRest != null
-                          ? formatDuration(widget.tExercise.intervalRest!)
-                          : '0:00',
-                    ),
-                  if (widget.isLast && isLastInterval)
-                    Text(tr('active_training_end')),
-                ],
+            if (!widget.isLast) const SizedBox(width: 5),
+            if (!widget.isLast)
+              Text(
+                widget.tExercise.exerciseRest != null
+                    ? formatDuration(widget.tExercise.exerciseRest!)
+                    : '0:00',
               ),
-            ],
-          );
-        });
+            if (widget.isLast) Text(tr('active_training_end')),
+          ],
+        ),
+      ],
+    );
   }
 }
 
@@ -299,10 +283,12 @@ class IntervalWidget extends StatefulWidget {
     super.key,
     required this.widget,
     required this.index,
+    required this.intervalIds,
   });
 
   final ActiveRunWidget widget;
   final int index;
+  final List<String> intervalIds;
 
   @override
   State<IntervalWidget> createState() => _IntervalWidgetState();
@@ -310,7 +296,6 @@ class IntervalWidget extends StatefulWidget {
 
 class _IntervalWidgetState extends State<IntervalWidget> {
   bool isClicked = false;
-  final String timerId = uuid.v4();
 
   @override
   Widget build(BuildContext context) {
@@ -346,7 +331,8 @@ class _IntervalWidgetState extends State<IntervalWidget> {
                 'Duration',
                 style: TextStyle(color: AppColors.lightBlack),
               ),
-              DurationTimerWidget(activeRunId: timerId),
+              DurationTimerWidget(
+                  activeRunId: widget.intervalIds[widget.index]),
             ],
           ),
           const Row(
@@ -380,12 +366,14 @@ class _IntervalWidgetState extends State<IntervalWidget> {
           GestureDetector(
             onTap: () async {
               final bloc = context.read<ActiveTrainingBloc>();
+              final isLastInterval =
+                  widget.index + 1 == widget.widget.tExercise.intervals;
               if (!isClicked) {
                 final completer = Completer<String>();
                 bloc.add(ResetSecondaryTimer());
                 bloc.add(StartTimer(
                   timerId: 'secondaryTimer',
-                  activeRunTimer: timerId,
+                  activeRunTimer: widget.intervalIds[widget.index],
                   duration: widget.widget.tExercise.intervalDuration ?? 0,
                   completer: completer,
                 ));
@@ -393,11 +381,202 @@ class _IntervalWidgetState extends State<IntervalWidget> {
                 setState(() {});
                 await completer.future;
                 bloc.add(ResetSecondaryTimer());
+                final completer2 = Completer<String>();
                 bloc.add(StartTimer(
+                  timerId: 'secondaryTimer',
+                  duration: widget.widget.tExercise.intervalRest ?? 0,
+                  isCountDown: true,
+                  activeRunTimer: 'secondaryTimer',
+                  completer: completer2,
+                ));
+                await completer2.future;
+                if (!isLastInterval) {
+                  bloc.add(StartTimer(
                     timerId: 'secondaryTimer',
-                    duration: widget.widget.tExercise.intervalRest ?? 0,
+                    activeRunTimer: widget.intervalIds[widget.index + 1],
+                    duration: widget.widget.tExercise.intervalDuration ?? 0,
+                    completer: completer,
+                  ));
+                }
+              }
+            },
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: 160,
+                  alignment: Alignment.center,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  decoration: BoxDecoration(
+                      color: isClicked ? AppColors.lightGrey : AppColors.black,
+                      borderRadius: BorderRadius.circular(10)),
+                  child: Text(
+                    isClicked ? 'Started' : tr('global_start'),
+                    style: TextStyle(
+                        color:
+                            isClicked ? AppColors.lightBlack : AppColors.white),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 10),
+        ]));
+  }
+}
+
+class IntervalWidget2 extends StatefulWidget {
+  const IntervalWidget2({
+    super.key,
+    required this.tExercise,
+    required this.intervalIds,
+  });
+
+  final TrainingExercise tExercise;
+  final List<String> intervalIds;
+
+  @override
+  State<IntervalWidget2> createState() => _IntervalWidgetState2();
+}
+
+class _IntervalWidgetState2 extends State<IntervalWidget2> {
+  bool isClicked = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final tExercise = widget.tExercise;
+    final targetDistance = tExercise.intervalDistance != null
+        ? '${(tExercise.intervalDistance! / 1000).toStringAsFixed(1)}km'
+        : '';
+    final targetDuration = tExercise.intervalDuration != null
+        ? formatDuration(tExercise.intervalDuration!)
+        : '';
+    final targetPace = tExercise.isTargetRythmSelected == true
+        ? ' at ${formatPace(tExercise.targetRythm!)}'
+        : '';
+    return Container(
+        margin: const EdgeInsets.only(top: 10, bottom: 10),
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: AppColors.white,
+          border: Border.all(color: AppColors.lightBlack),
+          borderRadius: BorderRadius.circular(15),
+        ),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          const SizedBox(height: 10),
+          if (tExercise.isIntervalInDistance == true)
+            Text(
+                'Running interval $targetDistance$targetPace x${tExercise.intervals}'),
+          if (tExercise.isIntervalInDistance == false)
+            Text(
+                'Running interval $targetDuration$targetPace x${tExercise.intervals}'),
+          const SizedBox(height: 10),
+          ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: tExercise.intervals,
+              itemBuilder: (context, index) {
+                final bool isLastInterval = index + 1 == tExercise.intervals;
+                return Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'Duration',
+                          style: TextStyle(color: AppColors.lightBlack),
+                        ),
+                        DurationTimerWidget(
+                            activeRunId: widget.intervalIds[index]),
+                      ],
+                    ),
+                    const Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Distance (km)',
+                          style: TextStyle(color: AppColors.lightBlack),
+                        ),
+                        Text(
+                          '0',
+                          style: TextStyle(color: AppColors.lightBlack),
+                        ),
+                      ],
+                    ),
+                    const Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Pace (min/km)',
+                          style: TextStyle(color: AppColors.lightBlack),
+                        ),
+                        Text(
+                          '00:00',
+                          style: TextStyle(color: AppColors.lightBlack),
+                        ),
+                      ],
+                    ),
+                    if (!isLastInterval)
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Expanded(child: Divider()),
+                          const SizedBox(width: 5),
+                          const Icon(
+                            Icons.snooze,
+                            size: 20,
+                            color: AppColors.lightBlack,
+                          ),
+                          const SizedBox(width: 5),
+                          Text(
+                            tExercise.intervalRest != null
+                                ? formatDuration(tExercise.intervalRest!)
+                                : '0:00',
+                            style: const TextStyle(color: AppColors.lightBlack),
+                          ),
+                          const SizedBox(width: 5),
+                          const Expanded(child: Divider()),
+                        ],
+                      ),
+                    if (isLastInterval) const SizedBox(height: 10)
+                  ],
+                );
+              }),
+          const SizedBox(height: 10),
+          GestureDetector(
+            onTap: () async {
+              final bloc = context.read<ActiveTrainingBloc>();
+              if (!isClicked) {
+                isClicked = true;
+                setState(() {});
+
+                for (var i = 0; i < widget.intervalIds.length; i++) {
+                  // Start interval timer
+                  final intervalCompleter = Completer<String>();
+                  bloc.add(ResetSecondaryTimer());
+                  bloc.add(StartTimer(
+                    timerId: 'secondaryTimer',
+                    activeRunTimer: widget.intervalIds[i],
+                    duration: tExercise.intervalDuration ?? 0,
+                    completer: intervalCompleter,
+                  ));
+                  await intervalCompleter.future;
+                  // After interval completion, start rest timer
+                  bloc.add(ResetSecondaryTimer());
+                  final restCompleter = Completer<String>();
+                  final isLastInterval = i + 1 == widget.intervalIds.length;
+                  bloc.add(StartTimer(
+                    timerId: 'secondaryTimer',
+                    duration: isLastInterval
+                        ? tExercise.exerciseRest ?? 0
+                        : tExercise.intervalRest ?? 0,
                     isCountDown: true,
-                    activeRunTimer: 'secondaryTimer'));
+                    activeRunTimer: 'secondaryTimer',
+                    completer: restCompleter,
+                  ));
+                  await restCompleter.future;
+                }
               }
             },
             child: Row(
