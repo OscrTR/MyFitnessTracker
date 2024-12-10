@@ -12,7 +12,7 @@ class StartTimer extends ActiveTrainingEvent {
   final String? activeRunTimer;
   final int duration;
   final bool isCountDown;
-  final bool isDistance;
+  final int distance;
   final bool isRunTimer;
   final Completer<String>? completer;
 
@@ -21,7 +21,7 @@ class StartTimer extends ActiveTrainingEvent {
       this.activeRunTimer,
       this.duration = 0,
       this.isCountDown = false,
-      this.isDistance = false,
+      this.distance = 0,
       this.isRunTimer = false,
       this.completer});
 
@@ -31,7 +31,7 @@ class StartTimer extends ActiveTrainingEvent {
         activeRunTimer,
         duration,
         isCountDown,
-        isDistance,
+        distance,
         isRunTimer,
         completer
       ];

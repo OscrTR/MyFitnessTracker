@@ -51,22 +51,31 @@ class ActiveTrainingBloc
               event.completer?.complete('Countdown ended.');
             }
           } else {
-            if (event.isDistance) {
-              //TODO: Check if current distance equals to objective
+            if (event.distance > 0) {
               // Check if the current distance equals the objective distance
-              //     final currentDistance = getCurrentDistance(timerId); // Replace with your logic
-              // if (currentDistance >= event.duration) {
-              //   _timers[timerId]?.cancel();
-              //   if (event.onComplete != null) {
-              //     event.onComplete!(); // Call onComplete when distance goal is reached
-              //   }
-              // completer.complete();
+              if (_distance >= event.distance) {
+                _timers[timerId]?.cancel();
+                if (event.isRunTimer) {
+                  _runTracker.stopTracking();
+                  _distance = 0.0;
+                }
+                event.completer?.complete('Distance reached.');
+              } else {
+                timerValue++;
+                if (event.isRunTimer) {
+                  _distance = _runTracker.totalDistance;
+                  add(TickTimer(timerId: timerId, isRunTimer: true));
+                } else {
+                  add(TickTimer(timerId: timerId));
+                }
+              }
             } else {
               // Check if the current duration equals the objective duration
               if (event.duration > 0 && timerValue >= event.duration) {
                 _timers[timerId]?.cancel();
                 if (event.isRunTimer) {
                   _runTracker.stopTracking();
+                  _distance = 0.0;
                 }
                 event.completer?.complete('Duration ended.');
               } else {
@@ -163,12 +172,14 @@ class ActiveTrainingBloc
         final currentTimers = currentState.timers;
 
         _timers['secondaryTimer']?.cancel();
+        _distance = 0;
 
         final updatedTimers = Map<String, int>.from(currentTimers);
         updatedTimers['secondaryTimer'] = 0;
 
         emit(currentState.copyWith(
           timers: updatedTimers,
+          distance: 0,
         ));
       }
     });

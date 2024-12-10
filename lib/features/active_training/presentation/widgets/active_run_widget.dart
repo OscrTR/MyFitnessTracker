@@ -123,19 +123,39 @@ class _ActiveRunWidgetState extends State<ActiveRunWidget> {
                 const Divider(),
                 const SizedBox(height: 10),
                 GestureDetector(
-                  onTap: () {
+                  onTap: () async {
                     if (!isClicked) {
-                      context
-                          .read<ActiveTrainingBloc>()
-                          .add(ResetSecondaryTimer());
-                      context.read<ActiveTrainingBloc>().add(StartTimer(
-                            timerId: 'secondaryTimer',
-                            activeRunTimer: timerId,
-                            duration: widget.tExercise.duration ?? 0,
-                            isRunTimer: true,
-                          ));
                       isClicked = true;
                       setState(() {});
+
+                      final bloc = context.read<ActiveTrainingBloc>();
+
+                      final runCompleter = Completer<String>();
+                      bloc.add(ResetSecondaryTimer());
+                      bloc.add(StartTimer(
+                        timerId: 'secondaryTimer',
+                        activeRunTimer: timerId,
+                        duration: widget.tExercise.duration ?? 0,
+                        isRunTimer: true,
+                        distance: widget.tExercise.runExerciseTarget ==
+                                RunExerciseTarget.distance
+                            ? widget.tExercise.targetDistance ?? 0
+                            : 0,
+                        completer: runCompleter,
+                      ));
+                      await runCompleter.future;
+                      bloc.add(ResetSecondaryTimer());
+                      final restCompleter = Completer<String>();
+                      bloc.add(StartTimer(
+                        timerId: 'secondaryTimer',
+                        duration: widget.isLast
+                            ? 0
+                            : widget.tExercise.exerciseRest ?? 0,
+                        isCountDown: true,
+                        activeRunTimer: 'secondaryTimer',
+                        completer: restCompleter,
+                      ));
+                      await restCompleter.future;
                     }
                   },
                   child: Row(
@@ -276,156 +296,6 @@ class _ActiveRunWidgetState extends State<ActiveRunWidget> {
   }
 }
 
-class IntervalWidget extends StatefulWidget {
-  const IntervalWidget({
-    super.key,
-    required this.widget,
-    required this.index,
-    required this.intervalIds,
-  });
-
-  final ActiveRunWidget widget;
-  final int index;
-  final List<String> intervalIds;
-
-  @override
-  State<IntervalWidget> createState() => _IntervalWidgetState();
-}
-
-class _IntervalWidgetState extends State<IntervalWidget> {
-  bool isClicked = false;
-
-  @override
-  Widget build(BuildContext context) {
-    final tExercise = widget.widget.tExercise;
-    final targetDistance = tExercise.intervalDistance != null
-        ? '${(tExercise.intervalDistance! / 1000).toStringAsFixed(1)}km'
-        : '';
-    final targetDuration = tExercise.intervalDuration != null
-        ? formatDuration(tExercise.intervalDuration!)
-        : '';
-    final targetPace = tExercise.isTargetRythmSelected == true
-        ? ' at ${formatPace(tExercise.targetRythm!)}'
-        : '';
-    return Container(
-        margin: const EdgeInsets.only(top: 10, bottom: 10),
-        padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          color: AppColors.white,
-          border: Border.all(color: AppColors.lightBlack),
-          borderRadius: BorderRadius.circular(15),
-        ),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          const SizedBox(height: 10),
-          if (tExercise.isIntervalInDistance == true)
-            Text('Running interval $targetDistance$targetPace'),
-          if (tExercise.isIntervalInDistance == false)
-            Text('Running interval $targetDuration$targetPace'),
-          const SizedBox(height: 10),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'Duration',
-                style: TextStyle(color: AppColors.lightBlack),
-              ),
-              DurationTimerWidget(
-                  activeRunId: widget.intervalIds[widget.index]),
-            ],
-          ),
-          const Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Distance (km)',
-                style: TextStyle(color: AppColors.lightBlack),
-              ),
-              Text(
-                '0',
-                style: TextStyle(color: AppColors.lightBlack),
-              ),
-            ],
-          ),
-          const Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Pace (min/km)',
-                style: TextStyle(color: AppColors.lightBlack),
-              ),
-              Text(
-                '00:00',
-                style: TextStyle(color: AppColors.lightBlack),
-              ),
-            ],
-          ),
-          const Divider(),
-          const SizedBox(height: 10),
-          GestureDetector(
-            onTap: () async {
-              final bloc = context.read<ActiveTrainingBloc>();
-              final isLastInterval =
-                  widget.index + 1 == widget.widget.tExercise.intervals;
-              if (!isClicked) {
-                final intervalCompleter = Completer<String>();
-                bloc.add(ResetSecondaryTimer());
-                bloc.add(StartTimer(
-                  timerId: 'secondaryTimer',
-                  activeRunTimer: widget.intervalIds[widget.index],
-                  duration: widget.widget.tExercise.intervalDuration ?? 0,
-                  completer: intervalCompleter,
-                  isRunTimer: true,
-                ));
-                isClicked = true;
-                setState(() {});
-                await intervalCompleter.future;
-                bloc.add(ResetSecondaryTimer());
-                final restCompleter = Completer<String>();
-                bloc.add(StartTimer(
-                  timerId: 'secondaryTimer',
-                  duration: widget.widget.tExercise.intervalRest ?? 0,
-                  isCountDown: true,
-                  activeRunTimer: 'secondaryTimer',
-                  completer: restCompleter,
-                ));
-                await restCompleter.future;
-                if (!isLastInterval) {
-                  bloc.add(StartTimer(
-                    timerId: 'secondaryTimer',
-                    activeRunTimer: widget.intervalIds[widget.index + 1],
-                    duration: widget.widget.tExercise.intervalDuration ?? 0,
-                    completer: intervalCompleter,
-                    isRunTimer: true,
-                  ));
-                }
-              }
-            },
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  width: 160,
-                  alignment: Alignment.center,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  decoration: BoxDecoration(
-                      color: isClicked ? AppColors.lightGrey : AppColors.black,
-                      borderRadius: BorderRadius.circular(10)),
-                  child: Text(
-                    isClicked ? 'Started' : tr('global_start'),
-                    style: TextStyle(
-                        color:
-                            isClicked ? AppColors.lightBlack : AppColors.white),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 10),
-        ]));
-  }
-}
-
 class IntervalWidget2 extends StatefulWidget {
   const IntervalWidget2({
     super.key,
@@ -550,12 +420,14 @@ class _IntervalWidgetState2 extends State<IntervalWidget2> {
                   final intervalCompleter = Completer<String>();
                   bloc.add(ResetSecondaryTimer());
                   bloc.add(StartTimer(
-                    timerId: 'secondaryTimer',
-                    activeRunTimer: widget.intervalIds[i],
-                    duration: tExercise.intervalDuration ?? 0,
-                    completer: intervalCompleter,
-                    isRunTimer: true,
-                  ));
+                      timerId: 'secondaryTimer',
+                      activeRunTimer: widget.intervalIds[i],
+                      duration: tExercise.intervalDuration ?? 0,
+                      completer: intervalCompleter,
+                      isRunTimer: true,
+                      distance: widget.tExercise.isIntervalInDistance!
+                          ? widget.tExercise.intervalDistance ?? 0
+                          : 0));
                   await intervalCompleter.future;
                   // After interval completion, start rest timer
                   bloc.add(ResetSecondaryTimer());
