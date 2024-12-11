@@ -2,12 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
-import 'package:my_fitness_tracker/features/active_training/presentation/pages/active_training_page.dart';
+import 'features/active_training/presentation/pages/active_training_page.dart';
 import 'features/training_management/presentation/pages/training_details_page.dart';
 import 'package:top_snackbar_flutter/custom_snack_bar.dart';
 import 'package:top_snackbar_flutter/top_snack_bar.dart';
-
-import 'assets/app_colors.dart';
+import 'app_colors.dart';
 import 'core/messages/bloc/message_bloc.dart';
 import 'core/pages/history_page.dart';
 import 'features/homepage/presentation/pages/home_page.dart';
@@ -215,7 +214,7 @@ class BottomNavigationBarWidget extends StatelessWidget {
           children: [
             LottieIconButton(
               url: '/home',
-              lottieAsset: 'lib/assets/lottie/home_animation.json',
+              lottieAsset: 'assets/lottie/home_animation.json',
               iconSize: 30,
               customAction: () {
                 if (!isHomePage) {
@@ -225,7 +224,7 @@ class BottomNavigationBarWidget extends StatelessWidget {
             ),
             LottieIconButton(
               url: '/trainings',
-              lottieAsset: 'lib/assets/lottie/trainings_animation.json',
+              lottieAsset: 'assets/lottie/trainings_animation.json',
               iconSize: 30,
               customAction: () {
                 if (!isTrainingsPage) {
@@ -235,7 +234,7 @@ class BottomNavigationBarWidget extends StatelessWidget {
             ),
             LottieIconButton(
               url: '/history',
-              lottieAsset: 'lib/assets/lottie/history_animation.json',
+              lottieAsset: 'assets/lottie/history_animation.json',
               iconSize: 30,
               customAction: () {
                 if (!isHistoryPage) {
@@ -245,7 +244,7 @@ class BottomNavigationBarWidget extends StatelessWidget {
             ),
             LottieIconButton(
               url: '/settings',
-              lottieAsset: 'lib/assets/lottie/settings_animation.json',
+              lottieAsset: 'assets/lottie/settings_animation.json',
               iconSize: 30,
               customAction: () {
                 if (!isSettingsPage) {

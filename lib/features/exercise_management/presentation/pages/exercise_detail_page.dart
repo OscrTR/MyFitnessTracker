@@ -8,7 +8,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 
-import '../../../../assets/app_colors.dart';
+import '../../../../app_colors.dart';
 import '../../domain/entities/exercise.dart';
 import '../bloc/exercise_management_bloc.dart';
 import '../widgets/exercise_detail_back_app_bar_widget.dart';

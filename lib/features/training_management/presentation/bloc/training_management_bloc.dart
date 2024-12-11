@@ -1,16 +1,17 @@
 import 'package:bloc/bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:equatable/equatable.dart';
-import '../../domain/entities/multiset.dart';
-import '../../domain/entities/training_exercise.dart';
+
 import '../../../../core/error/failures.dart';
 import '../../../../core/messages/bloc/message_bloc.dart';
+import '../../domain/entities/multiset.dart';
 import '../../domain/entities/training.dart';
+import '../../domain/entities/training_exercise.dart';
 import '../../domain/usecases/create_training.dart' as create;
+import '../../domain/usecases/delete_training.dart' as delete;
 import '../../domain/usecases/fetch_trainings.dart' as fetch;
 import '../../domain/usecases/get_training.dart' as get_tr;
 import '../../domain/usecases/update_training.dart' as update;
-import '../../domain/usecases/delete_training.dart' as delete;
 
 part 'training_management_event.dart';
 part 'training_management_state.dart';

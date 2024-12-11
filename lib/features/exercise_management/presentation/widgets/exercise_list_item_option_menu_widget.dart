@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../assets/app_colors.dart';
+import '../../../../app_colors.dart';
 import '../bloc/exercise_management_bloc.dart';
 
 class ExerciseListItemOptionsMenu extends StatelessWidget {

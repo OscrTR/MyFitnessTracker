@@ -6,10 +6,10 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_fitness_tracker/features/active_training/presentation/bloc/active_training_bloc.dart';
-import 'package:my_fitness_tracker/features/active_training/presentation/widgets/timer_widget.dart';
+import '../bloc/active_training_bloc.dart';
+import 'timer_widget.dart';
 
-import '../../../../assets/app_colors.dart';
+import '../../../../app_colors.dart';
 import '../../../exercise_management/domain/entities/exercise.dart';
 import '../../../exercise_management/presentation/bloc/exercise_management_bloc.dart';
 import '../../../training_management/domain/entities/training_exercise.dart';
@@ -373,6 +373,9 @@ class ActiveExerciseRowState extends State<ActiveExerciseRow> {
         const SizedBox(width: 10),
         GestureDetector(
           onTap: () {
+            setState(() {
+              isClicked = true;
+            });
             widget.isLastSet
                 ? context.read<ActiveTrainingBloc>().add(StartTimer(
                       timerId: 'secondaryTimer',
@@ -384,9 +387,6 @@ class ActiveExerciseRowState extends State<ActiveExerciseRow> {
                       duration: widget.tExercise.setRest ?? 0,
                       isCountDown: true,
                     ));
-            setState(() {
-              isClicked = true;
-            });
           },
           child: Text(
             isClicked ? 'OK' : tr('global_validate'),
@@ -439,6 +439,10 @@ class _ActiveExerciseDurationRowState extends State<ActiveExerciseDurationRow> {
                   ));
         }
 
+        setState(() {
+          isClicked = true;
+        });
+
         final completer = Completer<String>();
         context.read<ActiveTrainingBloc>().add(StartTimer(
               timerId: 'secondaryTimer',
@@ -450,10 +454,6 @@ class _ActiveExerciseDurationRowState extends State<ActiveExerciseDurationRow> {
         await completer.future;
 
         startRestAfterDuration();
-
-        setState(() {
-          isClicked = true;
-        });
       },
       child: Container(
         alignment: Alignment.center,

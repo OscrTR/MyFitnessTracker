@@ -2,10 +2,10 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../app_colors.dart';
 import '../bloc/training_management_bloc.dart';
 import '../../domain/entities/training.dart';
 import 'trainings_list_page.dart';
-import '../../../../assets/app_colors.dart';
 
 class TrainingsPage extends StatelessWidget {
   const TrainingsPage({super.key});

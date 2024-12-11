@@ -3,7 +3,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
-import '../../../../assets/app_colors.dart';
+import '../../../../app_colors.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -70,7 +70,7 @@ class _SettingsPageState extends State<SettingsPage> {
         const SizedBox(height: 20),
         CustomDropdown<String>(
           items: _languages,
-          initialItem: _languages[0],
+          initialItem: _languages[0], //TODO: set correct language here
           decoration: CustomDropdownDecoration(
             listItemStyle: Theme.of(context)
                 .textTheme

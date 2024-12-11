@@ -6,11 +6,11 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_fitness_tracker/features/active_training/presentation/bloc/active_training_bloc.dart';
-import 'package:my_fitness_tracker/features/active_training/presentation/widgets/timer_widget.dart';
-import 'package:my_fitness_tracker/features/training_management/domain/entities/multiset.dart';
+import '../bloc/active_training_bloc.dart';
+import 'timer_widget.dart';
+import '../../../training_management/domain/entities/multiset.dart';
 
-import '../../../../assets/app_colors.dart';
+import '../../../../app_colors.dart';
 import '../../../exercise_management/domain/entities/exercise.dart';
 import '../../../exercise_management/presentation/bloc/exercise_management_bloc.dart';
 import '../../../training_management/domain/entities/training_exercise.dart';

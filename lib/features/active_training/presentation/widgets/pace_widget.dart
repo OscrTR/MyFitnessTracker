@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_fitness_tracker/assets/app_colors.dart';
-import 'package:my_fitness_tracker/features/active_training/presentation/bloc/active_training_bloc.dart';
+import '../bloc/active_training_bloc.dart';
+
+import '../../../../app_colors.dart';
 
 class PaceWidget extends StatefulWidget {
   final String activeRunId;

@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import '../../../../assets/app_colors.dart';
+
+import '../../../../app_colors.dart';
 import '../../../../core/widgets/dash_border_painter_widget.dart';
 import '../../../exercise_management/presentation/bloc/exercise_management_bloc.dart';
 import '../../../exercise_management/presentation/widgets/exercise_list_item_widget.dart';

@@ -1,10 +1,11 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:my_fitness_tracker/assets/app_colors.dart';
-import 'package:my_fitness_tracker/features/active_training/presentation/widgets/active_multiset_exercise_widget.dart';
-import 'package:my_fitness_tracker/features/active_training/presentation/widgets/timer_widget.dart';
-import 'package:my_fitness_tracker/features/training_management/domain/entities/multiset.dart';
 
+import 'active_multiset_exercise_widget.dart';
+import 'timer_widget.dart';
+import '../../../training_management/domain/entities/multiset.dart';
+
+import '../../../../app_colors.dart';
 import '../../../training_management/domain/entities/training_exercise.dart';
 
 String _formatDuration(int? seconds) {

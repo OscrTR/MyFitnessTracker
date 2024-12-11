@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../../assets/app_colors.dart';
+import '../../../../app_colors.dart';
 
 class BigTextFieldWidget extends StatelessWidget {
   final TextEditingController controller;

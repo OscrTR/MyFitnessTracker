@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../app_colors.dart';
 import '../../../../core/messages/bloc/message_bloc.dart';
 import '../../domain/entities/multiset.dart';
 import '../../domain/entities/training_exercise.dart';
@@ -13,8 +14,6 @@ import 'multiset_exercise_widget.dart';
 import 'multiset_run_exercise_widget.dart';
 import 'small_text_field_widget.dart';
 import 'package:uuid/uuid.dart';
-
-import '../../../../assets/app_colors.dart';
 
 class MultisetWidget extends StatefulWidget {
   final String multisetKey;

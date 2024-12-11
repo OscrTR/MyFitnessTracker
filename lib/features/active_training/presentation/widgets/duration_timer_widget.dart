@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_fitness_tracker/assets/app_colors.dart';
-import 'package:my_fitness_tracker/features/active_training/presentation/bloc/active_training_bloc.dart';
+import '../bloc/active_training_bloc.dart';
+
+import '../../../../app_colors.dart';
 
 String _formatTime(int seconds, {bool includeHours = true}) {
   final hours = (seconds ~/ 3600).toString().padLeft(2, '0');

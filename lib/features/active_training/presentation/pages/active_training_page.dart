@@ -2,12 +2,12 @@ import 'package:easy_localization/easy_localization.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_fitness_tracker/features/active_training/presentation/widgets/active_multiset_widget.dart';
-import 'package:my_fitness_tracker/features/active_training/presentation/widgets/active_run_widget.dart';
-import 'package:my_fitness_tracker/features/active_training/presentation/widgets/timer_widget.dart';
+import '../widgets/active_multiset_widget.dart';
+import '../widgets/active_run_widget.dart';
+import '../widgets/timer_widget.dart';
 
-import 'package:my_fitness_tracker/features/training_management/domain/entities/training_exercise.dart';
-import 'package:my_fitness_tracker/features/training_management/presentation/bloc/training_management_bloc.dart';
+import '../../../training_management/domain/entities/training_exercise.dart';
+import '../../../training_management/presentation/bloc/training_management_bloc.dart';
 
 import '../../../training_management/domain/entities/multiset.dart';
 import '../widgets/active_exercise_widget.dart';

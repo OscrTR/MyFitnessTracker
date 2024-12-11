@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import '../../../../assets/app_colors.dart';
+
+import '../../../../app_colors.dart';
 import '../../../../core/widgets/dash_border_painter_widget.dart';
 import '../../../training_management/domain/entities/training.dart';
 import '../../../training_management/presentation/bloc/training_management_bloc.dart';
@@ -31,7 +32,7 @@ class HomePage extends StatelessWidget {
                     GoRouter.of(context).go('/trainings');
                   },
                   child: Container(
-                      width: 80,
+                      width: 100,
                       padding: const EdgeInsets.symmetric(vertical: 5),
                       decoration: BoxDecoration(
                           color: AppColors.white,
@@ -101,6 +102,7 @@ Widget _buildSelectedWidgets() {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
+                        textAlign: TextAlign.center,
                         tr('home_page_select_training'),
                         style: const TextStyle(color: AppColors.lightBlack),
                       ),
@@ -164,19 +166,20 @@ Widget _buildSelectedWidgets() {
                                 bloc.add(StartTrainingEvent(training.id!));
                                 GoRouter.of(context).go('/active_training');
                               },
-                              child: Container(
-                                width: 80,
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 5),
-                                decoration: BoxDecoration(
-                                    color: AppColors.white,
-                                    borderRadius: BorderRadius.circular(15)),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(tr('global_start')),
-                                    const Icon(Icons.chevron_right)
-                                  ],
+                              child: IntrinsicWidth(
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 5, horizontal: 10),
+                                  decoration: BoxDecoration(
+                                      color: AppColors.white,
+                                      borderRadius: BorderRadius.circular(15)),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(tr('global_start')),
+                                      const Icon(Icons.chevron_right)
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../../assets/app_colors.dart';
+import '../../../../app_colors.dart';
 import 'exercise_list_item_option_menu_widget.dart';
 
 class ExerciseListItem extends StatelessWidget {

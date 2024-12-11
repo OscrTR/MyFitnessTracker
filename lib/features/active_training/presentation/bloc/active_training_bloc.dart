@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:audioplayers/audioplayers.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:geolocator/geolocator.dart';
@@ -12,7 +13,12 @@ class ActiveTrainingBloc
     extends Bloc<ActiveTrainingEvent, ActiveTrainingState> {
   final Map<String, PausableTimer> _timers = {};
   final RunTracker _runTracker = RunTracker();
+  final AudioPlayer _audioPlayer = AudioPlayer();
   double _distance = 0.0;
+
+  Future<void> playCountdown() async {
+    await _audioPlayer.play(AssetSource('sounds/countdown.mp3'));
+  }
 
   ActiveTrainingBloc() : super(ActiveTrainingInitial()) {
     on<StartTimer>((event, emit) async {
@@ -36,6 +42,9 @@ class ActiveTrainingBloc
           if (event.isCountDown) {
             if (timerValue > 0) {
               timerValue--;
+              if (timerValue == 2) {
+                playCountdown();
+              }
               if (event.isRunTimer) {
                 _distance = _runTracker.totalDistance;
                 add(TickTimer(
@@ -189,6 +198,7 @@ class ActiveTrainingBloc
     for (final timer in _timers.values) {
       timer.cancel();
     }
+    _audioPlayer.dispose();
     return super.close();
   }
 }

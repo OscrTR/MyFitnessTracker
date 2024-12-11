@@ -3,15 +3,15 @@ import 'dart:async';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_fitness_tracker/features/active_training/presentation/bloc/active_training_bloc.dart';
-import 'package:my_fitness_tracker/features/active_training/presentation/widgets/distance_widget.dart';
-import 'package:my_fitness_tracker/features/active_training/presentation/widgets/duration_timer_widget.dart';
-import 'package:my_fitness_tracker/features/active_training/presentation/widgets/pace_widget.dart';
-import 'package:my_fitness_tracker/features/active_training/presentation/widgets/timer_widget.dart';
-import 'package:my_fitness_tracker/features/training_management/domain/entities/training_exercise.dart';
+import '../bloc/active_training_bloc.dart';
+import 'distance_widget.dart';
+import 'duration_timer_widget.dart';
+import 'pace_widget.dart';
+import 'timer_widget.dart';
+import '../../../training_management/domain/entities/training_exercise.dart';
 import 'package:uuid/uuid.dart';
 
-import '../../../../assets/app_colors.dart';
+import '../../../../app_colors.dart';
 
 const uuid = Uuid();
 

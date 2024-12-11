@@ -20,12 +20,12 @@ void main() {
   });
 
   const tId = 1;
-  final tExerciseModel = ExerciseModel(
+  const tExerciseModel = ExerciseModel(
       id: 1,
       name: 'Push-up',
       description: 'Upper body exercise',
       imagePath: 'pushup.png');
-  final Exercise tExercise = tExerciseModel;
+  const Exercise tExercise = tExerciseModel;
   final tExerciseList = [tExerciseModel];
 
   group('createExercise', () {
@@ -41,7 +41,7 @@ void main() {
 
       // Assert
       verify(() => mockLocalDataSource.createExercise(tExercise));
-      expect(result, Right(tExercise));
+      expect(result, const Right(tExercise));
     });
 
     test('should return DatabaseFailure when the call to localDataSource fails',
@@ -70,7 +70,7 @@ void main() {
         final result = await repository.getExercise(tId);
         // Assert
         verify(() => mockLocalDataSource.getExercise(tId));
-        expect(result, equals(Right(tExercise)));
+        expect(result, equals(const Right(tExercise)));
       },
     );
 
@@ -132,7 +132,7 @@ void main() {
 
       // Assert
       verify(() => mockLocalDataSource.updateExercise(tExercise));
-      expect(result, Right(tExercise));
+      expect(result, const Right(tExercise));
     });
 
     test('should return DatabaseFailure when the call to localDataSource fails',

@@ -5,7 +5,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../assets/app_colors.dart';
+import '../../../../app_colors.dart';
 import '../../../../core/messages/bloc/message_bloc.dart';
 import '../../../exercise_management/data/models/exercise_model.dart';
 import '../../../exercise_management/domain/entities/exercise.dart';

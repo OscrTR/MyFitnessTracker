@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../../assets/app_colors.dart';
+import '../../../../app_colors.dart';
 import '../../domain/entities/training_exercise.dart';
 import '../bloc/training_management_bloc.dart';
 import 'big_text_field_widget.dart';
