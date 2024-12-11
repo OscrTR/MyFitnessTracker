@@ -142,6 +142,10 @@ class _ActiveRunWidgetState extends State<ActiveRunWidget> {
                             ? widget.tExercise.targetDistance ?? 0
                             : 0,
                         completer: runCompleter,
+                        pace: widget.tExercise.isTargetRythmSelected != null &&
+                                widget.tExercise.isTargetRythmSelected!
+                            ? widget.tExercise.targetRythm ?? 0
+                            : 0,
                       ));
                       await runCompleter.future;
                       bloc.add(ResetSecondaryTimer());
@@ -420,14 +424,19 @@ class _IntervalWidgetState2 extends State<IntervalWidget2> {
                   final intervalCompleter = Completer<String>();
                   bloc.add(ResetSecondaryTimer());
                   bloc.add(StartTimer(
-                      timerId: 'secondaryTimer',
-                      activeRunTimer: widget.intervalIds[i],
-                      duration: tExercise.intervalDuration ?? 0,
-                      completer: intervalCompleter,
-                      isRunTimer: true,
-                      distance: widget.tExercise.isIntervalInDistance!
-                          ? widget.tExercise.intervalDistance ?? 0
-                          : 0));
+                    timerId: 'secondaryTimer',
+                    activeRunTimer: widget.intervalIds[i],
+                    duration: tExercise.intervalDuration ?? 0,
+                    completer: intervalCompleter,
+                    isRunTimer: true,
+                    distance: widget.tExercise.isIntervalInDistance!
+                        ? widget.tExercise.intervalDistance ?? 0
+                        : 0,
+                    pace: widget.tExercise.isTargetRythmSelected != null &&
+                            widget.tExercise.isTargetRythmSelected!
+                        ? widget.tExercise.targetRythm ?? 0
+                        : 0,
+                  ));
                   await intervalCompleter.future;
                   // After interval completion, start rest timer
                   bloc.add(ResetSecondaryTimer());

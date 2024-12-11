@@ -15,15 +15,18 @@ class StartTimer extends ActiveTrainingEvent {
   final int distance;
   final bool isRunTimer;
   final Completer<String>? completer;
+  final int pace;
 
-  const StartTimer(
-      {required this.timerId,
-      this.activeRunTimer,
-      this.duration = 0,
-      this.isCountDown = false,
-      this.distance = 0,
-      this.isRunTimer = false,
-      this.completer});
+  const StartTimer({
+    required this.timerId,
+    this.activeRunTimer,
+    this.duration = 0,
+    this.isCountDown = false,
+    this.distance = 0,
+    this.isRunTimer = false,
+    this.completer,
+    this.pace = 0,
+  });
 
   @override
   List<Object?> get props => [
@@ -33,7 +36,8 @@ class StartTimer extends ActiveTrainingEvent {
         isCountDown,
         distance,
         isRunTimer,
-        completer
+        completer,
+        pace,
       ];
 }
 

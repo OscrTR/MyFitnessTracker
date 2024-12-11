@@ -41,7 +41,16 @@ class ActiveTrainingBloc
       if (event.isRunTimer) {
         _runTracker.stopTracking();
         _runTracker.startTracking();
+        _distance = 0;
+        _nextKmMarker = 1;
+        _paceMinutes = 0;
+        _paceSeconds = 0;
+        _pace = 0;
       }
+
+      final targetPace = event.pace;
+      final targetPaceMinutes = targetPace.floor();
+      final targetPaceSeconds = ((targetPace - targetPaceMinutes) * 60).round();
 
       int timerValue =
           event.isCountDown ? event.duration : (currentTimers[timerId] ?? 0);
@@ -70,15 +79,31 @@ class ActiveTrainingBloc
               event.completer?.complete('Countdown ended.');
             }
           } else {
-            if (event.distance > 0) {
-              if (_distance > 0 && _distance / 1000 >= _nextKmMarker) {
-                _pace = timerValue / 60 / (_distance / 1000);
-                _paceMinutes = _pace.floor();
-                _paceSeconds = ((_pace - _paceMinutes) * 60).round();
+            if (_distance > 0) {
+              _pace = timerValue / 60 / (_distance / 1000);
+              _paceMinutes = _pace.floor();
+              _paceSeconds = ((_pace - _paceMinutes) * 60).round();
+            }
+
+            // Check pace every 30 seconds if pace is tracked
+            if (event.pace > 0 && timerValue % 30 == 0) {
+              // Check if 5% slower
+              if (_pace < event.pace - (event.pace * 0.05)) {
                 _speak(
-                    '$_nextKmMarker kilomètre. Rythme $_paceMinutes $_paceSeconds par kilomètre.');
-                _nextKmMarker++;
+                    'Rythme actuel $_paceMinutes $_paceSeconds. Rythme cible $targetPaceMinutes $targetPaceSeconds. Accélérez.');
               }
+              if (_pace > event.pace + (event.pace * 0.05)) {
+                _speak(
+                    'Rythme actuel $_paceMinutes $_paceSeconds. Rythme cible $targetPaceMinutes $targetPaceSeconds. Ralentissez.');
+              }
+            }
+
+            if (_distance > 0 && _distance / 1000 >= _nextKmMarker) {
+              _speak(
+                  '$_nextKmMarker kilomètre. Rythme $_paceMinutes $_paceSeconds par kilomètre.');
+              _nextKmMarker++;
+            }
+            if (event.distance > 0) {
               // Check if the current distance equals the objective distance
               if (_distance >= event.distance) {
                 _timers[timerId]?.cancel();
