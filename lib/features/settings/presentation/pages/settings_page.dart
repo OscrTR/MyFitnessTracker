@@ -36,6 +36,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
+    print(context.locale);
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(20),
@@ -70,7 +71,7 @@ class _SettingsPageState extends State<SettingsPage> {
         const SizedBox(height: 20),
         CustomDropdown<String>(
           items: _languages,
-          initialItem: _languages[0], //TODO: set correct language here
+          initialItem: _getLocaleName(context.locale),
           decoration: CustomDropdownDecoration(
             listItemStyle: Theme.of(context)
                 .textTheme
@@ -127,6 +128,33 @@ class _SettingsPageState extends State<SettingsPage> {
     // Set the locale using the found language codes
     context
         .setLocale(Locale(language['languageCode']!, language['countryCode']!));
+  }
+
+  String _getLocaleName(Locale locale) {
+    const List<Map<String, String>> languagesCodes = [
+      {
+        'name': 'English',
+        'languageCode': 'en',
+        'countryCode': 'US',
+      },
+      {
+        'name': 'Français',
+        'languageCode': 'fr',
+        'countryCode': 'FR',
+      }
+    ];
+
+    // Find the matching language map based on the `name`
+    final language = languagesCodes.firstWhere(
+      (lang) => lang['languageCode'] == locale.languageCode,
+      orElse: () => {
+        'languageCode': 'en',
+        'countryCode': 'US'
+      }, // Default to English if not found
+    );
+
+    // Set the locale using the found language codes
+    return language['name']!;
   }
 
   Widget _buildVersionSection(BuildContext context) {
