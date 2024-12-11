@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -76,8 +77,10 @@ class TrainingActionsWidget extends StatelessWidget {
                     borderRadius: BorderRadius.circular(15),
                   ),
                   child: Center(
-                    child:
-                        Text(context.tr('training_detail_page_add_exercise')),
+                    child: AutoSizeText(
+                      context.tr('training_detail_page_add_exercise'),
+                      maxLines: 1,
+                    ),
                   ),
                 ),
               ),
@@ -143,7 +146,10 @@ class TrainingActionsWidget extends StatelessWidget {
                     borderRadius: BorderRadius.circular(15),
                   ),
                   child: Center(
-                    child: Text(context.tr('training_detail_page_add_run')),
+                    child: AutoSizeText(
+                      context.tr('training_detail_page_add_run'),
+                      maxLines: 1,
+                    ),
                   ),
                 ),
               ),
