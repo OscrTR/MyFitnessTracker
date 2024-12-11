@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:pausable_timer/pausable_timer.dart';
 
@@ -14,7 +15,16 @@ class ActiveTrainingBloc
   final Map<String, PausableTimer> _timers = {};
   final RunTracker _runTracker = RunTracker();
   final AudioPlayer _audioPlayer = AudioPlayer();
+  final FlutterTts _flutterTts = FlutterTts();
   double _distance = 0.0;
+  int _nextKmMarker = 1;
+  int _paceMinutes = 0;
+  int _paceSeconds = 0;
+  double _pace = 0;
+
+  Future<void> _speak(String number) async {
+    await _flutterTts.speak(number); // Speak the number
+  }
 
   Future<void> playCountdown() async {
     await _audioPlayer.play(AssetSource('sounds/countdown.mp3'));
@@ -61,6 +71,14 @@ class ActiveTrainingBloc
             }
           } else {
             if (event.distance > 0) {
+              if (_distance > 0 && _distance / 1000 >= _nextKmMarker) {
+                _pace = timerValue / 60 / (_distance / 1000);
+                _paceMinutes = _pace.floor();
+                _paceSeconds = ((_pace - _paceMinutes) * 60).round();
+                _speak(
+                    '$_nextKmMarker kilomètre. Rythme $_paceMinutes $_paceSeconds par kilomètre.');
+                _nextKmMarker++;
+              }
               // Check if the current distance equals the objective distance
               if (_distance >= event.distance) {
                 _timers[timerId]?.cancel();
@@ -199,6 +217,7 @@ class ActiveTrainingBloc
       timer.cancel();
     }
     _audioPlayer.dispose();
+    _flutterTts.stop();
     return super.close();
   }
 }
@@ -212,7 +231,7 @@ class RunTracker {
     // Check permission
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
-      print('Location services are disabled.');
+      // print('Location services are disabled.');
       return;
     }
 
@@ -220,7 +239,7 @@ class RunTracker {
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.deniedForever) {
-        print('Location permissions are permanently denied.');
+        // print('Location permissions are permanently denied.');
         return;
       }
     }
@@ -241,7 +260,7 @@ class RunTracker {
         );
       }
       _previousPosition = position;
-      print('Distance Traveled: $totalDistance meters');
+      // print('Distance Traveled: $totalDistance meters');
     });
   }
 
