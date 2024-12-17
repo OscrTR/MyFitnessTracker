@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:my_fitness_tracker/features/active_training/presentation/bloc/active_training_bloc.dart';
 
 import '../../../../app_colors.dart';
 import '../../../../core/widgets/dash_border_painter_widget.dart';
@@ -160,10 +161,13 @@ Widget _buildSelectedWidgets() {
                             Text(training.name),
                             GestureDetector(
                               onTap: () {
-                                final bloc =
-                                    BlocProvider.of<TrainingManagementBloc>(
-                                        context);
-                                bloc.add(StartTrainingEvent(training.id!));
+                                context
+                                    .read<ActiveTrainingBloc>()
+                                    .add(LoadDefaultActiveTraining());
+                                context
+                                    .read<TrainingManagementBloc>()
+                                    .add(StartTrainingEvent(training.id!));
+
                                 GoRouter.of(context).go('/active_training');
                               },
                               child: IntrinsicWidth(

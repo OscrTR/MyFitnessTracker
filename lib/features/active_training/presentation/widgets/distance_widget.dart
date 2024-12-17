@@ -1,19 +1,14 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../bloc/active_training_bloc.dart';
 
 import '../../../../app_colors.dart';
 
-class DistanceWidget extends StatefulWidget {
-  final String activeRunId;
-  const DistanceWidget({super.key, required this.activeRunId});
+class DistanceWidget extends StatelessWidget {
+  final String timerId;
+  const DistanceWidget({super.key, required this.timerId});
 
-  @override
-  State<DistanceWidget> createState() => DistanceWidgetState();
-}
-
-class DistanceWidgetState extends State<DistanceWidget> {
-  double distance = 0;
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -24,18 +19,16 @@ class DistanceWidgetState extends State<DistanceWidget> {
           BlocBuilder<ActiveTrainingBloc, ActiveTrainingState>(
               builder: (context, state) {
             if (state is ActiveTrainingLoaded) {
-              if (state.activeRunTimer == widget.activeRunId) {
-                distance = state.distance;
-              }
+              final distance = state.timersStateList
+                      .firstWhereOrNull((el) => el.timerId == timerId)
+                      ?.distance ??
+                  0;
               return Text(
                 (distance / 1000).toStringAsFixed(2),
                 style: const TextStyle(color: AppColors.lightBlack),
               );
             }
-            return const Text(
-              '0',
-              style: TextStyle(color: AppColors.lightBlack),
-            );
+            return const SizedBox();
           }),
         ],
       ),

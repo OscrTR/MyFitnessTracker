@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -7,13 +8,9 @@ import '../bloc/active_training_bloc.dart';
 import 'distance_widget.dart';
 import 'duration_timer_widget.dart';
 import 'pace_widget.dart';
-import 'timer_widget.dart';
 import '../../../training_management/domain/entities/training_exercise.dart';
-import 'package:uuid/uuid.dart';
 
 import '../../../../app_colors.dart';
-
-const uuid = Uuid();
 
 String formatDuration(int seconds) {
   final hours = seconds ~/ 3600;
@@ -30,21 +27,21 @@ String formatPace(int seconds) {
 
 class ActiveRunWidget extends StatefulWidget {
   final TrainingExercise tExercise;
-  final GlobalKey<TimerWidgetState> timerWidgetKey;
+  final int exerciseIndex;
   final bool isLast;
-  const ActiveRunWidget(
-      {super.key,
-      required this.tExercise,
-      required this.timerWidgetKey,
-      required this.isLast});
+
+  const ActiveRunWidget({
+    super.key,
+    required this.tExercise,
+    required this.isLast,
+    required this.exerciseIndex,
+  });
 
   @override
   State<ActiveRunWidget> createState() => _ActiveRunWidgetState();
 }
 
 class _ActiveRunWidgetState extends State<ActiveRunWidget> {
-  final timerId = uuid.v4();
-  bool isClicked = false;
   @override
   Widget build(BuildContext context) {
     final hasSpecialInstructions =
@@ -53,151 +50,65 @@ class _ActiveRunWidgetState extends State<ActiveRunWidget> {
     final hasObjectives = widget.tExercise.objectives != null &&
         widget.tExercise.objectives!.isNotEmpty;
 
-    if (widget.tExercise.runExerciseTarget == RunExerciseTarget.distance ||
-        widget.tExercise.runExerciseTarget == RunExerciseTarget.duration) {
-      return Column(
-        children: [
-          Container(
-            margin: const EdgeInsets.only(top: 10, bottom: 10),
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: AppColors.white,
-              border: Border.all(color: AppColors.lightBlack),
-              borderRadius: BorderRadius.circular(15),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 10),
-                buildRunExerciseText(),
-                const SizedBox(height: 10),
-                if (hasSpecialInstructions)
-                  _buildOptionalInfo(
-                    title: 'global_special_instructions',
-                    content: widget.tExercise.specialInstructions,
-                    context: context,
-                  ),
-                if (hasObjectives)
-                  _buildOptionalInfo(
-                    title: 'global_objectives',
-                    content: widget.tExercise.objectives,
-                    context: context,
-                  ),
-                if (hasSpecialInstructions || hasObjectives) ...[
-                  const Divider(),
-                  const SizedBox(height: 10),
-                ],
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'Duration',
-                      style: TextStyle(color: AppColors.lightBlack),
-                    ),
-                    DurationTimerWidget(
-                      activeRunId: timerId,
-                    ),
-                  ],
+    return Column(
+      children: [
+        Container(
+          margin: const EdgeInsets.only(top: 10, bottom: 10),
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: AppColors.white,
+            border: Border.all(color: AppColors.lightBlack),
+            borderRadius: BorderRadius.circular(15),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 10),
+              widget.tExercise.runExerciseTarget == RunExerciseTarget.intervals
+                  ? buildIntervalText()
+                  : buildRunExerciseText(),
+              const SizedBox(height: 10),
+              if (hasSpecialInstructions)
+                _buildOptionalInfo(
+                  title: 'global_special_instructions',
+                  content: widget.tExercise.specialInstructions,
+                  context: context,
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'Distance (km)',
-                      style: TextStyle(color: AppColors.lightBlack),
-                    ),
-                    DistanceWidget(activeRunId: timerId)
-                  ],
+              if (hasObjectives)
+                _buildOptionalInfo(
+                  title: 'global_objectives',
+                  content: widget.tExercise.objectives,
+                  context: context,
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'Pace (min/km)',
-                      style: TextStyle(color: AppColors.lightBlack),
-                    ),
-                    PaceWidget(activeRunId: timerId),
-                  ],
-                ),
-                const SizedBox(height: 10),
+              if (hasSpecialInstructions || hasObjectives) ...[
                 const Divider(),
                 const SizedBox(height: 10),
-                GestureDetector(
-                  onTap: () async {
-                    if (!isClicked) {
-                      isClicked = true;
-                      setState(() {});
-
-                      final bloc = context.read<ActiveTrainingBloc>();
-
-                      final runCompleter = Completer<String>();
-                      bloc.add(ResetSecondaryTimer());
-                      bloc.add(StartTimer(
-                        timerId: 'secondaryTimer',
-                        activeRunTimer: timerId,
-                        duration: widget.tExercise.duration ?? 0,
-                        isRunTimer: true,
-                        distance: widget.tExercise.runExerciseTarget ==
-                                RunExerciseTarget.distance
-                            ? widget.tExercise.targetDistance ?? 0
-                            : 0,
-                        completer: runCompleter,
-                        pace: widget.tExercise.isTargetRythmSelected != null &&
-                                widget.tExercise.isTargetRythmSelected!
-                            ? widget.tExercise.targetRythm ?? 0
-                            : 0,
-                      ));
-                      await runCompleter.future;
-                      bloc.add(ResetSecondaryTimer());
-                      final restCompleter = Completer<String>();
-                      bloc.add(StartTimer(
-                        timerId: 'secondaryTimer',
-                        duration: widget.isLast
-                            ? 0
-                            : widget.tExercise.exerciseRest ?? 0,
-                        isCountDown: true,
-                        activeRunTimer: 'secondaryTimer',
-                        completer: restCompleter,
-                      ));
-                      await restCompleter.future;
-                    }
-                  },
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        width: 160,
-                        alignment: Alignment.center,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 20, vertical: 10),
-                        decoration: BoxDecoration(
-                            color: isClicked
-                                ? AppColors.lightGrey
-                                : AppColors.black,
-                            borderRadius: BorderRadius.circular(10)),
-                        child: Text(
-                          isClicked ? 'Started' : tr('global_start'),
-                          style: TextStyle(
-                              color: isClicked
-                                  ? AppColors.lightBlack
-                                  : AppColors.white),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 10),
               ],
-            ),
+              if (widget.tExercise.runExerciseTarget ==
+                      RunExerciseTarget.distance ||
+                  widget.tExercise.runExerciseTarget ==
+                      RunExerciseTarget.duration)
+                DistanceOrDurationRun(
+                  tExercise: widget.tExercise,
+                  isLast: widget.isLast,
+                  exerciseIndex: widget.exerciseIndex,
+                ),
+              if (widget.tExercise.runExerciseTarget ==
+                      RunExerciseTarget.intervals &&
+                  widget.tExercise.intervals != null &&
+                  widget.tExercise.intervals! > 0)
+                IntervalWidget(
+                  tExercise: widget.tExercise,
+                  isLast: widget.isLast,
+                  exerciseIndex: widget.exerciseIndex,
+                ),
+              const SizedBox(height: 10),
+            ],
           ),
-          _buildExerciseRest(),
-        ],
-      );
-    } else if (widget.tExercise.intervals != null) {
-      return _buildIntervals(widget.tExercise.intervals!);
-    } else {
-      return const SizedBox();
-    }
+        ),
+        _buildExerciseRest(),
+      ],
+    );
   }
 
   Row _buildExerciseRest() {
@@ -246,79 +157,27 @@ class _ActiveRunWidgetState extends State<ActiveRunWidget> {
   }
 
   Text buildRunExerciseText() {
-    final tExercise = widget.tExercise;
-    final targetDistance = tExercise.targetDistance != null
-        ? '${(tExercise.targetDistance! / 1000).toStringAsFixed(1)}km'
+    final targetDistance = widget.tExercise.targetDistance != null
+        ? '${(widget.tExercise.targetDistance! / 1000).toStringAsFixed(1)}km'
         : '';
-    final targetDuration = tExercise.targetDuration != null
-        ? formatDuration(tExercise.targetDuration!)
+    final targetDuration = widget.tExercise.targetDuration != null
+        ? formatDuration(widget.tExercise.targetDuration!)
         : '';
-    final targetPace = tExercise.isTargetRythmSelected == true
-        ? ' at ${formatPace(tExercise.targetRythm!)}'
+    final targetPace = widget.tExercise.isTargetRythmSelected == true
+        ? ' at ${formatPace(widget.tExercise.targetRythm!)}'
         : '';
 
-    if (tExercise.runExerciseTarget == RunExerciseTarget.distance) {
+    if (widget.tExercise.runExerciseTarget == RunExerciseTarget.distance) {
       return Text('Running $targetDistance$targetPace');
-    } else if (tExercise.runExerciseTarget == RunExerciseTarget.duration) {
+    } else if (widget.tExercise.runExerciseTarget ==
+        RunExerciseTarget.duration) {
       return Text('Running $targetDuration$targetPace');
     } else {
       return const Text('Running');
     }
   }
 
-  Widget _buildIntervals(int intervals) {
-    final List<String> intervalIds = [];
-    for (var i = 0; i < widget.tExercise.intervals!; i++) {
-      intervalIds.add(uuid.v4());
-    }
-    return Column(
-      children: [
-        IntervalWidget2(
-          tExercise: widget.tExercise,
-          intervalIds: intervalIds,
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            if (!widget.isLast)
-              const Icon(
-                Icons.snooze,
-                size: 20,
-              ),
-            if (!widget.isLast) const SizedBox(width: 5),
-            if (!widget.isLast)
-              Text(
-                widget.tExercise.exerciseRest != null
-                    ? formatDuration(widget.tExercise.exerciseRest!)
-                    : '0:00',
-              ),
-            if (widget.isLast) Text(tr('active_training_end')),
-          ],
-        ),
-      ],
-    );
-  }
-}
-
-class IntervalWidget2 extends StatefulWidget {
-  const IntervalWidget2({
-    super.key,
-    required this.tExercise,
-    required this.intervalIds,
-  });
-
-  final TrainingExercise tExercise;
-  final List<String> intervalIds;
-
-  @override
-  State<IntervalWidget2> createState() => _IntervalWidgetState2();
-}
-
-class _IntervalWidgetState2 extends State<IntervalWidget2> {
-  bool isClicked = false;
-
-  @override
-  Widget build(BuildContext context) {
+  Text buildIntervalText() {
     final tExercise = widget.tExercise;
     final targetDistance = tExercise.intervalDistance != null
         ? '${(tExercise.intervalDistance! / 1000).toStringAsFixed(1)}km'
@@ -329,154 +188,349 @@ class _IntervalWidgetState2 extends State<IntervalWidget2> {
     final targetPace = tExercise.isTargetRythmSelected == true
         ? ' at ${formatPace(tExercise.targetRythm!)}'
         : '';
-    return Container(
-        margin: const EdgeInsets.only(top: 10, bottom: 10),
-        padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          color: AppColors.white,
-          border: Border.all(color: AppColors.lightBlack),
-          borderRadius: BorderRadius.circular(15),
-        ),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          const SizedBox(height: 10),
-          if (tExercise.isIntervalInDistance == true)
-            Text(
-                'Running interval $targetDistance$targetPace x${tExercise.intervals}'),
-          if (tExercise.isIntervalInDistance == false)
-            Text(
-                'Running interval $targetDuration$targetPace x${tExercise.intervals}'),
-          const SizedBox(height: 10),
-          ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: tExercise.intervals,
-              itemBuilder: (context, index) {
-                final bool isLastInterval = index + 1 == tExercise.intervals;
-                return Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          'Duration',
-                          style: TextStyle(color: AppColors.lightBlack),
-                        ),
-                        DurationTimerWidget(
-                            activeRunId: widget.intervalIds[index]),
-                      ],
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          'Distance (km)',
-                          style: TextStyle(color: AppColors.lightBlack),
-                        ),
-                        DistanceWidget(activeRunId: widget.intervalIds[index])
-                      ],
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          'Pace (min/km)',
-                          style: TextStyle(color: AppColors.lightBlack),
-                        ),
-                        PaceWidget(activeRunId: widget.intervalIds[index])
-                      ],
-                    ),
-                    if (!isLastInterval)
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Expanded(child: Divider()),
-                          const SizedBox(width: 5),
-                          const Icon(
-                            Icons.snooze,
-                            size: 20,
-                            color: AppColors.lightBlack,
-                          ),
-                          const SizedBox(width: 5),
-                          Text(
-                            tExercise.intervalRest != null
-                                ? formatDuration(tExercise.intervalRest!)
-                                : '0:00',
-                            style: const TextStyle(color: AppColors.lightBlack),
-                          ),
-                          const SizedBox(width: 5),
-                          const Expanded(child: Divider()),
-                        ],
-                      ),
-                    if (isLastInterval) const SizedBox(height: 10)
-                  ],
-                );
-              }),
-          const SizedBox(height: 10),
-          GestureDetector(
-            onTap: () async {
-              final bloc = context.read<ActiveTrainingBloc>();
-              if (!isClicked) {
-                isClicked = true;
-                setState(() {});
 
-                for (var i = 0; i < widget.intervalIds.length; i++) {
-                  // Start interval timer
-                  final intervalCompleter = Completer<String>();
-                  bloc.add(ResetSecondaryTimer());
-                  bloc.add(StartTimer(
-                    timerId: 'secondaryTimer',
-                    activeRunTimer: widget.intervalIds[i],
-                    duration: tExercise.intervalDuration ?? 0,
-                    completer: intervalCompleter,
-                    isRunTimer: true,
-                    distance: widget.tExercise.isIntervalInDistance!
-                        ? widget.tExercise.intervalDistance ?? 0
-                        : 0,
-                    pace: widget.tExercise.isTargetRythmSelected != null &&
-                            widget.tExercise.isTargetRythmSelected!
-                        ? widget.tExercise.targetRythm ?? 0
-                        : 0,
-                  ));
-                  await intervalCompleter.future;
-                  // After interval completion, start rest timer
-                  bloc.add(ResetSecondaryTimer());
-                  final restCompleter = Completer<String>();
-                  final isLastInterval = i + 1 == widget.intervalIds.length;
-                  bloc.add(StartTimer(
-                    timerId: 'secondaryTimer',
-                    duration: isLastInterval
-                        ? tExercise.exerciseRest ?? 0
-                        : tExercise.intervalRest ?? 0,
-                    isCountDown: true,
-                    activeRunTimer: 'secondaryTimer',
-                    completer: restCompleter,
-                  ));
-                  await restCompleter.future;
-                }
-              }
-            },
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+    if (tExercise.isIntervalInDistance == true) {
+      return Text(
+          'Running interval $targetDistance$targetPace x${tExercise.intervals}');
+    } else if (tExercise.isIntervalInDistance == false) {
+      return Text(
+          'Running interval $targetDuration$targetPace x${tExercise.intervals}');
+    } else {
+      return const Text('Running');
+    }
+  }
+}
+
+class DistanceOrDurationRun extends StatelessWidget {
+  final TrainingExercise tExercise;
+  final int exerciseIndex;
+  final bool isLast;
+  const DistanceOrDurationRun({
+    super.key,
+    required this.tExercise,
+    required this.isLast,
+    required this.exerciseIndex,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final timerId = '$exerciseIndex';
+    final restTimerId = '$exerciseIndex-rest';
+    // Create exercise timer
+    context.read<ActiveTrainingBloc>().add(CreateTimer(
+          timerState: TimerState(
+            timerId: timerId,
+            isActive: false,
+            isStarted: false,
+            isRunTimer: true,
+            isCountDown: false,
+            timerValue: 0,
+            targetDistance:
+                tExercise.runExerciseTarget == RunExerciseTarget.distance
+                    ? tExercise.targetDistance ?? 0
+                    : 0,
+            targetDuration:
+                tExercise.runExerciseTarget == RunExerciseTarget.duration
+                    ? tExercise.targetDuration ?? 0
+                    : 0,
+            targetPace: tExercise.isTargetRythmSelected != null &&
+                    tExercise.isTargetRythmSelected!
+                ? tExercise.targetRythm ?? 0
+                : 0,
+          ),
+        ));
+
+    // Create rest timer
+    context.read<ActiveTrainingBloc>().add(CreateTimer(
+          timerState: TimerState(
+            timerId: restTimerId,
+            isActive: false,
+            isStarted: false,
+            isRunTimer: false,
+            timerValue: 0,
+            countDownValue: tExercise.exerciseRest ?? 0,
+            isCountDown: true,
+            isAutostart: true,
+          ),
+        ));
+
+    return BlocBuilder<ActiveTrainingBloc, ActiveTrainingState>(
+        builder: (context, state) {
+      if (state is ActiveTrainingLoaded) {
+        bool isStarted = false;
+        final currentIsStarted = state.timersStateList
+            .firstWhereOrNull((el) => el.timerId == timerId)
+            ?.isStarted;
+        if (currentIsStarted != null && currentIsStarted) {
+          isStarted = true;
+        }
+        return Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Container(
-                  width: 160,
-                  alignment: Alignment.center,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  decoration: BoxDecoration(
-                      color: isClicked ? AppColors.lightGrey : AppColors.black,
-                      borderRadius: BorderRadius.circular(10)),
-                  child: Text(
-                    isClicked ? 'Started' : tr('global_start'),
-                    style: TextStyle(
-                        color:
-                            isClicked ? AppColors.lightBlack : AppColors.white),
-                  ),
+                const Text(
+                  'Duration',
+                  style: TextStyle(color: AppColors.lightBlack),
+                ),
+                DurationTimerWidget(
+                  timerId: timerId,
                 ),
               ],
             ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Distance (km)',
+                  style: TextStyle(color: AppColors.lightBlack),
+                ),
+                DistanceWidget(timerId: timerId)
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Pace (min/km)',
+                  style: TextStyle(color: AppColors.lightBlack),
+                ),
+                PaceWidget(timerId: timerId),
+              ],
+            ),
+            const SizedBox(height: 10),
+            const Divider(),
+            const SizedBox(height: 10),
+            GestureDetector(
+              onTap: () async {
+                final bloc = context.read<ActiveTrainingBloc>();
+                final runCompleter = Completer<String>();
+
+                bloc.add(
+                  StartTimer(timerId: timerId, completer: runCompleter),
+                );
+                await runCompleter.future;
+
+                if (!isLast) {
+                  bloc.add(StartTimer(timerId: restTimerId));
+                }
+              },
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    width: 160,
+                    alignment: Alignment.center,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 10),
+                    decoration: BoxDecoration(
+                        color:
+                            isStarted ? AppColors.lightGrey : AppColors.black,
+                        borderRadius: BorderRadius.circular(10)),
+                    child: Text(
+                      isStarted ? 'Started' : tr('global_start'),
+                      style: TextStyle(
+                          color: isStarted
+                              ? AppColors.lightBlack
+                              : AppColors.white),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        );
+      }
+      return const SizedBox();
+    });
+  }
+}
+
+class IntervalWidget extends StatefulWidget {
+  final TrainingExercise tExercise;
+  final int exerciseIndex;
+  final bool isLast;
+
+  const IntervalWidget(
+      {super.key,
+      required this.tExercise,
+      required this.isLast,
+      required this.exerciseIndex});
+
+  @override
+  State<IntervalWidget> createState() => _IntervalWidgetState();
+}
+
+class _IntervalWidgetState extends State<IntervalWidget> {
+  bool isClicked = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: widget.tExercise.intervals,
+            itemBuilder: (context, index) {
+              final bool isLastInterval =
+                  index + 1 == widget.tExercise.intervals;
+
+              return IntervalRun(
+                tExercise: widget.tExercise,
+                isLastInterval: isLastInterval,
+                exerciseIndex: widget.exerciseIndex,
+                intervalIndex: index,
+              );
+            }),
+        GestureDetector(
+          onTap: () async {
+            final bloc = context.read<ActiveTrainingBloc>();
+            if (!isClicked) {
+              isClicked = true;
+              setState(() {});
+
+              bloc.add(StartTimer(timerId: '${widget.exerciseIndex}-0'));
+            }
+          },
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                width: 160,
+                alignment: Alignment.center,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                decoration: BoxDecoration(
+                    color: isClicked ? AppColors.lightGrey : AppColors.black,
+                    borderRadius: BorderRadius.circular(10)),
+                child: Text(
+                  isClicked ? 'Started' : tr('global_start'),
+                  style: TextStyle(
+                      color:
+                          isClicked ? AppColors.lightBlack : AppColors.white),
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 10),
-        ]));
+        ),
+      ],
+    );
+  }
+}
+
+class IntervalRun extends StatelessWidget {
+  final TrainingExercise tExercise;
+  final int exerciseIndex;
+  final int intervalIndex;
+  final bool isLastInterval;
+  const IntervalRun({
+    super.key,
+    required this.tExercise,
+    required this.isLastInterval,
+    required this.exerciseIndex,
+    required this.intervalIndex,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final timerId = '$exerciseIndex-$intervalIndex';
+    final restTimerId = '$exerciseIndex-$intervalIndex-rest';
+    // Create exercise timer
+    context.read<ActiveTrainingBloc>().add(CreateTimer(
+            timerState: TimerState(
+          timerId: timerId,
+          isActive: false,
+          isStarted: false,
+          isRunTimer: true,
+          timerValue: 0,
+          isCountDown: false,
+          targetDistance: tExercise.intervalDistance ?? 0,
+          targetDuration: tExercise.intervalDuration ?? 0,
+          targetPace: tExercise.isTargetRythmSelected != null &&
+                  tExercise.isTargetRythmSelected!
+              ? tExercise.targetRythm ?? 0
+              : 0,
+          isAutostart: intervalIndex == 0 ? false : true,
+        )));
+
+    // Create rest timer
+    context.read<ActiveTrainingBloc>().add(CreateTimer(
+            timerState: TimerState(
+          timerId: restTimerId,
+          isActive: false,
+          isStarted: false,
+          isRunTimer: false,
+          timerValue: 0,
+          isCountDown: true,
+          countDownValue: isLastInterval
+              ? tExercise.exerciseRest ?? 0
+              : tExercise.intervalRest ?? 0,
+          isAutostart: true,
+        )));
+
+    return BlocBuilder<ActiveTrainingBloc, ActiveTrainingState>(
+        builder: (context, state) {
+      if (state is ActiveTrainingLoaded) {
+        return Column(children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Duration',
+                style: TextStyle(color: AppColors.lightBlack),
+              ),
+              DurationTimerWidget(
+                timerId: timerId,
+              ),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Distance (km)',
+                style: TextStyle(color: AppColors.lightBlack),
+              ),
+              DistanceWidget(timerId: timerId)
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Pace (min/km)',
+                style: TextStyle(color: AppColors.lightBlack),
+              ),
+              PaceWidget(timerId: timerId),
+            ],
+          ),
+          if (!isLastInterval)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Expanded(child: Divider()),
+                const SizedBox(width: 5),
+                const Icon(
+                  Icons.snooze,
+                  size: 20,
+                  color: AppColors.lightBlack,
+                ),
+                const SizedBox(width: 5),
+                Text(
+                  tExercise.intervalRest != null
+                      ? formatDuration(tExercise.intervalRest!)
+                      : '0:00',
+                  style: const TextStyle(color: AppColors.lightBlack),
+                ),
+                const SizedBox(width: 5),
+                const Expanded(child: Divider()),
+              ],
+            ),
+          if (isLastInterval) const SizedBox(height: 10)
+        ]);
+      }
+      return const SizedBox();
+    });
   }
 }

@@ -2,7 +2,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 import 'active_multiset_exercise_widget.dart';
-import 'timer_widget.dart';
 import '../../../training_management/domain/entities/multiset.dart';
 
 import '../../../../app_colors.dart';
@@ -16,13 +15,14 @@ String _formatDuration(int? seconds) {
 
 class ActiveMultisetWidget extends StatefulWidget {
   final Multiset multiset;
-  final GlobalKey<TimerWidgetState> timerWidgetKey;
   final bool isLast;
-  const ActiveMultisetWidget(
-      {super.key,
-      required this.isLast,
-      required this.multiset,
-      required this.timerWidgetKey});
+  final int multisetIndex;
+  const ActiveMultisetWidget({
+    super.key,
+    required this.isLast,
+    required this.multiset,
+    required this.multisetIndex,
+  });
 
   @override
   State<ActiveMultisetWidget> createState() => _ActiveMultisetWidgetState();
@@ -111,8 +111,10 @@ class _ActiveMultisetWidgetState extends State<ActiveMultisetWidget> {
             : ActiveMultisetExerciseWidget(
                 multiset: widget.multiset,
                 tExercise: exercise,
-                timerWidgetKey: widget.timerWidgetKey,
-                isLast: isLast);
+                isLast: isLast,
+                multisetIndex: widget.multisetIndex,
+                multisetExerciseIndex: index,
+              );
       },
     );
   }

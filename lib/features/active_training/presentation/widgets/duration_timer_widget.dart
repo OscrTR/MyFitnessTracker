@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../bloc/active_training_bloc.dart';
@@ -12,16 +13,10 @@ String _formatTime(int seconds, {bool includeHours = true}) {
   return includeHours ? '$hours:$minutes:$secs' : '$minutes:$secs';
 }
 
-class DurationTimerWidget extends StatefulWidget {
-  final String activeRunId;
-  const DurationTimerWidget({super.key, required this.activeRunId});
+class DurationTimerWidget extends StatelessWidget {
+  final String timerId;
+  const DurationTimerWidget({super.key, required this.timerId});
 
-  @override
-  State<DurationTimerWidget> createState() => DurationTimerWidgetState();
-}
-
-class DurationTimerWidgetState extends State<DurationTimerWidget> {
-  int timerValue = 0;
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -32,18 +27,16 @@ class DurationTimerWidgetState extends State<DurationTimerWidget> {
           BlocBuilder<ActiveTrainingBloc, ActiveTrainingState>(
               builder: (context, state) {
             if (state is ActiveTrainingLoaded) {
-              if (state.activeRunTimer == widget.activeRunId) {
-                timerValue = state.timers['secondaryTimer'] ?? 0;
-              }
+              final timerValue = state.timersStateList
+                      .firstWhereOrNull((el) => el.timerId == timerId)
+                      ?.timerValue ??
+                  0;
               return Text(
                 _formatTime(timerValue),
                 style: const TextStyle(color: AppColors.lightBlack),
               );
             }
-            return const Text(
-              '00:00:00',
-              style: TextStyle(color: AppColors.lightBlack),
-            );
+            return const SizedBox();
           }),
         ],
       ),

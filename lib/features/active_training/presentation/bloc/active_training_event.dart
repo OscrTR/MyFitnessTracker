@@ -7,37 +7,39 @@ abstract class ActiveTrainingEvent extends Equatable {
   List<Object?> get props => [];
 }
 
+class LoadDefaultActiveTraining extends ActiveTrainingEvent {}
+
+class GenerateActiveTrainingTimers extends ActiveTrainingEvent {
+  final List<Map<String, Object>> exercisesAndMultisetsList;
+
+  const GenerateActiveTrainingTimers({required this.exercisesAndMultisetsList});
+
+  @override
+  List<Object> get props => [exercisesAndMultisetsList];
+}
+
+class CreateTimer extends ActiveTrainingEvent {
+  final TimerState timerState;
+
+  const CreateTimer({required this.timerState});
+
+  @override
+  List<Object?> get props => [timerState];
+}
+
 class StartTimer extends ActiveTrainingEvent {
   final String timerId;
-  final String? activeRunTimer;
-  final int duration;
-  final bool isCountDown;
-  final int distance;
-  final bool isRunTimer;
   final Completer<String>? completer;
-  final int pace;
 
   const StartTimer({
     required this.timerId,
-    this.activeRunTimer,
-    this.duration = 0,
-    this.isCountDown = false,
-    this.distance = 0,
-    this.isRunTimer = false,
     this.completer,
-    this.pace = 0,
   });
 
   @override
   List<Object?> get props => [
         timerId,
-        activeRunTimer,
-        duration,
-        isCountDown,
-        distance,
-        isRunTimer,
         completer,
-        pace,
       ];
 }
 
@@ -57,4 +59,10 @@ class TickTimer extends ActiveTrainingEvent {
 
 class PauseTimer extends ActiveTrainingEvent {}
 
-class ResetSecondaryTimer extends ActiveTrainingEvent {}
+class ResetTimer extends ActiveTrainingEvent {
+  final String timerId;
+
+  const ResetTimer({required this.timerId});
+  @override
+  List<Object?> get props => [timerId];
+}

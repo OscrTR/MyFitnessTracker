@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../bloc/active_training_bloc.dart';
@@ -32,6 +33,15 @@ class TimerWidgetState extends State<TimerWidget> {
 
   @override
   void initState() {
+    context.read<ActiveTrainingBloc>().add(const CreateTimer(
+            timerState: TimerState(
+          timerId: 'primaryTimer',
+          isActive: false,
+          isStarted: false,
+          isRunTimer: false,
+          timerValue: 0,
+          isCountDown: false,
+        )));
     context
         .read<ActiveTrainingBloc>()
         .add(const StartTimer(timerId: 'primaryTimer'));
@@ -62,8 +72,15 @@ class TimerWidgetState extends State<TimerWidget> {
             BlocBuilder<ActiveTrainingBloc, ActiveTrainingState>(
                 builder: (context, state) {
               if (state is ActiveTrainingLoaded) {
-                final primaryTimerValue = state.timers['primaryTimer'] ?? 0;
-                final secondaryTimerValue = state.timers['secondaryTimer'] ?? 0;
+                final primaryTimerValue = state.timersStateList
+                        .firstWhereOrNull((e) => e.timerId == 'primaryTimer')
+                        ?.timerValue ??
+                    0;
+                final secondaryTimerValue = state.timersStateList
+                        .firstWhereOrNull((e) =>
+                            e.timerId != 'primaryTimer' && e.isActive == true)
+                        ?.timerValue ??
+                    0;
                 return Row(
                   children: [
                     Container(

@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:uuid/uuid.dart';
 import '../widgets/active_multiset_widget.dart';
 import '../widgets/active_run_widget.dart';
 import '../widgets/timer_widget.dart';
@@ -12,16 +13,10 @@ import '../../../training_management/presentation/bloc/training_management_bloc.
 import '../../../training_management/domain/entities/multiset.dart';
 import '../widgets/active_exercise_widget.dart';
 
-class ActiveTrainingPage extends StatefulWidget {
+const uuid = Uuid();
+
+class ActiveTrainingPage extends StatelessWidget {
   const ActiveTrainingPage({super.key});
-
-  @override
-  State<ActiveTrainingPage> createState() => _ActiveTrainingPageState();
-}
-
-class _ActiveTrainingPageState extends State<ActiveTrainingPage> {
-  final GlobalKey<TimerWidgetState> timerWidgetKey =
-      GlobalKey<TimerWidgetState>();
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +47,8 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage> {
                     children: [
                       _buildHeader(state, context),
                       const SizedBox(height: 30),
-                      _buildTrainingItemList(sortedItems),
+                      _buildTrainingItemList(
+                          sortedItems, context, exercisesAndMultisetsList),
                       const SizedBox(height: 90),
                     ],
                   ),
@@ -63,13 +59,11 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage> {
           ],
         ),
       ),
-      Positioned(
+      const Positioned(
         bottom: 0,
         right: 0,
         left: 0,
-        child: TimerWidget(
-          key: timerWidgetKey,
-        ),
+        child: TimerWidget(),
       )
     ]);
   }
@@ -97,7 +91,10 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage> {
     return items;
   }
 
-  Widget _buildTrainingItemList(List<Map<String, dynamic>> items) {
+  Widget _buildTrainingItemList(
+      List<Map<String, dynamic>> items,
+      BuildContext context,
+      List<Map<String, Object>> exercisesAndMultisetsList) {
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -111,20 +108,22 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage> {
           return exercise.trainingExerciseType == TrainingExerciseType.run
               ? ActiveRunWidget(
                   tExercise: exercise,
-                  timerWidgetKey: timerWidgetKey,
                   isLast: isLast,
+                  exerciseIndex: index,
                 )
               : ActiveExerciseWidget(
                   tExercise: exercise,
-                  timerWidgetKey: timerWidgetKey,
-                  isLast: isLast);
+                  isLast: isLast,
+                  exerciseIndex: index,
+                );
         } else if (item['type'] == 'multiset') {
           final multiset = item['data'] as Multiset;
           final isLast = index == items.length - 1;
           return ActiveMultisetWidget(
-              isLast: isLast,
-              multiset: multiset,
-              timerWidgetKey: timerWidgetKey);
+            isLast: isLast,
+            multiset: multiset,
+            multisetIndex: index,
+          );
         }
         return const SizedBox.shrink();
       },

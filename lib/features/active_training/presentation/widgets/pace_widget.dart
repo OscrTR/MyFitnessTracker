@@ -1,21 +1,14 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../bloc/active_training_bloc.dart';
 
 import '../../../../app_colors.dart';
 
-class PaceWidget extends StatefulWidget {
-  final String activeRunId;
-  const PaceWidget({super.key, required this.activeRunId});
+class PaceWidget extends StatelessWidget {
+  final String timerId;
+  const PaceWidget({super.key, required this.timerId});
 
-  @override
-  State<PaceWidget> createState() => PaceWidgetState();
-}
-
-class PaceWidgetState extends State<PaceWidget> {
-  int paceMinutes = 0;
-  int paceSeconds = 0;
-  double pace = 0;
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -26,13 +19,19 @@ class PaceWidgetState extends State<PaceWidget> {
           BlocBuilder<ActiveTrainingBloc, ActiveTrainingState>(
               builder: (context, state) {
             if (state is ActiveTrainingLoaded) {
-              if (state.activeRunTimer == widget.activeRunId &&
-                  state.timers['secondaryTimer'] != null &&
-                  state.timers['secondaryTimer'] != 0 &&
-                  state.distance != 0) {
-                pace = state.timers['secondaryTimer']! /
-                    60 /
-                    (state.distance / 1000);
+              final distance = state.timersStateList
+                      .firstWhereOrNull((el) => el.timerId == timerId)
+                      ?.distance ??
+                  0;
+              final timerValue = state.timersStateList
+                      .firstWhereOrNull((el) => el.timerId == timerId)
+                      ?.timerValue ??
+                  0;
+              double pace = 0;
+              int paceMinutes = 0;
+              int paceSeconds = 0;
+              if (timerValue != 0 && distance != 0) {
+                pace = timerValue / 60 / (distance / 1000);
                 paceMinutes = pace.floor();
                 paceSeconds = ((pace - paceMinutes) * 60).round();
               }
@@ -41,10 +40,7 @@ class PaceWidgetState extends State<PaceWidget> {
                 style: const TextStyle(color: AppColors.lightBlack),
               );
             }
-            return const Text(
-              '00:00',
-              style: TextStyle(color: AppColors.lightBlack),
-            );
+            return const SizedBox();
           }),
         ],
       ),

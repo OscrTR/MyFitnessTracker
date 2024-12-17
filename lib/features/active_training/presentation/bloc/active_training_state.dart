@@ -10,31 +10,110 @@ abstract class ActiveTrainingState extends Equatable {
 class ActiveTrainingInitial extends ActiveTrainingState {}
 
 class ActiveTrainingLoaded extends ActiveTrainingState {
-  final Map<String, int> timers;
   final bool isPaused;
   final String? activeRunTimer;
   final double distance;
+  final List<TimerState> timersStateList;
 
-  const ActiveTrainingLoaded(
-      {required this.timers,
-      this.isPaused = false,
-      this.activeRunTimer,
-      this.distance = 0});
+  const ActiveTrainingLoaded({
+    this.isPaused = false,
+    this.activeRunTimer,
+    this.distance = 0,
+    required this.timersStateList,
+  });
 
   ActiveTrainingLoaded copyWith({
-    Map<String, int>? timers,
     bool? isPaused,
     String? activeRunTimer,
     double? distance,
+    List<TimerState>? timersStateList,
   }) {
     return ActiveTrainingLoaded(
-      timers: timers ?? this.timers,
       isPaused: isPaused ?? this.isPaused,
       activeRunTimer: activeRunTimer ?? this.activeRunTimer,
       distance: distance ?? this.distance,
+      timersStateList: timersStateList != null
+          ? List.unmodifiable(
+              timersStateList..sort((a, b) => a.timerId.compareTo(b.timerId)),
+            )
+          : this.timersStateList,
     );
   }
 
   @override
-  List<Object?> get props => [timers, isPaused, activeRunTimer, distance];
+  List<Object?> get props =>
+      [isPaused, activeRunTimer, distance, timersStateList];
+}
+
+class TimerState extends Equatable {
+  final String timerId;
+  final bool isActive;
+  final bool isStarted;
+  final bool isRunTimer;
+  final bool isCountDown;
+  final bool isAutostart;
+  final int timerValue;
+  final int countDownValue;
+  final int targetDistance;
+  final int targetDuration;
+  final int targetPace;
+  final double distance;
+  final double pace;
+
+  const TimerState({
+    required this.timerId,
+    required this.isActive,
+    required this.isStarted,
+    required this.isCountDown,
+    required this.isRunTimer,
+    required this.timerValue,
+    this.isAutostart = false,
+    this.countDownValue = 0,
+    this.targetDistance = 0,
+    this.targetDuration = 0,
+    this.targetPace = 0,
+    this.distance = 0,
+    this.pace = 0,
+  });
+
+  TimerState copyWith({
+    bool? isActive,
+    bool? isStarted,
+    int? timerValue,
+    double? distance,
+    double? pace,
+  }) {
+    return TimerState(
+      timerId: timerId,
+      isActive: isActive ?? this.isActive,
+      isStarted: isStarted ?? this.isStarted,
+      isCountDown: isCountDown,
+      isRunTimer: isRunTimer,
+      isAutostart: isAutostart,
+      timerValue: timerValue ?? this.timerValue,
+      countDownValue: countDownValue,
+      targetDistance: targetDistance,
+      targetDuration: targetDuration,
+      targetPace: targetPace,
+      distance: distance ?? this.distance,
+      pace: pace ?? this.pace,
+    );
+  }
+
+  @override
+  List<Object?> get props => [
+        timerId,
+        isActive,
+        isStarted,
+        isCountDown,
+        isRunTimer,
+        isAutostart,
+        timerValue,
+        countDownValue,
+        targetDistance,
+        targetDuration,
+        targetPace,
+        distance,
+        pace
+      ];
 }

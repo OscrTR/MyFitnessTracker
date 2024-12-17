@@ -28,14 +28,14 @@ class TrainingManagementBloc
   final delete.DeleteTraining deleteTraining;
   final MessageBloc messageBloc;
 
-  TrainingManagementBloc(
-      {required this.createTraining,
-      required this.fetchTrainings,
-      required this.getTraining,
-      required this.updateTraining,
-      required this.deleteTraining,
-      required this.messageBloc})
-      : super(TrainingManagementInitial()) {
+  TrainingManagementBloc({
+    required this.createTraining,
+    required this.fetchTrainings,
+    required this.getTraining,
+    required this.updateTraining,
+    required this.deleteTraining,
+    required this.messageBloc,
+  }) : super(TrainingManagementInitial()) {
     //! Trainings
     on<FetchTrainingsEvent>((event, emit) async {
       final result = await fetchTrainings(null);

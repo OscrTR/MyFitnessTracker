@@ -63,7 +63,7 @@ class TrainingExerciseModel extends TrainingExercise {
       duration: json['duration'] as int?,
       setRest: json['set_rest'] as int?,
       exerciseRest: json['exercise_rest'] as int?,
-      manualStart: (json['manual_start'] as int?) == 1 ? true : false,
+      manualStart: (json['manual_start'] as int?) == 0 ? false : true,
       position: json['position'] as int?,
       key: json['key'] as String,
     );
