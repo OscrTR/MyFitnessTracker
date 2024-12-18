@@ -12,26 +12,22 @@ class ActiveTrainingInitial extends ActiveTrainingState {}
 class ActiveTrainingLoaded extends ActiveTrainingState {
   final bool isPaused;
   final String? activeRunTimer;
-  final double distance;
   final List<TimerState> timersStateList;
 
   const ActiveTrainingLoaded({
     this.isPaused = false,
     this.activeRunTimer,
-    this.distance = 0,
     required this.timersStateList,
   });
 
   ActiveTrainingLoaded copyWith({
     bool? isPaused,
     String? activeRunTimer,
-    double? distance,
     List<TimerState>? timersStateList,
   }) {
     return ActiveTrainingLoaded(
       isPaused: isPaused ?? this.isPaused,
       activeRunTimer: activeRunTimer ?? this.activeRunTimer,
-      distance: distance ?? this.distance,
       timersStateList: timersStateList != null
           ? List.unmodifiable(
               timersStateList..sort((a, b) => a.timerId.compareTo(b.timerId)),
@@ -41,8 +37,7 @@ class ActiveTrainingLoaded extends ActiveTrainingState {
   }
 
   @override
-  List<Object?> get props =>
-      [isPaused, activeRunTimer, distance, timersStateList];
+  List<Object?> get props => [isPaused, activeRunTimer, timersStateList];
 }
 
 class TimerState extends Equatable {

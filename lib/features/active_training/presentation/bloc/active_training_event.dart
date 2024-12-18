@@ -66,3 +66,13 @@ class ResetTimer extends ActiveTrainingEvent {
   @override
   List<Object?> get props => [timerId];
 }
+
+class UpdateDistance extends ActiveTrainingEvent {
+  final String timerId;
+  final double distance;
+
+  const UpdateDistance({required this.timerId, required this.distance});
+
+  @override
+  List<Object?> get props => [timerId, distance];
+}

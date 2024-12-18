@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:bloc/bloc.dart';
-import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:geolocator/geolocator.dart';
@@ -20,7 +19,6 @@ class ActiveTrainingBloc
   final RunTracker _runTracker = RunTracker();
   final AudioPlayer _audioPlayer = AudioPlayer();
   final FlutterTts _flutterTts = FlutterTts();
-  double _distance = 0.0;
   int _nextKmMarker = 1;
   int _paceMinutes = 0;
   int _paceSeconds = 0;
@@ -63,50 +61,44 @@ class ActiveTrainingBloc
     on<StartTimer>((event, emit) async {
       final timerId = event.timerId;
       _timers[timerId]?.cancel();
-      final currentState = state as ActiveTrainingLoaded;
-      final timerState = currentState.timersStateList
+      final initialState = state as ActiveTrainingLoaded;
+      final initialTimerState = initialState.timersStateList
           .firstWhere((el) => el.timerId == timerId);
 
-      if (timerState.isRunTimer) {
+      if (initialTimerState.isRunTimer) {
         _runTracker.stopTracking();
         _runTracker.startTracking();
-        _distance = 0;
         _nextKmMarker = 1;
         _paceMinutes = 0;
         _paceSeconds = 0;
         _pace = 0;
       }
 
-      final targetPace = timerState.targetPace;
+      final targetPace = initialTimerState.targetPace;
       final targetPaceMinutes = targetPace.floor();
       final targetPaceSeconds = ((targetPace - targetPaceMinutes) * 60).round();
 
-      int timerValue = timerState.isCountDown
-          ? timerState.countDownValue
-          : (currentState.timersStateList
-                  .firstWhereOrNull((e) => e.timerId == timerId)
-                  ?.timerValue ??
-              0);
-
-      final currentTimerIndex = currentState.timersStateList
-          .indexWhere((el) => el.timerId == timerId);
-      String? nextTimerId;
-      if (currentTimerIndex + 1 < currentState.timersStateList.length) {
-        nextTimerId =
-            currentState.timersStateList[currentTimerIndex + 1].timerId;
-      }
-
       final timer = PausableTimer.periodic(
         const Duration(seconds: 1),
-        () {
-          if (timerState.isCountDown) {
-            if (timerValue > 0) {
-              timerValue--;
-              if (timerValue == 2) {
-                playCountdown();
+        () async {
+          final currentState = state as ActiveTrainingLoaded;
+          final currentTimerIndex = currentState.timersStateList
+              .indexWhere((el) => el.timerId == timerId);
+          String? nextTimerId;
+          if (currentTimerIndex + 1 < currentState.timersStateList.length) {
+            nextTimerId =
+                currentState.timersStateList[currentTimerIndex + 1].timerId;
+          }
+          final currentTimerState =
+              currentState.timersStateList[currentTimerIndex];
+          final currentTimerValue = currentTimerState.timerValue;
+
+          if (currentTimerState.isCountDown) {
+            if (currentTimerValue > 0) {
+              if (currentTimerValue == 2) {
+                await playCountdown();
               }
-              if (timerState.isRunTimer) {
-                _distance = _runTracker.totalDistance;
+              if (currentTimerState.isRunTimer) {
                 add(TickTimer(
                     timerId: timerId, isCountDown: true, isRunTimer: true));
               } else {
@@ -114,9 +106,10 @@ class ActiveTrainingBloc
               }
             } else {
               _timers[timerId]?.cancel();
-              if (timerState.isRunTimer) {
+              if (currentTimerState.isRunTimer) {
                 _runTracker.stopTracking();
               }
+              print('countdown ended');
               event.completer?.complete('Countdown ended.');
               // Start next timer if autostart
               if (nextTimerId != null) {
@@ -128,39 +121,49 @@ class ActiveTrainingBloc
               }
             }
           } else {
-            if (_distance > 0) {
-              _pace = timerValue / 60 / (_distance / 1000);
+            final currentDistance = currentTimerState.distance;
+            if (currentDistance > 0) {
+              _pace = currentTimerValue / 60 / (currentDistance / 1000);
               _paceMinutes = _pace.floor();
               _paceSeconds = ((_pace - _paceMinutes) * 60).round();
             }
 
             // Check pace every 30 seconds if pace is tracked
-            if (timerState.pace > 0 && timerValue % 30 == 0) {
+            if (currentTimerState.pace > 0 && currentTimerValue % 30 == 0) {
               // Check if 5% slower
-              if (_pace < timerState.pace - (timerState.pace * 0.05)) {
-                _speak(
+              if (_pace <
+                  initialTimerState.pace - (initialTimerState.pace * 0.05)) {
+                await _speak(
                     'Rythme actuel $_paceMinutes $_paceSeconds. Rythme cible $targetPaceMinutes $targetPaceSeconds. Accélérez.');
               }
-              if (_pace > timerState.pace + (timerState.pace * 0.05)) {
-                _speak(
+              if (_pace >
+                  initialTimerState.pace + (initialTimerState.pace * 0.05)) {
+                await _speak(
                     'Rythme actuel $_paceMinutes $_paceSeconds. Rythme cible $targetPaceMinutes $targetPaceSeconds. Ralentissez.');
               }
             }
 
-            if (_distance > 0 && _distance / 1000 >= _nextKmMarker) {
+            if (currentDistance > 0 &&
+                currentDistance / 1000 >= _nextKmMarker) {
               _speak(
                   '$_nextKmMarker kilomètre. Rythme $_paceMinutes $_paceSeconds par kilomètre.');
               _nextKmMarker++;
             }
-            if (timerState.distance > 0) {
+
+            if (currentState.timersStateList[currentTimerIndex].distance > 0) {
               // Check if the current distance equals the objective distance
-              if (_distance >= timerState.distance) {
+              if (currentDistance >= currentTimerState.targetDistance) {
                 _timers[timerId]?.cancel();
-                if (timerState.isRunTimer) {
+
+                if (currentTimerState.isRunTimer) {
+                  add(UpdateDistance(
+                      timerId: timerId, distance: currentDistance));
                   _runTracker.stopTracking();
-                  _distance = 0.0;
                 }
                 event.completer?.complete('Distance reached.');
+                // TODO update distance
+
+                print('distance reached, starting timer $nextTimerId');
                 // Start next timer if autostart
                 if (nextTimerId != null) {
                   final autostart = currentState
@@ -171,9 +174,7 @@ class ActiveTrainingBloc
                   }
                 }
               } else {
-                timerValue++;
-                if (timerState.isRunTimer) {
-                  _distance = _runTracker.totalDistance;
+                if (currentTimerState.isRunTimer) {
                   add(TickTimer(timerId: timerId, isRunTimer: true));
                 } else {
                   add(TickTimer(timerId: timerId));
@@ -181,13 +182,13 @@ class ActiveTrainingBloc
               }
             } else {
               // Check if the current duration equals the objective duration
-              if (timerState.targetDuration > 0 &&
-                  timerValue >= timerState.targetDuration) {
+              if (currentTimerState.targetDuration > 0 &&
+                  currentTimerValue >= currentTimerState.targetDuration) {
                 _timers[timerId]?.cancel();
-                if (timerState.isRunTimer) {
+                if (currentTimerState.isRunTimer) {
                   _runTracker.stopTracking();
-                  _distance = 0.0;
                 }
+                print('duration ended');
                 event.completer?.complete('Duration ended.');
                 // Start next timer if autostart
                 if (nextTimerId != null) {
@@ -198,9 +199,7 @@ class ActiveTrainingBloc
                   }
                 }
               } else {
-                timerValue++;
-                if (timerState.isRunTimer) {
-                  _distance = _runTracker.totalDistance;
+                if (currentTimerState.isRunTimer) {
                   add(TickTimer(timerId: timerId, isRunTimer: true));
                 } else {
                   add(TickTimer(timerId: timerId));
@@ -218,10 +217,10 @@ class ActiveTrainingBloc
       }
 
       final currentTimersStateList =
-          List<TimerState>.from(currentState.timersStateList);
+          List<TimerState>.from(initialState.timersStateList);
 
       final updatedTimersStateList =
-          List<TimerState>.from(currentState.timersStateList);
+          List<TimerState>.from(initialState.timersStateList);
 
       // Mettre en pause tous les autres timers sauf primary
       for (var i = 0; i < currentTimersStateList.length; i++) {
@@ -232,7 +231,7 @@ class ActiveTrainingBloc
         }
       }
       final startingValue =
-          timerState.isCountDown ? timerState.countDownValue : 0;
+          initialTimerState.isCountDown ? initialTimerState.countDownValue : 0;
       // Mettre à jour la liste avec le timer qui est démarré
       if (updatedTimersStateList.any((e) => e.timerId == timerId)) {
         final currentTimerState =
@@ -247,11 +246,41 @@ class ActiveTrainingBloc
             updatedTimersStateList
                 .firstWhere((e) => e.timerId == timerId))] = updatedTimerState;
       }
-      emit(currentState.copyWith(
+      emit(initialState.copyWith(
         activeRunTimer: timerId,
         isPaused: false,
         timersStateList: updatedTimersStateList,
       ));
+    });
+
+    on<UpdateDistance>((event, emit) {
+      final currentState = state as ActiveTrainingLoaded;
+      final currentTimersStateList =
+          List<TimerState>.from(currentState.timersStateList);
+      final currentTimerState =
+          currentTimersStateList.firstWhere((e) => e.timerId == event.timerId);
+
+      final newTimerValue = currentTimerState.timerValue;
+
+      final double newDistance = event.distance;
+
+      final double newPace =
+          newDistance > 0 ? newTimerValue * 1000 / newDistance : 0;
+
+      final updatedTimerState = currentTimerState.copyWith(
+        timerValue: newTimerValue,
+        distance: newDistance,
+        pace: newPace,
+      );
+
+      currentTimersStateList[currentTimersStateList.indexOf(
+          currentTimersStateList.firstWhere(
+              (e) => e.timerId == event.timerId))] = updatedTimerState;
+      emit(
+        currentState.copyWith(
+          timersStateList: currentTimersStateList,
+        ),
+      );
     });
 
     on<TickTimer>((event, emit) {
@@ -272,7 +301,7 @@ class ActiveTrainingBloc
         final double newDistance = _runTracker.totalDistance;
 
         final double newPace =
-            newDistance > 0 ? newDistance / 60 / (newDistance / 1000) : 0;
+            newDistance > 0 ? newTimerValue * 1000 / newDistance : 0;
 
         // Calculer la distance, le temps écoulé, le pace
         if (timerId != 'primaryTimer') {
@@ -285,12 +314,12 @@ class ActiveTrainingBloc
           distance: newDistance,
           pace: newPace,
         );
+
         currentTimersStateList[currentTimersStateList.indexOf(
             currentTimersStateList.firstWhere(
                 (e) => e.timerId == event.timerId))] = updatedTimerState;
         emit(
           currentState.copyWith(
-            distance: event.isRunTimer ? _distance : null,
             timersStateList: currentTimersStateList,
           ),
         );
@@ -310,32 +339,6 @@ class ActiveTrainingBloc
           timer.value.pause();
         }
         emit(currentState.copyWith(isPaused: true));
-      }
-    });
-
-    on<ResetTimer>((event, emit) {
-      if (state is ActiveTrainingLoaded) {
-        final currentState = state as ActiveTrainingLoaded;
-
-        _timers['secondaryTimer']?.cancel();
-        _distance = 0;
-
-        final currentTimersStateList =
-            List<TimerState>.from(currentState.timersStateList);
-
-        final currentTimerState = currentTimersStateList
-            .firstWhere((e) => e.timerId == event.timerId);
-
-        final updatedTimerState = currentTimerState.copyWith(
-          timerValue: 0,
-        );
-        currentTimersStateList[currentTimersStateList.indexOf(
-            currentTimersStateList.firstWhere(
-                (e) => e.timerId == event.timerId))] = updatedTimerState;
-
-        emit(currentState.copyWith(
-          distance: 0,
-        ));
       }
     });
   }
