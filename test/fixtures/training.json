@@ -31,7 +31,7 @@
         "duration": 600,
         "set_rest": 120,
         "exercise_rest": 90,
-        "manual_start": 1,
+        "auto_start": 1,
         "position": 1,
         "key": "abcd"
       }
@@ -74,7 +74,7 @@
             "duration": 600,
             "set_rest": 120,
             "exercise_rest": 90,
-            "manual_start": 1,
+            "auto_start": 1,
             "position": 0,
             "key": "ijkl"
           }

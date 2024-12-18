@@ -237,6 +237,7 @@ class DistanceOrDurationRun extends StatelessWidget {
                     tExercise.isTargetRythmSelected!
                 ? tExercise.targetRythm ?? 0
                 : 0,
+            isAutostart: tExercise.autoStart ?? false,
           ),
         ));
 

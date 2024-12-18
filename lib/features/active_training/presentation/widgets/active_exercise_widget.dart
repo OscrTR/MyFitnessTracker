@@ -370,6 +370,7 @@ class ActiveExerciseRow extends StatelessWidget {
           countDownValue:
               isLastSet ? tExercise.exerciseRest ?? 0 : tExercise.setRest ?? 0,
           isCountDown: true,
+          isAutostart: false,
         )));
 
     return BlocBuilder<ActiveTrainingBloc, ActiveTrainingState>(
@@ -431,14 +432,16 @@ class ActiveExerciseDurationRow extends StatelessWidget {
     final restTimerId = '$exerciseIndex-$setIndex-rest';
     // Create exercise timer
     context.read<ActiveTrainingBloc>().add(CreateTimer(
-        timerState: TimerState(
-            timerId: timerId,
-            isActive: false,
-            isStarted: false,
-            isCountDown: true,
-            isRunTimer: false,
-            countDownValue: tExercise.duration ?? 0,
-            timerValue: 0)));
+            timerState: TimerState(
+          timerId: timerId,
+          isActive: false,
+          isStarted: false,
+          isCountDown: true,
+          isRunTimer: false,
+          countDownValue: tExercise.duration ?? 0,
+          timerValue: 0,
+          isAutostart: tExercise.autoStart ?? false,
+        )));
 
     // Create set/exercise rest timer
     context.read<ActiveTrainingBloc>().add(CreateTimer(
@@ -451,6 +454,7 @@ class ActiveExerciseDurationRow extends StatelessWidget {
           countDownValue:
               isLastSet ? tExercise.exerciseRest ?? 0 : tExercise.setRest ?? 0,
           isCountDown: true,
+          isAutostart: true,
         )));
 
     return BlocBuilder<ActiveTrainingBloc, ActiveTrainingState>(

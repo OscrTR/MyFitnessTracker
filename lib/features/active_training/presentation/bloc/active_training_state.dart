@@ -67,7 +67,7 @@ class TimerState extends Equatable {
     required this.isCountDown,
     required this.isRunTimer,
     required this.timerValue,
-    this.isAutostart = false,
+    required this.isAutostart,
     this.countDownValue = 0,
     this.targetDistance = 0,
     this.targetDuration = 0,

@@ -30,7 +30,7 @@ class TrainingExercise extends Equatable {
   final int? duration;
   final int? setRest;
   final int? exerciseRest;
-  final bool? manualStart;
+  final bool? autoStart;
   final int? position;
   final String? key;
 
@@ -60,7 +60,7 @@ class TrainingExercise extends Equatable {
     this.duration,
     this.setRest,
     this.exerciseRest,
-    this.manualStart,
+    this.autoStart,
     this.position,
     this.key,
   });
@@ -91,7 +91,7 @@ class TrainingExercise extends Equatable {
     int? duration,
     int? setRest,
     int? exerciseRest,
-    bool? manualStart,
+    bool? autoStart,
     int? position,
     String? key,
   }) {
@@ -122,7 +122,7 @@ class TrainingExercise extends Equatable {
       duration: duration ?? this.duration,
       setRest: setRest ?? this.setRest,
       exerciseRest: exerciseRest ?? this.exerciseRest,
-      manualStart: manualStart ?? this.manualStart,
+      autoStart: autoStart ?? this.autoStart,
       position: position ?? this.position,
       key: key ?? this.key,
     );
@@ -155,7 +155,7 @@ class TrainingExercise extends Equatable {
       duration: duration,
       setRest: setRest,
       exerciseRest: exerciseRest,
-      manualStart: manualStart,
+      autoStart: autoStart,
       position: position,
       key: key,
     );
@@ -188,7 +188,7 @@ class TrainingExercise extends Equatable {
         duration,
         setRest,
         exerciseRest,
-        manualStart,
+        autoStart,
         position,
         key,
       ];

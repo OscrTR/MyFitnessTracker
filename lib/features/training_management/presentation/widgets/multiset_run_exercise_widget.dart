@@ -230,6 +230,7 @@ class _MultisetRunExerciseWidgetState extends State<MultisetRunExerciseWidget> {
           _buildTargetChoiceOptions(),
           _buildIntervalsChoiceOptions(),
           _buildTargetRythm(),
+          _buildAutostart(),
           const SizedBox(height: 10),
           BigTextFieldWidget(
               controller: _controllers['specialInstructions']!,
@@ -563,9 +564,85 @@ class _MultisetRunExerciseWidgetState extends State<MultisetRunExerciseWidget> {
 
       updatedTrainingExercisesList[index] = updatedExercise;
 
-      bloc.add(UpdateSelectedTrainingProperty(
-          trainingExercises: updatedTrainingExercisesList));
+      final updatedMultiset = currentState.selectedTraining!.multisets
+          .firstWhere((multiset) => multiset.key == widget.multisetKey)
+          .copyWith(trainingExercises: updatedTrainingExercisesList);
+
+      final updatedMultisets =
+          List<Multiset>.from(currentState.selectedTraining!.multisets);
+
+      updatedMultisets
+          .removeWhere((multiset) => multiset.key == widget.multisetKey);
+      updatedMultisets.add(updatedMultiset);
+
+      bloc.add(UpdateSelectedTrainingProperty(multisets: updatedMultisets));
     }
+  }
+
+  Widget _buildAutostart() {
+    return BlocBuilder<TrainingManagementBloc, TrainingManagementState>(
+        builder: (context, state) {
+      if (state is TrainingManagementLoaded) {
+        final multiset = state.selectedTraining!.multisets
+            .firstWhere((multiset) => multiset.key == widget.multisetKey);
+        final isAutostart = multiset.trainingExercises!
+                .firstWhere((exercise) => exercise.key == widget.exerciseKey)
+                .autoStart ??
+            false;
+
+        return Row(
+          children: [
+            SizedBox(
+              width: 20,
+              child: Checkbox(
+                value: isAutostart,
+                onChanged: (bool? value) {
+                  final bloc = context.read<TrainingManagementBloc>();
+                  final currentState = bloc.state as TrainingManagementLoaded;
+
+                  final updatedTrainingExercisesList =
+                      List<TrainingExercise>.from(multiset.trainingExercises!);
+
+                  final index = updatedTrainingExercisesList.indexWhere(
+                    (exercise) => exercise.key == widget.exerciseKey,
+                  );
+
+                  final updatedExercise = updatedTrainingExercisesList
+                      .firstWhere(
+                          (exercise) => exercise.key == widget.exerciseKey)
+                      .copyWith(autoStart: !isAutostart);
+
+                  updatedTrainingExercisesList[index] = updatedExercise;
+
+                  final updatedMultiset = currentState
+                      .selectedTraining!.multisets
+                      .firstWhere(
+                          (multiset) => multiset.key == widget.multisetKey)
+                      .copyWith(
+                          trainingExercises: updatedTrainingExercisesList);
+
+                  final updatedMultisets = List<Multiset>.from(
+                      currentState.selectedTraining!.multisets);
+
+                  updatedMultisets.removeWhere(
+                      (multiset) => multiset.key == widget.multisetKey);
+                  updatedMultisets.add(updatedMultiset);
+
+                  bloc.add(UpdateSelectedTrainingProperty(
+                      multisets: updatedMultisets));
+                },
+              ),
+            ),
+            const SizedBox(width: 10),
+            Text(
+              tr('training_detail_page_autostart'),
+              style: const TextStyle(color: AppColors.lightBlack),
+            ),
+          ],
+        );
+      }
+      return const SizedBox();
+    });
   }
 
   Widget _buildTargetRythm() {
@@ -584,54 +661,50 @@ class _MultisetRunExerciseWidgetState extends State<MultisetRunExerciseWidget> {
           children: [
             SizedBox(
               width: 20,
-              child: Theme(
-                data: Theme.of(context).copyWith(
-                  checkboxTheme: CheckboxThemeData(
-                    side: WidgetStateBorderSide.resolveWith(
-                      (states) {
-                        return const BorderSide(
-                            color: AppColors.lightBlack, width: 2);
-                      },
-                    ),
-                    fillColor: WidgetStateProperty.resolveWith(
-                      (states) {
-                        return AppColors.white;
-                      },
-                    ),
-                  ),
-                ),
-                child: Checkbox(
-                    checkColor: AppColors.black,
-                    value: isTargetRythmSelected,
-                    onChanged: (value) {
-                      final bloc = context.read<TrainingManagementBloc>();
+              child: Checkbox(
+                value: isTargetRythmSelected,
+                onChanged: (value) {
+                  final bloc = context.read<TrainingManagementBloc>();
 
-                      if (bloc.state is TrainingManagementLoaded) {
-                        final currentState =
-                            bloc.state as TrainingManagementLoaded;
-                        final updatedTrainingExercisesList =
-                            List<TrainingExercise>.from(
-                          currentState.selectedTraining!.multisets
-                              .firstWhere((multiset) =>
-                                  multiset.key == widget.multisetKey)
-                              .trainingExercises!,
-                        );
+                  if (bloc.state is TrainingManagementLoaded) {
+                    final currentState = bloc.state as TrainingManagementLoaded;
+                    final updatedTrainingExercisesList =
+                        List<TrainingExercise>.from(
+                      currentState.selectedTraining!.multisets
+                          .firstWhere(
+                              (multiset) => multiset.key == widget.multisetKey)
+                          .trainingExercises!,
+                    );
 
-                        final index = updatedTrainingExercisesList.indexWhere(
-                          (exercise) => exercise.key == widget.exerciseKey,
-                        );
+                    final index = updatedTrainingExercisesList.indexWhere(
+                      (exercise) => exercise.key == widget.exerciseKey,
+                    );
 
-                        final updatedExercise = updatedTrainingExercisesList
-                            .firstWhere((exercise) =>
-                                exercise.key == widget.exerciseKey)
-                            .copyWith(isTargetRythmSelected: value);
+                    final updatedExercise = updatedTrainingExercisesList
+                        .firstWhere(
+                            (exercise) => exercise.key == widget.exerciseKey)
+                        .copyWith(isTargetRythmSelected: value);
 
-                        updatedTrainingExercisesList[index] = updatedExercise;
+                    updatedTrainingExercisesList[index] = updatedExercise;
 
-                        bloc.add(UpdateSelectedTrainingProperty(
-                            trainingExercises: updatedTrainingExercisesList));
-                      }
-                    }),
+                    final updatedMultiset = currentState
+                        .selectedTraining!.multisets
+                        .firstWhere(
+                            (multiset) => multiset.key == widget.multisetKey)
+                        .copyWith(
+                            trainingExercises: updatedTrainingExercisesList);
+
+                    final updatedMultisets = List<Multiset>.from(
+                        currentState.selectedTraining!.multisets);
+
+                    updatedMultisets.removeWhere(
+                        (multiset) => multiset.key == widget.multisetKey);
+                    updatedMultisets.add(updatedMultiset);
+
+                    bloc.add(UpdateSelectedTrainingProperty(
+                        multisets: updatedMultisets));
+                  }
+                },
               ),
             ),
             const SizedBox(width: 10),

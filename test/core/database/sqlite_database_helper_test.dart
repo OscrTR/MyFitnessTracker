@@ -53,7 +53,7 @@ void main() {
             duration INTEGER,
             set_rest INTEGER,
             exercise_rest INTEGER,
-            manual_start INTEGER,
+            auto_start INTEGER,
             target_distance INTEGER,
             target_duration INTEGER,
             target_rythm INTEGER,
@@ -145,7 +145,7 @@ void main() {
           'duration': 30,
           'set_rest': 10,
           'exercise_rest': 10,
-          'manual_start': 0
+          'auto_start': 0
         });
 
         final result = await db.query('training_exercises');

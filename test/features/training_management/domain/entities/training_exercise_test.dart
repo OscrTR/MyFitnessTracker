@@ -29,7 +29,7 @@ void main() {
       duration: 600,
       setRest: 120,
       exerciseRest: 90,
-      manualStart: true,
+      autoStart: true,
       position: 0,
       key: 'ijkl',
     );
@@ -61,7 +61,7 @@ void main() {
         duration: 600,
         setRest: 120,
         exerciseRest: 90,
-        manualStart: true,
+        autoStart: true,
         position: 0,
         key: 'ijkl',
       );
@@ -121,7 +121,7 @@ void main() {
           trainingExercise.duration,
           trainingExercise.setRest,
           trainingExercise.exerciseRest,
-          trainingExercise.manualStart,
+          trainingExercise.autoStart,
           trainingExercise.position,
           trainingExercise.key,
         ],

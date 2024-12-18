@@ -616,7 +616,7 @@ Future<void> _createTables(Database db) async {
       duration INTEGER,
       set_rest INTEGER,
       exercise_rest INTEGER,
-      manual_start INTEGER,
+      auto_start INTEGER,
       run_exercise_target INTEGER,
       target_distance INTEGER,
       target_duration INTEGER,
@@ -661,7 +661,7 @@ TrainingExerciseModel createTrainingExercise({
   int duration = 600,
   int setRest = 120,
   int exerciseRest = 90,
-  bool manualStart = true,
+  bool autoStart = true,
 }) {
   return TrainingExerciseModel(
     id: id,
@@ -677,7 +677,7 @@ TrainingExerciseModel createTrainingExercise({
     duration: duration,
     setRest: setRest,
     exerciseRest: exerciseRest,
-    manualStart: manualStart,
+    autoStart: autoStart,
     runExerciseTarget: RunExerciseTarget.distance,
     targetDistance: targetDistance,
     targetDuration: targetDuration,

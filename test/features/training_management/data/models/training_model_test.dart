@@ -43,7 +43,7 @@ void main() {
           duration: 600,
           setRest: 120,
           exerciseRest: 90,
-          manualStart: true,
+          autoStart: true,
           position: 1,
           key: 'abcd',
         )
@@ -79,7 +79,7 @@ void main() {
               duration: 600,
               setRest: 120,
               exerciseRest: 90,
-              manualStart: true,
+              autoStart: true,
               position: 0,
               key: 'ijkl',
             ),

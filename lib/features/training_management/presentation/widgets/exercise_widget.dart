@@ -31,7 +31,6 @@ class _ExerciseWidgetState extends State<ExerciseWidget> {
 
   Exercise selectedExercise = const Exercise(name: '');
   TrainingExercise trainingExercise = const TrainingExercise();
-  late bool isSetsInReps;
   late final Map<String, TextEditingController> _controllers;
 
   @override
@@ -64,8 +63,6 @@ class _ExerciseWidgetState extends State<ExerciseWidget> {
           currentState.selectedTraining?.trainingExercises ?? [];
       final exercise = trainingExercises
           .firstWhere((exercise) => exercise.key == widget.exerciseKey);
-
-      isSetsInReps = exercise.isSetsInReps ?? true;
 
       _controllers['sets']?.text = exercise.sets?.toString() ?? '';
       _controllers['durationMinutes']?.text = (exercise.duration != null
@@ -213,6 +210,7 @@ class _ExerciseWidgetState extends State<ExerciseWidget> {
           _buildSetsChoiceOptions(),
           _buildSetRestRow(),
           _buildExerciseRestRow(),
+          _buildAutostart(),
           const SizedBox(height: 10),
           BigTextFieldWidget(
               controller: _controllers['specialInstructions']!,
@@ -224,6 +222,57 @@ class _ExerciseWidgetState extends State<ExerciseWidget> {
         ],
       ),
     );
+  }
+
+  Widget _buildAutostart() {
+    return BlocBuilder<TrainingManagementBloc, TrainingManagementState>(
+        builder: (context, state) {
+      if (state is TrainingManagementLoaded) {
+        final isAutostart = state.selectedTraining!.trainingExercises
+                .firstWhere((exercise) => exercise.key == widget.exerciseKey)
+                .autoStart ??
+            false;
+
+        return Row(
+          children: [
+            SizedBox(
+              width: 20,
+              child: Checkbox(
+                value: isAutostart,
+                onChanged: (bool? value) {
+                  final bloc = context.read<TrainingManagementBloc>();
+
+                  final currentState = bloc.state as TrainingManagementLoaded;
+                  final updatedTrainingExercisesList =
+                      List<TrainingExercise>.from(
+                          currentState.selectedTraining!.trainingExercises);
+
+                  final index = updatedTrainingExercisesList.indexWhere(
+                    (exercise) => exercise.key == widget.exerciseKey,
+                  );
+
+                  final updatedExercise = updatedTrainingExercisesList
+                      .firstWhere(
+                          (exercise) => exercise.key == widget.exerciseKey)
+                      .copyWith(autoStart: !isAutostart);
+
+                  updatedTrainingExercisesList[index] = updatedExercise;
+
+                  bloc.add(UpdateSelectedTrainingProperty(
+                      trainingExercises: updatedTrainingExercisesList));
+                },
+              ),
+            ),
+            const SizedBox(width: 10),
+            Text(
+              tr('training_detail_page_autostart'),
+              style: const TextStyle(color: AppColors.lightBlack),
+            ),
+          ],
+        );
+      }
+      return const SizedBox();
+    });
   }
 
   Widget _buildHeader() {

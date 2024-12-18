@@ -50,7 +50,7 @@ void main() {
               duration: 60,
               setRest: 30,
               exerciseRest: 10,
-              manualStart: true,
+              autoStart: true,
               position: 1),
         ],
         multisets: [
@@ -81,7 +81,7 @@ void main() {
                 duration: 45,
                 setRest: 20,
                 exerciseRest: 15,
-                manualStart: false,
+                autoStart: false,
                 position: 0,
               ),
             ],

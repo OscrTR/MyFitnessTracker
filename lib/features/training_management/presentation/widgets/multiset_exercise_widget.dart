@@ -34,7 +34,6 @@ class _MultisetExerciseWidgetState extends State<MultisetExerciseWidget> {
 
   Exercise selectedExercise = const Exercise(name: '');
   TrainingExercise trainingExercise = const TrainingExercise();
-  late bool isSetsInReps;
   late final Map<String, TextEditingController> _controllers;
 
   @override
@@ -70,9 +69,6 @@ class _MultisetExerciseWidgetState extends State<MultisetExerciseWidget> {
       final exercise = trainingExercises
           .firstWhere((exercise) => exercise.key == widget.exerciseKey);
 
-      isSetsInReps = exercise.isSetsInReps ?? true;
-
-      // _controllers['sets']?.text = exercise.sets?.toString() ?? '';
       _controllers['durationMinutes']?.text = (exercise.duration != null
           ? (exercise.duration! % 3600 ~/ 60).toString()
           : '');
@@ -81,17 +77,6 @@ class _MultisetExerciseWidgetState extends State<MultisetExerciseWidget> {
           : '');
       _controllers['minReps']?.text = exercise.minReps?.toString() ?? '';
       _controllers['maxReps']?.text = exercise.maxReps?.toString() ?? '';
-      // _controllers['setRestMinutes']?.text = (exercise.setRest != null
-      //     ? (exercise.setRest! % 3600 ~/ 60).toString()
-      //     : '');
-      // _controllers['setRestSeconds']?.text =
-      //     (exercise.setRest != null ? (exercise.setRest! % 60).toString() : '');
-      // _controllers['exerciseRestMinutes']?.text = (exercise.exerciseRest != null
-      //     ? (exercise.exerciseRest! % 3600 ~/ 60).toString()
-      //     : '');
-      // _controllers['exerciseRestSeconds']?.text = (exercise.exerciseRest != null
-      //     ? (exercise.exerciseRest! % 60).toString()
-      //     : '');
       _controllers['specialInstructions']?.text =
           exercise.specialInstructions?.toString() ?? '';
       _controllers['objectives']?.text = exercise.objectives?.toString() ?? '';
@@ -134,9 +119,6 @@ class _MultisetExerciseWidgetState extends State<MultisetExerciseWidget> {
 
       if (index != -1) {
         final updatedExercise = updatedTrainingExercisesList[index].copyWith(
-          // sets: key == 'sets'
-          //     ? int.tryParse(_controllers['sets']?.text ?? '')
-          //     : null,
           minReps: key == 'minReps'
               ? int.tryParse(_controllers['minReps']?.text ?? '')
               : null,
@@ -150,23 +132,6 @@ class _MultisetExerciseWidgetState extends State<MultisetExerciseWidget> {
                   ((int.tryParse(_controllers['durationSeconds']?.text ?? '') ??
                       0))
               : null,
-          // setRest: key == 'setRestMinutes' || key == 'setRestSeconds'
-          //     ? ((int.tryParse(_controllers['setRestMinutes']?.text ?? '') ??
-          //                 0) *
-          //             60) +
-          //         ((int.tryParse(_controllers['setRestSeconds']?.text ?? '') ??
-          //             0))
-          //     : null,
-          // exerciseRest: key == 'exerciseRestMinutes' ||
-          //         key == 'exerciseRestSeconds'
-          //     ? ((int.tryParse(_controllers['exerciseRestMinutes']?.text ??
-          //                     '') ??
-          //                 0) *
-          //             60) +
-          //         ((int.tryParse(
-          //                 _controllers['exerciseRestSeconds']?.text ?? '') ??
-          //             0))
-          //     : null,
           specialInstructions: key == 'specialInstructions'
               ? _controllers['specialInstructions']?.text ?? ''
               : null,
@@ -228,10 +193,8 @@ class _MultisetExerciseWidgetState extends State<MultisetExerciseWidget> {
             color: AppColors.lightBlack,
           ),
           const SizedBox(height: 10),
-          // _buildSetsRow(),
           _buildSetsChoiceOptions(),
-          // _buildSetRestRow(),
-          // _buildExerciseRestRow(),
+          _buildAutostart(),
           const SizedBox(height: 10),
           BigTextFieldWidget(
               controller: _controllers['specialInstructions']!,
@@ -255,6 +218,72 @@ class _MultisetExerciseWidgetState extends State<MultisetExerciseWidget> {
             multisetKey: widget.multisetKey, exerciseKey: widget.exerciseKey),
       ],
     );
+  }
+
+  Widget _buildAutostart() {
+    return BlocBuilder<TrainingManagementBloc, TrainingManagementState>(
+        builder: (context, state) {
+      if (state is TrainingManagementLoaded) {
+        final multiset = state.selectedTraining!.multisets
+            .firstWhere((multiset) => multiset.key == widget.multisetKey);
+        final isAutostart = multiset.trainingExercises!
+                .firstWhere((exercise) => exercise.key == widget.exerciseKey)
+                .autoStart ??
+            false;
+
+        return Row(
+          children: [
+            SizedBox(
+              width: 20,
+              child: Checkbox(
+                value: isAutostart,
+                onChanged: (bool? value) {
+                  final bloc = context.read<TrainingManagementBloc>();
+                  final currentState = bloc.state as TrainingManagementLoaded;
+
+                  final updatedTrainingExercisesList =
+                      List<TrainingExercise>.from(multiset.trainingExercises!);
+
+                  final index = updatedTrainingExercisesList.indexWhere(
+                    (exercise) => exercise.key == widget.exerciseKey,
+                  );
+
+                  final updatedExercise = updatedTrainingExercisesList
+                      .firstWhere(
+                          (exercise) => exercise.key == widget.exerciseKey)
+                      .copyWith(autoStart: !isAutostart);
+
+                  updatedTrainingExercisesList[index] = updatedExercise;
+
+                  final updatedMultiset = currentState
+                      .selectedTraining!.multisets
+                      .firstWhere(
+                          (multiset) => multiset.key == widget.multisetKey)
+                      .copyWith(
+                          trainingExercises: updatedTrainingExercisesList);
+
+                  final updatedMultisets = List<Multiset>.from(
+                      currentState.selectedTraining!.multisets);
+
+                  updatedMultisets.removeWhere(
+                      (multiset) => multiset.key == widget.multisetKey);
+                  updatedMultisets.add(updatedMultiset);
+
+                  bloc.add(UpdateSelectedTrainingProperty(
+                      multisets: updatedMultisets));
+                },
+              ),
+            ),
+            const SizedBox(width: 10),
+            Text(
+              tr('training_detail_page_autostart'),
+              style: const TextStyle(color: AppColors.lightBlack),
+            ),
+          ],
+        );
+      }
+      return const SizedBox();
+    });
   }
 
   Widget _buildExerciseSearch() {
@@ -472,20 +501,6 @@ class _MultisetExerciseWidgetState extends State<MultisetExerciseWidget> {
     );
   }
 
-  // Widget _buildSetsRow() {
-  //   return SizedBox(
-  //     height: 48,
-  //     child: Row(
-  //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //       children: [
-  //         Text(tr('exercise_sets'),
-  //             style: const TextStyle(color: AppColors.lightBlack)),
-  //         SmallTextFieldWidget(controller: _controllers['sets']!),
-  //       ],
-  //     ),
-  //   );
-  // }
-
   Widget _buildSetsChoiceOptions() {
     return BlocBuilder<TrainingManagementBloc, TrainingManagementState>(
       builder: (context, state) {
@@ -636,46 +651,4 @@ class _MultisetExerciseWidgetState extends State<MultisetExerciseWidget> {
       bloc.add(UpdateSelectedTrainingProperty(multisets: updatedMultisets));
     }
   }
-
-  // Widget _buildSetRestRow() {
-  //   return SizedBox(
-  //     height: 48,
-  //     child: Row(
-  //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //       children: [
-  //         Text(tr('exercise_set_rest'),
-  //             style: const TextStyle(color: AppColors.lightBlack)),
-  //         Row(
-  //           children: [
-  //             SmallTextFieldWidget(controller: _controllers['setRestMinutes']!),
-  //             const Text(' : ', style: TextStyle(fontSize: 20)),
-  //             SmallTextFieldWidget(controller: _controllers['setRestSeconds']!),
-  //           ],
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
-
-  // Widget _buildExerciseRestRow() {
-  //   return SizedBox(
-  //     height: 48,
-  //     child: Row(
-  //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //       children: [
-  //         Text(tr('exercise_exercise_rest'),
-  //             style: const TextStyle(color: AppColors.lightBlack)),
-  //         Row(
-  //           children: [
-  //             SmallTextFieldWidget(
-  //                 controller: _controllers['exerciseRestMinutes']!),
-  //             const Text(' : ', style: TextStyle(fontSize: 20)),
-  //             SmallTextFieldWidget(
-  //                 controller: _controllers['exerciseRestSeconds']!),
-  //           ],
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
 }

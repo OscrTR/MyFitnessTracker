@@ -41,6 +41,7 @@ class TimerWidgetState extends State<TimerWidget> {
           isRunTimer: false,
           timerValue: 0,
           isCountDown: false,
+          isAutostart: false,
         )));
     context
         .read<ActiveTrainingBloc>()

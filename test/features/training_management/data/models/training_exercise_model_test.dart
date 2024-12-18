@@ -33,7 +33,7 @@ void main() {
     duration: 600,
     setRest: 120,
     exerciseRest: 90,
-    manualStart: true,
+    autoStart: true,
     position: 0,
     key: 'abcd',
   );
@@ -94,7 +94,7 @@ void main() {
           "duration": 600,
           "set_rest": 120,
           "exercise_rest": 90,
-          "manual_start": 1,
+          "auto_start": 1,
           "position": 0,
           "key": "abcd"
         };

@@ -140,7 +140,7 @@ class SQLiteTrainingLocalDataSource implements TrainingLocalDataSource {
             'duration': row['duration'],
             'set_rest': row['set_rest'],
             'exercise_rest': row['exercise_rest'],
-            'manual_start': row['manual_start'],
+            'auto_start': row['auto_start'],
             'run_exercise_target': row['run_exercise_target'],
             'target_distance': row['target_distance'],
             'target_duration': row['target_duration'],

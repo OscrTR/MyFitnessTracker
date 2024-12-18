@@ -63,7 +63,7 @@ class SQLiteDatabaseHelper {
             duration INTEGER,
             set_rest INTEGER,
             exercise_rest INTEGER,
-            manual_start INTEGER,
+            auto_start INTEGER,
             run_exercise_target INTEGER,
             target_distance INTEGER,
             target_duration INTEGER,

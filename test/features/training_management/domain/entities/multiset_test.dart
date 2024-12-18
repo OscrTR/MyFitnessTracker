@@ -18,7 +18,7 @@ void main() {
         sets: 3,
         setRest: 120,
         exerciseRest: 90,
-        manualStart: true,
+        autoStart: true,
       ),
     ];
 

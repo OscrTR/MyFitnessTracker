@@ -27,7 +27,7 @@ class TrainingExerciseModel extends TrainingExercise {
     required super.duration,
     required super.setRest,
     required super.exerciseRest,
-    required super.manualStart,
+    required super.autoStart,
     required super.position,
     required super.key,
   });
@@ -63,7 +63,7 @@ class TrainingExerciseModel extends TrainingExercise {
       duration: json['duration'] as int?,
       setRest: json['set_rest'] as int?,
       exerciseRest: json['exercise_rest'] as int?,
-      manualStart: (json['manual_start'] as int?) == 0 ? false : true,
+      autoStart: (json['auto_start'] as int?) == 0 ? false : true,
       position: json['position'] as int?,
       key: json['key'] as String,
     );
@@ -96,7 +96,7 @@ class TrainingExerciseModel extends TrainingExercise {
       'duration': duration,
       'set_rest': setRest,
       'exercise_rest': exerciseRest,
-      'manual_start': manualStart == true ? 1 : 0,
+      'auto_start': autoStart == true ? 1 : 0,
       'position': position,
       'key': key,
     };
@@ -132,7 +132,7 @@ class TrainingExerciseModel extends TrainingExercise {
       duration: exercise.duration,
       setRest: exercise.setRest,
       exerciseRest: exercise.exerciseRest,
-      manualStart: exercise.manualStart,
+      autoStart: exercise.autoStart,
       position: exercise.position,
       key: exercise.key,
     );
@@ -166,7 +166,7 @@ class TrainingExerciseModel extends TrainingExercise {
       duration: exercise.duration,
       setRest: exercise.setRest,
       exerciseRest: exercise.exerciseRest,
-      manualStart: exercise.manualStart,
+      autoStart: exercise.autoStart,
       position: exercise.position,
       key: exercise.key,
     );

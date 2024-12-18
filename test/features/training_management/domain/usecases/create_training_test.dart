@@ -46,7 +46,7 @@ void main() {
     duration: 30,
     setRest: 10,
     exerciseRest: 15,
-    manualStart: true,
+    autoStart: true,
     targetDistance: null,
     targetDuration: null,
     targetRythm: null,

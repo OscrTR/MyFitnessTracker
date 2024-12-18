@@ -345,6 +345,7 @@ class ActiveExerciseRow extends StatelessWidget {
                   : multiset.setRest ?? 0
               : 0,
           isCountDown: true,
+          isAutostart: false,
         )));
 
     return BlocBuilder<ActiveTrainingBloc, ActiveTrainingState>(
@@ -421,6 +422,7 @@ class ActiveExerciseDurationRow extends StatelessWidget {
             timerValue: 0,
             countDownValue: tExercise.duration ?? 0,
             isCountDown: true,
+            isAutostart: tExercise.autoStart ?? false,
           ),
         ));
     // Create rest timer
@@ -437,6 +439,7 @@ class ActiveExerciseDurationRow extends StatelessWidget {
                     : multiset.setRest ?? 0
                 : 0,
             isCountDown: true,
+            isAutostart: true,
           ),
         ));
 
