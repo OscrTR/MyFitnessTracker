@@ -94,9 +94,7 @@ class _ActiveRunWidgetState extends State<ActiveRunWidget> {
                   exerciseIndex: widget.exerciseIndex,
                 ),
               if (widget.tExercise.runExerciseTarget ==
-                      RunExerciseTarget.intervals &&
-                  widget.tExercise.intervals != null &&
-                  widget.tExercise.intervals! > 0)
+                  RunExerciseTarget.intervals)
                 IntervalWidget(
                   tExercise: widget.tExercise,
                   isLast: widget.isLast,
@@ -188,13 +186,12 @@ class _ActiveRunWidgetState extends State<ActiveRunWidget> {
     final targetPace = tExercise.isTargetRythmSelected == true
         ? ' at ${formatPace(tExercise.targetRythm!)}'
         : '';
+    final intervals = tExercise.intervals ?? 1;
 
     if (tExercise.isIntervalInDistance == true) {
-      return Text(
-          'Running interval $targetDistance$targetPace x${tExercise.intervals}');
+      return Text('Running interval $targetDistance$targetPace x$intervals');
     } else if (tExercise.isIntervalInDistance == false) {
-      return Text(
-          'Running interval $targetDuration$targetPace x${tExercise.intervals}');
+      return Text('Running interval $targetDuration$targetPace x$intervals');
     } else {
       return const Text('Running');
     }
@@ -367,15 +364,16 @@ class _IntervalWidgetState extends State<IntervalWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final intervals = widget.tExercise.intervals ?? 1;
+
     return Column(
       children: [
         ListView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            itemCount: widget.tExercise.intervals,
+            itemCount: intervals,
             itemBuilder: (context, index) {
-              final bool isLastInterval =
-                  index + 1 == widget.tExercise.intervals;
+              final bool isLastInterval = index + 1 == intervals;
 
               return IntervalRun(
                 tExercise: widget.tExercise,

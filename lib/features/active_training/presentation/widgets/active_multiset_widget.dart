@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:my_fitness_tracker/features/active_training/presentation/widgets/active_multiset_run_widget.dart';
 
 import 'active_multiset_exercise_widget.dart';
 import '../../../training_management/domain/entities/multiset.dart';
@@ -107,7 +108,7 @@ class _ActiveMultisetWidgetState extends State<ActiveMultisetWidget> {
         final isLast = index == items.length - 1;
 
         return exercise.trainingExerciseType == TrainingExerciseType.run
-            ? Text(exercise.id!.toString())
+            ? ActiveMultisetRunWidget()
             : ActiveMultisetExerciseWidget(
                 multiset: widget.multiset,
                 tExercise: exercise,
