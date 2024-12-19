@@ -63,7 +63,7 @@ class _ActiveMultisetExerciseWidgetState
   }
 
   void _initializeControllers() {
-    final sets = widget.tExercise.sets ?? 0;
+    final sets = widget.multiset.sets ?? 0;
     _controllers = {
       for (int i = 1; i <= sets; i++) 'set$i': TextEditingController(),
     };
@@ -330,7 +330,7 @@ class ActiveExerciseRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final restTimerId = '$multisetIndex-$multisetExerciseIndex-$setIndex';
+    final restTimerId = '$multisetIndex-$setIndex-$multisetExerciseIndex';
     // Create rest timer
     context.read<ActiveTrainingBloc>().add(CreateTimer(
             timerState: TimerState(
@@ -409,8 +409,8 @@ class ActiveExerciseDurationRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final timerId = '$multisetIndex-$multisetExerciseIndex-$setIndex';
-    final restTimerId = '$multisetIndex-$multisetExerciseIndex-$setIndex-rest';
+    final timerId = '$multisetIndex-$setIndex-$multisetExerciseIndex';
+    final restTimerId = '$multisetIndex-$setIndex-$multisetExerciseIndex-rest';
 
     // Create exercise timer
     context.read<ActiveTrainingBloc>().add(CreateTimer(

@@ -74,6 +74,12 @@ class ActiveTrainingBloc
         _pace = 0;
       }
 
+      // print('timer $timerId is starting');
+
+      // for (var timer in initialState.timersStateList) {
+      //   print(timer.timerId);
+      // }
+
       final targetPace = initialTimerState.targetPace;
       final targetPaceMinutes = targetPace.floor();
       final targetPaceSeconds = ((targetPace - targetPaceMinutes) * 60).round();
@@ -109,12 +115,14 @@ class ActiveTrainingBloc
               if (currentTimerState.isRunTimer) {
                 _runTracker.stopTracking();
               }
-              print('countdown ended');
               event.completer?.complete('Countdown ended.');
               // Start next timer if autostart
               if (nextTimerId != null) {
                 final autostart = currentState
                     .timersStateList[currentTimerIndex + 1].isAutostart;
+
+                // print(
+                //     'next timer is ${currentState.timersStateList[currentTimerIndex + 1]} with autostart $autostart');
                 if (autostart) {
                   add(StartTimer(timerId: nextTimerId));
                 }
@@ -152,7 +160,8 @@ class ActiveTrainingBloc
 
             if (currentState.timersStateList[currentTimerIndex].distance > 0) {
               // Check if the current distance equals the objective distance
-              if (currentDistance >= currentTimerState.targetDistance) {
+              if (currentTimerState.targetDistance > 0 &&
+                  currentDistance >= currentTimerState.targetDistance) {
                 _timers[timerId]?.cancel();
 
                 if (currentTimerState.isRunTimer) {
@@ -161,9 +170,7 @@ class ActiveTrainingBloc
                   _runTracker.stopTracking();
                 }
                 event.completer?.complete('Distance reached.');
-                // TODO update distance
 
-                print('distance reached, starting timer $nextTimerId');
                 // Start next timer if autostart
                 if (nextTimerId != null) {
                   final autostart = currentState
@@ -188,7 +195,6 @@ class ActiveTrainingBloc
                 if (currentTimerState.isRunTimer) {
                   _runTracker.stopTracking();
                 }
-                print('duration ended');
                 event.completer?.complete('Duration ended.');
                 // Start next timer if autostart
                 if (nextTimerId != null) {
@@ -286,7 +292,7 @@ class ActiveTrainingBloc
     on<TickTimer>((event, emit) {
       if (state is ActiveTrainingLoaded) {
         final currentState = state as ActiveTrainingLoaded;
-        final timerId = event.timerId;
+        // final timerId = event.timerId;
 
         final currentTimersStateList =
             List<TimerState>.from(currentState.timersStateList);
@@ -303,11 +309,10 @@ class ActiveTrainingBloc
         final double newPace =
             newDistance > 0 ? newTimerValue * 1000 / newDistance : 0;
 
-        // Calculer la distance, le temps écoulé, le pace
-        if (timerId != 'primaryTimer') {
-          print(
-              'Timer: $timerId, time: $newTimerValue, distance: $newDistance, pace: $newPace');
-        }
+        // if (timerId != 'primaryTimer') {
+        //   print(
+        //       'Timer: $timerId, time: $newTimerValue, distance: $newDistance, pace: $newPace');
+        // }
 
         final updatedTimerState = currentTimerState.copyWith(
           timerValue: newTimerValue,

@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -73,20 +71,40 @@ class _ActiveMultisetRunWidgetState extends State<ActiveMultisetRunWidget> {
             const Divider(),
             const SizedBox(height: 10),
           ],
-          if (widget.tExercise.runExerciseTarget ==
-                  RunExerciseTarget.distance ||
-              widget.tExercise.runExerciseTarget == RunExerciseTarget.duration)
-            DistanceOrDurationRun(
-              tExercise: widget.tExercise,
-              isLast: widget.isLast,
-              exerciseIndex: widget.multisetIndex,
-            ),
-          if (widget.tExercise.runExerciseTarget == RunExerciseTarget.intervals)
-            IntervalWidget(
-              tExercise: widget.tExercise,
-              isLast: widget.isLast,
-              exerciseIndex: widget.multisetIndex,
-            ),
+          ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: widget.multiset.sets ?? 0,
+              itemBuilder: (context, index) {
+                if (widget.tExercise.runExerciseTarget ==
+                        RunExerciseTarget.distance ||
+                    widget.tExercise.runExerciseTarget ==
+                        RunExerciseTarget.duration) {
+                  return DistanceOrDurationRun(
+                      multiset: widget.multiset,
+                      tExercise: widget.tExercise,
+                      isLastSet: widget.multiset.sets == index + 1,
+                      isLastMultisetExercise:
+                          widget.multiset.trainingExercises!.length ==
+                              widget.tExercise.position! + 1,
+                      multisetIndex: widget.multisetIndex,
+                      multisetExerciseIndex: widget.multisetExerciseIndex,
+                      setIndex: index);
+                } else if (widget.tExercise.runExerciseTarget ==
+                    RunExerciseTarget.intervals) {
+                  return IntervalWidget(
+                      tExercise: widget.tExercise,
+                      multiset: widget.multiset,
+                      isLastSet: widget.multiset.sets == index + 1,
+                      isLastMultisetExercise:
+                          widget.multiset.trainingExercises!.length ==
+                              widget.tExercise.position! + 1,
+                      multisetIndex: widget.multisetIndex,
+                      multisetExerciseIndex: widget.multisetExerciseIndex,
+                      setIndex: index);
+                }
+                return const SizedBox();
+              }),
           const SizedBox(height: 10),
         ],
       ),
@@ -175,20 +193,28 @@ String formatPace(int seconds) {
 }
 
 class DistanceOrDurationRun extends StatelessWidget {
+  final Multiset multiset;
   final TrainingExercise tExercise;
-  final int exerciseIndex;
-  final bool isLast;
-  const DistanceOrDurationRun({
-    super.key,
-    required this.tExercise,
-    required this.isLast,
-    required this.exerciseIndex,
-  });
+  final bool isLastSet;
+  final bool isLastMultisetExercise;
+  final int multisetIndex;
+  final int multisetExerciseIndex;
+  final int setIndex;
+
+  const DistanceOrDurationRun(
+      {super.key,
+      required this.multiset,
+      required this.tExercise,
+      required this.isLastSet,
+      required this.isLastMultisetExercise,
+      required this.multisetIndex,
+      required this.multisetExerciseIndex,
+      required this.setIndex});
 
   @override
   Widget build(BuildContext context) {
-    final timerId = '$exerciseIndex';
-    final restTimerId = '$exerciseIndex-rest';
+    final timerId = '$multisetIndex-$setIndex-$multisetExerciseIndex';
+    final restTimerId = '$multisetIndex-$setIndex-$multisetExerciseIndex-rest';
     // Create exercise timer
     context.read<ActiveTrainingBloc>().add(CreateTimer(
           timerState: TimerState(
@@ -278,16 +304,9 @@ class DistanceOrDurationRun extends StatelessWidget {
             GestureDetector(
               onTap: () async {
                 final bloc = context.read<ActiveTrainingBloc>();
-                final runCompleter = Completer<String>();
-
                 bloc.add(
-                  StartTimer(timerId: timerId, completer: runCompleter),
+                  StartTimer(timerId: timerId),
                 );
-                await runCompleter.future;
-
-                if (!isLast) {
-                  bloc.add(StartTimer(timerId: restTimerId));
-                }
               },
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -320,27 +339,28 @@ class DistanceOrDurationRun extends StatelessWidget {
   }
 }
 
-class IntervalWidget extends StatefulWidget {
+class IntervalWidget extends StatelessWidget {
   final TrainingExercise tExercise;
-  final int exerciseIndex;
-  final bool isLast;
+  final Multiset multiset;
+  final bool isLastSet;
+  final bool isLastMultisetExercise;
+  final int multisetIndex;
+  final int multisetExerciseIndex;
+  final int setIndex;
 
   const IntervalWidget(
       {super.key,
       required this.tExercise,
-      required this.isLast,
-      required this.exerciseIndex});
-
-  @override
-  State<IntervalWidget> createState() => _IntervalWidgetState();
-}
-
-class _IntervalWidgetState extends State<IntervalWidget> {
-  bool isClicked = false;
+      required this.multiset,
+      required this.isLastSet,
+      required this.isLastMultisetExercise,
+      required this.multisetIndex,
+      required this.multisetExerciseIndex,
+      required this.setIndex});
 
   @override
   Widget build(BuildContext context) {
-    final intervals = widget.tExercise.intervals ?? 1;
+    final intervals = tExercise.intervals ?? 1;
 
     return Column(
       children: [
@@ -348,47 +368,67 @@ class _IntervalWidgetState extends State<IntervalWidget> {
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             itemCount: intervals,
-            itemBuilder: (context, index) {
-              final bool isLastInterval = index + 1 == intervals;
+            itemBuilder: (context, intervalIndex) {
+              final bool isLastInterval = intervalIndex + 1 == intervals;
 
               return IntervalRun(
-                tExercise: widget.tExercise,
-                isLastInterval: isLastInterval,
-                exerciseIndex: widget.exerciseIndex,
-                intervalIndex: index,
-              );
+                  tExercise: tExercise,
+                  isLastInterval: isLastInterval,
+                  intervalIndex: intervalIndex,
+                  multiset: multiset,
+                  isLastSet: multiset.sets == setIndex + 1,
+                  isLastMultisetExercise: multiset.trainingExercises!.length ==
+                      tExercise.position! + 1,
+                  multisetIndex: multisetIndex,
+                  multisetExerciseIndex: multisetExerciseIndex,
+                  setIndex: setIndex);
             }),
-        GestureDetector(
-          onTap: () async {
-            final bloc = context.read<ActiveTrainingBloc>();
-            if (!isClicked) {
-              isClicked = true;
-              setState(() {});
-
-              bloc.add(StartTimer(timerId: '${widget.exerciseIndex}-0'));
+        BlocBuilder<ActiveTrainingBloc, ActiveTrainingState>(
+            builder: (context, state) {
+          if (state is ActiveTrainingLoaded) {
+            bool isStarted = false;
+            final currentIsStarted = state.timersStateList
+                .firstWhereOrNull((el) =>
+                    el.timerId ==
+                    '$multisetIndex-$setIndex-$multisetExerciseIndex-0')
+                ?.isStarted;
+            if (currentIsStarted != null && currentIsStarted) {
+              isStarted = true;
             }
-          },
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                width: 160,
-                alignment: Alignment.center,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                decoration: BoxDecoration(
-                    color: isClicked ? AppColors.lightGrey : AppColors.black,
-                    borderRadius: BorderRadius.circular(10)),
-                child: Text(
-                  isClicked ? 'Started' : tr('global_start'),
-                  style: TextStyle(
-                      color:
-                          isClicked ? AppColors.lightBlack : AppColors.white),
-                ),
+
+            return GestureDetector(
+              onTap: () async {
+                final bloc = context.read<ActiveTrainingBloc>();
+                bloc.add(StartTimer(
+                    timerId:
+                        '$multisetIndex-$setIndex-$multisetExerciseIndex-0'));
+              },
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    width: 160,
+                    alignment: Alignment.center,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 10),
+                    decoration: BoxDecoration(
+                        color:
+                            isStarted ? AppColors.lightGrey : AppColors.black,
+                        borderRadius: BorderRadius.circular(10)),
+                    child: Text(
+                      isStarted ? 'Started' : tr('global_start'),
+                      style: TextStyle(
+                          color: isStarted
+                              ? AppColors.lightBlack
+                              : AppColors.white),
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
-        ),
+            );
+          }
+          return const SizedBox();
+        }),
       ],
     );
   }
@@ -396,21 +436,33 @@ class _IntervalWidgetState extends State<IntervalWidget> {
 
 class IntervalRun extends StatelessWidget {
   final TrainingExercise tExercise;
-  final int exerciseIndex;
   final int intervalIndex;
   final bool isLastInterval;
+  final Multiset multiset;
+  final bool isLastSet;
+  final bool isLastMultisetExercise;
+  final int multisetIndex;
+  final int multisetExerciseIndex;
+  final int setIndex;
   const IntervalRun({
     super.key,
     required this.tExercise,
     required this.isLastInterval,
-    required this.exerciseIndex,
     required this.intervalIndex,
+    required this.multiset,
+    required this.isLastSet,
+    required this.isLastMultisetExercise,
+    required this.multisetIndex,
+    required this.multisetExerciseIndex,
+    required this.setIndex,
   });
 
   @override
   Widget build(BuildContext context) {
-    final timerId = '$exerciseIndex-$intervalIndex';
-    final restTimerId = '$exerciseIndex-$intervalIndex-rest';
+    final timerId =
+        '$multisetIndex-$setIndex-$multisetExerciseIndex-$intervalIndex';
+    final restTimerId =
+        '$multisetIndex-$setIndex-$multisetExerciseIndex-$intervalIndex-rest';
     // Create exercise timer
     context.read<ActiveTrainingBloc>().add(CreateTimer(
             timerState: TimerState(
@@ -426,7 +478,7 @@ class IntervalRun extends StatelessWidget {
                   tExercise.isTargetRythmSelected!
               ? tExercise.targetRythm ?? 0
               : 0,
-          isAutostart: intervalIndex == 0 ? false : true,
+          isAutostart: intervalIndex == 0 ? tExercise.autoStart ?? false : true,
         )));
 
     // Create rest timer

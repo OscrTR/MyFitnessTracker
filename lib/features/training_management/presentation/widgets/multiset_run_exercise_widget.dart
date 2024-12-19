@@ -78,14 +78,14 @@ class _MultisetRunExerciseWidgetState extends State<MultisetRunExerciseWidget> {
       _controllers['distance']?.text = (exercise.targetDistance != null
           ? (exercise.targetDistance! ~/ 1000).toString()
           : '');
-      _controllers['durationHours']?.text = (exercise.duration != null
-          ? (exercise.duration! ~/ 3600).toString()
+      _controllers['durationHours']?.text = (exercise.targetDuration != null
+          ? (exercise.targetDuration! ~/ 3600).toString()
           : '');
-      _controllers['durationMinutes']?.text = (exercise.duration != null
-          ? (exercise.duration! % 3600 ~/ 60).toString()
+      _controllers['durationMinutes']?.text = (exercise.targetDuration != null
+          ? (exercise.targetDuration! % 3600 ~/ 60).toString()
           : '');
-      _controllers['durationSeconds']?.text = (exercise.duration != null
-          ? (exercise.duration! % 60).toString()
+      _controllers['durationSeconds']?.text = (exercise.targetDuration != null
+          ? (exercise.targetDuration! % 60).toString()
           : '');
       _controllers['intervals']?.text = exercise.intervals?.toString() ?? '';
       _controllers['rythmMinutes']?.text = (exercise.targetRythm != null

@@ -344,7 +344,7 @@ class DistanceOrDurationRun extends StatelessWidget {
   }
 }
 
-class IntervalWidget extends StatefulWidget {
+class IntervalWidget extends StatelessWidget {
   final TrainingExercise tExercise;
   final int exerciseIndex;
   final bool isLast;
@@ -356,15 +356,8 @@ class IntervalWidget extends StatefulWidget {
       required this.exerciseIndex});
 
   @override
-  State<IntervalWidget> createState() => _IntervalWidgetState();
-}
-
-class _IntervalWidgetState extends State<IntervalWidget> {
-  bool isClicked = false;
-
-  @override
   Widget build(BuildContext context) {
-    final intervals = widget.tExercise.intervals ?? 1;
+    final intervals = tExercise.intervals ?? 1;
 
     return Column(
       children: [
@@ -376,43 +369,54 @@ class _IntervalWidgetState extends State<IntervalWidget> {
               final bool isLastInterval = index + 1 == intervals;
 
               return IntervalRun(
-                tExercise: widget.tExercise,
+                tExercise: tExercise,
                 isLastInterval: isLastInterval,
-                exerciseIndex: widget.exerciseIndex,
+                exerciseIndex: exerciseIndex,
                 intervalIndex: index,
               );
             }),
-        GestureDetector(
-          onTap: () async {
-            final bloc = context.read<ActiveTrainingBloc>();
-            if (!isClicked) {
-              isClicked = true;
-              setState(() {});
-
-              bloc.add(StartTimer(timerId: '${widget.exerciseIndex}-0'));
+        BlocBuilder<ActiveTrainingBloc, ActiveTrainingState>(
+            builder: (context, state) {
+          if (state is ActiveTrainingLoaded) {
+            bool isStarted = false;
+            final currentIsStarted = state.timersStateList
+                .firstWhereOrNull((el) => el.timerId == '$exerciseIndex-0')
+                ?.isStarted;
+            if (currentIsStarted != null && currentIsStarted) {
+              isStarted = true;
             }
-          },
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                width: 160,
-                alignment: Alignment.center,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                decoration: BoxDecoration(
-                    color: isClicked ? AppColors.lightGrey : AppColors.black,
-                    borderRadius: BorderRadius.circular(10)),
-                child: Text(
-                  isClicked ? 'Started' : tr('global_start'),
-                  style: TextStyle(
-                      color:
-                          isClicked ? AppColors.lightBlack : AppColors.white),
-                ),
+            return GestureDetector(
+              onTap: () async {
+                final bloc = context.read<ActiveTrainingBloc>();
+
+                bloc.add(StartTimer(timerId: '$exerciseIndex-0'));
+              },
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    width: 160,
+                    alignment: Alignment.center,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 10),
+                    decoration: BoxDecoration(
+                        color:
+                            isStarted ? AppColors.lightGrey : AppColors.black,
+                        borderRadius: BorderRadius.circular(10)),
+                    child: Text(
+                      isStarted ? 'Started' : tr('global_start'),
+                      style: TextStyle(
+                          color: isStarted
+                              ? AppColors.lightBlack
+                              : AppColors.white),
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
-        ),
+            );
+          }
+          return const SizedBox();
+        }),
       ],
     );
   }
@@ -450,7 +454,7 @@ class IntervalRun extends StatelessWidget {
                   tExercise.isTargetRythmSelected!
               ? tExercise.targetRythm ?? 0
               : 0,
-          isAutostart: intervalIndex == 0 ? false : true,
+          isAutostart: intervalIndex == 0 ? tExercise.autoStart ?? false : true,
         )));
 
     // Create rest timer
