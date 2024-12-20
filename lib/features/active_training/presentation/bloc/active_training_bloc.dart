@@ -20,9 +20,6 @@ class ActiveTrainingBloc
   final AudioPlayer _audioPlayer = AudioPlayer();
   final FlutterTts _flutterTts = FlutterTts();
   int _nextKmMarker = 1;
-  int _paceMinutes = 0;
-  int _paceSeconds = 0;
-  double _pace = 0;
 
   Future<void> _speak(String number) async {
     await _flutterTts.speak(number); // Speak the number
@@ -58,9 +55,23 @@ class ActiveTrainingBloc
       }
     });
 
+    // Future<ActiveTrainingLoaded> waitForActiveTrainingLoaded() async {
+    //   while (true) {
+    //     if (state is ActiveTrainingLoaded) {
+    //       return state as ActiveTrainingLoaded;
+    //     }
+    //     await Future.delayed(
+    //         const Duration(milliseconds: 50)); // Poll every 50ms
+    //   }
+    // }
+
     on<StartTimer>((event, emit) async {
       final timerId = event.timerId;
       _timers[timerId]?.cancel();
+
+      // Wait until the state is ActiveTrainingLoaded
+      // ActiveTrainingLoaded initialState = await waitForActiveTrainingLoaded();
+
       final initialState = state as ActiveTrainingLoaded;
       final initialTimerState = initialState.timersStateList
           .firstWhere((el) => el.timerId == timerId);
@@ -69,16 +80,7 @@ class ActiveTrainingBloc
         _runTracker.stopTracking();
         _runTracker.startTracking();
         _nextKmMarker = 1;
-        _paceMinutes = 0;
-        _paceSeconds = 0;
-        _pace = 0;
       }
-
-      // print('timer $timerId is starting');
-
-      // for (var timer in initialState.timersStateList) {
-      //   print(timer.timerId);
-      // }
 
       final targetPace = initialTimerState.targetPace;
       final targetPaceMinutes = targetPace.floor();
@@ -121,8 +123,6 @@ class ActiveTrainingBloc
                 final autostart = currentState
                     .timersStateList[currentTimerIndex + 1].isAutostart;
 
-                // print(
-                //     'next timer is ${currentState.timersStateList[currentTimerIndex + 1]} with autostart $autostart');
                 if (autostart) {
                   add(StartTimer(timerId: nextTimerId));
                 }
@@ -130,31 +130,34 @@ class ActiveTrainingBloc
             }
           } else {
             final currentDistance = currentTimerState.distance;
+            int paceMinutes = 0;
+            int paceSeconds = 0;
+            double pace = 0;
             if (currentDistance > 0) {
-              _pace = currentTimerValue / 60 / (currentDistance / 1000);
-              _paceMinutes = _pace.floor();
-              _paceSeconds = ((_pace - _paceMinutes) * 60).round();
+              pace = currentTimerValue / 60 / (currentDistance / 1000);
+              paceMinutes = pace.floor();
+              paceSeconds = ((pace - paceMinutes) * 60).round();
             }
 
             // Check pace every 30 seconds if pace is tracked
             if (currentTimerState.pace > 0 && currentTimerValue % 30 == 0) {
               // Check if 5% slower
-              if (_pace <
+              if (pace <
                   initialTimerState.pace - (initialTimerState.pace * 0.05)) {
                 await _speak(
-                    'Rythme actuel $_paceMinutes $_paceSeconds. Rythme cible $targetPaceMinutes $targetPaceSeconds. Accélérez.');
+                    'Rythme actuel $paceMinutes $paceSeconds. Rythme cible $targetPaceMinutes $targetPaceSeconds. Accélérez.');
               }
-              if (_pace >
+              if (pace >
                   initialTimerState.pace + (initialTimerState.pace * 0.05)) {
                 await _speak(
-                    'Rythme actuel $_paceMinutes $_paceSeconds. Rythme cible $targetPaceMinutes $targetPaceSeconds. Ralentissez.');
+                    'Rythme actuel $paceMinutes $paceSeconds. Rythme cible $targetPaceMinutes $targetPaceSeconds. Ralentissez.');
               }
             }
 
             if (currentDistance > 0 &&
                 currentDistance / 1000 >= _nextKmMarker) {
               _speak(
-                  '$_nextKmMarker kilomètre. Rythme $_paceMinutes $_paceSeconds par kilomètre.');
+                  '$_nextKmMarker kilomètre. Rythme $paceMinutes $paceSeconds par kilomètre.');
               _nextKmMarker++;
             }
 
@@ -308,11 +311,6 @@ class ActiveTrainingBloc
 
         final double newPace =
             newDistance > 0 ? newTimerValue * 1000 / newDistance : 0;
-
-        // if (timerId != 'primaryTimer') {
-        //   print(
-        //       'Timer: $timerId, time: $newTimerValue, distance: $newDistance, pace: $newPace');
-        // }
 
         final updatedTimerState = currentTimerState.copyWith(
           timerValue: newTimerValue,

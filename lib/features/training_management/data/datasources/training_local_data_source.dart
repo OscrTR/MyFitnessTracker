@@ -159,6 +159,10 @@ class SQLiteTrainingLocalDataSource implements TrainingLocalDataSource {
         }).toList();
       }
 
+      final queryResult = await database.query('multisets');
+
+      print(queryResult);
+
       final trainingMap = await getTrainingBasicInfo(trainingId);
       final multisets = await fetchMultisets(trainingId);
       final trainingExercises = await fetchTrainingExercises(trainingId);

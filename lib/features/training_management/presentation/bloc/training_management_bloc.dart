@@ -44,6 +44,7 @@ class TrainingManagementBloc
             message: _mapFailureToMessage(failure), isError: true)),
         (trainings) {
           emit(TrainingManagementLoaded(trainings: trainings));
+          print('Fetching trainings');
         },
       );
     });
@@ -272,31 +273,16 @@ class TrainingManagementBloc
         final updatedResult =
             await updateTraining(update.Params(currentState.selectedTraining!));
 
-        await updatedResult.fold(
-          (failure) async {
+        updatedResult.fold(
+          (failure) {
             messageBloc.add(AddMessageEvent(
                 message: _mapFailureToMessage(failure), isError: true));
           },
-          (success) async {
+          (success) {
             messageBloc.add(const AddMessageEvent(
                 message: 'Training updated successfully.', isError: false));
 
-            final fetchResult = await fetchTrainings(null);
-
-            await fetchResult.fold(
-              (failure) async {
-                messageBloc.add(AddMessageEvent(
-                    message: _mapFailureToMessage(failure), isError: true));
-              },
-              (trainings) async {
-                if (!emit.isDone) {
-                  emit(currentState.copyWith(
-                    trainings: trainings,
-                    resetSelectedTraining: true,
-                  ));
-                }
-              },
-            );
+            add(FetchTrainingsEvent());
           },
         );
       }
@@ -502,34 +488,21 @@ class TrainingManagementBloc
           return;
         }
 
+        print(currentState.selectedTraining);
+
         final createResult =
             await createTraining(create.Params(currentState.selectedTraining!));
 
-        await createResult.fold(
-          (failure) async {
+        createResult.fold(
+          (failure) {
             messageBloc.add(AddMessageEvent(
                 message: _mapFailureToMessage(failure), isError: true));
           },
-          (success) async {
+          (success) {
             messageBloc.add(const AddMessageEvent(
                 message: 'Training created successfully.', isError: false));
 
-            final fetchResult = await fetchTrainings(null);
-
-            await fetchResult.fold(
-              (failure) async {
-                messageBloc.add(AddMessageEvent(
-                    message: _mapFailureToMessage(failure), isError: true));
-              },
-              (trainings) async {
-                if (!emit.isDone) {
-                  emit(currentState.copyWith(
-                    trainings: trainings,
-                    resetSelectedTraining: true,
-                  ));
-                }
-              },
-            );
+            add(FetchTrainingsEvent());
           },
         );
       }

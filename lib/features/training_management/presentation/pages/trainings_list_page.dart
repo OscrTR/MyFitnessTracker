@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:my_fitness_tracker/features/active_training/presentation/bloc/active_training_bloc.dart';
 
 import '../../../../app_colors.dart';
 import '../../../../core/widgets/dash_border_painter_widget.dart';
@@ -296,13 +297,17 @@ class TrainingList extends StatelessWidget {
             right: 0,
             child: PopupMenuButton(
               onSelected: (value) {
-                final bloc = BlocProvider.of<TrainingManagementBloc>(context);
+                final trainingManagementBloc =
+                    BlocProvider.of<TrainingManagementBloc>(context);
+                final activeTrainingBloc = context.read<ActiveTrainingBloc>();
                 if (value == 'edit') {
-                  bloc.add(SelectTrainingEvent(id: training.id!));
+                  trainingManagementBloc
+                      .add(SelectTrainingEvent(id: training.id!));
+                  activeTrainingBloc.add(LoadDefaultActiveTraining());
                   GoRouter.of(context).go('/training_detail');
                 }
                 if (value == 'delete') {
-                  bloc.add(DeleteTrainingEvent(training.id!));
+                  trainingManagementBloc.add(DeleteTrainingEvent(training.id!));
                 }
               },
               itemBuilder: (BuildContext context) => [

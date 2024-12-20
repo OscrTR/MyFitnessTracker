@@ -1,7 +1,6 @@
-import 'package:easy_localization/easy_localization.dart';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:my_fitness_tracker/features/active_training/presentation/widgets/error_state_widget.dart';
 import 'package:uuid/uuid.dart';
 import '../widgets/active_multiset_widget.dart';
 import '../widgets/active_run_widget.dart';
@@ -54,7 +53,7 @@ class ActiveTrainingPage extends StatelessWidget {
                   ),
                 );
               }
-              return Center(child: Text(context.tr('error_state')));
+              return const ErrorStateWidget();
             })
           ],
         ),
