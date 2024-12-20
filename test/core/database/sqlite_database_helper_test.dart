@@ -56,7 +56,7 @@ void main() {
             auto_start INTEGER,
             target_distance INTEGER,
             target_duration INTEGER,
-            target_rythm INTEGER,
+            target_pace INTEGER,
             intervals INTEGER,
             interval_distance INTEGER,
             interval_duration INTEGER,

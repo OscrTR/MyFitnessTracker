@@ -49,7 +49,7 @@ void main() {
     autoStart: true,
     targetDistance: null,
     targetDuration: null,
-    targetRythm: null,
+    targetPace: null,
     intervals: null,
     intervalDistance: null,
     intervalDuration: null,

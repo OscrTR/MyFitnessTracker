@@ -35,8 +35,8 @@ class _MultisetRunExerciseWidgetState extends State<MultisetRunExerciseWidget> {
     'durationMinutes': TextEditingController(),
     'durationSeconds': TextEditingController(),
     'intervals': TextEditingController(),
-    'rythmMinutes': TextEditingController(),
-    'rythmSeconds': TextEditingController(),
+    'paceMinutes': TextEditingController(),
+    'paceSeconds': TextEditingController(),
     'intervalDistance': TextEditingController(),
     'intervalMinutes': TextEditingController(),
     'intervalSeconds': TextEditingController(),
@@ -88,11 +88,11 @@ class _MultisetRunExerciseWidgetState extends State<MultisetRunExerciseWidget> {
           ? (exercise.targetDuration! % 60).toString()
           : '');
       _controllers['intervals']?.text = exercise.intervals?.toString() ?? '';
-      _controllers['rythmMinutes']?.text = (exercise.targetRythm != null
-          ? (exercise.targetRythm! % 3600 ~/ 60).toString()
+      _controllers['paceMinutes']?.text = (exercise.targetPace != null
+          ? (exercise.targetPace! % 3600 ~/ 60).toString()
           : '');
-      _controllers['rythmSeconds']?.text = (exercise.targetRythm != null
-          ? (exercise.targetRythm! % 60).toString()
+      _controllers['paceSeconds']?.text = (exercise.targetPace != null
+          ? (exercise.targetPace! % 60).toString()
           : '');
       _controllers['intervalDistance']?.text =
           (exercise.intervalDistance != null
@@ -168,11 +168,10 @@ class _MultisetRunExerciseWidgetState extends State<MultisetRunExerciseWidget> {
           intervals: key == 'intervals'
               ? int.tryParse(_controllers['intervals']?.text ?? '')
               : null,
-          targetRythm: key == 'rythmMinutes' || key == 'rythmSeconds'
-              ? ((int.tryParse(_controllers['rythmMinutes']?.text ?? '') ?? 0) *
+          targetPace: key == 'paceMinutes' || key == 'paceSeconds'
+              ? ((int.tryParse(_controllers['paceMinutes']?.text ?? '') ?? 0) *
                       60) +
-                  ((int.tryParse(_controllers['rythmSeconds']?.text ?? '') ??
-                      0))
+                  ((int.tryParse(_controllers['paceSeconds']?.text ?? '') ?? 0))
               : null,
           intervalDistance: key == 'intervalDistance'
               ? ((double.tryParse((_controllers['intervalDistance']?.text ?? '')
@@ -247,7 +246,7 @@ class _MultisetRunExerciseWidgetState extends State<MultisetRunExerciseWidget> {
           const SizedBox(height: 10),
           _buildTargetChoiceOptions(),
           _buildIntervalsChoiceOptions(),
-          _buildTargetRythm(),
+          _buildTargetPace(),
           _buildIntervalRestRow(),
           _buildAutostart(),
           const SizedBox(height: 10),
@@ -686,15 +685,15 @@ class _MultisetRunExerciseWidgetState extends State<MultisetRunExerciseWidget> {
     });
   }
 
-  Widget _buildTargetRythm() {
+  Widget _buildTargetPace() {
     return BlocBuilder<TrainingManagementBloc, TrainingManagementState>(
         builder: (context, state) {
       if (state is TrainingManagementLoaded) {
-        final isTargetRythmSelected = state.selectedTraining!.multisets
+        final isTargetPaceSelected = state.selectedTraining!.multisets
                 .firstWhere((multiset) => multiset.key == widget.multisetKey)
                 .trainingExercises!
                 .firstWhere((exercise) => exercise.key == widget.exerciseKey)
-                .isTargetRythmSelected ??
+                .isTargetPaceSelected ??
             false;
 
         return Row(
@@ -703,7 +702,7 @@ class _MultisetRunExerciseWidgetState extends State<MultisetRunExerciseWidget> {
             SizedBox(
               width: 20,
               child: Checkbox(
-                value: isTargetRythmSelected,
+                value: isTargetPaceSelected,
                 onChanged: (value) {
                   final bloc = context.read<TrainingManagementBloc>();
 
@@ -724,7 +723,7 @@ class _MultisetRunExerciseWidgetState extends State<MultisetRunExerciseWidget> {
                     final updatedExercise = updatedTrainingExercisesList
                         .firstWhere(
                             (exercise) => exercise.key == widget.exerciseKey)
-                        .copyWith(isTargetRythmSelected: value);
+                        .copyWith(isTargetPaceSelected: value);
 
                     updatedTrainingExercisesList[index] = updatedExercise;
 
@@ -753,26 +752,26 @@ class _MultisetRunExerciseWidgetState extends State<MultisetRunExerciseWidget> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(tr('exercise_rythm'),
+                  Text(tr('exercise_pace'),
                       style: const TextStyle(color: AppColors.lightBlack)),
                   Row(
                     children: [
                       SmallTextFieldWidget(
-                        controller: _controllers['rythmMinutes']!,
-                        textColor: isTargetRythmSelected
+                        controller: _controllers['paceMinutes']!,
+                        textColor: isTargetPaceSelected
                             ? AppColors.black
                             : AppColors.lightBlack,
                       ),
                       Text(' : ',
                           style: TextStyle(
                             fontSize: 20,
-                            color: isTargetRythmSelected
+                            color: isTargetPaceSelected
                                 ? AppColors.black
                                 : AppColors.lightBlack,
                           )),
                       SmallTextFieldWidget(
-                        controller: _controllers['rythmSeconds']!,
-                        textColor: isTargetRythmSelected
+                        controller: _controllers['paceSeconds']!,
+                        textColor: isTargetPaceSelected
                             ? AppColors.black
                             : AppColors.lightBlack,
                       ),

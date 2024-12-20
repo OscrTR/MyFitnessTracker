@@ -142,8 +142,8 @@ class _ActiveMultisetRunWidgetState extends State<ActiveMultisetRunWidget> {
     final targetDuration = widget.tExercise.targetDuration != null
         ? formatDuration(widget.tExercise.targetDuration!)
         : '';
-    final targetPace = widget.tExercise.isTargetRythmSelected == true
-        ? ' at ${formatPace(widget.tExercise.targetRythm!)}'
+    final targetPace = widget.tExercise.isTargetPaceSelected == true
+        ? ' at ${formatPace(widget.tExercise.targetPace!)}'
         : '';
 
     if (widget.tExercise.runExerciseTarget == RunExerciseTarget.distance) {
@@ -164,8 +164,8 @@ class _ActiveMultisetRunWidgetState extends State<ActiveMultisetRunWidget> {
     final targetDuration = tExercise.intervalDuration != null
         ? formatDuration(tExercise.intervalDuration!)
         : '';
-    final targetPace = tExercise.isTargetRythmSelected == true
-        ? ' at ${formatPace(tExercise.targetRythm!)}'
+    final targetPace = tExercise.isTargetPaceSelected == true
+        ? ' at ${formatPace(tExercise.targetPace!)}'
         : '';
     final intervals = tExercise.intervals ?? 1;
 
@@ -232,9 +232,9 @@ class DistanceOrDurationRun extends StatelessWidget {
                 tExercise.runExerciseTarget == RunExerciseTarget.duration
                     ? tExercise.targetDuration ?? 0
                     : 0,
-            targetPace: tExercise.isTargetRythmSelected != null &&
-                    tExercise.isTargetRythmSelected!
-                ? tExercise.targetRythm ?? 0
+            targetPace: tExercise.isTargetPaceSelected != null &&
+                    tExercise.isTargetPaceSelected!
+                ? tExercise.targetPace ?? 0
                 : 0,
             isAutostart: tExercise.autoStart ?? false,
           ),
@@ -474,9 +474,9 @@ class IntervalRun extends StatelessWidget {
           isCountDown: false,
           targetDistance: tExercise.intervalDistance ?? 0,
           targetDuration: tExercise.intervalDuration ?? 0,
-          targetPace: tExercise.isTargetRythmSelected != null &&
-                  tExercise.isTargetRythmSelected!
-              ? tExercise.targetRythm ?? 0
+          targetPace: tExercise.isTargetPaceSelected != null &&
+                  tExercise.isTargetPaceSelected!
+              ? tExercise.targetPace ?? 0
               : 0,
           isAutostart: intervalIndex == 0 ? tExercise.autoStart ?? false : true,
         )));

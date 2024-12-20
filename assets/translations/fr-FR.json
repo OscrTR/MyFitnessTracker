@@ -34,7 +34,7 @@
   "exercise_intervals": "Intervalles",
   "exercise_interval_distance": "Distance intervalle (km)",
   "exercise_interval_duration": "Durée intervalle",
-  "exercise_rythm": "Rythme (durée/km)",
+  "exercise_pace": "Pacee (durée/km)",
   "exercise_create_new": "Créer un nouvel exercice",
   "exercise_search": "Chercher un exercice",
   "exercise_sets": "Sets",

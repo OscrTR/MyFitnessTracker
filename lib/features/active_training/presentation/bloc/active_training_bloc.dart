@@ -145,19 +145,19 @@ class ActiveTrainingBloc
               if (pace <
                   initialTimerState.pace - (initialTimerState.pace * 0.05)) {
                 await _speak(
-                    'Rythme actuel $paceMinutes $paceSeconds. Rythme cible $targetPaceMinutes $targetPaceSeconds. Accélérez.');
+                    'Pacee actuel $paceMinutes $paceSeconds. Pacee cible $targetPaceMinutes $targetPaceSeconds. Accélérez.');
               }
               if (pace >
                   initialTimerState.pace + (initialTimerState.pace * 0.05)) {
                 await _speak(
-                    'Rythme actuel $paceMinutes $paceSeconds. Rythme cible $targetPaceMinutes $targetPaceSeconds. Ralentissez.');
+                    'Pacee actuel $paceMinutes $paceSeconds. Pacee cible $targetPaceMinutes $targetPaceSeconds. Ralentissez.');
               }
             }
 
             if (currentDistance > 0 &&
                 currentDistance / 1000 >= _nextKmMarker) {
               _speak(
-                  '$_nextKmMarker kilomètre. Rythme $paceMinutes $paceSeconds par kilomètre.');
+                  '$_nextKmMarker kilomètre. Pacee $paceMinutes $paceSeconds par kilomètre.');
               _nextKmMarker++;
             }
 
