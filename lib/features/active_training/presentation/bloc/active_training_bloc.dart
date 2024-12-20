@@ -365,7 +365,6 @@ class RunTracker {
     // Check permission
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
-      // print('Location services are disabled.');
       return;
     }
 
@@ -373,7 +372,6 @@ class RunTracker {
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.deniedForever) {
-        // print('Location permissions are permanently denied.');
         return;
       }
     }
@@ -394,7 +392,6 @@ class RunTracker {
         );
       }
       _previousPosition = position;
-      // print('Distance Traveled: $totalDistance meters');
     });
   }
 

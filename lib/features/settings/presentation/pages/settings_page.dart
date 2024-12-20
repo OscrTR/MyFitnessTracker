@@ -36,7 +36,6 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
-    print(context.locale);
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(20),

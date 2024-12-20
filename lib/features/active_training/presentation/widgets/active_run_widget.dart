@@ -155,14 +155,15 @@ class _ActiveRunWidgetState extends State<ActiveRunWidget> {
   }
 
   Text buildRunExerciseText() {
-    final targetDistance = widget.tExercise.targetDistance != null
+    final targetDistance = widget.tExercise.targetDistance != null &&
+            widget.tExercise.targetDistance! > 0
         ? '${(widget.tExercise.targetDistance! / 1000).toStringAsFixed(1)}km'
         : '';
     final targetDuration = widget.tExercise.targetDuration != null
         ? formatDuration(widget.tExercise.targetDuration!)
         : '';
     final targetPace = widget.tExercise.isTargetPaceSelected == true
-        ? ' at ${formatPace(widget.tExercise.targetPace!)}'
+        ? ' at ${formatPace(widget.tExercise.targetPace ?? 0)}'
         : '';
 
     if (widget.tExercise.runExerciseTarget == RunExerciseTarget.distance) {
@@ -177,14 +178,15 @@ class _ActiveRunWidgetState extends State<ActiveRunWidget> {
 
   Text buildIntervalText() {
     final tExercise = widget.tExercise;
-    final targetDistance = tExercise.intervalDistance != null
-        ? '${(tExercise.intervalDistance! / 1000).toStringAsFixed(1)}km'
-        : '';
+    final targetDistance =
+        tExercise.intervalDistance != null && tExercise.intervalDistance! > 0
+            ? '${(tExercise.intervalDistance! / 1000).toStringAsFixed(1)}km'
+            : '';
     final targetDuration = tExercise.intervalDuration != null
         ? formatDuration(tExercise.intervalDuration!)
         : '';
     final targetPace = tExercise.isTargetPaceSelected == true
-        ? ' at ${formatPace(tExercise.targetPace!)}'
+        ? ' at ${formatPace(tExercise.targetPace ?? 0)}'
         : '';
     final intervals = tExercise.intervals ?? 1;
 

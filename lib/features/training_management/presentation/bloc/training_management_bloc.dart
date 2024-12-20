@@ -44,7 +44,6 @@ class TrainingManagementBloc
             message: _mapFailureToMessage(failure), isError: true)),
         (trainings) {
           emit(TrainingManagementLoaded(trainings: trainings));
-          print('Fetching trainings');
         },
       );
     });
@@ -487,8 +486,6 @@ class TrainingManagementBloc
               message: 'No training selected to save.', isError: true));
           return;
         }
-
-        print(currentState.selectedTraining);
 
         final createResult =
             await createTraining(create.Params(currentState.selectedTraining!));

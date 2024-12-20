@@ -34,14 +34,14 @@ void main() {
         () async {
       // Arrange
       when(() => mockTrainingRepository.updateTraining(tTraining))
-          .thenAnswer((_) async => const Right(tTraining));
+          .thenAnswer((_) async => const Right(null));
 
       // Act
       final result = await usecase(tParams);
 
       // Assert
       verify(() => mockTrainingRepository.updateTraining(tTraining)).called(1);
-      expect(result, const Right(tTraining));
+      expect(result, const Right(null));
     });
 
     test(

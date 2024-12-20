@@ -301,30 +301,23 @@ void main() {
 
     blocTest<TrainingManagementBloc, TrainingManagementState>(
       'emits updated state on successful training selection',
-      setUp: () {
+      build: () {
         when(() => mockGetTraining(const get_tr.Params(trainingId)))
             .thenAnswer((_) async => const Right(training));
         when(() => mockUpdateTraining(update.Params(updatedTraining)))
             .thenAnswer((_) async => const Right(null));
         when(() => mockFetchTrainings(null))
             .thenAnswer((_) async => Right(trainings));
+
+        return bloc;
       },
-      build: () => TrainingManagementBloc(
-        getTraining: mockGetTraining,
-        updateTraining: mockUpdateTraining,
-        fetchTrainings: mockFetchTrainings,
-        messageBloc: mockMessageBloc,
-        createTraining: mockCreateTraining,
-        deleteTraining: mockDeleteTraining,
-      ),
-      seed: () => const TrainingManagementLoaded(
-        trainings: [],
-        // Other fields
-      ),
+      seed: () =>
+          const TrainingManagementLoaded(trainings: [], activeTraining: null),
       act: (bloc) => bloc.add(const StartTrainingEvent(trainingId)),
       expect: () => [
         TrainingManagementLoaded(
           trainings: trainings,
+          activeTraining: updatedTraining,
         ),
       ],
       verify: (_) {
