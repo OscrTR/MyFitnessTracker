@@ -213,8 +213,8 @@ class DistanceOrDurationRun extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final timerId = '$multisetIndex-$setIndex-$multisetExerciseIndex';
-    final restTimerId = '$multisetIndex-$setIndex-$multisetExerciseIndex-rest';
+    final timerId = '${multisetIndex < 10 ? 0:''}$multisetIndex-${setIndex < 10 ? 0:''}$setIndex-${multisetExerciseIndex < 10 ? 0:''}$multisetExerciseIndex';
+    final restTimerId = '${multisetIndex < 10 ? 0:''}$multisetIndex-${setIndex < 10 ? 0:''}$setIndex-${multisetExerciseIndex < 10 ? 0:''}$multisetExerciseIndex-rest';
     // Create exercise timer
     context.read<ActiveTrainingBloc>().add(CreateTimer(
           timerState: TimerState(
@@ -460,9 +460,9 @@ class IntervalRun extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final timerId =
-        '$multisetIndex-$setIndex-$multisetExerciseIndex-$intervalIndex';
+        '${multisetIndex < 10 ? 0:''}$multisetIndex-${setIndex < 10 ? 0:''}$setIndex-${multisetExerciseIndex < 10 ? 0:''}$multisetExerciseIndex-${intervalIndex < 10 ? 0:''}$intervalIndex';
     final restTimerId =
-        '$multisetIndex-$setIndex-$multisetExerciseIndex-$intervalIndex-rest';
+        '${multisetIndex < 10 ? 0:''}$multisetIndex-${setIndex < 10 ? 0:''}$setIndex-${multisetExerciseIndex < 10 ? 0:''}$multisetExerciseIndex-${intervalIndex < 10 ? 0:''}$intervalIndex-rest';
     // Create exercise timer
     context.read<ActiveTrainingBloc>().add(CreateTimer(
             timerState: TimerState(

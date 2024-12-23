@@ -30,14 +30,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
   @override
   void initState() {
     super.initState();
-
-    final bloc = context.read<TrainingManagementBloc>();
-    final initialName = (bloc.state is TrainingManagementLoaded)
-        ? (bloc.state as TrainingManagementLoaded).selectedTraining?.name ?? ''
-        : '';
-
-    _nameController = TextEditingController(text: initialName);
-    // Add a listener with debounce to the controller
+    _nameController = TextEditingController();
     _nameController.addListener(_onTextChanged);
   }
 
@@ -77,6 +70,10 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
             final bPosition = (b['data'] as dynamic).position ?? 0;
             return aPosition.compareTo(bPosition);
           });
+
+          final initialName = state.selectedTraining?.name ?? '';
+          _nameController.text = initialName;
+
           return SingleChildScrollView(
             child: Padding(
               padding: const EdgeInsets.all(20),

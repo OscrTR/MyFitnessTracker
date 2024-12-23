@@ -358,7 +358,7 @@ class ActiveExerciseRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final restTimerId = '$exerciseIndex-$setIndex';
+    final restTimerId = '${exerciseIndex < 10 ? 0:''}$exerciseIndex-${setIndex < 10 ? 0:''}$setIndex';
     // Create rest timer
     context.read<ActiveTrainingBloc>().add(CreateTimer(
             timerState: TimerState(
@@ -428,8 +428,8 @@ class ActiveExerciseDurationRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final timerId = '$exerciseIndex-$setIndex';
-    final restTimerId = '$exerciseIndex-$setIndex-rest';
+    final timerId = '${exerciseIndex < 10 ? 0:''}$exerciseIndex-${setIndex < 10 ? 0:''}$setIndex';
+    final restTimerId = '${exerciseIndex < 10 ? 0:''}$exerciseIndex-${setIndex < 10 ? 0:''}$setIndex-rest';
     // Create exercise timer
     context.read<ActiveTrainingBloc>().add(CreateTimer(
             timerState: TimerState(

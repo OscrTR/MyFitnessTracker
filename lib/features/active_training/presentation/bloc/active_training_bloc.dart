@@ -55,26 +55,16 @@ class ActiveTrainingBloc
       }
     });
 
-    // Future<ActiveTrainingLoaded> waitForActiveTrainingLoaded() async {
-    //   while (true) {
-    //     if (state is ActiveTrainingLoaded) {
-    //       return state as ActiveTrainingLoaded;
-    //     }
-    //     await Future.delayed(
-    //         const Duration(milliseconds: 50)); // Poll every 50ms
-    //   }
-    // }
 
     on<StartTimer>((event, emit) async {
       final timerId = event.timerId;
       _timers[timerId]?.cancel();
 
-      // Wait until the state is ActiveTrainingLoaded
-      // ActiveTrainingLoaded initialState = await waitForActiveTrainingLoaded();
-
       final initialState = state as ActiveTrainingLoaded;
       final initialTimerState = initialState.timersStateList
           .firstWhere((el) => el.timerId == timerId);
+
+      print(initialState.timersStateList);
 
       if (initialTimerState.isRunTimer) {
         _runTracker.stopTracking();
