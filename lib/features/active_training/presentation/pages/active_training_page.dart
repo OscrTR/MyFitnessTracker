@@ -1,5 +1,8 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:my_fitness_tracker/app_colors.dart';
 import 'package:my_fitness_tracker/features/active_training/presentation/widgets/error_state_widget.dart';
 import 'package:uuid/uuid.dart';
 import '../widgets/active_multiset_widget.dart';
@@ -48,6 +51,19 @@ class ActiveTrainingPage extends StatelessWidget {
                       const SizedBox(height: 30),
                       _buildTrainingItemList(
                           sortedItems, context, exercisesAndMultisetsList),
+                      const SizedBox(height: 30),
+                      GestureDetector(
+                        onTap: (){
+                          GoRouter.of(context).go('/home');
+                        },
+                        child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                            decoration: BoxDecoration(color: AppColors.black, borderRadius: BorderRadius.circular(10)),
+                            child: Text(
+                              context.tr('active_training_end'),
+                              style: const TextStyle(color: AppColors.white),
+                            )),
+                      ),
                       const SizedBox(height: 90),
                     ],
                   ),

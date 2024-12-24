@@ -40,20 +40,6 @@ class SmallTextFieldWidget extends StatelessWidget {
                 .bodyMedium!
                 .copyWith(color: AppColors.lightBlack),
             border: InputBorder.none,
-            // enabledBorder: const OutlineInputBorder(
-            //   borderRadius: BorderRadius.all(Radius.circular(10)),
-            //   borderSide: BorderSide(
-            //     color: AppColors.lightBlack,
-            //     width: 1.0,
-            //   ),
-            // ),
-            // focusedBorder: const OutlineInputBorder(
-            //   borderRadius: BorderRadius.all(Radius.circular(10)),
-            //   borderSide: BorderSide(
-            //     color: AppColors.lightBlack,
-            //     width: 1.0,
-            //   ),
-            // ),
           ),
         ),
       ),

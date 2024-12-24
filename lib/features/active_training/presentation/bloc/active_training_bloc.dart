@@ -64,8 +64,6 @@ class ActiveTrainingBloc
       final initialTimerState = initialState.timersStateList
           .firstWhere((el) => el.timerId == timerId);
 
-      print(initialState.timersStateList);
-
       if (initialTimerState.isRunTimer) {
         _runTracker.stopTracking();
         _runTracker.startTracking();

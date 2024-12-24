@@ -18,7 +18,7 @@ class ExerciseListItemOptionsMenu extends StatelessWidget {
         final bloc = BlocProvider.of<ExerciseManagementBloc>(context);
         if (value == 'edit') {
           bloc.add(GetExerciseEvent(exerciseId));
-          GoRouter.of(context).go('/exercise_detail');
+          GoRouter.of(context).push('/exercise_detail');
         } else if (value == 'delete') {
           bloc.add(DeleteExerciseEvent(exerciseId));
         }

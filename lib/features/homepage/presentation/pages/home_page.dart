@@ -30,7 +30,7 @@ class HomePage extends StatelessWidget {
                 ),
                 GestureDetector(
                   onTap: () {
-                    GoRouter.of(context).go('/trainings');
+                    GoRouter.of(context).push('/trainings');
                   },
                   child: Container(
                       width: 100,
@@ -87,7 +87,7 @@ Widget _buildSelectedWidgets() {
             padding: const EdgeInsets.only(left: 20),
             child: GestureDetector(
               onTap: () {
-                GoRouter.of(context).go('/trainings');
+                GoRouter.of(context).push('/trainings');
               },
               child: CustomPaint(
                 painter: DashedBorderPainter(
@@ -168,7 +168,7 @@ Widget _buildSelectedWidgets() {
                                     .read<TrainingManagementBloc>()
                                     .add(StartTrainingEvent(training.id!));
 
-                                GoRouter.of(context).go('/active_training');
+                                GoRouter.of(context).push('/active_training');
                               },
                               child: IntrinsicWidth(
                                 child: Container(

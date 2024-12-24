@@ -214,10 +214,10 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                               ?.id;
                       if (trainingId != null) {
                         bloc.add(UpdateTrainingEvent());
-                        GoRouter.of(context).go('/trainings');
+                        GoRouter.of(context).push('/trainings');
                       } else {
                         bloc.add(SaveSelectedTrainingEvent());
-                        GoRouter.of(context).go('/trainings');
+                        GoRouter.of(context).push('/trainings');
                       }
                     },
                   ),

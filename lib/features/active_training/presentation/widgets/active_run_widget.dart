@@ -125,7 +125,6 @@ class _ActiveRunWidgetState extends State<ActiveRunWidget> {
                 ? formatDuration(widget.tExercise.exerciseRest!)
                 : '0:00',
           ),
-        if (widget.isLast) Text(tr('active_training_end')),
       ],
     );
   }
@@ -213,8 +212,8 @@ class DistanceOrDurationRun extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final timerId = '${exerciseIndex < 10 ? 0:''}$exerciseIndex';
-    final restTimerId = '${exerciseIndex < 10 ? 0:''}$exerciseIndex-rest';
+    final timerId = '${exerciseIndex < 10 ? 0 : ''}$exerciseIndex';
+    final restTimerId = '${exerciseIndex < 10 ? 0 : ''}$exerciseIndex-rest';
     // Create exercise timer
     context.read<ActiveTrainingBloc>().add(CreateTimer(
           timerState: TimerState(
@@ -439,8 +438,10 @@ class IntervalRun extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final timerId = '${exerciseIndex < 10 ? 0:''}$exerciseIndex-${intervalIndex < 10 ? 0:''}$intervalIndex';
-    final restTimerId = '${exerciseIndex < 10 ? 0:''}$exerciseIndex-${intervalIndex < 10 ? 0:''}$intervalIndex-rest';
+    final timerId =
+        '${exerciseIndex < 10 ? 0 : ''}$exerciseIndex-${intervalIndex < 10 ? 0 : ''}$intervalIndex';
+    final restTimerId =
+        '${exerciseIndex < 10 ? 0 : ''}$exerciseIndex-${intervalIndex < 10 ? 0 : ''}$intervalIndex-rest';
     // Create exercise timer
     context.read<ActiveTrainingBloc>().add(CreateTimer(
             timerState: TimerState(

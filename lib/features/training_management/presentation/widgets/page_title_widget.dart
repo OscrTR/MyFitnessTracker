@@ -20,7 +20,7 @@ class PageTitleWidget extends StatelessWidget {
             bottom: 0,
             child: GestureDetector(
               onTap: () {
-                GoRouter.of(context).go('/trainings');
+                GoRouter.of(context).push('/trainings');
                 context
                     .read<TrainingManagementBloc>()
                     .add(const ClearSelectedTrainingEvent());

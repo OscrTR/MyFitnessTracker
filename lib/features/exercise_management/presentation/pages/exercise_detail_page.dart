@@ -94,8 +94,8 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
                       : 'exercise_detail_page_title_edit'),
                   onBack: () {
                     widget.fromTrainingCreation
-                        ? GoRouter.of(context).go('/training_detail')
-                        : GoRouter.of(context).go('/trainings');
+                        ? GoRouter.of(context).push('/training_detail')
+                        : GoRouter.of(context).push('/trainings');
                     BlocProvider.of<ExerciseManagementBloc>(context)
                         .add(const ClearSelectedExerciseEvent());
                   },
@@ -145,8 +145,8 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
                           );
                     BlocProvider.of<ExerciseManagementBloc>(context).add(event);
                     widget.fromTrainingCreation
-                        ? GoRouter.of(context).go('/training_detail')
-                        : GoRouter.of(context).go('/trainings');
+                        ? GoRouter.of(context).push('/training_detail')
+                        : GoRouter.of(context).push('/trainings');
                     BlocProvider.of<ExerciseManagementBloc>(context)
                         .add(const ClearSelectedExerciseEvent());
                   },

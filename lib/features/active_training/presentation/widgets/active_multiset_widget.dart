@@ -142,7 +142,6 @@ class _ActiveMultisetWidgetState extends State<ActiveMultisetWidget> {
                 ? _formatDuration(widget.multiset.multisetRest)
                 : '0:00',
           ),
-        if (widget.isLast) Text(tr('active_training_end')),
       ],
     );
   }

@@ -111,7 +111,6 @@ class _ActiveExerciseWidgetState extends State<ActiveExerciseWidget> {
                 ? _formatDuration(widget.tExercise.exerciseRest)
                 : '0:00',
           ),
-        if (widget.isLast) Text(tr('active_training_end')),
       ],
     );
   }
@@ -358,7 +357,8 @@ class ActiveExerciseRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final restTimerId = '${exerciseIndex < 10 ? 0:''}$exerciseIndex-${setIndex < 10 ? 0:''}$setIndex';
+    final restTimerId =
+        '${exerciseIndex < 10 ? 0 : ''}$exerciseIndex-${setIndex < 10 ? 0 : ''}$setIndex';
     // Create rest timer
     context.read<ActiveTrainingBloc>().add(CreateTimer(
             timerState: TimerState(
@@ -397,6 +397,7 @@ class ActiveExerciseRow extends StatelessWidget {
                 context
                     .read<ActiveTrainingBloc>()
                     .add(StartTimer(timerId: restTimerId));
+                FocusScope.of(context).unfocus();
               },
               child: Text(
                 isStarted ? 'OK' : tr('global_validate'),
@@ -428,8 +429,10 @@ class ActiveExerciseDurationRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final timerId = '${exerciseIndex < 10 ? 0:''}$exerciseIndex-${setIndex < 10 ? 0:''}$setIndex';
-    final restTimerId = '${exerciseIndex < 10 ? 0:''}$exerciseIndex-${setIndex < 10 ? 0:''}$setIndex-rest';
+    final timerId =
+        '${exerciseIndex < 10 ? 0 : ''}$exerciseIndex-${setIndex < 10 ? 0 : ''}$setIndex';
+    final restTimerId =
+        '${exerciseIndex < 10 ? 0 : ''}$exerciseIndex-${setIndex < 10 ? 0 : ''}$setIndex-rest';
     // Create exercise timer
     context.read<ActiveTrainingBloc>().add(CreateTimer(
             timerState: TimerState(

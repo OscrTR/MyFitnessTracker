@@ -61,7 +61,7 @@ void _showNewDialog(BuildContext context) {
         children: [
           GestureDetector(
             onTap: () {
-              GoRouter.of(context).go('/exercise_detail');
+              GoRouter.of(context).push('/exercise_detail');
               Navigator.pop(context, 'New exercise');
             },
             child: SizedBox(
@@ -74,7 +74,7 @@ void _showNewDialog(BuildContext context) {
                     const UpdateSelectedTrainingProperty(
                         type: TrainingType.yoga),
                   );
-              GoRouter.of(context).go(
+              GoRouter.of(context).push(
                 '/training_detail',
                 extra: TrainingType.yoga,
               );
@@ -90,7 +90,7 @@ void _showNewDialog(BuildContext context) {
                     const UpdateSelectedTrainingProperty(
                         type: TrainingType.run),
                   );
-              GoRouter.of(context).go(
+              GoRouter.of(context).push(
                 '/training_detail',
                 extra: TrainingType.run,
               );
@@ -106,7 +106,7 @@ void _showNewDialog(BuildContext context) {
                     const UpdateSelectedTrainingProperty(
                         type: TrainingType.workout),
                   );
-              GoRouter.of(context).go(
+              GoRouter.of(context).push(
                 '/training_detail',
                 extra: TrainingType.workout,
               );

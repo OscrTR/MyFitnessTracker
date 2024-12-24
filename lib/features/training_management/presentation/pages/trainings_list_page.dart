@@ -97,7 +97,7 @@ class TrainingSection extends StatelessWidget {
                             UpdateSelectedTrainingProperty(type: trainingType),
                           );
 
-                      GoRouter.of(context).go('/training_detail');
+                      GoRouter.of(context).push('/training_detail');
                     });
               } else {
                 Color color = AppColors.white;
@@ -141,7 +141,7 @@ class ExerciseSection extends StatelessWidget {
               if (state.exercises.isEmpty) {
                 return CreateButton(
                   textKey: 'training_page_create_exercise',
-                  onTap: () => GoRouter.of(context).go('/exercise_detail'),
+                  onTap: () => GoRouter.of(context).push('/exercise_detail'),
                 );
               }
               return ListView.separated(
@@ -271,10 +271,13 @@ class TrainingList extends StatelessWidget {
                 ),
                 GestureDetector(
                   onTap: () {
-                    final bloc =
-                        BlocProvider.of<TrainingManagementBloc>(context);
-                    bloc.add(StartTrainingEvent(training.id!));
-                    GoRouter.of(context).go('/active_training');
+                    context
+                        .read<ActiveTrainingBloc>()
+                        .add(LoadDefaultActiveTraining());
+                    context
+                        .read<TrainingManagementBloc>()
+                        .add(StartTrainingEvent(training.id!));
+                    GoRouter.of(context).push('/active_training');
                   },
                   child: Container(
                       padding: const EdgeInsets.symmetric(
@@ -304,7 +307,7 @@ class TrainingList extends StatelessWidget {
                   trainingManagementBloc
                       .add(SelectTrainingEvent(id: training.id!));
                   activeTrainingBloc.add(LoadDefaultActiveTraining());
-                  GoRouter.of(context).go('/training_detail');
+                  GoRouter.of(context).push('/training_detail');
                 }
                 if (value == 'delete') {
                   trainingManagementBloc.add(DeleteTrainingEvent(training.id!));

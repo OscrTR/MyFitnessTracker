@@ -218,7 +218,7 @@ class BottomNavigationBarWidget extends StatelessWidget {
               iconSize: 30,
               customAction: () {
                 if (!isHomePage) {
-                  GoRouter.of(context).go('/home');
+                  GoRouter.of(context).push('/home');
                 }
               },
             ),
@@ -228,7 +228,7 @@ class BottomNavigationBarWidget extends StatelessWidget {
               iconSize: 30,
               customAction: () {
                 if (!isTrainingsPage) {
-                  GoRouter.of(context).go('/trainings');
+                  GoRouter.of(context).push('/trainings');
                 }
               },
             ),
@@ -238,7 +238,7 @@ class BottomNavigationBarWidget extends StatelessWidget {
               iconSize: 30,
               customAction: () {
                 if (!isHistoryPage) {
-                  GoRouter.of(context).go('/history');
+                  GoRouter.of(context).push('/history');
                 }
               },
             ),
@@ -248,7 +248,7 @@ class BottomNavigationBarWidget extends StatelessWidget {
               iconSize: 30,
               customAction: () {
                 if (!isSettingsPage) {
-                  GoRouter.of(context).go('/settings');
+                  GoRouter.of(context).push('/settings');
                 }
               },
             ),
