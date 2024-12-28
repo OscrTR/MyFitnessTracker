@@ -53,12 +53,15 @@ class ActiveTrainingPage extends StatelessWidget {
                           sortedItems, context, exercisesAndMultisetsList),
                       const SizedBox(height: 30),
                       GestureDetector(
-                        onTap: (){
+                        onTap: () {
                           GoRouter.of(context).go('/home');
                         },
                         child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                            decoration: BoxDecoration(color: AppColors.black, borderRadius: BorderRadius.circular(10)),
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 10, horizontal: 20),
+                            decoration: BoxDecoration(
+                                color: AppColors.black,
+                                borderRadius: BorderRadius.circular(10)),
                             child: Text(
                               context.tr('active_training_end'),
                               style: const TextStyle(color: AppColors.white),

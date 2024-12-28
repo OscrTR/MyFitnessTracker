@@ -10,24 +10,20 @@ abstract class ActiveTrainingState extends Equatable {
 class ActiveTrainingInitial extends ActiveTrainingState {}
 
 class ActiveTrainingLoaded extends ActiveTrainingState {
-  final bool isPaused;
-  final String? activeRunTimer;
+  final String? lastStartedTimerId;
   final List<TimerState> timersStateList;
 
   const ActiveTrainingLoaded({
-    this.isPaused = false,
-    this.activeRunTimer,
+    this.lastStartedTimerId,
     required this.timersStateList,
   });
 
   ActiveTrainingLoaded copyWith({
-    bool? isPaused,
-    String? activeRunTimer,
+    String? lastStartedTimerId,
     List<TimerState>? timersStateList,
   }) {
     return ActiveTrainingLoaded(
-      isPaused: isPaused ?? this.isPaused,
-      activeRunTimer: activeRunTimer ?? this.activeRunTimer,
+      lastStartedTimerId: lastStartedTimerId ?? this.lastStartedTimerId,
       timersStateList: timersStateList != null
           ? List.unmodifiable(
               timersStateList..sort((a, b) => a.timerId.compareTo(b.timerId)),
@@ -37,7 +33,7 @@ class ActiveTrainingLoaded extends ActiveTrainingState {
   }
 
   @override
-  List<Object?> get props => [isPaused, activeRunTimer, timersStateList];
+  List<Object?> get props => [lastStartedTimerId, timersStateList];
 }
 
 class TimerState extends Equatable {
@@ -54,6 +50,7 @@ class TimerState extends Equatable {
   final int targetPace;
   final double distance;
   final double pace;
+  final int nextKmMarker;
 
   const TimerState({
     required this.timerId,
@@ -69,6 +66,7 @@ class TimerState extends Equatable {
     this.targetPace = 0,
     this.distance = 0,
     this.pace = 0,
+    this.nextKmMarker = 0,
   });
 
   TimerState copyWith({
@@ -77,6 +75,7 @@ class TimerState extends Equatable {
     int? timerValue,
     double? distance,
     double? pace,
+    int? nextKmMarker,
   }) {
     return TimerState(
       timerId: timerId,
@@ -92,6 +91,7 @@ class TimerState extends Equatable {
       targetPace: targetPace,
       distance: distance ?? this.distance,
       pace: pace ?? this.pace,
+      nextKmMarker: nextKmMarker ?? this.nextKmMarker,
     );
   }
 
@@ -109,6 +109,7 @@ class TimerState extends Equatable {
         targetDuration,
         targetPace,
         distance,
-        pace
+        pace,
+        nextKmMarker,
       ];
 }

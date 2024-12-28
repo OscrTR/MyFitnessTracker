@@ -1,11 +1,9 @@
-import 'dart:async';
-
-import 'package:audioplayers/audioplayers.dart';
 import 'package:bloc/bloc.dart';
+import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
-import 'package:flutter_tts/flutter_tts.dart';
-import 'package:geolocator/geolocator.dart';
-import 'package:pausable_timer/pausable_timer.dart';
+import 'package:flutter_background_service/flutter_background_service.dart';
+import 'package:my_fitness_tracker/background_service.dart';
+
 import 'package:uuid/uuid.dart';
 
 part 'active_training_event.dart';
@@ -15,23 +13,189 @@ const uuid = Uuid();
 
 class ActiveTrainingBloc
     extends Bloc<ActiveTrainingEvent, ActiveTrainingState> {
-  final Map<String, PausableTimer> _timers = {};
-  final RunTracker _runTracker = RunTracker();
-  final AudioPlayer _audioPlayer = AudioPlayer();
-  final FlutterTts _flutterTts = FlutterTts();
-  int _nextKmMarker = 1;
-
-  Future<void> _speak(String number) async {
-    await _flutterTts.speak(number); // Speak the number
-  }
-
-  Future<void> playCountdown() async {
-    await _audioPlayer.play(AssetSource('sounds/countdown.mp3'));
-  }
-
   ActiveTrainingBloc() : super(ActiveTrainingInitial()) {
     on<LoadDefaultActiveTraining>((event, emit) async {
       emit(const ActiveTrainingLoaded(timersStateList: []));
+    });
+
+    FlutterBackgroundService().on('updateTimer').listen((data) {
+      if (data != null && data['timerId'] != null) {
+        add(UpdateTimer(
+          timerId: data['timerId'],
+          runDistance: data['runDistance'].toDouble(),
+        ));
+      }
+    });
+
+    FlutterBackgroundService().on('startTimer').listen((data) {
+      if (data != null && data['timerId'] != null) {
+        add(StartTimer(timerId: data['timerId']));
+      }
+    });
+
+    FlutterBackgroundService().on('pauseTimer').listen((data) {
+      add(PauseTimer());
+    });
+
+    on<UpdateTimer>((event, emit) async {
+      final timerId = event.timerId;
+
+      if (state is ActiveTrainingLoaded) {
+        final currentState = state as ActiveTrainingLoaded;
+
+        final currentTimerIndex = currentState.timersStateList
+            .indexWhere((el) => el.timerId == timerId);
+        String? nextTimerId;
+        if (currentTimerIndex + 1 < (currentState.timersStateList.length - 2)) {
+          nextTimerId =
+              currentState.timersStateList[currentTimerIndex + 1].timerId;
+        }
+
+        final currentTimerState =
+            currentState.timersStateList[currentTimerIndex];
+        final currentTimerValue = currentTimerState.timerValue;
+
+        final targetPace = currentTimerState.targetPace;
+        final targetPaceMinutes = targetPace.floor();
+        final targetPaceSeconds =
+            ((targetPace - targetPaceMinutes) * 60).round();
+
+        if (currentTimerState.isCountDown) {
+          if (currentTimerValue > 0) {
+            if (currentTimerValue == 2) {
+              service.invoke('playCountDown');
+            }
+            if (currentTimerState.isRunTimer) {
+              add(TickTimer(
+                  timerId: timerId,
+                  isCountDown: true,
+                  isRunTimer: true,
+                  totalDistance: event.runDistance));
+            } else {
+              add(TickTimer(timerId: timerId, isCountDown: true));
+            }
+          } else {
+            service.invoke('cancelTimer', {'timerId': timerId});
+            if (currentTimerState.isRunTimer) {
+              service.invoke('stopLocationTracking');
+            }
+            // Start next timer if autostart
+            if (nextTimerId != null) {
+              final autostart = currentState
+                  .timersStateList[currentTimerIndex + 1].isAutostart;
+
+              if (autostart) {
+                service.invoke('startTracking', {'timerId': nextTimerId});
+              }
+            } else {
+              service.invoke('pauseTracking', {'timerId': ''});
+            }
+          }
+        } else {
+          final currentDistance = currentTimerState.distance;
+          final nextKmMarker = currentTimerState.nextKmMarker;
+          int paceMinutes = 0;
+          int paceSeconds = 0;
+          double pace = 0;
+          if (currentDistance > 0) {
+            pace = currentTimerValue / 60 / (currentDistance / 1000);
+            paceMinutes = pace.floor();
+            paceSeconds = ((pace - paceMinutes) * 60).round();
+          }
+
+          // Check pace every 30 seconds if pace is tracked
+          if (currentTimerState.pace > 0 && currentTimerValue % 30 == 0) {
+            // Check if 5% slower
+            if (pace <
+                currentTimerState.pace - (currentTimerState.pace * 0.05)) {
+              service.invoke('speak', {
+                'message':
+                    'Pace actuel $paceMinutes $paceSeconds. Pace cible $targetPaceMinutes $targetPaceSeconds. Accélérez.'
+              });
+            }
+            if (pace >
+                currentTimerState.pace + (currentTimerState.pace * 0.05)) {
+              service.invoke('speak', {
+                'message':
+                    'Pace actuel $paceMinutes $paceSeconds. Pace cible $targetPaceMinutes $targetPaceSeconds. Ralentissez.'
+              });
+            }
+          }
+
+          if (currentDistance > 0 && currentDistance / 1000 >= nextKmMarker) {
+            service.invoke('speak', {
+              'message':
+                  '$nextKmMarker kilomètre. Pace $paceMinutes $paceSeconds par kilomètre.'
+            });
+            add(UpdateNextKmMarker(
+                timerId: timerId, nextKmMarker: nextKmMarker + 1));
+          }
+
+          if (currentState.timersStateList[currentTimerIndex].distance > 0) {
+            // Check if the current distance equals the objective distance
+            if (currentTimerState.targetDistance > 0 &&
+                currentDistance >= currentTimerState.targetDistance) {
+              service.invoke('cancelTimer', {'timerId': timerId});
+
+              if (currentTimerState.isRunTimer) {
+                add(UpdateDistance(
+                    timerId: timerId, distance: currentDistance));
+                service.invoke('stopLocationTracking');
+              }
+
+              // Start next timer if autostart
+              if (nextTimerId != null) {
+                final autostart = currentState
+                    .timersStateList[currentTimerIndex + 1].isAutostart;
+
+                if (autostart) {
+                  service.invoke('startTracking', {'timerId': nextTimerId});
+                }
+              } else {
+                service.invoke('pauseTracking', {'timerId': ''});
+              }
+            } else {
+              if (currentTimerState.isRunTimer) {
+                add(TickTimer(
+                    timerId: timerId,
+                    isRunTimer: true,
+                    totalDistance: event.runDistance));
+              } else {
+                add(TickTimer(timerId: timerId));
+              }
+            }
+          } else {
+            // Check if the current duration equals the objective duration
+            if (currentTimerState.targetDuration > 0 &&
+                currentTimerValue >= currentTimerState.targetDuration) {
+              service.invoke('cancelTimer', {'timerId': timerId});
+              if (currentTimerState.isRunTimer) {
+                service.invoke('stopLocationTracking');
+              }
+
+              // Start next timer if autostart
+              if (nextTimerId != null) {
+                final autostart = currentState
+                    .timersStateList[currentTimerIndex + 1].isAutostart;
+                if (autostart) {
+                  service.invoke('startTracking', {'timerId': nextTimerId});
+                }
+              } else {
+                service.invoke('pauseTracking', {'timerId': ''});
+              }
+            } else {
+              if (currentTimerState.isRunTimer) {
+                add(TickTimer(
+                    timerId: timerId,
+                    isRunTimer: true,
+                    totalDistance: event.runDistance));
+              } else {
+                add(TickTimer(timerId: timerId));
+              }
+            }
+          }
+        }
+      }
     });
 
     on<CreateTimer>((event, emit) async {
@@ -51,203 +215,54 @@ class ActiveTrainingBloc
 
         currentTimersList.add(event.timerState);
 
-        emit(ActiveTrainingLoaded(timersStateList: currentTimersList));
+        emit(currentState.copyWith(timersStateList: currentTimersList));
       }
     });
 
-
     on<StartTimer>((event, emit) async {
       final timerId = event.timerId;
-      _timers[timerId]?.cancel();
 
-      final initialState = state as ActiveTrainingLoaded;
-      final initialTimerState = initialState.timersStateList
-          .firstWhere((el) => el.timerId == timerId);
+      if (state is ActiveTrainingLoaded) {
+        final currentState = state as ActiveTrainingLoaded;
+        final currentTimersStateList =
+            List<TimerState>.from(currentState.timersStateList);
 
-      if (initialTimerState.isRunTimer) {
-        _runTracker.stopTracking();
-        _runTracker.startTracking();
-        _nextKmMarker = 1;
-      }
+        final currentTimerState = currentState.timersStateList
+            .firstWhereOrNull((el) => el.timerId == timerId);
 
-      final targetPace = initialTimerState.targetPace;
-      final targetPaceMinutes = targetPace.floor();
-      final targetPaceSeconds = ((targetPace - targetPaceMinutes) * 60).round();
+        final updatedTimersStateList =
+            List<TimerState>.from(currentState.timersStateList);
 
-      final timer = PausableTimer.periodic(
-        const Duration(seconds: 1),
-        () async {
-          final currentState = state as ActiveTrainingLoaded;
-          final currentTimerIndex = currentState.timersStateList
-              .indexWhere((el) => el.timerId == timerId);
-          String? nextTimerId;
-          if (currentTimerIndex + 1 < currentState.timersStateList.length) {
-            nextTimerId =
-                currentState.timersStateList[currentTimerIndex + 1].timerId;
+        // Mettre en pause tous les autres timers sauf primary
+        for (var i = 0; i < currentTimersStateList.length; i++) {
+          if (currentTimersStateList[i].isActive == true &&
+              currentTimersStateList[i].timerId != 'primaryTimer') {
+            updatedTimersStateList[i] =
+                currentTimersStateList[i].copyWith(isActive: false);
           }
-          final currentTimerState =
-              currentState.timersStateList[currentTimerIndex];
-          final currentTimerValue = currentTimerState.timerValue;
-
-          if (currentTimerState.isCountDown) {
-            if (currentTimerValue > 0) {
-              if (currentTimerValue == 2) {
-                await playCountdown();
-              }
-              if (currentTimerState.isRunTimer) {
-                add(TickTimer(
-                    timerId: timerId, isCountDown: true, isRunTimer: true));
-              } else {
-                add(TickTimer(timerId: timerId, isCountDown: true));
-              }
-            } else {
-              _timers[timerId]?.cancel();
-              if (currentTimerState.isRunTimer) {
-                _runTracker.stopTracking();
-              }
-              event.completer?.complete('Countdown ended.');
-              // Start next timer if autostart
-              if (nextTimerId != null) {
-                final autostart = currentState
-                    .timersStateList[currentTimerIndex + 1].isAutostart;
-
-                if (autostart) {
-                  add(StartTimer(timerId: nextTimerId));
-                }
-              }
-            }
-          } else {
-            final currentDistance = currentTimerState.distance;
-            int paceMinutes = 0;
-            int paceSeconds = 0;
-            double pace = 0;
-            if (currentDistance > 0) {
-              pace = currentTimerValue / 60 / (currentDistance / 1000);
-              paceMinutes = pace.floor();
-              paceSeconds = ((pace - paceMinutes) * 60).round();
-            }
-
-            // Check pace every 30 seconds if pace is tracked
-            if (currentTimerState.pace > 0 && currentTimerValue % 30 == 0) {
-              // Check if 5% slower
-              if (pace <
-                  initialTimerState.pace - (initialTimerState.pace * 0.05)) {
-                await _speak(
-                    'Pacee actuel $paceMinutes $paceSeconds. Pacee cible $targetPaceMinutes $targetPaceSeconds. Accélérez.');
-              }
-              if (pace >
-                  initialTimerState.pace + (initialTimerState.pace * 0.05)) {
-                await _speak(
-                    'Pacee actuel $paceMinutes $paceSeconds. Pacee cible $targetPaceMinutes $targetPaceSeconds. Ralentissez.');
-              }
-            }
-
-            if (currentDistance > 0 &&
-                currentDistance / 1000 >= _nextKmMarker) {
-              _speak(
-                  '$_nextKmMarker kilomètre. Pacee $paceMinutes $paceSeconds par kilomètre.');
-              _nextKmMarker++;
-            }
-
-            if (currentState.timersStateList[currentTimerIndex].distance > 0) {
-              // Check if the current distance equals the objective distance
-              if (currentTimerState.targetDistance > 0 &&
-                  currentDistance >= currentTimerState.targetDistance) {
-                _timers[timerId]?.cancel();
-
-                if (currentTimerState.isRunTimer) {
-                  add(UpdateDistance(
-                      timerId: timerId, distance: currentDistance));
-                  _runTracker.stopTracking();
-                }
-                event.completer?.complete('Distance reached.');
-
-                // Start next timer if autostart
-                if (nextTimerId != null) {
-                  final autostart = currentState
-                      .timersStateList[currentTimerIndex + 1].isAutostart;
-
-                  if (autostart) {
-                    add(StartTimer(timerId: nextTimerId));
-                  }
-                }
-              } else {
-                if (currentTimerState.isRunTimer) {
-                  add(TickTimer(timerId: timerId, isRunTimer: true));
-                } else {
-                  add(TickTimer(timerId: timerId));
-                }
-              }
-            } else {
-              // Check if the current duration equals the objective duration
-              if (currentTimerState.targetDuration > 0 &&
-                  currentTimerValue >= currentTimerState.targetDuration) {
-                _timers[timerId]?.cancel();
-                if (currentTimerState.isRunTimer) {
-                  _runTracker.stopTracking();
-                }
-                event.completer?.complete('Duration ended.');
-                // Start next timer if autostart
-                if (nextTimerId != null) {
-                  final autostart = currentState
-                      .timersStateList[currentTimerIndex + 1].isAutostart;
-                  if (autostart) {
-                    add(StartTimer(timerId: nextTimerId));
-                  }
-                }
-              } else {
-                if (currentTimerState.isRunTimer) {
-                  add(TickTimer(timerId: timerId, isRunTimer: true));
-                } else {
-                  add(TickTimer(timerId: timerId));
-                }
-              }
-            }
-          }
-        },
-      );
-
-      _timers[timerId] = timer;
-      timer.start();
-      if (_timers['primaryTimer']!.isPaused) {
-        _timers['primaryTimer']?.start();
-      }
-
-      final currentTimersStateList =
-          List<TimerState>.from(initialState.timersStateList);
-
-      final updatedTimersStateList =
-          List<TimerState>.from(initialState.timersStateList);
-
-      // Mettre en pause tous les autres timers sauf primary
-      for (var i = 0; i < currentTimersStateList.length; i++) {
-        if (currentTimersStateList[i].isActive == true &&
-            currentTimersStateList[i].timerId != 'primaryTimer') {
-          updatedTimersStateList[i] =
-              currentTimersStateList[i].copyWith(isActive: false);
         }
-      }
-      final startingValue =
-          initialTimerState.isCountDown ? initialTimerState.countDownValue : 0;
-      // Mettre à jour la liste avec le timer qui est démarré
-      if (updatedTimersStateList.any((e) => e.timerId == timerId)) {
-        final currentTimerState =
-            updatedTimersStateList.firstWhere((e) => e.timerId == timerId);
+        final startingValue = currentTimerState!.isCountDown
+            ? currentTimerState.countDownValue
+            : 0;
+        // Mettre à jour la liste avec le timer qui est démarré
+        if (updatedTimersStateList.any((e) => e.timerId == timerId)) {
+          final currentTimerState =
+              updatedTimersStateList.firstWhere((e) => e.timerId == timerId);
 
-        final updatedTimerState = currentTimerState.copyWith(
-          isActive: true,
-          isStarted: true,
-          timerValue: startingValue,
-        );
-        updatedTimersStateList[updatedTimersStateList.indexOf(
-            updatedTimersStateList
-                .firstWhere((e) => e.timerId == timerId))] = updatedTimerState;
+          final updatedTimerState = currentTimerState.copyWith(
+            isActive: true,
+            isStarted: true,
+            timerValue: startingValue,
+          );
+          updatedTimersStateList[updatedTimersStateList.indexOf(
+              updatedTimersStateList.firstWhere(
+                  (e) => e.timerId == timerId))] = updatedTimerState;
+        }
+
+        emit(currentState.copyWith(
+            lastStartedTimerId: currentTimerState.timerId,
+            timersStateList: updatedTimersStateList));
       }
-      emit(initialState.copyWith(
-        activeRunTimer: timerId,
-        isPaused: false,
-        timersStateList: updatedTimersStateList,
-      ));
     });
 
     on<UpdateDistance>((event, emit) {
@@ -280,10 +295,32 @@ class ActiveTrainingBloc
       );
     });
 
+    on<UpdateNextKmMarker>((event, emit) {
+      final currentState = state as ActiveTrainingLoaded;
+      final currentTimersStateList =
+          List<TimerState>.from(currentState.timersStateList);
+      final currentTimerState =
+          currentTimersStateList.firstWhere((e) => e.timerId == event.timerId);
+
+      final int newMarker = event.nextKmMarker;
+
+      final updatedTimerState = currentTimerState.copyWith(
+        nextKmMarker: newMarker,
+      );
+
+      currentTimersStateList[currentTimersStateList.indexOf(
+          currentTimersStateList.firstWhere(
+              (e) => e.timerId == event.timerId))] = updatedTimerState;
+      emit(
+        currentState.copyWith(
+          timersStateList: currentTimersStateList,
+        ),
+      );
+    });
+
     on<TickTimer>((event, emit) {
       if (state is ActiveTrainingLoaded) {
         final currentState = state as ActiveTrainingLoaded;
-        // final timerId = event.timerId;
 
         final currentTimersStateList =
             List<TimerState>.from(currentState.timersStateList);
@@ -295,7 +332,7 @@ class ActiveTrainingBloc
             ? currentTimerState.timerValue - 1
             : currentTimerState.timerValue + 1;
 
-        final double newDistance = _runTracker.totalDistance;
+        final double newDistance = event.totalDistance;
 
         final double newPace =
             newDistance > 0 ? newTimerValue * 1000 / newDistance : 0;
@@ -319,74 +356,30 @@ class ActiveTrainingBloc
 
     on<PauseTimer>((event, emit) {
       final currentState = state as ActiveTrainingLoaded;
-      final activeTimer = currentState.activeRunTimer;
-
-      if (currentState.isPaused) {
-        _timers['primaryTimer']?.start();
-        _timers[activeTimer]?.start();
-        emit(currentState.copyWith(isPaused: false));
+      final currentTimersStateList =
+          List<TimerState>.from(currentState.timersStateList);
+      if (currentState.timersStateList.any((el) => el.isActive)) {
+        currentState.timersStateList.asMap().forEach((index, el) {
+          currentTimersStateList[index] =
+              currentTimersStateList[index].copyWith(isActive: false);
+        });
       } else {
-        for (var timer in _timers.entries) {
-          timer.value.pause();
-        }
-        emit(currentState.copyWith(isPaused: true));
+        final primaryTimerIndex = currentTimersStateList
+            .indexWhere((el) => el.timerId == 'primaryTimer');
+        final lastTimerIndex = currentTimersStateList
+            .indexWhere((el) => el.timerId == currentState.lastStartedTimerId);
+
+        currentTimersStateList[primaryTimerIndex] =
+            currentTimersStateList[primaryTimerIndex].copyWith(isActive: true);
+        currentTimersStateList[lastTimerIndex] =
+            currentTimersStateList[lastTimerIndex].copyWith(isActive: true);
       }
+
+      emit(
+        currentState.copyWith(
+          timersStateList: currentTimersStateList,
+        ),
+      );
     });
-  }
-  @override
-  Future<void> close() {
-    for (final timer in _timers.values) {
-      timer.cancel();
-    }
-    _audioPlayer.dispose();
-    _flutterTts.stop();
-    return super.close();
-  }
-}
-
-class RunTracker {
-  StreamSubscription<Position>? _positionStreamSubscription;
-  Position? _previousPosition;
-  double totalDistance = 0.0; // In meters
-
-  void startTracking() async {
-    // Check permission
-    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      return;
-    }
-
-    LocationPermission permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.deniedForever) {
-        return;
-      }
-    }
-
-    // Start listening to position updates
-    _positionStreamSubscription = Geolocator.getPositionStream(
-      locationSettings: const LocationSettings(
-        accuracy: LocationAccuracy.high,
-        distanceFilter: 5, // Notify every 5 meters
-      ),
-    ).listen((Position position) {
-      if (_previousPosition != null) {
-        totalDistance += Geolocator.distanceBetween(
-          _previousPosition!.latitude,
-          _previousPosition!.longitude,
-          position.latitude,
-          position.longitude,
-        );
-      }
-      _previousPosition = position;
-    });
-  }
-
-  void stopTracking() {
-    _positionStreamSubscription?.cancel();
-    _positionStreamSubscription = null;
-    _previousPosition = null;
-    totalDistance = 0.0;
   }
 }

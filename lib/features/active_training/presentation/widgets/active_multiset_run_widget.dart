@@ -1,6 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../app_colors.dart';
@@ -213,8 +214,10 @@ class DistanceOrDurationRun extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final timerId = '${multisetIndex < 10 ? 0:''}$multisetIndex-${setIndex < 10 ? 0:''}$setIndex-${multisetExerciseIndex < 10 ? 0:''}$multisetExerciseIndex';
-    final restTimerId = '${multisetIndex < 10 ? 0:''}$multisetIndex-${setIndex < 10 ? 0:''}$setIndex-${multisetExerciseIndex < 10 ? 0:''}$multisetExerciseIndex-rest';
+    final timerId =
+        '${multisetIndex < 10 ? 0 : ''}$multisetIndex-${setIndex < 10 ? 0 : ''}$setIndex-${multisetExerciseIndex < 10 ? 0 : ''}$multisetExerciseIndex';
+    final restTimerId =
+        '${multisetIndex < 10 ? 0 : ''}$multisetIndex-${setIndex < 10 ? 0 : ''}$setIndex-${multisetExerciseIndex < 10 ? 0 : ''}$multisetExerciseIndex-rest';
     // Create exercise timer
     context.read<ActiveTrainingBloc>().add(CreateTimer(
           timerState: TimerState(
@@ -398,10 +401,10 @@ class IntervalWidget extends StatelessWidget {
 
             return GestureDetector(
               onTap: () async {
-                final bloc = context.read<ActiveTrainingBloc>();
-                bloc.add(StartTimer(
-                    timerId:
-                        '$multisetIndex-$setIndex-$multisetExerciseIndex-0'));
+                final service = FlutterBackgroundService();
+                service.invoke('startTracking', {
+                  'timerId': '$multisetIndex-$setIndex-$multisetExerciseIndex-0'
+                });
               },
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -460,9 +463,9 @@ class IntervalRun extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final timerId =
-        '${multisetIndex < 10 ? 0:''}$multisetIndex-${setIndex < 10 ? 0:''}$setIndex-${multisetExerciseIndex < 10 ? 0:''}$multisetExerciseIndex-${intervalIndex < 10 ? 0:''}$intervalIndex';
+        '${multisetIndex < 10 ? 0 : ''}$multisetIndex-${setIndex < 10 ? 0 : ''}$setIndex-${multisetExerciseIndex < 10 ? 0 : ''}$multisetExerciseIndex-${intervalIndex < 10 ? 0 : ''}$intervalIndex';
     final restTimerId =
-        '${multisetIndex < 10 ? 0:''}$multisetIndex-${setIndex < 10 ? 0:''}$setIndex-${multisetExerciseIndex < 10 ? 0:''}$multisetExerciseIndex-${intervalIndex < 10 ? 0:''}$intervalIndex-rest';
+        '${multisetIndex < 10 ? 0 : ''}$multisetIndex-${setIndex < 10 ? 0 : ''}$setIndex-${multisetExerciseIndex < 10 ? 0 : ''}$multisetExerciseIndex-${intervalIndex < 10 ? 0 : ''}$intervalIndex-rest';
     // Create exercise timer
     context.read<ActiveTrainingBloc>().add(CreateTimer(
             timerState: TimerState(

@@ -1,6 +1,8 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../injection_container.dart';
 import '../bloc/active_training_bloc.dart';
 
 import '../../../../app_colors.dart';
@@ -36,16 +38,15 @@ class TimerWidgetState extends State<TimerWidget> {
     context.read<ActiveTrainingBloc>().add(const CreateTimer(
             timerState: TimerState(
           timerId: 'primaryTimer',
-          isActive: false,
-          isStarted: false,
+          isActive: true,
+          isStarted: true,
           isRunTimer: false,
           timerValue: 0,
           isCountDown: false,
           isAutostart: false,
         )));
-    context
-        .read<ActiveTrainingBloc>()
-        .add(const StartTimer(timerId: 'primaryTimer'));
+    sl<FlutterBackgroundService>()
+        .invoke('startTracking', {'timerId': 'primaryTimer'});
     super.initState();
   }
 
@@ -79,7 +80,8 @@ class TimerWidgetState extends State<TimerWidget> {
                     0;
                 final secondaryTimerValue = state.timersStateList
                         .firstWhereOrNull((e) =>
-                            e.timerId != 'primaryTimer' && e.isActive == true)
+                            e.timerId != 'primaryTimer' &&
+                            e.timerId == state.lastStartedTimerId)
                         ?.timerValue ??
                     0;
                 return Row(
@@ -102,9 +104,11 @@ class TimerWidgetState extends State<TimerWidget> {
             }),
             GestureDetector(
               onTap: () {
-                context.read<ActiveTrainingBloc>().add(PauseTimer());
-
-                setState(() {}); // Reflect timer status change
+                sl<FlutterBackgroundService>().invoke('pauseTracking', {
+                  'timerId': (context.read<ActiveTrainingBloc>().state
+                          as ActiveTrainingLoaded)
+                      .lastStartedTimerId
+                });
               },
               child: Container(
                 height: 40,
@@ -116,7 +120,9 @@ class TimerWidgetState extends State<TimerWidget> {
                     builder: (context, state) {
                   if (state is ActiveTrainingLoaded) {
                     return Icon(
-                      state.isPaused ? Icons.play_arrow : Icons.pause,
+                      state.timersStateList.any((el) => el.isActive)
+                          ? Icons.pause
+                          : Icons.play_arrow,
                       color: AppColors.white,
                     );
                   } else {

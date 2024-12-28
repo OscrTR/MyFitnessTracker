@@ -1,6 +1,8 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:my_fitness_tracker/authorizations.dart';
+import 'package:my_fitness_tracker/background_service.dart';
 import 'features/active_training/presentation/bloc/active_training_bloc.dart';
 
 import 'app_theme.dart';
@@ -15,6 +17,8 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await EasyLocalization.ensureInitialized();
   await di.init();
+  await initializeBackgroundService();
+  await initializeGeolocatorAuthorizations();
   runApp(
     EasyLocalization(
       supportedLocales: const [Locale('en', 'US'), Locale('fr', 'FR')],
@@ -44,7 +48,8 @@ class MyApp extends StatelessWidget {
               sl<TrainingManagementBloc>()..add(FetchTrainingsEvent()),
         ),
         BlocProvider<ActiveTrainingBloc>(
-          create: (BuildContext context) => sl<ActiveTrainingBloc>(),
+          create: (BuildContext context) =>
+              sl<ActiveTrainingBloc>()..add(LoadDefaultActiveTraining()),
         ),
       ],
       child: MaterialApp.router(

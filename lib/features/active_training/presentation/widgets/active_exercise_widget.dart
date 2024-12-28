@@ -5,6 +5,7 @@ import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_fitness_tracker/features/active_training/presentation/widgets/active_run_widget.dart';
 import '../bloc/active_training_bloc.dart';
@@ -394,9 +395,8 @@ class ActiveExerciseRow extends StatelessWidget {
             const SizedBox(width: 10),
             GestureDetector(
               onTap: () {
-                context
-                    .read<ActiveTrainingBloc>()
-                    .add(StartTimer(timerId: restTimerId));
+                final service = FlutterBackgroundService();
+                service.invoke('startTracking', {'timerId': restTimerId});
                 FocusScope.of(context).unfocus();
               },
               child: Text(
@@ -473,14 +473,8 @@ class ActiveExerciseDurationRow extends StatelessWidget {
 
         return GestureDetector(
           onTap: () async {
-            final bloc = context.read<ActiveTrainingBloc>();
-            final exerciseCompleter = Completer<String>();
-            bloc.add(
-              StartTimer(timerId: timerId, completer: exerciseCompleter),
-            );
-            await exerciseCompleter.future;
-            // Start rest timer
-            bloc.add(StartTimer(timerId: restTimerId));
+            final service = FlutterBackgroundService();
+            service.invoke('startTracking', {'timerId': timerId});
           },
           child: Container(
             alignment: Alignment.center,

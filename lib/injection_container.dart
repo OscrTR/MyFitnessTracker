@@ -1,3 +1,4 @@
+import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:get_it/get_it.dart';
 import 'features/active_training/presentation/bloc/active_training_bloc.dart';
 import 'features/training_management/domain/usecases/create_training.dart';
@@ -35,6 +36,7 @@ Future<void> init() async {
 
   //! Core
   sl.registerLazySingleton(() => MessageBloc());
+  sl.registerLazySingleton(() => FlutterBackgroundService());
 
   //! Features - Exercise Management
   // Bloc
@@ -87,9 +89,9 @@ Future<void> init() async {
   sl.registerLazySingleton<TrainingLocalDataSource>(
       () => SQLiteTrainingLocalDataSource(database: sl()));
 
-  //! Features - Training Management
+  //! Features - Active Training
   // Bloc
-  sl.registerFactory(() => ActiveTrainingBloc());
+  sl.registerLazySingleton(() => ActiveTrainingBloc());
 
   // External
 }

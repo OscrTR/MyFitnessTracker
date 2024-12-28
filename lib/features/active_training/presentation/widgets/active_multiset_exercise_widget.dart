@@ -5,6 +5,7 @@ import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../bloc/active_training_bloc.dart';
 import '../../../training_management/domain/entities/multiset.dart';
@@ -330,7 +331,8 @@ class ActiveExerciseRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final restTimerId = '${multisetIndex < 10 ? 0:''}$multisetIndex-${setIndex < 10 ? 0:''}$setIndex-${multisetExerciseIndex < 10 ? 0:''}$multisetExerciseIndex';
+    final restTimerId =
+        '${multisetIndex < 10 ? 0 : ''}$multisetIndex-${setIndex < 10 ? 0 : ''}$setIndex-${multisetExerciseIndex < 10 ? 0 : ''}$multisetExerciseIndex';
     // Create rest timer
     context.read<ActiveTrainingBloc>().add(CreateTimer(
             timerState: TimerState(
@@ -369,9 +371,8 @@ class ActiveExerciseRow extends StatelessWidget {
             const SizedBox(width: 10),
             GestureDetector(
               onTap: () {
-                context
-                    .read<ActiveTrainingBloc>()
-                    .add(StartTimer(timerId: restTimerId));
+                final service = FlutterBackgroundService();
+                service.invoke('startTracking', {'timerId': restTimerId});
               },
               child: Text(
                 isStarted ? 'OK' : tr('global_validate'),
@@ -409,8 +410,10 @@ class ActiveExerciseDurationRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final timerId = '${multisetIndex < 10 ? 0:''}$multisetIndex-${setIndex < 10 ? 0:''}$setIndex-${multisetExerciseIndex < 10 ? 0:''}$multisetExerciseIndex';
-    final restTimerId = '${multisetIndex < 10 ? 0:''}$multisetIndex-${setIndex < 10 ? 0:''}$setIndex-${multisetExerciseIndex < 10 ? 0:''}$multisetExerciseIndex-rest';
+    final timerId =
+        '${multisetIndex < 10 ? 0 : ''}$multisetIndex-${setIndex < 10 ? 0 : ''}$setIndex-${multisetExerciseIndex < 10 ? 0 : ''}$multisetExerciseIndex';
+    final restTimerId =
+        '${multisetIndex < 10 ? 0 : ''}$multisetIndex-${setIndex < 10 ? 0 : ''}$setIndex-${multisetExerciseIndex < 10 ? 0 : ''}$multisetExerciseIndex-rest';
 
     // Create exercise timer
     context.read<ActiveTrainingBloc>().add(CreateTimer(
@@ -456,13 +459,8 @@ class ActiveExerciseDurationRow extends StatelessWidget {
 
         return GestureDetector(
           onTap: () async {
-            final bloc = context.read<ActiveTrainingBloc>();
-            final exerciseCompleter = Completer<String>();
-            bloc.add(
-              StartTimer(timerId: timerId, completer: exerciseCompleter),
-            );
-            await exerciseCompleter.future;
-            bloc.add(StartTimer(timerId: restTimerId));
+            final service = FlutterBackgroundService();
+            service.invoke('startTracking', {'timerId': timerId});
           },
           child: Container(
             alignment: Alignment.center,
