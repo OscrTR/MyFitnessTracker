@@ -290,10 +290,15 @@ class _ActiveExerciseWidgetState extends State<ActiveExerciseWidget> {
               children: [
                 Row(
                   children: [
-                    Text(
-                      matchingExercise != null
-                          ? matchingExercise.name
-                          : tr('exercise_unknown'),
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width - 200,
+                      child: Text(
+                        matchingExercise != null
+                            ? matchingExercise.name
+                            : tr('exercise_unknown'),
+                        softWrap: true,
+                        overflow: TextOverflow.visible,
+                      ),
                     ),
                     if (minRep != 0 &&
                         maxRep != 0 &&
@@ -470,6 +475,8 @@ class ActiveExerciseDurationRow extends StatelessWidget {
         if (currentIsStarted != null && currentIsStarted) {
           isStarted = true;
         }
+
+        // print('$timerId is started $currentIsStarted');
 
         return GestureDetector(
           onTap: () async {

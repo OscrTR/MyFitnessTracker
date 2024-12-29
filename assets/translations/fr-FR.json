@@ -28,6 +28,9 @@
   "error_state": "Erreur d'état",
 
   "active_training_end": "Finir l'entraînement",
+  "active_training_pace": "{} kilomètres. Rythme {} {} par kilomètre.",
+  "active_training_pace_slower": "Rythme actuel {} {}. Rythme cible {} {}. Ralentissez.",
+  "active_training_pace_faster": "Rythme actuel {} {}. Rythme cible {} {}. Accélerez.",
 
   "exercise_distance": "Distance (km)",
   "exercise_duration": "Durée",

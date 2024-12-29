@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:collection/collection.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:my_fitness_tracker/background_service.dart';
@@ -56,9 +57,8 @@ class ActiveTrainingBloc
         final currentTimerValue = currentTimerState.timerValue;
 
         final targetPace = currentTimerState.targetPace;
-        final targetPaceMinutes = targetPace.floor();
-        final targetPaceSeconds =
-            ((targetPace - targetPaceMinutes) * 60).round();
+        final targetPaceMinutes = targetPace ~/ 60;
+        final targetPaceSeconds = targetPace % 60;
 
         if (currentTimerState.isCountDown) {
           if (currentTimerValue > 0) {
@@ -104,28 +104,38 @@ class ActiveTrainingBloc
           }
 
           // Check pace every 30 seconds if pace is tracked
-          if (currentTimerState.pace > 0 && currentTimerValue % 30 == 0) {
+          if (currentTimerState.targetPace > 0 && currentTimerValue % 30 == 0) {
             // Check if 5% slower
             if (pace <
-                currentTimerState.pace - (currentTimerState.pace * 0.05)) {
+                currentTimerState.targetPace -
+                    (currentTimerState.targetPace * 0.05)) {
               service.invoke('speak', {
-                'message':
-                    'Pace actuel $paceMinutes $paceSeconds. Pace cible $targetPaceMinutes $targetPaceSeconds. Accélérez.'
+                'message': tr('active_training_pace_faster', args: [
+                  '$paceMinutes',
+                  '$paceSeconds',
+                  '$targetPaceMinutes',
+                  '$targetPaceSeconds'
+                ])
               });
             }
             if (pace >
-                currentTimerState.pace + (currentTimerState.pace * 0.05)) {
+                currentTimerState.targetPace +
+                    (currentTimerState.targetPace * 0.05)) {
               service.invoke('speak', {
-                'message':
-                    'Pace actuel $paceMinutes $paceSeconds. Pace cible $targetPaceMinutes $targetPaceSeconds. Ralentissez.'
+                'message': tr('active_training_pace_slower', args: [
+                  '$paceMinutes',
+                  '$paceSeconds',
+                  '$targetPaceMinutes',
+                  '$targetPaceSeconds'
+                ])
               });
             }
           }
 
           if (currentDistance > 0 && currentDistance / 1000 >= nextKmMarker) {
             service.invoke('speak', {
-              'message':
-                  '$nextKmMarker kilomètre. Pace $paceMinutes $paceSeconds par kilomètre.'
+              'message': tr('active_training_pace',
+                  args: ['$nextKmMarker', '$paceMinutes', '$paceSeconds'])
             });
             add(UpdateNextKmMarker(
                 timerId: timerId, nextKmMarker: nextKmMarker + 1));
