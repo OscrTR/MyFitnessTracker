@@ -91,9 +91,13 @@ void onStart(ServiceInstance service) async {
       timers['primaryTimer']!.start();
     }
 
-    if (timers[timerId] != null && timers[timerId]!.isPaused) {
+    if (timers[timerId] != null &&
+        timerId != 'primaryTimer' &&
+        timers[timerId]!.isPaused) {
       timers[timerId]?.start();
-    } else if (timers[timerId] != null && timers[timerId]!.isActive) {
+    } else if (timers[timerId] != null &&
+        timerId != 'primaryTimer' &&
+        timers[timerId]!.isActive) {
       for (var timer in timers.values) {
         timer.pause();
       }
