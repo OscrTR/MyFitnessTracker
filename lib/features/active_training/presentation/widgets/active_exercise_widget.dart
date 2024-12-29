@@ -285,38 +285,13 @@ class _ActiveExerciseWidgetState extends State<ActiveExerciseWidget> {
         return Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    SizedBox(
-                      width: MediaQuery.of(context).size.width - 200,
-                      child: Text(
-                        matchingExercise != null
-                            ? matchingExercise.name
-                            : tr('exercise_unknown'),
-                        softWrap: true,
-                        overflow: TextOverflow.visible,
-                      ),
-                    ),
-                    if (minRep != 0 &&
-                        maxRep != 0 &&
-                        minRep != maxRep &&
-                        matchingExercise != null)
-                      Text(
-                        ' ($minRep-$maxRep reps)',
-                      ),
-                    if (minRep != 0 &&
-                        maxRep != 0 &&
-                        minRep == maxRep &&
-                        matchingExercise != null)
-                      Text(
-                        ' ($minRep reps)',
-                      ),
-                  ],
-                ),
-              ],
+            SizedBox(
+              width: 250,
+              child: Text(
+                '${matchingExercise != null ? matchingExercise.name : tr('exercise_unknown')}${minRep != 0 && maxRep != 0 && matchingExercise != null ? (minRep != maxRep ? ' ($minRep-$maxRep reps)' : ' ($minRep reps)') : ''}',
+                softWrap: true,
+                overflow: TextOverflow.visible,
+              ),
             ),
             Row(
               children: [
@@ -475,8 +450,6 @@ class ActiveExerciseDurationRow extends StatelessWidget {
         if (currentIsStarted != null && currentIsStarted) {
           isStarted = true;
         }
-
-        // print('$timerId is started $currentIsStarted');
 
         return GestureDetector(
           onTap: () async {

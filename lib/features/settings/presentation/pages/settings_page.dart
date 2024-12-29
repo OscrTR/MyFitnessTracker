@@ -1,6 +1,8 @@
 import 'package:animated_custom_dropdown/custom_dropdown.dart';
+import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../../../app_colors.dart';
@@ -28,10 +30,22 @@ class _SettingsPageState extends State<SettingsPage> {
     });
   }
 
+  bool myInterceptor(bool stopDefaultButtonEvent, RouteInfo info) {
+    GoRouter.of(context).go('/home');
+    return true;
+  }
+
   @override
   void initState() {
     super.initState();
     _loadAppVersion();
+    BackButtonInterceptor.add(myInterceptor);
+  }
+
+  @override
+  void dispose() {
+    BackButtonInterceptor.remove(myInterceptor);
+    super.dispose();
   }
 
   @override

@@ -197,6 +197,10 @@ class TrainingManagementBloc
 
         if (training == null) return;
 
+        // if (training.id == currentState.activeTraining?.id) {
+        //   return;
+        // }
+
         final updatedTraining = training.copyWith(isSelected: true);
         final updateResult =
             await updateTraining(update.Params(updatedTraining));

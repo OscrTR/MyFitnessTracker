@@ -198,33 +198,13 @@ class _ActiveMultisetExerciseWidgetState
         return Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    Text(
-                      matchingExercise != null
-                          ? matchingExercise.name
-                          : tr('exercise_unknown'),
-                    ),
-                    if (minRep != 0 &&
-                        maxRep != 0 &&
-                        minRep != maxRep &&
-                        matchingExercise != null)
-                      Text(
-                        ' ($minRep-$maxRep reps)',
-                      ),
-                    if (minRep != 0 &&
-                        maxRep != 0 &&
-                        minRep == maxRep &&
-                        matchingExercise != null)
-                      Text(
-                        ' ($minRep reps)',
-                      ),
-                  ],
-                ),
-              ],
+            SizedBox(
+              width: 250,
+              child: Text(
+                '${matchingExercise != null ? matchingExercise.name : tr('exercise_unknown')}${minRep != 0 && maxRep != 0 && matchingExercise != null ? (minRep != maxRep ? ' ($minRep-$maxRep reps)' : ' ($minRep reps)') : ''}',
+                softWrap: true,
+                overflow: TextOverflow.visible,
+              ),
             ),
             Icon(
               controller?.expanded == true

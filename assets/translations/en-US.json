@@ -15,6 +15,8 @@
   "global_name": "Name",
   "global_start": "Start",
   "global_validate": "Validate",
+  "global_yes": "Yes",
+  "global_no": "No",
 
   "message_unexpected_error": "Unexpected error.",
   "message_database_failure": "Database failure.",
@@ -31,6 +33,8 @@
   "active_training_pace": "{} kilometers. Pace {} {} a kilometer.",
   "active_training_pace_slower": "Current pace {} {}. Target pace {} {}. Slow down.",
   "active_training_pace_faster": "Current pace{} {}. Target pace {} {}. Speed up.",
+  "active_training_back_title": "End training",
+  "active_training_back_content": "Do you really want to end the training?",
 
   "exercise_distance": "Distance (km)",
   "exercise_duration": "Duration",

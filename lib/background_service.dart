@@ -109,6 +109,8 @@ void onStart(ServiceInstance service) async {
     for (var timer in timers.values) {
       timer.cancel();
     }
+    runTracker.stopTracking();
+    service.stopSelf();
   });
 }
 
@@ -118,29 +120,28 @@ class RunTracker {
   double totalDistance = 0.0; // In meters
 
   void startTracking() async {
-    // Check permission
-    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      return;
+    try {
+      await Geolocator.getCurrentPosition();
+      // Start listening to position updates
+      _positionStreamSubscription = Geolocator.getPositionStream(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+          distanceFilter: 5, // Notify every 5 meters
+        ),
+      ).listen((Position position) {
+        if (_previousPosition != null) {
+          totalDistance += Geolocator.distanceBetween(
+            _previousPosition!.latitude,
+            _previousPosition!.longitude,
+            position.latitude,
+            position.longitude,
+          );
+        }
+        _previousPosition = position;
+      });
+    } catch (e) {
+      print('error: $e');
     }
-
-    // Start listening to position updates
-    _positionStreamSubscription = Geolocator.getPositionStream(
-      locationSettings: const LocationSettings(
-        accuracy: LocationAccuracy.high,
-        distanceFilter: 5, // Notify every 5 meters
-      ),
-    ).listen((Position position) {
-      if (_previousPosition != null) {
-        totalDistance += Geolocator.distanceBetween(
-          _previousPosition!.latitude,
-          _previousPosition!.longitude,
-          position.latitude,
-          position.longitude,
-        );
-      }
-      _previousPosition = position;
-    });
   }
 
   void stopTracking() {

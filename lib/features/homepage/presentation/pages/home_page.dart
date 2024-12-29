@@ -1,3 +1,4 @@
+import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -10,8 +11,29 @@ import '../../../../core/widgets/dash_border_painter_widget.dart';
 import '../../../training_management/domain/entities/training.dart';
 import '../../../training_management/presentation/bloc/training_management_bloc.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  @override
+  void initState() {
+    super.initState();
+    BackButtonInterceptor.add(myInterceptor);
+  }
+
+  @override
+  void dispose() {
+    BackButtonInterceptor.remove(myInterceptor);
+    super.dispose();
+  }
+
+  bool myInterceptor(bool stopDefaultButtonEvent, RouteInfo info) {
+    return true;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -164,8 +186,10 @@ Widget _buildSelectedWidgets() {
                                 context
                                     .read<ActiveTrainingBloc>()
                                     .add(LoadDefaultActiveTraining());
-                                context
-                                    .read<TrainingManagementBloc>()
+
+                                final trainingManagementBloc =
+                                    context.read<TrainingManagementBloc>();
+                                trainingManagementBloc
                                     .add(StartTrainingEvent(training.id!));
 
                                 GoRouter.of(context).push('/active_training');
