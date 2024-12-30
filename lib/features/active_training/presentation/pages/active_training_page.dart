@@ -2,8 +2,8 @@ import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
+import 'package:location/location.dart';
 import 'package:my_fitness_tracker/app_colors.dart';
 import 'package:my_fitness_tracker/features/active_training/presentation/widgets/error_state_widget.dart';
 import 'package:uuid/uuid.dart';
@@ -28,7 +28,7 @@ class ActiveTrainingPage extends StatefulWidget {
 }
 
 class _ActiveTrainingPageState extends State<ActiveTrainingPage> {
-  LocationPermission isLocationPermissionGranted = LocationPermission.denied;
+  PermissionStatus? isLocationPermissionGranted;
   bool isLocationEnabled = false;
 
   @override
@@ -72,25 +72,26 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage> {
   }
 
   Future<void> _checkLocationPermission() async {
-    LocationPermission permission = await Geolocator.checkPermission();
+    Location location = Location();
+    PermissionStatus permission = await location.hasPermission();
     setState(() {
       isLocationPermissionGranted = permission;
     });
   }
 
   Future<void> _requestLocationPermission() async {
-    final permission = await Geolocator.requestPermission();
-    if (permission == LocationPermission.always) {
+    Location location = Location();
+    PermissionStatus permission = await location.requestPermission();
+    if (permission == PermissionStatus.granted) {
       setState(() {
-        isLocationPermissionGranted = LocationPermission.always;
+        isLocationPermissionGranted = PermissionStatus.granted;
       });
     }
   }
 
   Future<void> _checkLocationStatus() async {
-    bool serviceEnabled;
-    // Vérifier si les services de localisation sont activés
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    Location location = Location();
+    bool serviceEnabled = await location.serviceEnabled();
 
     setState(() {
       isLocationEnabled = serviceEnabled;
@@ -98,38 +99,23 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage> {
   }
 
   Future<void> _requestLocationEnabled() async {
-    bool serviceEnabled;
-
-    // Vérifier si les services de localisation sont activés
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    Location location = Location();
+    bool serviceEnabled = await location.serviceEnabled();
     if (!serviceEnabled) {
       // Demander à l'utilisateur d'activer les services de localisation
-      await Geolocator.openLocationSettings();
-      // Attendre que l'utilisateur revienne à l'application et vérifier périodiquement
-      await _waitForLocationServiceEnabled();
-
-      serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      serviceEnabled = await location.requestService();
+      if (!serviceEnabled) {
+        // Si l'utilisateur refuse, vous pouvez afficher un message ou prendre une autre action
+        setState(() {
+          isLocationEnabled = false;
+        });
+        return;
+      }
     }
 
     setState(() {
       isLocationEnabled = serviceEnabled;
     });
-  }
-
-  Future<void> _waitForLocationServiceEnabled() async {
-    const Duration checkInterval = Duration(seconds: 1);
-    const Duration timeout = Duration(seconds: 10);
-    Stopwatch stopwatch = Stopwatch()..start();
-
-    while (stopwatch.elapsed < timeout) {
-      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-      if (serviceEnabled) {
-        break;
-      }
-      await Future.delayed(checkInterval);
-    }
-
-    stopwatch.stop();
   }
 
   @override
@@ -153,9 +139,9 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage> {
                               el.trainingExerciseType ==
                               TrainingExerciseType.run))) {
                     if (isLocationPermissionGranted ==
-                            LocationPermission.always &&
+                            PermissionStatus.granted &&
                         isLocationEnabled) {
-                      initializeBackgroundService();
+                      // initializeBackgroundService();
                       isVerified = true;
                     } else {
                       return SizedBox(
@@ -176,19 +162,19 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage> {
                                         vertical: 10, horizontal: 20),
                                     decoration: BoxDecoration(
                                         color: isLocationPermissionGranted ==
-                                                LocationPermission.always
+                                                PermissionStatus.granted
                                             ? AppColors.lightGrey
                                             : AppColors.black,
                                         borderRadius:
                                             BorderRadius.circular(10)),
                                     child: Text(
                                       isLocationPermissionGranted ==
-                                              LocationPermission.always
+                                              PermissionStatus.granted
                                           ? 'Granted'
                                           : 'Ask',
                                       style: TextStyle(
                                           color: isLocationPermissionGranted ==
-                                                  LocationPermission.always
+                                                  PermissionStatus.granted
                                               ? AppColors.lightBlack
                                               : AppColors.white),
                                     )),
@@ -223,7 +209,7 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage> {
                       );
                     }
                   } else {
-                    initializeBackgroundService();
+                    // initializeBackgroundService();
                     isVerified = true;
                   }
 
@@ -296,7 +282,7 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage> {
 
             if (state.activeTraining!.trainingExercises.any(
                 (el) => el.trainingExerciseType == TrainingExerciseType.run)) {
-              if (isLocationPermissionGranted == LocationPermission.always &&
+              if (isLocationPermissionGranted == PermissionStatus.granted &&
                   isLocationEnabled) {
                 isVerified = true;
               }

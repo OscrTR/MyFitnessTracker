@@ -105,12 +105,12 @@ void onStart(ServiceInstance service) async {
     service.invoke('pauseTimer');
   });
 
-  service.on('stopTracking').listen((event) {
+  service.on('stopTracking').listen((event) async {
     for (var timer in timers.values) {
       timer.cancel();
     }
     runTracker.stopTracking();
-    service.stopSelf();
+    timers.clear();
   });
 }
 
