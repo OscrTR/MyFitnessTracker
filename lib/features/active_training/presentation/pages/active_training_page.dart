@@ -164,7 +164,8 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage> {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Text('Location access always authorized : '),
+                              const Text(
+                                  'Location access always authorized : '),
                               const SizedBox(height: 10),
                               GestureDetector(
                                 onTap: () {
@@ -193,7 +194,7 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage> {
                                     )),
                               ),
                               const SizedBox(height: 30),
-                              Text('Location enabled : '),
+                              const Text('Location enabled : '),
                               const SizedBox(height: 10),
                               GestureDetector(
                                 onTap: () {

@@ -91,57 +91,80 @@ class _ActiveMultisetExerciseWidgetState
             widget.tExercise.specialInstructions!.isNotEmpty;
     final hasObjectives = widget.tExercise.objectives != null &&
         widget.tExercise.objectives!.isNotEmpty;
-    return Container(
-      margin: const EdgeInsets.only(top: 10, bottom: 10),
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        border: Border.all(color: AppColors.lightBlack),
-        borderRadius: BorderRadius.circular(15),
-      ),
-      child: BlocBuilder<ExerciseManagementBloc, ExerciseManagementState>(
-          builder: (context, exerciseBlocState) {
-        final matchingExercise = exerciseBlocState is ExerciseManagementLoaded
-            ? exerciseBlocState.exercises
-                .firstWhereOrNull((e) => e.id == widget.tExercise.exerciseId)
-            : null;
+    return BlocBuilder<ActiveTrainingBloc, ActiveTrainingState>(
+        builder: (context, state) {
+      if (state is ActiveTrainingLoaded) {
+        Color exerciseActiveColor =
+            widget.tExercise.trainingExerciseType == TrainingExerciseType.yoga
+                ? AppColors.purple
+                : widget.tExercise.trainingExerciseType ==
+                        TrainingExerciseType.workout
+                    ? AppColors.orange
+                    : AppColors.blue;
+        bool isActiveExercise = false;
+        final lastStartedTimerId = state.lastStartedTimerId;
+        // TODO : corriger l'affichage
+        final exerciseIndex = widget.multisetIndex;
+        if (lastStartedTimerId != null &&
+            lastStartedTimerId
+                .startsWith('${exerciseIndex < 10 ? 0 : ''}$exerciseIndex')) {
+          isActiveExercise = true;
+        }
+        return Container(
+          margin: const EdgeInsets.only(top: 10, bottom: 10),
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: isActiveExercise ? exerciseActiveColor : AppColors.white,
+            border: Border.all(color: AppColors.lightBlack),
+            borderRadius: BorderRadius.circular(15),
+          ),
+          child: BlocBuilder<ExerciseManagementBloc, ExerciseManagementState>(
+              builder: (context, exerciseBlocState) {
+            final matchingExercise =
+                exerciseBlocState is ExerciseManagementLoaded
+                    ? exerciseBlocState.exercises.firstWhereOrNull(
+                        (e) => e.id == widget.tExercise.exerciseId)
+                    : null;
 
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 10),
-            ExpandablePanel(
-              header: _buildExpandableHeader(matchingExercise),
-              collapsed: const SizedBox(),
-              expanded: _buildExpandedContent(matchingExercise, context),
-              theme: const ExpandableThemeData(
-                hasIcon: false,
-                tapHeaderToExpand: true,
-              ),
-            ),
-            const SizedBox(height: 10),
-            if (hasSpecialInstructions)
-              _buildOptionalInfo(
-                title: 'global_special_instructions',
-                content: widget.tExercise.specialInstructions,
-                context: context,
-              ),
-            if (hasObjectives)
-              _buildOptionalInfo(
-                title: 'global_objectives',
-                content: widget.tExercise.objectives,
-                context: context,
-              ),
-            if (hasSpecialInstructions || hasObjectives) ...[
-              const Divider(),
-              const SizedBox(height: 10),
-            ],
-            const SizedBox(height: 10),
-            _buildSets(),
-          ],
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 10),
+                ExpandablePanel(
+                  header: _buildExpandableHeader(matchingExercise),
+                  collapsed: const SizedBox(),
+                  expanded: _buildExpandedContent(matchingExercise, context),
+                  theme: const ExpandableThemeData(
+                    hasIcon: false,
+                    tapHeaderToExpand: true,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                if (hasSpecialInstructions)
+                  _buildOptionalInfo(
+                    title: 'global_special_instructions',
+                    content: widget.tExercise.specialInstructions,
+                    context: context,
+                  ),
+                if (hasObjectives)
+                  _buildOptionalInfo(
+                    title: 'global_objectives',
+                    content: widget.tExercise.objectives,
+                    context: context,
+                  ),
+                if (hasSpecialInstructions || hasObjectives) ...[
+                  const Divider(),
+                  const SizedBox(height: 10),
+                ],
+                const SizedBox(height: 10),
+                _buildSets(),
+              ],
+            );
+          }),
         );
-      }),
-    );
+      }
+      return const SizedBox();
+    });
   }
 
   Container _buildExpandedContent(

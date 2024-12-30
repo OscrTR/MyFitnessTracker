@@ -51,58 +51,80 @@ class _ActiveRunWidgetState extends State<ActiveRunWidget> {
 
     return Column(
       children: [
-        Container(
-          margin: const EdgeInsets.only(top: 10, bottom: 10),
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: AppColors.white,
-            border: Border.all(color: AppColors.lightBlack),
-            borderRadius: BorderRadius.circular(15),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 10),
-              widget.tExercise.runExerciseTarget == RunExerciseTarget.intervals
-                  ? buildIntervalText()
-                  : buildRunExerciseText(),
-              const SizedBox(height: 10),
-              if (hasSpecialInstructions)
-                _buildOptionalInfo(
-                  title: 'global_special_instructions',
-                  content: widget.tExercise.specialInstructions,
-                  context: context,
-                ),
-              if (hasObjectives)
-                _buildOptionalInfo(
-                  title: 'global_objectives',
-                  content: widget.tExercise.objectives,
-                  context: context,
-                ),
-              if (hasSpecialInstructions || hasObjectives) ...[
-                const Divider(),
-                const SizedBox(height: 10),
-              ],
-              if (widget.tExercise.runExerciseTarget ==
-                      RunExerciseTarget.distance ||
+        BlocBuilder<ActiveTrainingBloc, ActiveTrainingState>(
+            builder: (context, state) {
+          if (state is ActiveTrainingLoaded) {
+            Color exerciseActiveColor = widget.tExercise.trainingExerciseType ==
+                    TrainingExerciseType.yoga
+                ? AppColors.purple
+                : widget.tExercise.trainingExerciseType ==
+                        TrainingExerciseType.workout
+                    ? AppColors.orange
+                    : AppColors.blue;
+            bool isActiveExercise = false;
+            final lastStartedTimerId = state.lastStartedTimerId;
+            final exerciseIndex = widget.exerciseIndex;
+            if (lastStartedTimerId != null &&
+                lastStartedTimerId.startsWith(
+                    '${exerciseIndex < 10 ? 0 : ''}$exerciseIndex')) {
+              isActiveExercise = true;
+            }
+            return Container(
+              margin: const EdgeInsets.only(top: 10, bottom: 10),
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: isActiveExercise ? exerciseActiveColor : AppColors.white,
+                border: Border.all(color: AppColors.lightBlack),
+                borderRadius: BorderRadius.circular(15),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 10),
                   widget.tExercise.runExerciseTarget ==
-                      RunExerciseTarget.duration)
-                DistanceOrDurationRun(
-                  tExercise: widget.tExercise,
-                  isLast: widget.isLast,
-                  exerciseIndex: widget.exerciseIndex,
-                ),
-              if (widget.tExercise.runExerciseTarget ==
-                  RunExerciseTarget.intervals)
-                IntervalWidget(
-                  tExercise: widget.tExercise,
-                  isLast: widget.isLast,
-                  exerciseIndex: widget.exerciseIndex,
-                ),
-              const SizedBox(height: 10),
-            ],
-          ),
-        ),
+                          RunExerciseTarget.intervals
+                      ? buildIntervalText()
+                      : buildRunExerciseText(),
+                  const SizedBox(height: 10),
+                  if (hasSpecialInstructions)
+                    _buildOptionalInfo(
+                      title: 'global_special_instructions',
+                      content: widget.tExercise.specialInstructions,
+                      context: context,
+                    ),
+                  if (hasObjectives)
+                    _buildOptionalInfo(
+                      title: 'global_objectives',
+                      content: widget.tExercise.objectives,
+                      context: context,
+                    ),
+                  if (hasSpecialInstructions || hasObjectives) ...[
+                    const Divider(),
+                    const SizedBox(height: 10),
+                  ],
+                  if (widget.tExercise.runExerciseTarget ==
+                          RunExerciseTarget.distance ||
+                      widget.tExercise.runExerciseTarget ==
+                          RunExerciseTarget.duration)
+                    DistanceOrDurationRun(
+                      tExercise: widget.tExercise,
+                      isLast: widget.isLast,
+                      exerciseIndex: widget.exerciseIndex,
+                    ),
+                  if (widget.tExercise.runExerciseTarget ==
+                      RunExerciseTarget.intervals)
+                    IntervalWidget(
+                      tExercise: widget.tExercise,
+                      isLast: widget.isLast,
+                      exerciseIndex: widget.exerciseIndex,
+                    ),
+                  const SizedBox(height: 10),
+                ],
+              ),
+            );
+          }
+          return const SizedBox();
+        }),
         _buildExerciseRest(),
       ],
     );
