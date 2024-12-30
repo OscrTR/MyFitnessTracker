@@ -1,7 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_background_service/flutter_background_service.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../app_colors.dart';
@@ -401,10 +401,10 @@ class IntervalWidget extends StatelessWidget {
 
             return GestureDetector(
               onTap: () async {
-                final service = FlutterBackgroundService();
-                service.invoke('startTracking', {
-                  'timerId': '$multisetIndex-$setIndex-$multisetExerciseIndex-0'
-                });
+                // final service = FlutterBackgroundService();
+                // service.invoke('startTracking', {
+                //   'timerId': '$multisetIndex-$setIndex-$multisetExerciseIndex-0'
+                // });
               },
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,

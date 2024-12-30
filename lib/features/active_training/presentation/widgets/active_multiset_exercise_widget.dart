@@ -5,7 +5,6 @@ import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../bloc/active_training_bloc.dart';
 import '../../../training_management/domain/entities/multiset.dart';
@@ -374,8 +373,8 @@ class ActiveExerciseRow extends StatelessWidget {
             const SizedBox(width: 10),
             GestureDetector(
               onTap: () {
-                final service = FlutterBackgroundService();
-                service.invoke('startTracking', {'timerId': restTimerId});
+                // final service = FlutterBackgroundService();
+                // service.invoke('startTracking', {'timerId': restTimerId});
               },
               child: Text(
                 isStarted ? 'OK' : tr('global_validate'),
@@ -462,8 +461,8 @@ class ActiveExerciseDurationRow extends StatelessWidget {
 
         return GestureDetector(
           onTap: () async {
-            final service = FlutterBackgroundService();
-            service.invoke('startTracking', {'timerId': timerId});
+            // final service = FlutterBackgroundService();
+            // service.invoke('startTracking', {'timerId': timerId});
           },
           child: Container(
             alignment: Alignment.center,

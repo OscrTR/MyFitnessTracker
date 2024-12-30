@@ -2,7 +2,6 @@ import 'package:bloc/bloc.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:equatable/equatable.dart';
-import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:my_fitness_tracker/background_service.dart';
 
 import 'package:uuid/uuid.dart';
@@ -19,24 +18,24 @@ class ActiveTrainingBloc
       emit(const ActiveTrainingLoaded(timersStateList: []));
     });
 
-    FlutterBackgroundService().on('updateTimer').listen((data) {
-      if (data != null && data['timerId'] != null) {
-        add(UpdateTimer(
-          timerId: data['timerId'],
-          runDistance: data['runDistance'].toDouble(),
-        ));
-      }
-    });
+    // FlutterBackgroundService().on('updateTimer').listen((data) {
+    //   if (data != null && data['timerId'] != null) {
+    //     add(UpdateTimer(
+    //       timerId: data['timerId'],
+    //       runDistance: data['runDistance'].toDouble(),
+    //     ));
+    //   }
+    // });
 
-    FlutterBackgroundService().on('startTimer').listen((data) {
-      if (data != null && data['timerId'] != null) {
-        add(StartTimer(timerId: data['timerId']));
-      }
-    });
+    // FlutterBackgroundService().on('startTimer').listen((data) {
+    //   if (data != null && data['timerId'] != null) {
+    //     add(StartTimer(timerId: data['timerId']));
+    //   }
+    // });
 
-    FlutterBackgroundService().on('pauseTimer').listen((data) {
-      add(PauseTimer());
-    });
+    // FlutterBackgroundService().on('pauseTimer').listen((data) {
+    //   add(PauseTimer());
+    // });
 
     on<UpdateTimer>((event, emit) async {
       final timerId = event.timerId;
@@ -63,7 +62,7 @@ class ActiveTrainingBloc
         if (currentTimerState.isCountDown) {
           if (currentTimerValue > 0) {
             if (currentTimerValue == 2) {
-              service.invoke('playCountDown');
+              // service.invoke('playCountDown');
             }
             if (currentTimerState.isRunTimer) {
               add(TickTimer(
@@ -75,9 +74,9 @@ class ActiveTrainingBloc
               add(TickTimer(timerId: timerId, isCountDown: true));
             }
           } else {
-            service.invoke('cancelTimer', {'timerId': timerId});
+            // service.invoke('cancelTimer', {'timerId': timerId});
             if (currentTimerState.isRunTimer) {
-              service.invoke('stopLocationTracking');
+              // service.invoke('stopLocationTracking');
             }
             // Start next timer if autostart
             if (nextTimerId != null) {
@@ -85,10 +84,10 @@ class ActiveTrainingBloc
                   .timersStateList[currentTimerIndex + 1].isAutostart;
 
               if (autostart) {
-                service.invoke('startTracking', {'timerId': nextTimerId});
+                // service.invoke('startTracking', {'timerId': nextTimerId});
               }
             } else {
-              service.invoke('pauseTracking', {'timerId': ''});
+              // service.invoke('pauseTracking', {'timerId': ''});
             }
           }
         } else {
@@ -109,34 +108,34 @@ class ActiveTrainingBloc
             if (pace <
                 currentTimerState.targetPace -
                     (currentTimerState.targetPace * 0.05)) {
-              service.invoke('speak', {
-                'message': tr('active_training_pace_faster', args: [
-                  '$paceMinutes',
-                  '$paceSeconds',
-                  '$targetPaceMinutes',
-                  '$targetPaceSeconds'
-                ])
-              });
+              // service.invoke('speak', {
+              //   'message': tr('active_training_pace_faster', args: [
+              //     '$paceMinutes',
+              //     '$paceSeconds',
+              //     '$targetPaceMinutes',
+              //     '$targetPaceSeconds'
+              //   ])
+              // });
             }
             if (pace >
                 currentTimerState.targetPace +
                     (currentTimerState.targetPace * 0.05)) {
-              service.invoke('speak', {
-                'message': tr('active_training_pace_slower', args: [
-                  '$paceMinutes',
-                  '$paceSeconds',
-                  '$targetPaceMinutes',
-                  '$targetPaceSeconds'
-                ])
-              });
+              // service.invoke('speak', {
+              //   'message': tr('active_training_pace_slower', args: [
+              //     '$paceMinutes',
+              //     '$paceSeconds',
+              //     '$targetPaceMinutes',
+              //     '$targetPaceSeconds'
+              //   ])
+              // });
             }
           }
 
           if (currentDistance > 0 && currentDistance / 1000 >= nextKmMarker) {
-            service.invoke('speak', {
-              'message': tr('active_training_pace',
-                  args: ['$nextKmMarker', '$paceMinutes', '$paceSeconds'])
-            });
+            // service.invoke('speak', {
+            //   'message': tr('active_training_pace',
+            //       args: ['$nextKmMarker', '$paceMinutes', '$paceSeconds'])
+            // });
             add(UpdateNextKmMarker(
                 timerId: timerId, nextKmMarker: nextKmMarker + 1));
           }
@@ -145,12 +144,12 @@ class ActiveTrainingBloc
             // Check if the current distance equals the objective distance
             if (currentTimerState.targetDistance > 0 &&
                 currentDistance >= currentTimerState.targetDistance) {
-              service.invoke('cancelTimer', {'timerId': timerId});
+              // service.invoke('cancelTimer', {'timerId': timerId});
 
               if (currentTimerState.isRunTimer) {
                 add(UpdateDistance(
                     timerId: timerId, distance: currentDistance));
-                service.invoke('stopLocationTracking');
+                // service.invoke('stopLocationTracking');
               }
 
               // Start next timer if autostart
@@ -159,10 +158,10 @@ class ActiveTrainingBloc
                     .timersStateList[currentTimerIndex + 1].isAutostart;
 
                 if (autostart) {
-                  service.invoke('startTracking', {'timerId': nextTimerId});
+                  // service.invoke('startTracking', {'timerId': nextTimerId});
                 }
               } else {
-                service.invoke('pauseTracking', {'timerId': ''});
+                // service.invoke('pauseTracking', {'timerId': ''});
               }
             } else {
               if (currentTimerState.isRunTimer) {
@@ -178,9 +177,9 @@ class ActiveTrainingBloc
             // Check if the current duration equals the objective duration
             if (currentTimerState.targetDuration > 0 &&
                 currentTimerValue >= currentTimerState.targetDuration) {
-              service.invoke('cancelTimer', {'timerId': timerId});
+              // service.invoke('cancelTimer', {'timerId': timerId});
               if (currentTimerState.isRunTimer) {
-                service.invoke('stopLocationTracking');
+                // service.invoke('stopLocationTracking');
               }
 
               // Start next timer if autostart
@@ -188,10 +187,10 @@ class ActiveTrainingBloc
                 final autostart = currentState
                     .timersStateList[currentTimerIndex + 1].isAutostart;
                 if (autostart) {
-                  service.invoke('startTracking', {'timerId': nextTimerId});
+                  // service.invoke('startTracking', {'timerId': nextTimerId});
                 }
               } else {
-                service.invoke('pauseTracking', {'timerId': ''});
+                // service.invoke('pauseTracking', {'timerId': ''});
               }
             } else {
               if (currentTimerState.isRunTimer) {

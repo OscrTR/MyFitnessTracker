@@ -1,10 +1,13 @@
+import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:location/location.dart';
 import '../../../../injection_container.dart';
+import '../../../../notification_service.dart';
 import '../bloc/active_training_bloc.dart';
-
 import '../../../../app_colors.dart';
 
 class TimerWidget extends StatefulWidget {
@@ -33,6 +36,14 @@ class TimerWidgetState extends State<TimerWidget> {
     }
   }
 
+  int _counter = 0;
+  double _distance = 0.0;
+  Timer? _timer;
+
+  LocationData? _lastLocation;
+  final Location _location = Location();
+  StreamSubscription<LocationData>? _locationSubscription;
+
   @override
   void initState() {
     context.read<ActiveTrainingBloc>().add(const CreateTimer(
@@ -45,9 +56,82 @@ class TimerWidgetState extends State<TimerWidget> {
           isCountDown: false,
           isAutostart: false,
         )));
-    sl<FlutterBackgroundService>()
-        .invoke('startTracking', {'timerId': 'primaryTimer'});
+    _startTimer();
+    _initLocationStream();
+    _listenToTimerStream();
     super.initState();
+  }
+
+  int? id;
+
+  Future<void> _initLocationStream() async {
+    _location.enableBackgroundMode(enable: true);
+    final notifData = await _location.changeNotificationOptions(
+        title: 'Run metrics', subtitle: 'Geolocation detection');
+    print(notifData?.notificationId);
+    id = notifData?.notificationId;
+    _locationSubscription =
+        _location.onLocationChanged.listen((LocationData currentLocation) {
+      _updateLocationAndDistance(currentLocation);
+    });
+  }
+
+  void _updateLocationAndDistance(LocationData currentLocation) {
+    if (_lastLocation != null) {
+      double distanceInMeters = Geolocator.distanceBetween(
+        _lastLocation!.latitude!,
+        _lastLocation!.longitude!,
+        currentLocation.latitude!,
+        currentLocation.longitude!,
+      );
+      setState(() {
+        _distance += distanceInMeters;
+      });
+    }
+    _lastLocation = currentLocation;
+  }
+
+  void _startTimer() {
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      setState(() {
+        _counter++;
+      });
+      timerStreamController.add(_counter);
+      _showNotification();
+    });
+  }
+
+  void _showNotification() async {
+    print(id);
+    const AndroidNotificationDetails androidPlatformChannelSpecifics =
+        AndroidNotificationDetails('your_channel_id', 'your_channel_name',
+            importance: Importance.low,
+            priority: Priority.low,
+            ongoing: true,
+            onlyAlertOnce: true,
+            ticker: 'ticker');
+    const NotificationDetails platformChannelSpecifics =
+        NotificationDetails(android: androidPlatformChannelSpecifics);
+    await sl<FlutterLocalNotificationsPlugin>().show(
+        id!,
+        'Timer Update',
+        'Timer: $_counter seconds\nDistance : ${_distance.floor()}m',
+        platformChannelSpecifics,
+        payload: 'item x');
+  }
+
+  void _listenToTimerStream() {
+    timerStreamController.stream.listen((int counter) {
+      // Mettez à jour l'interface utilisateur ou effectuez d'autres actions ici
+      print('Timer Stream Event: $counter, distance : ${_distance.floor()}m');
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    timerStreamController.close();
+    super.dispose();
   }
 
   @override
@@ -104,11 +188,11 @@ class TimerWidgetState extends State<TimerWidget> {
             }),
             GestureDetector(
               onTap: () {
-                sl<FlutterBackgroundService>().invoke('pauseTracking', {
-                  'timerId': (context.read<ActiveTrainingBloc>().state
-                          as ActiveTrainingLoaded)
-                      .lastStartedTimerId
-                });
+                // sl<FlutterBackgroundService>().invoke('pauseTracking', {
+                //   'timerId': (context.read<ActiveTrainingBloc>().state
+                //           as ActiveTrainingLoaded)
+                //       .lastStartedTimerId
+                // });
               },
               child: Container(
                 height: 40,

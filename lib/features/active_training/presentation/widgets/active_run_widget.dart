@@ -1,7 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_background_service/flutter_background_service.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../bloc/active_training_bloc.dart';
 import 'distance_widget.dart';
@@ -323,8 +323,8 @@ class DistanceOrDurationRun extends StatelessWidget {
             const SizedBox(height: 10),
             GestureDetector(
               onTap: () async {
-                final service = FlutterBackgroundService();
-                service.invoke('startTracking', {'timerId': timerId});
+                // final service = FlutterBackgroundService();
+                // service.invoke('startTracking', {'timerId': timerId});
               },
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -400,9 +400,9 @@ class IntervalWidget extends StatelessWidget {
             }
             return GestureDetector(
               onTap: () async {
-                final service = FlutterBackgroundService();
-                service
-                    .invoke('startTracking', {'timerId': '$exerciseIndex-0'});
+                // final service = FlutterBackgroundService();
+                // service
+                //     .invoke('startTracking', {'timerId': '$exerciseIndex-0'});
               },
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,

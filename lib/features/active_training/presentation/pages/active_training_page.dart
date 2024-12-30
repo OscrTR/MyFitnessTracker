@@ -58,7 +58,7 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage> {
           ),
           TextButton(
             onPressed: () {
-              service.invoke('stopTracking');
+              // service.invoke('stopTracking');
               Navigator.of(context).pop(true);
               GoRouter.of(context).go('/home');
             },
@@ -240,7 +240,7 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage> {
                               const SizedBox(height: 30),
                               GestureDetector(
                                 onTap: () {
-                                  service.invoke('stopTracking');
+                                  // service.invoke('stopTracking');
                                   GoRouter.of(context).go('/home');
                                 },
                                 child: Container(
