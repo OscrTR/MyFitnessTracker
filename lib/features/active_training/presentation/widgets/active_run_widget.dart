@@ -3,6 +3,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../injection_container.dart';
 import '../bloc/active_training_bloc.dart';
 import 'distance_widget.dart';
 import 'duration_timer_widget.dart';
@@ -323,8 +324,7 @@ class DistanceOrDurationRun extends StatelessWidget {
             const SizedBox(height: 10),
             GestureDetector(
               onTap: () async {
-                // final service = FlutterBackgroundService();
-                // service.invoke('startTracking', {'timerId': timerId});
+                sl<ActiveTrainingBloc>().add(StartTimer(timerId: timerId));
               },
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,

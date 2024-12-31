@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_fitness_tracker/features/active_training/presentation/widgets/active_run_widget.dart';
+import '../../../../injection_container.dart';
 import '../bloc/active_training_bloc.dart';
 
 import '../../../../app_colors.dart';
@@ -397,8 +398,7 @@ class ActiveExerciseRow extends StatelessWidget {
             const SizedBox(width: 10),
             GestureDetector(
               onTap: () {
-                // final service = FlutterBackgroundService();
-                // service.invoke('startTracking', {'timerId': restTimerId});
+                sl<ActiveTrainingBloc>().add(StartTimer(timerId: restTimerId));
                 FocusScope.of(context).unfocus();
               },
               child: Text(
@@ -475,8 +475,7 @@ class ActiveExerciseDurationRow extends StatelessWidget {
 
         return GestureDetector(
           onTap: () async {
-            // final service = FlutterBackgroundService();
-            // service.invoke('startTracking', {'timerId': timerId});
+            sl<ActiveTrainingBloc>().add(StartTimer(timerId: timerId));
           },
           child: Container(
             alignment: Alignment.center,

@@ -1,9 +1,9 @@
 import 'dart:async';
+import 'dart:math';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:location/location.dart';
 import '../../../../injection_container.dart';
 import '../../../../notification_service.dart';
@@ -56,76 +56,102 @@ class TimerWidgetState extends State<TimerWidget> {
           isCountDown: false,
           isAutostart: false,
         )));
-    _startTimer();
-    _initLocationStream();
-    _listenToTimerStream();
+    context
+        .read<ActiveTrainingBloc>()
+        .add(const StartTimer(timerId: 'primaryTimer'));
+    // _startTimer();
+    // _initLocationStream();
+    // _listenToTimerStream();
     super.initState();
   }
 
   int? id;
 
-  Future<void> _initLocationStream() async {
-    _location.enableBackgroundMode(enable: true);
-    final notifData = await _location.changeNotificationOptions(
-        title: 'Run metrics', subtitle: 'Geolocation detection');
-    print(notifData?.notificationId);
-    id = notifData?.notificationId;
-    _locationSubscription =
-        _location.onLocationChanged.listen((LocationData currentLocation) {
-      _updateLocationAndDistance(currentLocation);
-    });
-  }
+  // Future<void> _initLocationStream() async {
+  //   _location.enableBackgroundMode(enable: true);
+  //   final notifData = await _location.changeNotificationOptions(
+  //       title: 'Run metrics', subtitle: 'Geolocation detection');
+  //   print(notifData?.notificationId);
+  //   id = notifData?.notificationId;
+  //   _locationSubscription =
+  //       _location.onLocationChanged.listen((LocationData currentLocation) {
+  //     _updateLocationAndDistance(currentLocation);
+  //   });
+  // }
 
-  void _updateLocationAndDistance(LocationData currentLocation) {
-    if (_lastLocation != null) {
-      double distanceInMeters = Geolocator.distanceBetween(
-        _lastLocation!.latitude!,
-        _lastLocation!.longitude!,
-        currentLocation.latitude!,
-        currentLocation.longitude!,
-      );
-      setState(() {
-        _distance += distanceInMeters;
-      });
-    }
-    _lastLocation = currentLocation;
-  }
+  // void _updateLocationAndDistance(LocationData currentLocation) {
+  //   if (_lastLocation != null) {
+  //     double distanceInMeters = distanceBetween(
+  //       _lastLocation!.latitude!,
+  //       _lastLocation!.longitude!,
+  //       currentLocation.latitude!,
+  //       currentLocation.longitude!,
+  //     );
+  //     setState(() {
+  //       _distance += distanceInMeters;
+  //     });
+  //   }
+  //   _lastLocation = currentLocation;
+  // }
 
-  void _startTimer() {
-    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
-      setState(() {
-        _counter++;
-      });
-      timerStreamController.add(_counter);
-      _showNotification();
-    });
-  }
+  // double distanceBetween(
+  //   double startLatitude,
+  //   double startLongitude,
+  //   double endLatitude,
+  //   double endLongitude,
+  // ) {
+  //   var earthRadius = 6378137.0;
+  //   var dLat = _toRadians(endLatitude - startLatitude);
+  //   var dLon = _toRadians(endLongitude - startLongitude);
 
-  void _showNotification() async {
-    print(id);
-    const AndroidNotificationDetails androidPlatformChannelSpecifics =
-        AndroidNotificationDetails('your_channel_id', 'your_channel_name',
-            importance: Importance.low,
-            priority: Priority.low,
-            ongoing: true,
-            onlyAlertOnce: true,
-            ticker: 'ticker');
-    const NotificationDetails platformChannelSpecifics =
-        NotificationDetails(android: androidPlatformChannelSpecifics);
-    await sl<FlutterLocalNotificationsPlugin>().show(
-        id!,
-        'Timer Update',
-        'Timer: $_counter seconds\nDistance : ${_distance.floor()}m',
-        platformChannelSpecifics,
-        payload: 'item x');
-  }
+  //   var a = pow(sin(dLat / 2), 2) +
+  //       pow(sin(dLon / 2), 2) *
+  //           cos(_toRadians(startLatitude)) *
+  //           cos(_toRadians(endLatitude));
+  //   var c = 2 * asin(sqrt(a));
 
-  void _listenToTimerStream() {
-    timerStreamController.stream.listen((int counter) {
-      // Mettez à jour l'interface utilisateur ou effectuez d'autres actions ici
-      print('Timer Stream Event: $counter, distance : ${_distance.floor()}m');
-    });
-  }
+  //   return earthRadius * c;
+  // }
+
+  // static _toRadians(double degree) {
+  //   return degree * pi / 180;
+  // }
+
+  // void _startTimer() {
+  //   _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+  //     setState(() {
+  //       _counter++;
+  //     });
+  //     timerStreamController.add(_counter);
+  //     _showNotification();
+  //   });
+  // }
+
+  // void _showNotification() async {
+  //   print(id);
+  //   const AndroidNotificationDetails androidPlatformChannelSpecifics =
+  //       AndroidNotificationDetails('your_channel_id', 'your_channel_name',
+  //           importance: Importance.low,
+  //           priority: Priority.low,
+  //           ongoing: true,
+  //           onlyAlertOnce: true,
+  //           ticker: 'ticker');
+  //   const NotificationDetails platformChannelSpecifics =
+  //       NotificationDetails(android: androidPlatformChannelSpecifics);
+  //   await sl<FlutterLocalNotificationsPlugin>().show(
+  //       id!,
+  //       'Timer Update',
+  //       'Timer: $_counter seconds\nDistance : ${_distance.floor()}m',
+  //       platformChannelSpecifics,
+  //       payload: 'item x');
+  // }
+
+  // void _listenToTimerStream() {
+  //   timerStreamController.stream.listen((int counter) {
+  //     // Mettez à jour l'interface utilisateur ou effectuez d'autres actions ici
+  //     print('Timer Stream Event: $counter, distance : ${_distance.floor()}m');
+  //   });
+  // }
 
   @override
   void dispose() {
@@ -193,6 +219,7 @@ class TimerWidgetState extends State<TimerWidget> {
                 //           as ActiveTrainingLoaded)
                 //       .lastStartedTimerId
                 // });
+                context.read<ActiveTrainingBloc>().add(PauseTimer());
               },
               child: Container(
                 height: 40,

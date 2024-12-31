@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../app_colors.dart';
+import '../../../../injection_container.dart';
 import '../../../training_management/domain/entities/multiset.dart';
 import '../../../training_management/domain/entities/training_exercise.dart';
 import '../bloc/active_training_bloc.dart';
@@ -401,10 +402,9 @@ class IntervalWidget extends StatelessWidget {
 
             return GestureDetector(
               onTap: () async {
-                // final service = FlutterBackgroundService();
-                // service.invoke('startTracking', {
-                //   'timerId': '$multisetIndex-$setIndex-$multisetExerciseIndex-0'
-                // });
+                sl<ActiveTrainingBloc>().add(StartTimer(
+                    timerId:
+                        '$multisetIndex-$setIndex-$multisetExerciseIndex-0'));
               },
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,

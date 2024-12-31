@@ -59,6 +59,8 @@ class TickTimer extends ActiveTrainingEvent {
 
 class PauseTimer extends ActiveTrainingEvent {}
 
+class ClearTimers extends ActiveTrainingEvent {}
+
 class ResetTimer extends ActiveTrainingEvent {
   final String timerId;
 

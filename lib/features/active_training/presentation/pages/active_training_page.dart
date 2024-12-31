@@ -5,9 +5,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:location/location.dart';
 import 'package:my_fitness_tracker/app_colors.dart';
+import 'package:my_fitness_tracker/features/active_training/presentation/bloc/active_training_bloc.dart';
 import 'package:my_fitness_tracker/features/active_training/presentation/widgets/error_state_widget.dart';
 import 'package:uuid/uuid.dart';
-import '../../../../background_service.dart';
+import '../../../../injection_container.dart';
 import '../widgets/active_multiset_widget.dart';
 import '../widgets/active_run_widget.dart';
 import '../widgets/timer_widget.dart';
@@ -58,7 +59,7 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage> {
           ),
           TextButton(
             onPressed: () {
-              // service.invoke('stopTracking');
+              sl<ActiveTrainingBloc>().add(ClearTimers());
               Navigator.of(context).pop(true);
               GoRouter.of(context).go('/home');
             },
@@ -141,7 +142,6 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage> {
                     if (isLocationPermissionGranted ==
                             PermissionStatus.granted &&
                         isLocationEnabled) {
-                      // initializeBackgroundService();
                       isVerified = true;
                     } else {
                       return SizedBox(
@@ -209,7 +209,6 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage> {
                       );
                     }
                   } else {
-                    // initializeBackgroundService();
                     isVerified = true;
                   }
 
@@ -240,7 +239,7 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage> {
                               const SizedBox(height: 30),
                               GestureDetector(
                                 onTap: () {
-                                  // service.invoke('stopTracking');
+                                  sl<ActiveTrainingBloc>().add(ClearTimers());
                                   GoRouter.of(context).go('/home');
                                 },
                                 child: Container(
