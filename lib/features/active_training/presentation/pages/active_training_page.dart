@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:location/location.dart';
-import 'package:my_fitness_tracker/app_colors.dart';
-import 'package:my_fitness_tracker/features/active_training/presentation/bloc/active_training_bloc.dart';
-import 'package:my_fitness_tracker/features/active_training/presentation/widgets/error_state_widget.dart';
+import '../../../../app_colors.dart';
+import '../bloc/active_training_bloc.dart';
+import '../widgets/error_state_widget.dart';
 import 'package:uuid/uuid.dart';
 import '../../../../injection_container.dart';
 import '../widgets/active_multiset_widget.dart';
@@ -68,7 +68,6 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage> {
         ],
       ),
     );
-    // Retourner true pour empêcher l'événement par défaut
     return true;
   }
 
@@ -103,10 +102,8 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage> {
     Location location = Location();
     bool serviceEnabled = await location.serviceEnabled();
     if (!serviceEnabled) {
-      // Demander à l'utilisateur d'activer les services de localisation
       serviceEnabled = await location.requestService();
       if (!serviceEnabled) {
-        // Si l'utilisateur refuse, vous pouvez afficher un message ou prendre une autre action
         setState(() {
           isLocationEnabled = false;
         });

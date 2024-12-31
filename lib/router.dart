@@ -2,17 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
-import 'features/active_training/presentation/pages/active_training_page.dart';
-import 'features/training_management/presentation/pages/training_details_page.dart';
 import 'package:top_snackbar_flutter/custom_snack_bar.dart';
 import 'package:top_snackbar_flutter/top_snack_bar.dart';
+
 import 'app_colors.dart';
 import 'core/messages/bloc/message_bloc.dart';
 import 'core/pages/history_page.dart';
-import 'features/homepage/presentation/pages/home_page.dart';
-import 'features/training_management/presentation/pages/trainings_page.dart';
+import 'features/active_training/presentation/pages/active_training_page.dart';
 import 'features/exercise_management/presentation/pages/exercise_detail_page.dart';
+import 'features/homepage/presentation/pages/home_page.dart';
 import 'features/settings/presentation/pages/settings_page.dart';
+import 'features/training_management/presentation/pages/training_details_page.dart';
+import 'features/training_management/presentation/pages/trainings_page.dart';
 
 final router = GoRouter(
   initialLocation: '/home',
@@ -185,7 +186,6 @@ class BottomNavigationBarWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Get the current location
     bool isHomePage = GoRouterState.of(context).uri.toString() == '/home';
     bool isTrainingsPage =
         GoRouterState.of(context).uri.toString() == '/trainings';

@@ -2,10 +2,11 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:uuid/uuid.dart';
+
 import '../../../../app_colors.dart';
 import '../../domain/entities/multiset.dart';
 import '../../domain/entities/training_exercise.dart';
-import 'package:uuid/uuid.dart';
 import '../bloc/training_management_bloc.dart';
 
 class TrainingActionsWidget extends StatelessWidget {

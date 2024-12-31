@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:my_fitness_tracker/injection_container.dart';
+import 'injection_container.dart';
 
 final StreamController<int> timerStreamController = StreamController<int>();
 

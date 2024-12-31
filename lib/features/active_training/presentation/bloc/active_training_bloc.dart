@@ -6,11 +6,15 @@ import 'package:bloc/bloc.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:location/location.dart';
 import 'package:pausable_timer/pausable_timer.dart';
 
 import 'package:uuid/uuid.dart';
+
+import '../../../../helper_functions.dart';
+import '../../../../injection_container.dart';
 
 part 'active_training_event.dart';
 part 'active_training_state.dart';
@@ -23,6 +27,10 @@ class ActiveTrainingBloc
     final AudioPlayer audioPlayer = AudioPlayer();
     final FlutterTts flutterTts = FlutterTts();
     final RunTracker runTracker = RunTracker();
+    int? notificationId;
+    late StreamController<int> timerStreamController;
+    late Stream<int> timerStream;
+    int? lastTimerValue;
 
     final Map<String, PausableTimer> timers = {};
 
@@ -49,9 +57,6 @@ class ActiveTrainingBloc
 
     on<UpdateTimer>((event, emit) async {
       final timerId = event.timerId;
-
-      print('updating timer $timerId');
-
       if (state is ActiveTrainingLoaded) {
         final currentState = state as ActiveTrainingLoaded;
 
@@ -248,6 +253,24 @@ class ActiveTrainingBloc
       }
     });
 
+    void showNotification() async {
+      const AndroidNotificationDetails androidPlatformChannelSpecifics =
+          AndroidNotificationDetails('your_channel_id', 'your_channel_name',
+              importance: Importance.low,
+              priority: Priority.low,
+              ongoing: true,
+              onlyAlertOnce: true,
+              ticker: 'ticker');
+      const NotificationDetails platformChannelSpecifics =
+          NotificationDetails(android: androidPlatformChannelSpecifics);
+      await sl<FlutterLocalNotificationsPlugin>().show(
+          notificationId ?? 0,
+          'Timer Update',
+          'Timer: ${formatDurationToMinutesSeconds(lastTimerValue)}${runTracker._locationSubscription != null ? '\nDistance : ${runTracker.totalDistance.floor()}m' : ''} ',
+          platformChannelSpecifics,
+          payload: 'item x');
+    }
+
     on<StartTimer>((event, emit) async {
       final timerId = event.timerId;
 
@@ -262,7 +285,7 @@ class ActiveTrainingBloc
         final updatedTimersStateList =
             List<TimerState>.from(currentState.timersStateList);
 
-        // Mettre en pause tous les autres timers sauf primary
+        // Pause all timers except primary
         for (var i = 0; i < currentTimersStateList.length; i++) {
           if (currentTimersStateList[i].isActive == true &&
               currentTimersStateList[i].timerId != 'primaryTimer') {
@@ -277,19 +300,31 @@ class ActiveTrainingBloc
         }
 
         await startTimer(timerId, () {
+          timerStreamController.add(0);
           add(UpdateTimer(
               timerId: timerId, runDistance: runTracker.totalDistance));
         });
-        print('starting $timerId');
 
         if (timers['primaryTimer']!.isPaused) {
           timers['primaryTimer']!.start();
         }
 
+        if (notificationId == null) {
+          notificationId = await runTracker.initTracker();
+          timerStreamController = StreamController<int>();
+          timerStream = timerStreamController.stream;
+
+          timerStreamController.stream.listen((int value) {
+            showNotification();
+            print(
+                'Timer Stream Event: ${formatDurationToMinutesSeconds(lastTimerValue)}, distance : ${runTracker.totalDistance.floor()}m');
+          });
+        }
+
         final startingValue = currentTimerState!.isCountDown
             ? currentTimerState.countDownValue
             : 0;
-        // Mettre à jour la liste avec le timer qui est démarré
+
         if (updatedTimersStateList.any((e) => e.timerId == timerId)) {
           final currentTimerState =
               updatedTimersStateList.firstWhere((e) => e.timerId == timerId);
@@ -373,6 +408,11 @@ class ActiveTrainingBloc
         final currentTimerState = currentTimersStateList
             .firstWhere((e) => e.timerId == event.timerId);
 
+        lastTimerValue = currentState.timersStateList
+            .firstWhereOrNull(
+                (el) => el.timerId == currentState.lastStartedTimerId)
+            ?.timerValue;
+
         final newTimerValue = event.isCountDown
             ? currentTimerState.timerValue - 1
             : currentTimerState.timerValue + 1;
@@ -444,6 +484,13 @@ class RunTracker {
   final Location _location = Location();
   StreamSubscription<LocationData>? _locationSubscription;
   double totalDistance = 0.0; // In meters
+
+  Future<int> initTracker() async {
+    _location.enableBackgroundMode(enable: true);
+    final notifData = await _location.changeNotificationOptions(
+        title: 'Run metrics', subtitle: '');
+    return notifData!.notificationId;
+  }
 
   void startTracking() async {
     try {

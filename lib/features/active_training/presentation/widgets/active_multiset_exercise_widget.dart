@@ -6,6 +6,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../helper_functions.dart';
 import '../../../../injection_container.dart';
 import '../bloc/active_training_bloc.dart';
 import '../../../training_management/domain/entities/multiset.dart';
@@ -15,13 +16,6 @@ import '../../../exercise_management/domain/entities/exercise.dart';
 import '../../../exercise_management/presentation/bloc/exercise_management_bloc.dart';
 import '../../../training_management/domain/entities/training_exercise.dart';
 import '../../../training_management/presentation/widgets/small_text_field_widget.dart';
-
-String formatDuration(int seconds) {
-  final hours = seconds ~/ 3600;
-  final minutes = (seconds % 3600) ~/ 60;
-  final secs = seconds % 60;
-  return '${hours > 0 ? '$hours:' : ''}${minutes.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}';
-}
 
 class ActiveMultisetExerciseWidget extends StatefulWidget {
   final Multiset multiset;
@@ -103,7 +97,6 @@ class _ActiveMultisetExerciseWidgetState
                     : AppColors.blue;
         bool isActiveExercise = false;
         final lastStartedTimerId = state.lastStartedTimerId;
-        // TODO : corriger l'affichage
         final exerciseIndex = widget.multisetIndex;
         if (lastStartedTimerId != null &&
             lastStartedTimerId
@@ -336,7 +329,6 @@ class ActiveExerciseRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final restTimerId =
         '${multisetIndex < 10 ? 0 : ''}$multisetIndex-${setIndex < 10 ? 0 : ''}$setIndex-${multisetExerciseIndex < 10 ? 0 : ''}$multisetExerciseIndex';
-    // Create rest timer
     context.read<ActiveTrainingBloc>().add(CreateTimer(
             timerState: TimerState(
           timerId: restTimerId,
@@ -417,7 +409,6 @@ class ActiveExerciseDurationRow extends StatelessWidget {
     final restTimerId =
         '${multisetIndex < 10 ? 0 : ''}$multisetIndex-${setIndex < 10 ? 0 : ''}$setIndex-${multisetExerciseIndex < 10 ? 0 : ''}$multisetExerciseIndex-rest';
 
-    // Create exercise timer
     context.read<ActiveTrainingBloc>().add(CreateTimer(
           timerState: TimerState(
             timerId: timerId,
@@ -430,7 +421,7 @@ class ActiveExerciseDurationRow extends StatelessWidget {
             isAutostart: tExercise.autoStart ?? false,
           ),
         ));
-    // Create rest timer
+
     context.read<ActiveTrainingBloc>().add(CreateTimer(
           timerState: TimerState(
             timerId: restTimerId,
@@ -472,7 +463,7 @@ class ActiveExerciseDurationRow extends StatelessWidget {
             child: Text(
               isStarted
                   ? 'OK'
-                  : '${tr('global_start')} ${formatDuration(tExercise.duration ?? 0)}',
+                  : '${tr('global_start')} ${formatDurationToHoursMinutesSeconds(tExercise.duration ?? 0)}',
               style: TextStyle(
                   color: isStarted ? AppColors.lightBlack : AppColors.white),
             ),

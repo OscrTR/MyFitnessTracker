@@ -46,15 +46,10 @@ class _MultisetExerciseWidgetState extends State<MultisetExerciseWidget> {
   void _initializeControllers() {
     _controllers = {
       'exercise': TextEditingController(),
-      // 'sets': TextEditingController(),
       'durationMinutes': TextEditingController(),
       'durationSeconds': TextEditingController(),
       'minReps': TextEditingController(),
       'maxReps': TextEditingController(),
-      // 'setRestMinutes': TextEditingController(),
-      // 'setRestSeconds': TextEditingController(),
-      // 'exerciseRestMinutes': TextEditingController(),
-      // 'exerciseRestSeconds': TextEditingController(),
       'specialInstructions': TextEditingController(),
       'objectives': TextEditingController(),
     };
