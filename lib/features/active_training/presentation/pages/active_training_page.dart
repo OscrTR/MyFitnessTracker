@@ -31,6 +31,7 @@ class ActiveTrainingPage extends StatefulWidget {
 class _ActiveTrainingPageState extends State<ActiveTrainingPage> {
   PermissionStatus? isLocationPermissionGranted;
   bool isLocationEnabled = false;
+  String? lastStartedTimerId;
 
   @override
   void initState() {
@@ -341,17 +342,37 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage> {
           final exercise = item['data'] as TrainingExercise;
           final isLast = index == items.length - 1;
 
-          return exercise.trainingExerciseType == TrainingExerciseType.run
-              ? ActiveRunWidget(
-                  tExercise: exercise,
-                  isLast: isLast,
-                  exerciseIndex: index,
-                )
-              : ActiveExerciseWidget(
-                  tExercise: exercise,
-                  isLast: isLast,
-                  exerciseIndex: index,
-                );
+          return BlocListener<ActiveTrainingBloc, ActiveTrainingState>(
+              listener: (context, state) {
+                if (state is ActiveTrainingLoaded) {
+                  if (state.lastStartedTimerId != lastStartedTimerId) {
+                    lastStartedTimerId = state.lastStartedTimerId;
+                    final globalKey = state.timersStateList
+                        .firstWhere((el) => el.timerId == lastStartedTimerId)
+                        .exerciseGlobalKey;
+                    if (globalKey.currentContext != null) {
+                      Scrollable.ensureVisible(
+                        globalKey.currentContext!,
+                        duration: const Duration(seconds: 1),
+                        curve: Curves.easeInOut,
+                      );
+                    }
+                  }
+                }
+              },
+              child: exercise.trainingExerciseType == TrainingExerciseType.run
+                  ? ActiveRunWidget(
+                      tExercise: exercise,
+                      isLast: isLast,
+                      exerciseIndex: index,
+                      key: GlobalKey(),
+                    )
+                  : ActiveExerciseWidget(
+                      tExercise: exercise,
+                      isLast: isLast,
+                      exerciseIndex: index,
+                      key: GlobalKey(),
+                    ));
         } else if (item['type'] == 'multiset') {
           final multiset = item['data'] as Multiset;
           final isLast = index == items.length - 1;

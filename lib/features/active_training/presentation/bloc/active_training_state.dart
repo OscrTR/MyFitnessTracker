@@ -51,6 +51,7 @@ class TimerState extends Equatable {
   final double distance;
   final double pace;
   final int nextKmMarker;
+  final GlobalKey exerciseGlobalKey;
 
   const TimerState({
     required this.timerId,
@@ -60,6 +61,7 @@ class TimerState extends Equatable {
     required this.isRunTimer,
     required this.timerValue,
     required this.isAutostart,
+    required this.exerciseGlobalKey,
     this.countDownValue = 0,
     this.targetDistance = 0,
     this.targetDuration = 0,
@@ -92,6 +94,7 @@ class TimerState extends Equatable {
       distance: distance ?? this.distance,
       pace: pace ?? this.pace,
       nextKmMarker: nextKmMarker ?? this.nextKmMarker,
+      exerciseGlobalKey: exerciseGlobalKey,
     );
   }
 
@@ -111,5 +114,6 @@ class TimerState extends Equatable {
         distance,
         pace,
         nextKmMarker,
+        exerciseGlobalKey,
       ];
 }

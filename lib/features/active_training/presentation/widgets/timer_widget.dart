@@ -32,7 +32,7 @@ class TimerWidgetState extends State<TimerWidget> {
 
   @override
   void initState() {
-    context.read<ActiveTrainingBloc>().add(const CreateTimer(
+    context.read<ActiveTrainingBloc>().add(CreateTimer(
             timerState: TimerState(
           timerId: 'primaryTimer',
           isActive: true,
@@ -41,6 +41,7 @@ class TimerWidgetState extends State<TimerWidget> {
           timerValue: 0,
           isCountDown: false,
           isAutostart: false,
+          exerciseGlobalKey: GlobalKey(),
         )));
     context
         .read<ActiveTrainingBloc>()

@@ -84,27 +84,31 @@ class _ActiveMultisetRunWidgetState extends State<ActiveMultisetRunWidget> {
                     widget.tExercise.runExerciseTarget ==
                         RunExerciseTarget.duration) {
                   return DistanceOrDurationRun(
-                      multiset: widget.multiset,
-                      tExercise: widget.tExercise,
-                      isLastSet: widget.multiset.sets == index + 1,
-                      isLastMultisetExercise:
-                          widget.multiset.trainingExercises!.length ==
-                              widget.tExercise.position! + 1,
-                      multisetIndex: widget.multisetIndex,
-                      multisetExerciseIndex: widget.multisetExerciseIndex,
-                      setIndex: index);
+                    multiset: widget.multiset,
+                    tExercise: widget.tExercise,
+                    isLastSet: widget.multiset.sets == index + 1,
+                    isLastMultisetExercise:
+                        widget.multiset.trainingExercises!.length ==
+                            widget.tExercise.position! + 1,
+                    multisetIndex: widget.multisetIndex,
+                    multisetExerciseIndex: widget.multisetExerciseIndex,
+                    setIndex: index,
+                    exerciseGlobalKey: widget.key! as GlobalKey,
+                  );
                 } else if (widget.tExercise.runExerciseTarget ==
                     RunExerciseTarget.intervals) {
                   return IntervalWidget(
-                      tExercise: widget.tExercise,
-                      multiset: widget.multiset,
-                      isLastSet: widget.multiset.sets == index + 1,
-                      isLastMultisetExercise:
-                          widget.multiset.trainingExercises!.length ==
-                              widget.tExercise.position! + 1,
-                      multisetIndex: widget.multisetIndex,
-                      multisetExerciseIndex: widget.multisetExerciseIndex,
-                      setIndex: index);
+                    tExercise: widget.tExercise,
+                    multiset: widget.multiset,
+                    isLastSet: widget.multiset.sets == index + 1,
+                    isLastMultisetExercise:
+                        widget.multiset.trainingExercises!.length ==
+                            widget.tExercise.position! + 1,
+                    multisetIndex: widget.multisetIndex,
+                    multisetExerciseIndex: widget.multisetExerciseIndex,
+                    setIndex: index,
+                    exerciseGlobalKey: widget.key! as GlobalKey,
+                  );
                 }
                 return const SizedBox();
               }),
@@ -196,16 +200,19 @@ class DistanceOrDurationRun extends StatelessWidget {
   final int multisetIndex;
   final int multisetExerciseIndex;
   final int setIndex;
+  final GlobalKey exerciseGlobalKey;
 
-  const DistanceOrDurationRun(
-      {super.key,
-      required this.multiset,
-      required this.tExercise,
-      required this.isLastSet,
-      required this.isLastMultisetExercise,
-      required this.multisetIndex,
-      required this.multisetExerciseIndex,
-      required this.setIndex});
+  const DistanceOrDurationRun({
+    super.key,
+    required this.multiset,
+    required this.tExercise,
+    required this.isLastSet,
+    required this.isLastMultisetExercise,
+    required this.multisetIndex,
+    required this.multisetExerciseIndex,
+    required this.setIndex,
+    required this.exerciseGlobalKey,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -235,6 +242,7 @@ class DistanceOrDurationRun extends StatelessWidget {
                 ? tExercise.targetPace ?? 0
                 : 0,
             isAutostart: tExercise.autoStart ?? false,
+            exerciseGlobalKey: exerciseGlobalKey,
           ),
         ));
 
@@ -248,6 +256,7 @@ class DistanceOrDurationRun extends StatelessWidget {
             countDownValue: tExercise.exerciseRest ?? 0,
             isCountDown: true,
             isAutostart: true,
+            exerciseGlobalKey: exerciseGlobalKey,
           ),
         ));
 
@@ -344,16 +353,19 @@ class IntervalWidget extends StatelessWidget {
   final int multisetIndex;
   final int multisetExerciseIndex;
   final int setIndex;
+  final GlobalKey exerciseGlobalKey;
 
-  const IntervalWidget(
-      {super.key,
-      required this.tExercise,
-      required this.multiset,
-      required this.isLastSet,
-      required this.isLastMultisetExercise,
-      required this.multisetIndex,
-      required this.multisetExerciseIndex,
-      required this.setIndex});
+  const IntervalWidget({
+    super.key,
+    required this.tExercise,
+    required this.multiset,
+    required this.isLastSet,
+    required this.isLastMultisetExercise,
+    required this.multisetIndex,
+    required this.multisetExerciseIndex,
+    required this.setIndex,
+    required this.exerciseGlobalKey,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -369,16 +381,18 @@ class IntervalWidget extends StatelessWidget {
               final bool isLastInterval = intervalIndex + 1 == intervals;
 
               return IntervalRun(
-                  tExercise: tExercise,
-                  isLastInterval: isLastInterval,
-                  intervalIndex: intervalIndex,
-                  multiset: multiset,
-                  isLastSet: multiset.sets == setIndex + 1,
-                  isLastMultisetExercise: multiset.trainingExercises!.length ==
-                      tExercise.position! + 1,
-                  multisetIndex: multisetIndex,
-                  multisetExerciseIndex: multisetExerciseIndex,
-                  setIndex: setIndex);
+                tExercise: tExercise,
+                isLastInterval: isLastInterval,
+                intervalIndex: intervalIndex,
+                multiset: multiset,
+                isLastSet: multiset.sets == setIndex + 1,
+                isLastMultisetExercise: multiset.trainingExercises!.length ==
+                    tExercise.position! + 1,
+                multisetIndex: multisetIndex,
+                multisetExerciseIndex: multisetExerciseIndex,
+                setIndex: setIndex,
+                exerciseGlobalKey: exerciseGlobalKey,
+              );
             }),
         BlocBuilder<ActiveTrainingBloc, ActiveTrainingState>(
             builder: (context, state) {
@@ -440,6 +454,8 @@ class IntervalRun extends StatelessWidget {
   final int multisetIndex;
   final int multisetExerciseIndex;
   final int setIndex;
+  final GlobalKey exerciseGlobalKey;
+
   const IntervalRun({
     super.key,
     required this.tExercise,
@@ -451,6 +467,7 @@ class IntervalRun extends StatelessWidget {
     required this.multisetIndex,
     required this.multisetExerciseIndex,
     required this.setIndex,
+    required this.exerciseGlobalKey,
   });
 
   @override
@@ -475,6 +492,7 @@ class IntervalRun extends StatelessWidget {
               ? tExercise.targetPace ?? 0
               : 0,
           isAutostart: intervalIndex == 0 ? tExercise.autoStart ?? false : true,
+          exerciseGlobalKey: exerciseGlobalKey,
         )));
 
     context.read<ActiveTrainingBloc>().add(CreateTimer(
@@ -489,6 +507,7 @@ class IntervalRun extends StatelessWidget {
               ? tExercise.exerciseRest ?? 0
               : tExercise.intervalRest ?? 0,
           isAutostart: true,
+          exerciseGlobalKey: exerciseGlobalKey,
         )));
 
     return BlocBuilder<ActiveTrainingBloc, ActiveTrainingState>(

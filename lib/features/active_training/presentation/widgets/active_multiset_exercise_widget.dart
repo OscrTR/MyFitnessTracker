@@ -268,6 +268,7 @@ class _ActiveMultisetExerciseWidgetState
                       multisetIndex: widget.multisetIndex,
                       multisetExerciseIndex: widget.multisetExerciseIndex,
                       setIndex: index,
+                      exerciseGlobalKey: widget.key! as GlobalKey,
                     )
                   : ActiveExerciseDurationRow(
                       tExercise: widget.tExercise,
@@ -279,6 +280,7 @@ class _ActiveMultisetExerciseWidgetState
                       multisetIndex: widget.multisetIndex,
                       multisetExerciseIndex: widget.multisetExerciseIndex,
                       setIndex: index,
+                      exerciseGlobalKey: widget.key! as GlobalKey,
                     )
             ],
           ),
@@ -320,6 +322,7 @@ class ActiveExerciseRow extends StatelessWidget {
   final int multisetIndex;
   final int multisetExerciseIndex;
   final int setIndex;
+  final GlobalKey exerciseGlobalKey;
 
   const ActiveExerciseRow({
     super.key,
@@ -330,6 +333,7 @@ class ActiveExerciseRow extends StatelessWidget {
     required this.multisetIndex,
     required this.multisetExerciseIndex,
     required this.setIndex,
+    required this.exerciseGlobalKey,
   });
 
   @override
@@ -338,20 +342,20 @@ class ActiveExerciseRow extends StatelessWidget {
         '${multisetIndex < 10 ? 0 : ''}$multisetIndex-${setIndex < 10 ? 0 : ''}$setIndex-${multisetExerciseIndex < 10 ? 0 : ''}$multisetExerciseIndex';
 
     context.read<ActiveTrainingBloc>().add(CreateTimer(
-            timerState: TimerState(
-          timerId: restTimerId,
-          isActive: false,
-          isStarted: false,
-          isRunTimer: false,
-          timerValue: 0,
-          countDownValue: isLastMultisetExercise
-              ? isLastSet
-                  ? multiset.multisetRest ?? 0
-                  : multiset.setRest ?? 0
-              : 0,
-          isCountDown: true,
-          isAutostart: false,
-        )));
+        timerState: TimerState(
+            timerId: restTimerId,
+            isActive: false,
+            isStarted: false,
+            isRunTimer: false,
+            timerValue: 0,
+            countDownValue: isLastMultisetExercise
+                ? isLastSet
+                    ? multiset.multisetRest ?? 0
+                    : multiset.setRest ?? 0
+                : 0,
+            isCountDown: true,
+            isAutostart: false,
+            exerciseGlobalKey: exerciseGlobalKey)));
 
     return BlocBuilder<ActiveTrainingBloc, ActiveTrainingState>(
         builder: (context, state) {
@@ -398,6 +402,7 @@ class ActiveExerciseDurationRow extends StatelessWidget {
   final int multisetIndex;
   final int multisetExerciseIndex;
   final int setIndex;
+  final GlobalKey exerciseGlobalKey;
 
   const ActiveExerciseDurationRow({
     super.key,
@@ -408,6 +413,7 @@ class ActiveExerciseDurationRow extends StatelessWidget {
     required this.multisetIndex,
     required this.multisetExerciseIndex,
     required this.setIndex,
+    required this.exerciseGlobalKey,
   });
 
   @override
@@ -427,6 +433,7 @@ class ActiveExerciseDurationRow extends StatelessWidget {
             countDownValue: tExercise.duration ?? 0,
             isCountDown: true,
             isAutostart: tExercise.autoStart ?? false,
+            exerciseGlobalKey: exerciseGlobalKey,
           ),
         ));
 
@@ -444,6 +451,7 @@ class ActiveExerciseDurationRow extends StatelessWidget {
                 : 0,
             isCountDown: true,
             isAutostart: true,
+            exerciseGlobalKey: exerciseGlobalKey,
           ),
         ));
 

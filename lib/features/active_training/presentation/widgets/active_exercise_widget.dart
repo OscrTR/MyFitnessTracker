@@ -231,12 +231,14 @@ class _ActiveExerciseWidgetState extends State<ActiveExerciseWidget> {
                       isLastSet: widget.tExercise.sets == index + 1,
                       exerciseIndex: widget.exerciseIndex,
                       setIndex: index,
+                      exerciseGlobalKey: widget.key! as GlobalKey,
                     )
                   : ActiveExerciseDurationRow(
                       tExercise: widget.tExercise,
                       isLastSet: widget.tExercise.sets == index + 1,
                       exerciseIndex: widget.exerciseIndex,
                       setIndex: index,
+                      exerciseGlobalKey: widget.key! as GlobalKey,
                     )
             ],
           ),
@@ -340,6 +342,7 @@ class ActiveExerciseRow extends StatelessWidget {
   final int setIndex;
   final bool isLastSet;
   final TextEditingController controller;
+  final GlobalKey exerciseGlobalKey;
 
   const ActiveExerciseRow({
     super.key,
@@ -348,6 +351,7 @@ class ActiveExerciseRow extends StatelessWidget {
     required this.isLastSet,
     required this.exerciseIndex,
     required this.setIndex,
+    required this.exerciseGlobalKey,
   });
 
   @override
@@ -365,6 +369,7 @@ class ActiveExerciseRow extends StatelessWidget {
               isLastSet ? tExercise.exerciseRest ?? 0 : tExercise.setRest ?? 0,
           isCountDown: true,
           isAutostart: false,
+          exerciseGlobalKey: exerciseGlobalKey,
         )));
 
     return BlocBuilder<ActiveTrainingBloc, ActiveTrainingState>(
@@ -410,6 +415,7 @@ class ActiveExerciseDurationRow extends StatelessWidget {
   final bool isLastSet;
   final int exerciseIndex;
   final int setIndex;
+  final GlobalKey exerciseGlobalKey;
 
   const ActiveExerciseDurationRow({
     super.key,
@@ -417,6 +423,7 @@ class ActiveExerciseDurationRow extends StatelessWidget {
     required this.isLastSet,
     required this.exerciseIndex,
     required this.setIndex,
+    required this.exerciseGlobalKey,
   });
 
   @override
@@ -435,6 +442,7 @@ class ActiveExerciseDurationRow extends StatelessWidget {
           countDownValue: tExercise.duration ?? 0,
           timerValue: 0,
           isAutostart: tExercise.autoStart ?? false,
+          exerciseGlobalKey: exerciseGlobalKey,
         )));
 
     context.read<ActiveTrainingBloc>().add(CreateTimer(
@@ -448,6 +456,7 @@ class ActiveExerciseDurationRow extends StatelessWidget {
               isLastSet ? tExercise.exerciseRest ?? 0 : tExercise.setRest ?? 0,
           isCountDown: true,
           isAutostart: true,
+          exerciseGlobalKey: exerciseGlobalKey,
         )));
 
     return BlocBuilder<ActiveTrainingBloc, ActiveTrainingState>(

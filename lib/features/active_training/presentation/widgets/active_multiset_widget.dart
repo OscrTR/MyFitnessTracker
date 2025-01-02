@@ -110,6 +110,7 @@ class _ActiveMultisetWidgetState extends State<ActiveMultisetWidget> {
                 isLast: isLast,
                 multisetIndex: widget.multisetIndex,
                 multisetExerciseIndex: index,
+                key: GlobalKey(),
               )
             : ActiveMultisetExerciseWidget(
                 multiset: widget.multiset,
@@ -117,6 +118,7 @@ class _ActiveMultisetWidgetState extends State<ActiveMultisetWidget> {
                 isLast: isLast,
                 multisetIndex: widget.multisetIndex,
                 multisetExerciseIndex: index,
+                key: GlobalKey(),
               );
       },
     );

@@ -104,6 +104,7 @@ class _ActiveRunWidgetState extends State<ActiveRunWidget> {
                       tExercise: widget.tExercise,
                       isLast: widget.isLast,
                       exerciseIndex: widget.exerciseIndex,
+                      exerciseGlobalKey: widget.key! as GlobalKey,
                     ),
                   if (widget.tExercise.runExerciseTarget ==
                       RunExerciseTarget.intervals)
@@ -111,6 +112,7 @@ class _ActiveRunWidgetState extends State<ActiveRunWidget> {
                       tExercise: widget.tExercise,
                       isLast: widget.isLast,
                       exerciseIndex: widget.exerciseIndex,
+                      exerciseGlobalKey: widget.key! as GlobalKey,
                     ),
                   const SizedBox(height: 10),
                 ],
@@ -219,11 +221,14 @@ class DistanceOrDurationRun extends StatelessWidget {
   final TrainingExercise tExercise;
   final int exerciseIndex;
   final bool isLast;
+  final GlobalKey exerciseGlobalKey;
+
   const DistanceOrDurationRun({
     super.key,
     required this.tExercise,
     required this.isLast,
     required this.exerciseIndex,
+    required this.exerciseGlobalKey,
   });
 
   @override
@@ -252,6 +257,7 @@ class DistanceOrDurationRun extends StatelessWidget {
                 ? tExercise.targetPace ?? 0
                 : 0,
             isAutostart: tExercise.autoStart ?? false,
+            exerciseGlobalKey: exerciseGlobalKey,
           ),
         ));
 
@@ -266,6 +272,7 @@ class DistanceOrDurationRun extends StatelessWidget {
             countDownValue: tExercise.exerciseRest ?? 0,
             isCountDown: true,
             isAutostart: true,
+            exerciseGlobalKey: exerciseGlobalKey,
           ),
         ));
 
@@ -355,12 +362,15 @@ class IntervalWidget extends StatelessWidget {
   final TrainingExercise tExercise;
   final int exerciseIndex;
   final bool isLast;
+  final GlobalKey exerciseGlobalKey;
 
-  const IntervalWidget(
-      {super.key,
-      required this.tExercise,
-      required this.isLast,
-      required this.exerciseIndex});
+  const IntervalWidget({
+    super.key,
+    required this.tExercise,
+    required this.isLast,
+    required this.exerciseIndex,
+    required this.exerciseGlobalKey,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -380,6 +390,7 @@ class IntervalWidget extends StatelessWidget {
                 isLastInterval: isLastInterval,
                 exerciseIndex: exerciseIndex,
                 intervalIndex: index,
+                exerciseGlobalKey: exerciseGlobalKey,
               );
             }),
         BlocBuilder<ActiveTrainingBloc, ActiveTrainingState>(
@@ -434,12 +445,15 @@ class IntervalRun extends StatelessWidget {
   final int exerciseIndex;
   final int intervalIndex;
   final bool isLastInterval;
+  final GlobalKey exerciseGlobalKey;
+
   const IntervalRun({
     super.key,
     required this.tExercise,
     required this.isLastInterval,
     required this.exerciseIndex,
     required this.intervalIndex,
+    required this.exerciseGlobalKey,
   });
 
   @override
@@ -464,6 +478,7 @@ class IntervalRun extends StatelessWidget {
               ? tExercise.targetPace ?? 0
               : 0,
           isAutostart: intervalIndex == 0 ? tExercise.autoStart ?? false : true,
+          exerciseGlobalKey: exerciseGlobalKey,
         )));
 
     // Create rest timer
@@ -479,6 +494,7 @@ class IntervalRun extends StatelessWidget {
               ? tExercise.exerciseRest ?? 0
               : tExercise.intervalRest ?? 0,
           isAutostart: true,
+          exerciseGlobalKey: exerciseGlobalKey,
         )));
 
     return BlocBuilder<ActiveTrainingBloc, ActiveTrainingState>(
