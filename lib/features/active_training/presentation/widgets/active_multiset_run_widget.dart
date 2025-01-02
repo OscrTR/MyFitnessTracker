@@ -1,10 +1,12 @@
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_background_service/flutter_background_service.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../app_colors.dart';
+import '../../../../helper_functions.dart';
+import '../../../../injection_container.dart';
 import '../../../training_management/domain/entities/multiset.dart';
 import '../../../training_management/domain/entities/training_exercise.dart';
 import '../bloc/active_training_bloc.dart';
@@ -141,7 +143,7 @@ class _ActiveMultisetRunWidgetState extends State<ActiveMultisetRunWidget> {
         ? '${(widget.tExercise.targetDistance! / 1000).toStringAsFixed(1)}km'
         : '';
     final targetDuration = widget.tExercise.targetDuration != null
-        ? formatDuration(widget.tExercise.targetDuration!)
+        ? formatDurationToHoursMinutesSeconds(widget.tExercise.targetDuration!)
         : '';
     final targetPace = widget.tExercise.isTargetPaceSelected == true
         ? ' at ${formatPace(widget.tExercise.targetPace!)}'
@@ -163,7 +165,7 @@ class _ActiveMultisetRunWidgetState extends State<ActiveMultisetRunWidget> {
         ? '${(tExercise.intervalDistance! / 1000).toStringAsFixed(1)}km'
         : '';
     final targetDuration = tExercise.intervalDuration != null
-        ? formatDuration(tExercise.intervalDuration!)
+        ? formatDurationToHoursMinutesSeconds(tExercise.intervalDuration!)
         : '';
     final targetPace = tExercise.isTargetPaceSelected == true
         ? ' at ${formatPace(tExercise.targetPace!)}'
@@ -178,13 +180,6 @@ class _ActiveMultisetRunWidgetState extends State<ActiveMultisetRunWidget> {
       return const Text('Running');
     }
   }
-}
-
-String formatDuration(int seconds) {
-  final hours = seconds ~/ 3600;
-  final minutes = (seconds % 3600) ~/ 60;
-  final secs = seconds % 60;
-  return '${hours > 0 ? '$hours:' : ''}${minutes.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}';
 }
 
 String formatPace(int seconds) {
@@ -218,7 +213,7 @@ class DistanceOrDurationRun extends StatelessWidget {
         '${multisetIndex < 10 ? 0 : ''}$multisetIndex-${setIndex < 10 ? 0 : ''}$setIndex-${multisetExerciseIndex < 10 ? 0 : ''}$multisetExerciseIndex';
     final restTimerId =
         '${multisetIndex < 10 ? 0 : ''}$multisetIndex-${setIndex < 10 ? 0 : ''}$setIndex-${multisetExerciseIndex < 10 ? 0 : ''}$multisetExerciseIndex-rest';
-    // Create exercise timer
+
     context.read<ActiveTrainingBloc>().add(CreateTimer(
           timerState: TimerState(
             timerId: timerId,
@@ -243,7 +238,6 @@ class DistanceOrDurationRun extends StatelessWidget {
           ),
         ));
 
-    // Create rest timer
     context.read<ActiveTrainingBloc>().add(CreateTimer(
           timerState: TimerState(
             timerId: restTimerId,
@@ -401,10 +395,9 @@ class IntervalWidget extends StatelessWidget {
 
             return GestureDetector(
               onTap: () async {
-                final service = FlutterBackgroundService();
-                service.invoke('startTracking', {
-                  'timerId': '$multisetIndex-$setIndex-$multisetExerciseIndex-0'
-                });
+                sl<ActiveTrainingBloc>().add(StartTimer(
+                    timerId:
+                        '$multisetIndex-$setIndex-$multisetExerciseIndex-0'));
               },
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -466,7 +459,7 @@ class IntervalRun extends StatelessWidget {
         '${multisetIndex < 10 ? 0 : ''}$multisetIndex-${setIndex < 10 ? 0 : ''}$setIndex-${multisetExerciseIndex < 10 ? 0 : ''}$multisetExerciseIndex-${intervalIndex < 10 ? 0 : ''}$intervalIndex';
     final restTimerId =
         '${multisetIndex < 10 ? 0 : ''}$multisetIndex-${setIndex < 10 ? 0 : ''}$setIndex-${multisetExerciseIndex < 10 ? 0 : ''}$multisetExerciseIndex-${intervalIndex < 10 ? 0 : ''}$intervalIndex-rest';
-    // Create exercise timer
+
     context.read<ActiveTrainingBloc>().add(CreateTimer(
             timerState: TimerState(
           timerId: timerId,
@@ -484,7 +477,6 @@ class IntervalRun extends StatelessWidget {
           isAutostart: intervalIndex == 0 ? tExercise.autoStart ?? false : true,
         )));
 
-    // Create rest timer
     context.read<ActiveTrainingBloc>().add(CreateTimer(
             timerState: TimerState(
           timerId: restTimerId,
@@ -549,7 +541,8 @@ class IntervalRun extends StatelessWidget {
                 const SizedBox(width: 5),
                 Text(
                   tExercise.intervalRest != null
-                      ? formatDuration(tExercise.intervalRest!)
+                      ? formatDurationToHoursMinutesSeconds(
+                          tExercise.intervalRest!)
                       : '0:00',
                   style: const TextStyle(color: AppColors.lightBlack),
                 ),

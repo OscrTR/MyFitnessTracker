@@ -1,4 +1,3 @@
-// Message_event.dart
 part of 'message_bloc.dart';
 
 abstract class MessageEvent extends Equatable {

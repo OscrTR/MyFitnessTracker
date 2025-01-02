@@ -1,10 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../../injection_container.dart';
 import '../bloc/active_training_bloc.dart';
-
 import '../../../../app_colors.dart';
 
 class TimerWidget extends StatefulWidget {
@@ -45,8 +42,9 @@ class TimerWidgetState extends State<TimerWidget> {
           isCountDown: false,
           isAutostart: false,
         )));
-    sl<FlutterBackgroundService>()
-        .invoke('startTracking', {'timerId': 'primaryTimer'});
+    context
+        .read<ActiveTrainingBloc>()
+        .add(const StartTimer(timerId: 'primaryTimer'));
     super.initState();
   }
 
@@ -104,11 +102,7 @@ class TimerWidgetState extends State<TimerWidget> {
             }),
             GestureDetector(
               onTap: () {
-                sl<FlutterBackgroundService>().invoke('pauseTracking', {
-                  'timerId': (context.read<ActiveTrainingBloc>().state
-                          as ActiveTrainingLoaded)
-                      .lastStartedTimerId
-                });
+                context.read<ActiveTrainingBloc>().add(PauseTimer());
               },
               child: Container(
                 height: 40,

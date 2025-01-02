@@ -1,7 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_fitness_tracker/background_service.dart';
 import 'features/active_training/presentation/bloc/active_training_bloc.dart';
 
 import 'app_theme.dart';
@@ -10,13 +9,14 @@ import 'features/exercise_management/presentation/bloc/exercise_management_bloc.
 import 'features/training_management/presentation/bloc/training_management_bloc.dart';
 import 'injection_container.dart' as di;
 import 'injection_container.dart';
+import 'notification_service.dart';
 import 'router.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await EasyLocalization.ensureInitialized();
   await di.init();
-  await initializeBackgroundService();
+  await NotificationService.initializeNotifications();
 
   runApp(
     EasyLocalization(

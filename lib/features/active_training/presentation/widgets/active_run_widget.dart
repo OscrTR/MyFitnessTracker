@@ -1,22 +1,16 @@
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../../../../app_colors.dart';
+import '../../../../helper_functions.dart';
+import '../../../../injection_container.dart';
+import '../../../training_management/domain/entities/training_exercise.dart';
 import '../bloc/active_training_bloc.dart';
 import 'distance_widget.dart';
 import 'duration_timer_widget.dart';
 import 'pace_widget.dart';
-import '../../../training_management/domain/entities/training_exercise.dart';
-
-import '../../../../app_colors.dart';
-
-String formatDuration(int seconds) {
-  final hours = seconds ~/ 3600;
-  final minutes = (seconds % 3600) ~/ 60;
-  final secs = seconds % 60;
-  return '${hours > 0 ? '$hours:' : ''}${minutes.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}';
-}
 
 String formatPace(int seconds) {
   final minutes = seconds ~/ 60;
@@ -143,7 +137,8 @@ class _ActiveRunWidgetState extends State<ActiveRunWidget> {
         if (!widget.isLast)
           Text(
             widget.tExercise.exerciseRest != null
-                ? formatDuration(widget.tExercise.exerciseRest!)
+                ? formatDurationToHoursMinutesSeconds(
+                    widget.tExercise.exerciseRest!)
                 : '0:00',
           ),
       ],
@@ -180,7 +175,7 @@ class _ActiveRunWidgetState extends State<ActiveRunWidget> {
         ? '${(widget.tExercise.targetDistance! / 1000).toStringAsFixed(1)}km'
         : '';
     final targetDuration = widget.tExercise.targetDuration != null
-        ? formatDuration(widget.tExercise.targetDuration!)
+        ? formatDurationToHoursMinutesSeconds(widget.tExercise.targetDuration!)
         : '';
     final targetPace = widget.tExercise.isTargetPaceSelected == true
         ? ' at ${formatPace(widget.tExercise.targetPace ?? 0)}'
@@ -203,7 +198,7 @@ class _ActiveRunWidgetState extends State<ActiveRunWidget> {
             ? '${(tExercise.intervalDistance! / 1000).toStringAsFixed(1)}km'
             : '';
     final targetDuration = tExercise.intervalDuration != null
-        ? formatDuration(tExercise.intervalDuration!)
+        ? formatDurationToHoursMinutesSeconds(tExercise.intervalDuration!)
         : '';
     final targetPace = tExercise.isTargetPaceSelected == true
         ? ' at ${formatPace(tExercise.targetPace ?? 0)}'
@@ -323,8 +318,7 @@ class DistanceOrDurationRun extends StatelessWidget {
             const SizedBox(height: 10),
             GestureDetector(
               onTap: () async {
-                final service = FlutterBackgroundService();
-                service.invoke('startTracking', {'timerId': timerId});
+                sl<ActiveTrainingBloc>().add(StartTimer(timerId: timerId));
               },
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -400,9 +394,9 @@ class IntervalWidget extends StatelessWidget {
             }
             return GestureDetector(
               onTap: () async {
-                final service = FlutterBackgroundService();
-                service
-                    .invoke('startTracking', {'timerId': '$exerciseIndex-0'});
+                // final service = FlutterBackgroundService();
+                // service
+                //     .invoke('startTracking', {'timerId': '$exerciseIndex-0'});
               },
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -537,7 +531,8 @@ class IntervalRun extends StatelessWidget {
                 const SizedBox(width: 5),
                 Text(
                   tExercise.intervalRest != null
-                      ? formatDuration(tExercise.intervalRest!)
+                      ? formatDurationToHoursMinutesSeconds(
+                          tExercise.intervalRest!)
                       : '0:00',
                   style: const TextStyle(color: AppColors.lightBlack),
                 ),

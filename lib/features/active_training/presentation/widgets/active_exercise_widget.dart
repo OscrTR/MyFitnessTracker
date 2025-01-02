@@ -1,15 +1,13 @@
 import 'dart:async';
 import 'dart:io';
-
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_fitness_tracker/features/active_training/presentation/widgets/active_run_widget.dart';
+import '../../../../helper_functions.dart';
+import '../../../../injection_container.dart';
 import '../bloc/active_training_bloc.dart';
-
 import '../../../../app_colors.dart';
 import '../../../exercise_management/domain/entities/exercise.dart';
 import '../../../exercise_management/presentation/bloc/exercise_management_bloc.dart';
@@ -39,12 +37,6 @@ class _ActiveExerciseWidgetState extends State<ActiveExerciseWidget> {
     _initializeControllers();
     _attachListeners();
     super.initState();
-  }
-
-  String _formatDuration(int? seconds) {
-    final minutes = (seconds ?? 0) ~/ 60;
-    final remainingSeconds = (seconds ?? 0) % 60;
-    return '$minutes:${remainingSeconds.toString().padLeft(2, '0')}';
   }
 
   void _initializeControllers() {
@@ -109,7 +101,7 @@ class _ActiveExerciseWidgetState extends State<ActiveExerciseWidget> {
         if (!widget.isLast)
           Text(
             widget.tExercise.exerciseRest != null
-                ? _formatDuration(widget.tExercise.exerciseRest)
+                ? formatDurationToMinutesSeconds(widget.tExercise.exerciseRest)
                 : '0:00',
           ),
       ],
@@ -324,7 +316,7 @@ class _ActiveExerciseWidgetState extends State<ActiveExerciseWidget> {
                 const SizedBox(width: 5),
                 Text(
                   widget.tExercise.setRest != null
-                      ? _formatDuration(widget.tExercise.setRest)
+                      ? formatDurationToMinutesSeconds(widget.tExercise.setRest)
                       : '0:00',
                 ),
                 const SizedBox(width: 10),
@@ -362,7 +354,6 @@ class ActiveExerciseRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final restTimerId =
         '${exerciseIndex < 10 ? 0 : ''}$exerciseIndex-${setIndex < 10 ? 0 : ''}$setIndex';
-    // Create rest timer
     context.read<ActiveTrainingBloc>().add(CreateTimer(
             timerState: TimerState(
           timerId: restTimerId,
@@ -397,8 +388,7 @@ class ActiveExerciseRow extends StatelessWidget {
             const SizedBox(width: 10),
             GestureDetector(
               onTap: () {
-                final service = FlutterBackgroundService();
-                service.invoke('startTracking', {'timerId': restTimerId});
+                sl<ActiveTrainingBloc>().add(StartTimer(timerId: restTimerId));
                 FocusScope.of(context).unfocus();
               },
               child: Text(
@@ -435,7 +425,6 @@ class ActiveExerciseDurationRow extends StatelessWidget {
         '${exerciseIndex < 10 ? 0 : ''}$exerciseIndex-${setIndex < 10 ? 0 : ''}$setIndex';
     final restTimerId =
         '${exerciseIndex < 10 ? 0 : ''}$exerciseIndex-${setIndex < 10 ? 0 : ''}$setIndex-rest';
-    // Create exercise timer
     context.read<ActiveTrainingBloc>().add(CreateTimer(
             timerState: TimerState(
           timerId: timerId,
@@ -448,7 +437,6 @@ class ActiveExerciseDurationRow extends StatelessWidget {
           isAutostart: tExercise.autoStart ?? false,
         )));
 
-    // Create set/exercise rest timer
     context.read<ActiveTrainingBloc>().add(CreateTimer(
             timerState: TimerState(
           timerId: restTimerId,
@@ -475,8 +463,7 @@ class ActiveExerciseDurationRow extends StatelessWidget {
 
         return GestureDetector(
           onTap: () async {
-            final service = FlutterBackgroundService();
-            service.invoke('startTracking', {'timerId': timerId});
+            sl<ActiveTrainingBloc>().add(StartTimer(timerId: timerId));
           },
           child: Container(
             alignment: Alignment.center,
@@ -487,7 +474,7 @@ class ActiveExerciseDurationRow extends StatelessWidget {
             child: Text(
               isStarted
                   ? 'OK'
-                  : '${tr('global_start')} ${formatDuration(tExercise.duration ?? 0)}',
+                  : '${tr('global_start')} ${formatDurationToMinutesSeconds(tExercise.duration ?? 0)}',
               style: TextStyle(
                   color: isStarted ? AppColors.lightBlack : AppColors.white),
             ),

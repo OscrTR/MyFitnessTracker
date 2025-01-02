@@ -1,18 +1,13 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:my_fitness_tracker/features/active_training/presentation/widgets/active_multiset_run_widget.dart';
+import 'active_multiset_run_widget.dart';
 
+import '../../../../helper_functions.dart';
 import 'active_multiset_exercise_widget.dart';
 import '../../../training_management/domain/entities/multiset.dart';
 
 import '../../../../app_colors.dart';
 import '../../../training_management/domain/entities/training_exercise.dart';
-
-String _formatDuration(int? seconds) {
-  final minutes = (seconds ?? 0) ~/ 60;
-  final remainingSeconds = (seconds ?? 0) % 60;
-  return '$minutes:${remainingSeconds.toString().padLeft(2, '0')}';
-}
 
 class ActiveMultisetWidget extends StatefulWidget {
   final Multiset multiset;
@@ -64,7 +59,8 @@ class _ActiveMultisetWidgetState extends State<ActiveMultisetWidget> {
                       const SizedBox(width: 5),
                       Text(
                         widget.multiset.setRest != null
-                            ? _formatDuration(widget.multiset.setRest)
+                            ? formatDurationToMinutesSeconds(
+                                widget.multiset.setRest)
                             : '0:00',
                       ),
                     ],
@@ -139,7 +135,7 @@ class _ActiveMultisetWidgetState extends State<ActiveMultisetWidget> {
         if (!widget.isLast)
           Text(
             widget.multiset.multisetRest != null
-                ? _formatDuration(widget.multiset.multisetRest)
+                ? formatDurationToMinutesSeconds(widget.multiset.multisetRest)
                 : '0:00',
           ),
       ],
