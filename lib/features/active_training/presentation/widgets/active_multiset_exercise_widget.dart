@@ -97,12 +97,19 @@ class _ActiveMultisetExerciseWidgetState
                     : AppColors.blue;
         bool isActiveExercise = false;
         final lastStartedTimerId = state.lastStartedTimerId;
-        final exerciseIndex = widget.multisetIndex;
-        if (lastStartedTimerId != null &&
-            lastStartedTimerId
-                .startsWith('${exerciseIndex < 10 ? 0 : ''}$exerciseIndex')) {
-          isActiveExercise = true;
+
+        if (lastStartedTimerId != null) {
+          final isStartTimerSameBeginning = lastStartedTimerId.startsWith(
+              '${widget.multisetIndex < 10 ? 0 : ''}${widget.multisetIndex}');
+          final isStartTimerSameEnding = (lastStartedTimerId.endsWith(
+                  '${widget.multisetExerciseIndex < 10 ? 0 : ''}${widget.multisetExerciseIndex}') ||
+              lastStartedTimerId.endsWith(
+                  '${widget.multisetExerciseIndex < 10 ? 0 : ''}${widget.multisetExerciseIndex}-rest'));
+          if (isStartTimerSameBeginning && isStartTimerSameEnding) {
+            isActiveExercise = true;
+          }
         }
+
         return Container(
           margin: const EdgeInsets.only(top: 10, bottom: 10),
           padding: const EdgeInsets.all(10),
@@ -329,6 +336,7 @@ class ActiveExerciseRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final restTimerId =
         '${multisetIndex < 10 ? 0 : ''}$multisetIndex-${setIndex < 10 ? 0 : ''}$setIndex-${multisetExerciseIndex < 10 ? 0 : ''}$multisetExerciseIndex';
+
     context.read<ActiveTrainingBloc>().add(CreateTimer(
             timerState: TimerState(
           timerId: restTimerId,
