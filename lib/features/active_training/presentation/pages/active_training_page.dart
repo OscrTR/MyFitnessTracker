@@ -129,13 +129,16 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage> {
                     state.activeTraining != null) {
                   bool isVerified = false;
 
-                  if (state.activeTraining!.trainingExercises.any((el) =>
-                          el.trainingExerciseType ==
-                          TrainingExerciseType.run) ||
+                  bool hasRunExercise = state.activeTraining!.trainingExercises
+                          .any((el) =>
+                              el.trainingExerciseType ==
+                              TrainingExerciseType.run) ||
                       state.activeTraining!.multisets.any((multiset) =>
                           multiset.trainingExercises!.any((el) =>
                               el.trainingExerciseType ==
-                              TrainingExerciseType.run))) {
+                              TrainingExerciseType.run));
+
+                  if (hasRunExercise) {
                     if (isLocationPermissionGranted ==
                             PermissionStatus.granted &&
                         isLocationEnabled) {

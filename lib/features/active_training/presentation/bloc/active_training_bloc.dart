@@ -541,6 +541,7 @@ class RunTracker {
   }
 
   void stopTracking() {
+    _location.enableBackgroundMode(enable: false);
     _locationSubscription?.cancel();
     _locationSubscription = null;
     _lastLocation = null;
