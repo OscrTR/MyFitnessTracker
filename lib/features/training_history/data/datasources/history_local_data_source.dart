@@ -33,10 +33,10 @@ abstract class HistoryLocalDataSource {
   Future<void> deleteHistoryEntry(int id);
 }
 
-class SQLiteExerciseLocalDataSource implements HistoryLocalDataSource {
+class SQLiteHistoryLocalDataSource implements HistoryLocalDataSource {
   final Database database;
 
-  SQLiteExerciseLocalDataSource({required this.database});
+  SQLiteHistoryLocalDataSource({required this.database});
 
   @override
   Future<HistoryEntryModel> createHistoryEntry(

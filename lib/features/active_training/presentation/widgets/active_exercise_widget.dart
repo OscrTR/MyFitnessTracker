@@ -393,6 +393,7 @@ class ActiveExerciseRow extends StatelessWidget {
             const SizedBox(width: 10),
             GestureDetector(
               onTap: () {
+                // print(controller.text);
                 sl<ActiveTrainingBloc>().add(StartTimer(timerId: restTimerId));
                 FocusScope.of(context).unfocus();
               },

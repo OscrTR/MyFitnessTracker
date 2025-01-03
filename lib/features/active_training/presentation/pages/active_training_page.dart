@@ -2,6 +2,7 @@ import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:go_router/go_router.dart';
 import 'package:location/location.dart';
 import '../../../../app_colors.dart';
@@ -31,11 +32,13 @@ class ActiveTrainingPage extends StatefulWidget {
 class _ActiveTrainingPageState extends State<ActiveTrainingPage> {
   PermissionStatus? isLocationPermissionGranted;
   bool isLocationEnabled = false;
+  bool isNotificationAuthorized = false;
   String? lastStartedTimerId;
 
   @override
   void initState() {
     super.initState();
+    _checkNotificationPermission();
     _checkLocationPermission();
     _checkLocationStatus();
     BackButtonInterceptor.add(myInterceptor);
@@ -70,6 +73,26 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage> {
       ),
     );
     return true;
+  }
+
+  Future<void> _checkNotificationPermission() async {
+    final authorized = await sl<FlutterLocalNotificationsPlugin>()
+        .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>()!
+        .areNotificationsEnabled();
+    setState(() {
+      isNotificationAuthorized = authorized ?? false;
+    });
+  }
+
+  Future<void> _requestNotificationPermission() async {
+    final authorized = await sl<FlutterLocalNotificationsPlugin>()
+        .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>()
+        ?.requestNotificationsPermission();
+    setState(() {
+      isNotificationAuthorized = authorized ?? false;
+    });
   }
 
   Future<void> _checkLocationPermission() async {
@@ -151,6 +174,32 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage> {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
+                              const Text('Notifications authorized : '),
+                              const SizedBox(height: 10),
+                              GestureDetector(
+                                onTap: () {
+                                  _requestNotificationPermission();
+                                },
+                                child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 10, horizontal: 20),
+                                    decoration: BoxDecoration(
+                                        color: isNotificationAuthorized
+                                            ? AppColors.lightGrey
+                                            : AppColors.black,
+                                        borderRadius:
+                                            BorderRadius.circular(10)),
+                                    child: Text(
+                                      isNotificationAuthorized
+                                          ? 'Granted'
+                                          : 'Ask',
+                                      style: TextStyle(
+                                          color: isNotificationAuthorized
+                                              ? AppColors.lightBlack
+                                              : AppColors.white),
+                                    )),
+                              ),
+                              const SizedBox(height: 30),
                               const Text(
                                   'Location access always authorized : '),
                               const SizedBox(height: 10),
@@ -209,6 +258,41 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage> {
                         ),
                       );
                     }
+                  } else if (!isNotificationAuthorized) {
+                    return SizedBox(
+                      height: MediaQuery.of(context).size.height,
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text('Notifications authorized : '),
+                            const SizedBox(height: 10),
+                            GestureDetector(
+                              onTap: () {
+                                _requestNotificationPermission();
+                              },
+                              child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 10, horizontal: 20),
+                                  decoration: BoxDecoration(
+                                      color: isNotificationAuthorized
+                                          ? AppColors.lightGrey
+                                          : AppColors.black,
+                                      borderRadius: BorderRadius.circular(10)),
+                                  child: Text(
+                                    isNotificationAuthorized
+                                        ? 'Granted'
+                                        : 'Ask',
+                                    style: TextStyle(
+                                        color: isNotificationAuthorized
+                                            ? AppColors.lightBlack
+                                            : AppColors.white),
+                                  )),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
                   } else {
                     isVerified = true;
                   }

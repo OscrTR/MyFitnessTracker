@@ -284,7 +284,8 @@ class LottieIconButtonState extends State<LottieIconButton>
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(vsync: this);
+    _controller = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 500));
   }
 
   @override

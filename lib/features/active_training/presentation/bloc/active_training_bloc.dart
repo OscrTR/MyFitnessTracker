@@ -306,7 +306,8 @@ class ActiveTrainingBloc
               timerId: timerId, runDistance: runTracker.totalDistance));
         });
 
-        if (timers['primaryTimer']!.isPaused) {
+        if (timers['primaryTimer'] != null &&
+            timers['primaryTimer']!.isPaused) {
           timers['primaryTimer']!.start();
         }
 
@@ -317,13 +318,13 @@ class ActiveTrainingBloc
 
           timerStreamController.stream.listen((int value) {
             showNotification();
-            print(
-                'Timer Stream Event: ${formatDurationToMinutesSeconds(lastTimerValue)}, distance : ${runTracker.totalDistance.floor()}m');
           });
         }
 
-        final startingValue = currentTimerState!.isCountDown
-            ? currentTimerState.countDownValue
+        final startingValue = currentTimerState != null
+            ? currentTimerState.isCountDown
+                ? currentTimerState.countDownValue
+                : 0
             : 0;
 
         if (updatedTimersStateList.any((e) => e.timerId == timerId)) {
@@ -341,7 +342,7 @@ class ActiveTrainingBloc
         }
 
         emit(currentState.copyWith(
-            lastStartedTimerId: currentTimerState.timerId,
+            lastStartedTimerId: currentTimerState?.timerId,
             timersStateList: updatedTimersStateList));
       }
     });
@@ -487,10 +488,13 @@ class RunTracker {
   double totalDistance = 0.0; // In meters
 
   Future<int> initTracker() async {
-    _location.enableBackgroundMode(enable: true);
+    PermissionStatus permission = await _location.hasPermission();
+    if (permission == PermissionStatus.granted) {
+      _location.enableBackgroundMode(enable: true);
+    }
     final notifData = await _location.changeNotificationOptions(
-        title: 'Run metrics', subtitle: '');
-    return notifData!.notificationId;
+        title: 'Timer Update', subtitle: '');
+    return notifData != null ? notifData.notificationId : 0;
   }
 
   void startTracking() async {
