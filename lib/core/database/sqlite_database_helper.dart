@@ -83,6 +83,19 @@ class SQLiteDatabaseHelper {
             FOREIGN KEY(exercise_id) REFERENCES exercises(id) ON DELETE CASCADE
           )
         ''');
+
+        await db.execute('''
+          CREATE TABLE history(
+            id INTEGER PRIMARY KEY AUTOINCREMENT, 
+            training_exercise_id INTEGER,
+            date INTEGER,
+            reps INTEGER,
+            duration INTEGER,
+            distance INTEGER,
+            pace INTEGER,
+            FOREIGN KEY(training_exercise_id) REFERENCES trainings_exercises(id)
+          )
+        ''');
       },
       version: 1,
     );
