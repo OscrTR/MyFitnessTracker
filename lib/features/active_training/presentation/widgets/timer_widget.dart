@@ -42,10 +42,17 @@ class TimerWidgetState extends State<TimerWidget> {
           isCountDown: false,
           isAutostart: false,
           exerciseGlobalKey: GlobalKey(),
+          trainingId: null,
+          tExerciseId: null,
+          setNumber: null,
+          multisetSetNumber: null,
         )));
-    context
-        .read<ActiveTrainingBloc>()
-        .add(const StartTimer(timerId: 'primaryTimer'));
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context
+          .read<ActiveTrainingBloc>()
+          .add(const StartTimer(timerId: 'primaryTimer'));
+    });
+
     super.initState();
   }
 

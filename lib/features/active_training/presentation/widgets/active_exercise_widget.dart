@@ -371,6 +371,10 @@ class ActiveExerciseRow extends StatelessWidget {
           isCountDown: true,
           isAutostart: false,
           exerciseGlobalKey: exerciseGlobalKey,
+          trainingId: null,
+          tExerciseId: null,
+          setNumber: null,
+          multisetSetNumber: null,
         )));
 
     return BlocBuilder<ActiveTrainingBloc, ActiveTrainingState>(
@@ -468,6 +472,10 @@ class ActiveExerciseDurationRow extends StatelessWidget {
           timerValue: 0,
           isAutostart: tExercise.autoStart ?? false,
           exerciseGlobalKey: exerciseGlobalKey,
+          trainingId: tExercise.trainingId,
+          tExerciseId: tExercise.id,
+          setNumber: setIndex,
+          multisetSetNumber: null,
         )));
 
     context.read<ActiveTrainingBloc>().add(CreateTimer(
@@ -482,6 +490,10 @@ class ActiveExerciseDurationRow extends StatelessWidget {
           isCountDown: true,
           isAutostart: true,
           exerciseGlobalKey: exerciseGlobalKey,
+          trainingId: null,
+          tExerciseId: null,
+          setNumber: null,
+          multisetSetNumber: null,
         )));
 
     return BlocBuilder<ActiveTrainingBloc, ActiveTrainingState>(
@@ -495,26 +507,8 @@ class ActiveExerciseDurationRow extends StatelessWidget {
           isStarted = true;
         }
 
-        final currentEntry =
-            (context.read<TrainingHistoryBloc>().state as TrainingHistoryLoaded)
-                .historyEntries
-                .firstWhereOrNull((el) =>
-                    el.trainingExerciseId == tExercise.id &&
-                    el.setNumber == setIndex &&
-                    el.trainingId == tExercise.trainingId);
-
-        final registeredId = currentEntry?.id;
-
         return GestureDetector(
           onTap: () async {
-            context.read<TrainingHistoryBloc>().add(CreateOrUpdateHistoryEntry(
-                historyEntry: HistoryEntry(
-                    id: registeredId,
-                    trainingId: tExercise.trainingId,
-                    trainingExerciseId: tExercise.id,
-                    setNumber: setIndex,
-                    date: DateTime.now(),
-                    duration: tExercise.duration)));
             context
                 .read<ActiveTrainingBloc>()
                 .add(StartTimer(timerId: timerId));

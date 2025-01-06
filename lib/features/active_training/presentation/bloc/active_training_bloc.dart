@@ -10,6 +10,8 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:location/location.dart';
+import 'package:my_fitness_tracker/features/training_history/domain/entities/history_entry.dart';
+import 'package:my_fitness_tracker/features/training_history/presentation/bloc/training_history_bloc.dart';
 import 'package:pausable_timer/pausable_timer.dart';
 
 import 'package:uuid/uuid.dart';
@@ -63,6 +65,9 @@ class ActiveTrainingBloc
 
         final currentTimerIndex = currentState.timersStateList
             .indexWhere((el) => el.timerId == timerId);
+        if (currentTimerIndex == -1) {
+          return;
+        }
         String? nextTimerId;
         if (currentTimerIndex + 1 < (currentState.timersStateList.length - 2)) {
           nextTimerId =
@@ -77,6 +82,7 @@ class ActiveTrainingBloc
         final targetPaceMinutes = targetPace ~/ 60;
         final targetPaceSeconds = targetPace % 60;
 
+        // COUNTDOWN
         if (currentTimerState.isCountDown) {
           if (currentTimerValue > 0) {
             if (currentTimerValue == 2) {
@@ -92,6 +98,29 @@ class ActiveTrainingBloc
               add(TickTimer(timerId: timerId, isCountDown: true));
             }
           } else {
+            // Register history entry
+            if (!timerId.contains('rest')) {
+              // Récupérer l'id de l'entrée existante
+              final registeredId = (sl<TrainingHistoryBloc>().state
+                      as TrainingHistoryLoaded)
+                  .historyEntries
+                  .firstWhereOrNull((el) =>
+                      el.trainingExerciseId == currentTimerState.tExerciseId &&
+                      el.setNumber == currentTimerState.setNumber &&
+                      el.trainingId == currentTimerState.trainingId &&
+                      el.multisetSetNumber ==
+                          currentTimerState.multisetSetNumber)
+                  ?.id;
+              sl<TrainingHistoryBloc>().add(CreateOrUpdateHistoryEntry(
+                  historyEntry: HistoryEntry(
+                      id: registeredId,
+                      trainingId: currentTimerState.trainingId,
+                      trainingExerciseId: currentTimerState.tExerciseId,
+                      setNumber: currentTimerState.setNumber,
+                      multisetSetNumber: currentTimerState.multisetSetNumber,
+                      date: DateTime.now(),
+                      duration: currentTimerState.countDownValue)));
+            }
             runTracker.stopTracking();
             timers[timerId]?.cancel();
             // Start next timer if autostart
@@ -143,13 +172,28 @@ class ActiveTrainingBloc
             }
           }
 
+          // NOTIFY EVERY KM
           if (currentDistance > 0 && currentDistance / 1000 >= nextKmMarker) {
             speak(tr('active_training_pace',
                 args: ['$nextKmMarker', '$paceMinutes', '$paceSeconds']));
             add(UpdateNextKmMarker(
                 timerId: timerId, nextKmMarker: nextKmMarker + 1));
+            if (!timerId.contains('rest')) {
+              sl<TrainingHistoryBloc>().add(CreateOrUpdateHistoryEntry(
+                  historyEntry: HistoryEntry(
+                trainingId: currentTimerState.trainingId,
+                trainingExerciseId: currentTimerState.tExerciseId,
+                setNumber: currentTimerState.setNumber,
+                multisetSetNumber: currentTimerState.multisetSetNumber,
+                date: DateTime.now(),
+                duration: currentTimerState.timerValue,
+                distance: currentTimerState.distance.toInt(),
+                pace: currentTimerState.pace.toInt(),
+              )));
+            }
           }
 
+          // RUN DISTANCE
           if (currentState.timersStateList[currentTimerIndex].distance > 0) {
             // Check if the current distance equals the objective distance
             if (currentTimerState.targetDistance > 0 &&
@@ -158,6 +202,32 @@ class ActiveTrainingBloc
               if (currentTimerState.isRunTimer) {
                 add(UpdateDistance(
                     timerId: timerId, distance: currentDistance));
+                if (!timerId.contains('rest')) {
+                  // Récupérer l'id de l'entrée existante
+                  final registeredId =
+                      (sl<TrainingHistoryBloc>().state as TrainingHistoryLoaded)
+                          .historyEntries
+                          .firstWhereOrNull((el) =>
+                              el.trainingExerciseId ==
+                                  currentTimerState.tExerciseId &&
+                              el.setNumber == currentTimerState.setNumber &&
+                              el.trainingId == currentTimerState.trainingId &&
+                              el.multisetSetNumber ==
+                                  currentTimerState.multisetSetNumber)
+                          ?.id;
+                  sl<TrainingHistoryBloc>().add(CreateOrUpdateHistoryEntry(
+                      historyEntry: HistoryEntry(
+                    id: registeredId,
+                    trainingId: currentTimerState.trainingId,
+                    trainingExerciseId: currentTimerState.tExerciseId,
+                    setNumber: currentTimerState.setNumber,
+                    multisetSetNumber: currentTimerState.multisetSetNumber,
+                    date: DateTime.now(),
+                    duration: currentTimerState.timerValue,
+                    distance: currentTimerState.distance.toInt(),
+                    pace: currentTimerState.pace.toInt(),
+                  )));
+                }
                 runTracker.stopTracking();
               }
 
@@ -182,11 +252,39 @@ class ActiveTrainingBloc
                 add(TickTimer(timerId: timerId));
               }
             }
-          } else {
+          }
+          // RUN DURATION
+          else {
             // Check if the current duration equals the objective duration
             if (currentTimerState.targetDuration > 0 &&
                 currentTimerValue >= currentTimerState.targetDuration) {
               timers[timerId]?.cancel();
+              if (!timerId.contains('rest')) {
+                // Récupérer l'id de l'entrée existante
+                final registeredId =
+                    (sl<TrainingHistoryBloc>().state as TrainingHistoryLoaded)
+                        .historyEntries
+                        .firstWhereOrNull((el) =>
+                            el.trainingExerciseId ==
+                                currentTimerState.tExerciseId &&
+                            el.setNumber == currentTimerState.setNumber &&
+                            el.trainingId == currentTimerState.trainingId &&
+                            el.multisetSetNumber ==
+                                currentTimerState.multisetSetNumber)
+                        ?.id;
+                sl<TrainingHistoryBloc>().add(CreateOrUpdateHistoryEntry(
+                    historyEntry: HistoryEntry(
+                  id: registeredId,
+                  trainingId: currentTimerState.trainingId,
+                  trainingExerciseId: currentTimerState.tExerciseId,
+                  setNumber: currentTimerState.setNumber,
+                  multisetSetNumber: currentTimerState.multisetSetNumber,
+                  date: DateTime.now(),
+                  duration: currentTimerState.timerValue,
+                  distance: currentTimerState.distance.toInt(),
+                  pace: currentTimerState.pace.toInt(),
+                )));
+              }
               runTracker.stopTracking();
 
               // Start next timer if autostart
@@ -249,7 +347,6 @@ class ActiveTrainingBloc
         }
 
         currentTimersList.add(event.timerState);
-
         emit(currentState.copyWith(timersStateList: currentTimersList));
       }
     });
@@ -300,6 +397,16 @@ class ActiveTrainingBloc
           runTracker.startTracking();
         }
 
+        if (notificationId == null) {
+          notificationId = await runTracker.initTracker();
+          timerStreamController = StreamController<int>();
+          timerStream = timerStreamController.stream;
+
+          timerStreamController.stream.listen((int value) {
+            showNotification();
+          });
+        }
+
         await startTimer(timerId, () {
           timerStreamController.add(0);
           add(UpdateTimer(
@@ -309,16 +416,6 @@ class ActiveTrainingBloc
         if (timers['primaryTimer'] != null &&
             timers['primaryTimer']!.isPaused) {
           timers['primaryTimer']!.start();
-        }
-
-        if (notificationId == null) {
-          notificationId = await runTracker.initTracker();
-          timerStreamController = StreamController<int>();
-          timerStream = timerStreamController.stream;
-
-          timerStreamController.stream.listen((int value) {
-            showNotification();
-          });
         }
 
         final startingValue = currentTimerState != null

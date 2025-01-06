@@ -256,6 +256,10 @@ class DistanceOrDurationRun extends StatelessWidget {
                 : 0,
             isAutostart: tExercise.autoStart ?? false,
             exerciseGlobalKey: exerciseGlobalKey,
+            trainingId: tExercise.trainingId,
+            tExerciseId: tExercise.id,
+            setNumber: null,
+            multisetSetNumber: null,
           ),
         ));
 
@@ -271,6 +275,10 @@ class DistanceOrDurationRun extends StatelessWidget {
             isCountDown: true,
             isAutostart: true,
             exerciseGlobalKey: exerciseGlobalKey,
+            trainingId: null,
+            tExerciseId: null,
+            setNumber: null,
+            multisetSetNumber: null,
           ),
         ));
 
@@ -479,6 +487,10 @@ class IntervalRun extends StatelessWidget {
               : 0,
           isAutostart: intervalIndex == 0 ? tExercise.autoStart ?? false : true,
           exerciseGlobalKey: exerciseGlobalKey,
+          trainingId: tExercise.trainingId,
+          tExerciseId: tExercise.id,
+          setNumber: intervalIndex,
+          multisetSetNumber: null,
         )));
 
     // Create rest timer
@@ -495,6 +507,10 @@ class IntervalRun extends StatelessWidget {
               : tExercise.intervalRest ?? 0,
           isAutostart: true,
           exerciseGlobalKey: exerciseGlobalKey,
+          trainingId: null,
+          tExerciseId: null,
+          setNumber: null,
+          multisetSetNumber: null,
         )));
 
     return BlocBuilder<ActiveTrainingBloc, ActiveTrainingState>(

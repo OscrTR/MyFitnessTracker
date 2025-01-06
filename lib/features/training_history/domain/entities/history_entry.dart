@@ -5,6 +5,7 @@ class HistoryEntry extends Equatable {
   final int? trainingId;
   final int? trainingExerciseId;
   final int? setNumber;
+  final int? multisetSetNumber;
   final DateTime date;
   final int? reps;
   final int? duration;
@@ -16,6 +17,7 @@ class HistoryEntry extends Equatable {
     this.trainingId,
     this.trainingExerciseId,
     this.setNumber,
+    this.multisetSetNumber,
     required this.date,
     this.reps,
     this.duration,
@@ -34,6 +36,7 @@ class HistoryEntry extends Equatable {
       trainingId: trainingId,
       trainingExerciseId: trainingExerciseId,
       setNumber: setNumber,
+      multisetSetNumber: multisetSetNumber,
       date: date,
       reps: reps ?? this.reps,
       duration: duration ?? this.duration,
@@ -48,6 +51,7 @@ class HistoryEntry extends Equatable {
         trainingId,
         trainingExerciseId,
         setNumber,
+        multisetSetNumber,
         date,
         reps,
         duration,

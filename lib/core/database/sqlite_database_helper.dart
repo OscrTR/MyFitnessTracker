@@ -89,6 +89,7 @@ class SQLiteDatabaseHelper {
             training_id INTEGER,
             training_exercise_id INTEGER,
             set_number INTEGER,
+            multiset_set_number INTEGER,
             date INTEGER,
             reps INTEGER,
             duration INTEGER,

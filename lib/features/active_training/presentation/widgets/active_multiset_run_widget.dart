@@ -240,21 +240,28 @@ class DistanceOrDurationRun extends StatelessWidget {
                 : 0,
             isAutostart: tExercise.autoStart ?? false,
             exerciseGlobalKey: exerciseGlobalKey,
+            trainingId: tExercise.trainingId,
+            tExerciseId: tExercise.id,
+            setNumber: null,
+            multisetSetNumber: setIndex,
           ),
         ));
 
     context.read<ActiveTrainingBloc>().add(CreateTimer(
           timerState: TimerState(
-            timerId: restTimerId,
-            isActive: false,
-            isStarted: false,
-            isRunTimer: false,
-            timerValue: 0,
-            countDownValue: tExercise.exerciseRest ?? 0,
-            isCountDown: true,
-            isAutostart: true,
-            exerciseGlobalKey: exerciseGlobalKey,
-          ),
+              timerId: restTimerId,
+              isActive: false,
+              isStarted: false,
+              isRunTimer: false,
+              timerValue: 0,
+              countDownValue: tExercise.exerciseRest ?? 0,
+              isCountDown: true,
+              isAutostart: true,
+              exerciseGlobalKey: exerciseGlobalKey,
+              trainingId: null,
+              tExerciseId: null,
+              setNumber: null,
+              multisetSetNumber: null),
         ));
 
     return BlocBuilder<ActiveTrainingBloc, ActiveTrainingState>(
@@ -306,10 +313,9 @@ class DistanceOrDurationRun extends StatelessWidget {
             const SizedBox(height: 10),
             GestureDetector(
               onTap: () async {
-                final bloc = context.read<ActiveTrainingBloc>();
-                bloc.add(
-                  StartTimer(timerId: timerId),
-                );
+                context.read<ActiveTrainingBloc>().add(
+                      StartTimer(timerId: timerId),
+                    );
               },
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -490,6 +496,10 @@ class IntervalRun extends StatelessWidget {
               : 0,
           isAutostart: intervalIndex == 0 ? tExercise.autoStart ?? false : true,
           exerciseGlobalKey: exerciseGlobalKey,
+          trainingId: tExercise.trainingId,
+          tExerciseId: tExercise.id,
+          setNumber: intervalIndex,
+          multisetSetNumber: setIndex,
         )));
 
     context.read<ActiveTrainingBloc>().add(CreateTimer(
@@ -505,6 +515,10 @@ class IntervalRun extends StatelessWidget {
               : tExercise.intervalRest ?? 0,
           isAutostart: true,
           exerciseGlobalKey: exerciseGlobalKey,
+          trainingId: null,
+          tExerciseId: null,
+          setNumber: null,
+          multisetSetNumber: null,
         )));
 
     return BlocBuilder<ActiveTrainingBloc, ActiveTrainingState>(
