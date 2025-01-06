@@ -7,7 +7,8 @@ import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../helper_functions.dart';
-import '../../../../injection_container.dart';
+import '../../../training_history/domain/entities/history_entry.dart';
+import '../../../training_history/presentation/bloc/training_history_bloc.dart';
 import '../bloc/active_training_bloc.dart';
 import '../../../training_management/domain/entities/multiset.dart';
 
@@ -261,6 +262,7 @@ class _ActiveMultisetExerciseWidgetState
                   ? ActiveExerciseRow(
                       controller: _controllers!['set${index + 1}']!,
                       multiset: widget.multiset,
+                      tExercise: widget.tExercise,
                       isLastSet: widget.multiset.sets == index + 1,
                       isLastMultisetExercise:
                           widget.multiset.trainingExercises!.length ==
@@ -316,6 +318,7 @@ Widget _buildOptionalInfo({
 
 class ActiveExerciseRow extends StatelessWidget {
   final Multiset multiset;
+  final TrainingExercise tExercise;
   final bool isLastSet;
   final bool isLastMultisetExercise;
   final TextEditingController controller;
@@ -327,6 +330,7 @@ class ActiveExerciseRow extends StatelessWidget {
   const ActiveExerciseRow({
     super.key,
     required this.multiset,
+    required this.tExercise,
     required this.controller,
     required this.isLastSet,
     required this.isLastMultisetExercise,
@@ -368,6 +372,19 @@ class ActiveExerciseRow extends StatelessWidget {
           isStarted = true;
         }
 
+        final currentEntry =
+            (context.read<TrainingHistoryBloc>().state as TrainingHistoryLoaded)
+                .historyEntries
+                .firstWhereOrNull((el) =>
+                    el.trainingExerciseId == tExercise.id &&
+                    el.setNumber == setIndex &&
+                    el.trainingId == tExercise.trainingId);
+
+        final registeredId = currentEntry?.id;
+        if (registeredId != null && controller.text == '') {
+          controller.text = currentEntry?.reps.toString() ?? '';
+        }
+
         return Row(
           children: [
             SmallTextFieldWidget(
@@ -378,7 +395,19 @@ class ActiveExerciseRow extends StatelessWidget {
             const SizedBox(width: 10),
             GestureDetector(
               onTap: () {
-                sl<ActiveTrainingBloc>().add(StartTimer(timerId: restTimerId));
+                context.read<TrainingHistoryBloc>().add(
+                    CreateOrUpdateHistoryEntry(
+                        historyEntry: HistoryEntry(
+                            id: registeredId,
+                            trainingId: tExercise.trainingId,
+                            trainingExerciseId: tExercise.id,
+                            setNumber: setIndex,
+                            date: DateTime.now(),
+                            reps: int.tryParse(controller.text))));
+                context
+                    .read<ActiveTrainingBloc>()
+                    .add(StartTimer(timerId: restTimerId));
+                FocusScope.of(context).unfocus();
               },
               child: Text(
                 isStarted ? 'OK' : tr('global_validate'),
@@ -466,9 +495,29 @@ class ActiveExerciseDurationRow extends StatelessWidget {
           isStarted = true;
         }
 
+        final currentEntry =
+            (context.read<TrainingHistoryBloc>().state as TrainingHistoryLoaded)
+                .historyEntries
+                .firstWhereOrNull((el) =>
+                    el.trainingExerciseId == tExercise.id &&
+                    el.setNumber == setIndex &&
+                    el.trainingId == tExercise.trainingId);
+
+        final registeredId = currentEntry?.id;
+
         return GestureDetector(
           onTap: () async {
-            sl<ActiveTrainingBloc>().add(StartTimer(timerId: timerId));
+            context.read<TrainingHistoryBloc>().add(CreateOrUpdateHistoryEntry(
+                historyEntry: HistoryEntry(
+                    id: registeredId,
+                    trainingId: tExercise.trainingId,
+                    trainingExerciseId: tExercise.id,
+                    setNumber: setIndex,
+                    date: DateTime.now(),
+                    duration: tExercise.duration)));
+            context
+                .read<ActiveTrainingBloc>()
+                .add(StartTimer(timerId: timerId));
           },
           child: Container(
             alignment: Alignment.center,

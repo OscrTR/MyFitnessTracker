@@ -2,6 +2,9 @@ import 'package:equatable/equatable.dart';
 
 class HistoryEntry extends Equatable {
   final int? id;
+  final int? trainingId;
+  final int? trainingExerciseId;
+  final int? setNumber;
   final DateTime date;
   final int? reps;
   final int? duration;
@@ -10,6 +13,9 @@ class HistoryEntry extends Equatable {
 
   const HistoryEntry({
     this.id,
+    this.trainingId,
+    this.trainingExerciseId,
+    this.setNumber,
     required this.date,
     this.reps,
     this.duration,
@@ -25,6 +31,9 @@ class HistoryEntry extends Equatable {
   }) {
     return HistoryEntry(
       id: id,
+      trainingId: trainingId,
+      trainingExerciseId: trainingExerciseId,
+      setNumber: setNumber,
       date: date,
       reps: reps ?? this.reps,
       duration: duration ?? this.duration,
@@ -34,5 +43,15 @@ class HistoryEntry extends Equatable {
   }
 
   @override
-  List<Object?> get props => [id, date, reps, duration, distance, pace];
+  List<Object?> get props => [
+        id,
+        trainingId,
+        trainingExerciseId,
+        setNumber,
+        date,
+        reps,
+        duration,
+        distance,
+        pace
+      ];
 }

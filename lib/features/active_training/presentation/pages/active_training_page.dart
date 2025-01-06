@@ -1,4 +1,5 @@
 import 'package:back_button_interceptor/back_button_interceptor.dart';
+import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -63,7 +64,7 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage> {
           ),
           TextButton(
             onPressed: () {
-              sl<ActiveTrainingBloc>().add(ClearTimers());
+              context.read<ActiveTrainingBloc>().add(ClearTimers());
               Navigator.of(context).pop(true);
               GoRouter.of(context).go('/home');
             },
@@ -324,8 +325,10 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage> {
                               const SizedBox(height: 30),
                               GestureDetector(
                                 onTap: () {
-                                  sl<ActiveTrainingBloc>().add(ClearTimers());
                                   GoRouter.of(context).go('/home');
+                                  context
+                                      .read<ActiveTrainingBloc>()
+                                      .add(ClearTimers());
                                 },
                                 child: Container(
                                     padding: const EdgeInsets.symmetric(
@@ -432,9 +435,10 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage> {
                   if (state.lastStartedTimerId != lastStartedTimerId) {
                     lastStartedTimerId = state.lastStartedTimerId;
                     final globalKey = state.timersStateList
-                        .firstWhere((el) => el.timerId == lastStartedTimerId)
-                        .exerciseGlobalKey;
-                    if (globalKey.currentContext != null) {
+                        .firstWhereOrNull(
+                            (el) => el.timerId == lastStartedTimerId)
+                        ?.exerciseGlobalKey;
+                    if (globalKey != null && globalKey.currentContext != null) {
                       Scrollable.ensureVisible(
                         globalKey.currentContext!,
                         duration: const Duration(seconds: 1),

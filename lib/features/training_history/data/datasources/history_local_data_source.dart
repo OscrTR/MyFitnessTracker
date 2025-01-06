@@ -43,6 +43,9 @@ class SQLiteHistoryLocalDataSource implements HistoryLocalDataSource {
       HistoryEntry historyEntryToCreate) async {
     try {
       final id = await database.insert('history', {
+        'training_id': historyEntryToCreate.trainingId,
+        'training_exercise_id': historyEntryToCreate.trainingExerciseId,
+        'set_number': historyEntryToCreate.setNumber,
         'date': historyEntryToCreate.date.millisecondsSinceEpoch,
         'reps': historyEntryToCreate.reps,
         'duration': historyEntryToCreate.duration,
@@ -52,6 +55,9 @@ class SQLiteHistoryLocalDataSource implements HistoryLocalDataSource {
 
       return HistoryEntryModel(
         id: id,
+        trainingId: historyEntryToCreate.trainingId,
+        trainingExerciseId: historyEntryToCreate.trainingExerciseId,
+        setNumber: historyEntryToCreate.setNumber,
         date: historyEntryToCreate.date,
         reps: historyEntryToCreate.reps,
         duration: historyEntryToCreate.duration,
@@ -103,6 +109,9 @@ class SQLiteHistoryLocalDataSource implements HistoryLocalDataSource {
     try {
       final historyEntryToUpdateModel = HistoryEntryModel(
         id: historyEntryToUpdate.id,
+        trainingId: historyEntryToUpdate.trainingId,
+        trainingExerciseId: historyEntryToUpdate.trainingExerciseId,
+        setNumber: historyEntryToUpdate.setNumber,
         date: historyEntryToUpdate.date,
         reps: historyEntryToUpdate.reps,
         duration: historyEntryToUpdate.duration,

@@ -2,10 +2,8 @@ import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import '../../../../app_colors.dart';
 import '../../../../helper_functions.dart';
-import '../../../../injection_container.dart';
 import '../../../training_management/domain/entities/training_exercise.dart';
 import '../bloc/active_training_bloc.dart';
 import 'distance_widget.dart';
@@ -325,7 +323,9 @@ class DistanceOrDurationRun extends StatelessWidget {
             const SizedBox(height: 10),
             GestureDetector(
               onTap: () async {
-                sl<ActiveTrainingBloc>().add(StartTimer(timerId: timerId));
+                context
+                    .read<ActiveTrainingBloc>()
+                    .add(StartTimer(timerId: timerId));
               },
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,

@@ -59,7 +59,6 @@ class SQLiteDatabaseHelper {
             is_sets_in_reps INTEGER,
             min_reps INTEGER,
             max_reps INTEGER,
-            actual_reps INTEGER,
             duration INTEGER,
             set_rest INTEGER,
             exercise_rest INTEGER,
@@ -87,13 +86,16 @@ class SQLiteDatabaseHelper {
         await db.execute('''
           CREATE TABLE history(
             id INTEGER PRIMARY KEY AUTOINCREMENT, 
+            training_id INTEGER,
             training_exercise_id INTEGER,
+            set_number INTEGER,
             date INTEGER,
             reps INTEGER,
             duration INTEGER,
             distance INTEGER,
             pace INTEGER,
-            FOREIGN KEY(training_exercise_id) REFERENCES trainings_exercises(id)
+            FOREIGN KEY(training_exercise_id) REFERENCES training_exercises(id),
+            FOREIGN KEY(training_id) REFERENCES trainings(id)
           )
         ''');
       },

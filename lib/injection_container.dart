@@ -1,16 +1,16 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get_it/get_it.dart';
-import 'package:my_fitness_tracker/features/training_history/data/datasources/history_local_data_source.dart';
-import 'package:my_fitness_tracker/features/training_history/data/repositories/history_repository_impl.dart';
-import 'package:my_fitness_tracker/features/training_history/domain/repositories/history_repository.dart';
-import 'package:my_fitness_tracker/features/training_history/domain/usecases/create_history_entry.dart';
-import 'package:my_fitness_tracker/features/training_history/domain/usecases/get_history_entry.dart';
-import 'package:my_fitness_tracker/features/training_history/domain/usecases/update_history_entry.dart';
-import 'package:my_fitness_tracker/features/training_history/domain/usecases/delete_history_entry.dart'
+import 'features/training_history/data/datasources/history_local_data_source.dart';
+import 'features/training_history/data/repositories/history_repository_impl.dart';
+import 'features/training_history/domain/repositories/history_repository.dart';
+import 'features/training_history/domain/usecases/create_history_entry.dart';
+import 'features/training_history/domain/usecases/get_history_entry.dart';
+import 'features/training_history/domain/usecases/update_history_entry.dart';
+import 'features/training_history/domain/usecases/delete_history_entry.dart'
     as delete;
-import 'package:my_fitness_tracker/features/training_history/domain/usecases/fetch_history_entries.dart'
+import 'features/training_history/domain/usecases/fetch_history_entries.dart'
     as fetch;
-import 'package:my_fitness_tracker/features/training_history/presentation/bloc/training_history_bloc.dart';
+import 'features/training_history/presentation/bloc/training_history_bloc.dart';
 import 'features/active_training/presentation/bloc/active_training_bloc.dart';
 import 'features/training_management/domain/usecases/create_training.dart';
 import 'features/training_management/domain/usecases/delete_training.dart';
@@ -51,7 +51,7 @@ Future<void> init() async {
 
   //! Features - Exercise Management
   // Bloc
-  sl.registerFactory(() => ExerciseManagementBloc(
+  sl.registerLazySingleton(() => ExerciseManagementBloc(
       createExercise: sl(),
       fetchExercises: sl(),
       updateExercise: sl(),
@@ -76,7 +76,7 @@ Future<void> init() async {
 
   //! Features - Training Management
   // Bloc
-  sl.registerFactory(() => TrainingManagementBloc(
+  sl.registerLazySingleton(() => TrainingManagementBloc(
         createTraining: sl(),
         fetchTrainings: sl(),
         getTraining: sl(),
@@ -106,7 +106,7 @@ Future<void> init() async {
 
   //! Features - Training History
   // Bloc
-  sl.registerFactory(() => TrainingHistoryBloc(
+  sl.registerLazySingleton<TrainingHistoryBloc>(() => TrainingHistoryBloc(
         messageBloc: sl(),
         createHistoryEntry: sl(),
         fetchHistoryEntries: sl(),

@@ -7,7 +7,7 @@ import 'package:top_snackbar_flutter/top_snack_bar.dart';
 
 import 'app_colors.dart';
 import 'core/messages/bloc/message_bloc.dart';
-import 'core/pages/history_page.dart';
+import 'features/training_history/presentation/pages/history_page.dart';
 import 'features/active_training/presentation/pages/active_training_page.dart';
 import 'features/exercise_management/presentation/pages/exercise_detail_page.dart';
 import 'features/homepage/presentation/pages/home_page.dart';

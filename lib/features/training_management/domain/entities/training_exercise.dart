@@ -26,7 +26,6 @@ class TrainingExercise extends Equatable {
   final bool? isSetsInReps;
   final int? minReps;
   final int? maxReps;
-  final int? actualReps;
   final int? duration;
   final int? setRest;
   final int? exerciseRest;
@@ -56,7 +55,6 @@ class TrainingExercise extends Equatable {
     this.isSetsInReps,
     this.minReps,
     this.maxReps,
-    this.actualReps,
     this.duration,
     this.setRest,
     this.exerciseRest,
@@ -87,7 +85,6 @@ class TrainingExercise extends Equatable {
     bool? isSetsInReps,
     int? minReps,
     int? maxReps,
-    int? actualReps,
     int? duration,
     int? setRest,
     int? exerciseRest,
@@ -117,7 +114,6 @@ class TrainingExercise extends Equatable {
       isSetsInReps: isSetsInReps ?? this.isSetsInReps,
       minReps: minReps ?? this.minReps,
       maxReps: maxReps ?? this.maxReps,
-      actualReps: actualReps ?? this.actualReps,
       duration: duration ?? this.duration,
       setRest: setRest ?? this.setRest,
       exerciseRest: exerciseRest ?? this.exerciseRest,
@@ -150,7 +146,6 @@ class TrainingExercise extends Equatable {
       isSetsInReps: isSetsInReps,
       minReps: minReps,
       maxReps: maxReps,
-      actualReps: actualReps,
       duration: duration,
       setRest: setRest,
       exerciseRest: exerciseRest,
@@ -183,7 +178,6 @@ class TrainingExercise extends Equatable {
         isSetsInReps,
         minReps,
         maxReps,
-        actualReps,
         duration,
         setRest,
         exerciseRest,

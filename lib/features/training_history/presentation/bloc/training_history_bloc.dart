@@ -7,7 +7,7 @@ import '../../../../core/messages/bloc/message_bloc.dart';
 import '../../domain/usecases/create_history_entry.dart' as create;
 import '../../domain/usecases/delete_history_entry.dart' as delete;
 import '../../domain/usecases/fetch_history_entries.dart' as fetch;
-import '../../domain/usecases/get_history_entry.dart' as get_ex;
+import '../../domain/usecases/get_history_entry.dart' as get_h;
 import '../../domain/usecases/update_history_entry.dart' as update;
 
 part 'training_history_event.dart';
@@ -21,17 +21,17 @@ class TrainingHistoryBloc
   final fetch.FetchHistoryEntries fetchHistoryEntries;
   final update.UpdateHistoryEntry updateHistoryEntry;
   final delete.DeleteHistoryEntry deleteHistoryEntry;
-  final get_ex.GetHistoryEntry getHistoryEntry;
+  final get_h.GetHistoryEntry getHistoryEntry;
   final MessageBloc messageBloc;
 
-  TrainingHistoryBloc(
-      {required this.createHistoryEntry,
-      required this.fetchHistoryEntries,
-      required this.updateHistoryEntry,
-      required this.deleteHistoryEntry,
-      required this.getHistoryEntry,
-      required this.messageBloc})
-      : super(TrainingHistoryInitial()) {
+  TrainingHistoryBloc({
+    required this.createHistoryEntry,
+    required this.fetchHistoryEntries,
+    required this.updateHistoryEntry,
+    required this.deleteHistoryEntry,
+    required this.getHistoryEntry,
+    required this.messageBloc,
+  }) : super(TrainingHistoryInitial()) {
     on<FetchHistoryEntries>((event, emit) async {
       final result = await fetchHistoryEntries(null);
 
@@ -49,8 +49,8 @@ class TrainingHistoryBloc
         final currentState = state as TrainingHistoryLoaded;
 
         final result = event.historyEntry.id != null
-            ? await createHistoryEntry(create.Params(event.historyEntry))
-            : await updateHistoryEntry(update.Params(event.historyEntry));
+            ? await updateHistoryEntry(update.Params(event.historyEntry))
+            : await createHistoryEntry(create.Params(event.historyEntry));
 
         result.fold(
           (failure) {

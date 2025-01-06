@@ -1,7 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_fitness_tracker/features/training_history/presentation/bloc/training_history_bloc.dart';
+import 'features/training_history/presentation/bloc/training_history_bloc.dart';
 import 'features/active_training/presentation/bloc/active_training_bloc.dart';
 
 import 'app_theme.dart';
@@ -9,7 +9,6 @@ import 'core/messages/bloc/message_bloc.dart';
 import 'features/exercise_management/presentation/bloc/exercise_management_bloc.dart';
 import 'features/training_management/presentation/bloc/training_management_bloc.dart';
 import 'injection_container.dart' as di;
-import 'injection_container.dart';
 import 'notification_service.dart';
 import 'router.dart';
 
@@ -36,24 +35,30 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
-      providers: [
+      providers: <BlocProvider<dynamic>>[
         BlocProvider<MessageBloc>(
-            create: (BuildContext context) => sl<MessageBloc>()),
+          create: (_) => di.sl<MessageBloc>(),
+          lazy: false,
+        ),
         BlocProvider<ExerciseManagementBloc>(
-          create: (BuildContext context) =>
-              sl<ExerciseManagementBloc>()..add(FetchExercisesEvent()),
+          create: (_) =>
+              di.sl<ExerciseManagementBloc>()..add(FetchExercisesEvent()),
+          lazy: false,
         ),
         BlocProvider<TrainingManagementBloc>(
-          create: (BuildContext context) =>
-              sl<TrainingManagementBloc>()..add(FetchTrainingsEvent()),
+          create: (_) =>
+              di.sl<TrainingManagementBloc>()..add(FetchTrainingsEvent()),
+          lazy: false,
         ),
         BlocProvider<ActiveTrainingBloc>(
-          create: (BuildContext context) =>
-              sl<ActiveTrainingBloc>()..add(LoadDefaultActiveTraining()),
+          create: (_) =>
+              di.sl<ActiveTrainingBloc>()..add(LoadDefaultActiveTraining()),
+          lazy: false,
         ),
         BlocProvider<TrainingHistoryBloc>(
-          create: (BuildContext context) =>
-              sl<TrainingHistoryBloc>()..add(FetchHistoryEntries()),
+          create: (_) =>
+              di.sl<TrainingHistoryBloc>()..add(FetchHistoryEntries()),
+          lazy: false,
         ),
       ],
       child: MaterialApp.router(

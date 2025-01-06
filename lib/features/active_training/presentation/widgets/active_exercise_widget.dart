@@ -5,8 +5,9 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:my_fitness_tracker/features/training_history/domain/entities/history_entry.dart';
+import 'package:my_fitness_tracker/features/training_history/presentation/bloc/training_history_bloc.dart';
 import '../../../../helper_functions.dart';
-import '../../../../injection_container.dart';
 import '../bloc/active_training_bloc.dart';
 import '../../../../app_colors.dart';
 import '../../../exercise_management/domain/entities/exercise.dart';
@@ -383,6 +384,19 @@ class ActiveExerciseRow extends StatelessWidget {
           isStarted = true;
         }
 
+        final currentEntry =
+            (context.read<TrainingHistoryBloc>().state as TrainingHistoryLoaded)
+                .historyEntries
+                .firstWhereOrNull((el) =>
+                    el.trainingExerciseId == tExercise.id &&
+                    el.setNumber == setIndex &&
+                    el.trainingId == tExercise.trainingId);
+
+        final registeredId = currentEntry?.id;
+        if (registeredId != null && controller.text == '') {
+          controller.text = currentEntry?.reps.toString() ?? '';
+        }
+
         return Row(
           children: [
             SmallTextFieldWidget(
@@ -393,8 +407,18 @@ class ActiveExerciseRow extends StatelessWidget {
             const SizedBox(width: 10),
             GestureDetector(
               onTap: () {
-                // print(controller.text);
-                sl<ActiveTrainingBloc>().add(StartTimer(timerId: restTimerId));
+                context.read<TrainingHistoryBloc>().add(
+                    CreateOrUpdateHistoryEntry(
+                        historyEntry: HistoryEntry(
+                            id: registeredId,
+                            trainingId: tExercise.trainingId,
+                            trainingExerciseId: tExercise.id,
+                            setNumber: setIndex,
+                            date: DateTime.now(),
+                            reps: int.tryParse(controller.text))));
+                context
+                    .read<ActiveTrainingBloc>()
+                    .add(StartTimer(timerId: restTimerId));
                 FocusScope.of(context).unfocus();
               },
               child: Text(
@@ -471,9 +495,29 @@ class ActiveExerciseDurationRow extends StatelessWidget {
           isStarted = true;
         }
 
+        final currentEntry =
+            (context.read<TrainingHistoryBloc>().state as TrainingHistoryLoaded)
+                .historyEntries
+                .firstWhereOrNull((el) =>
+                    el.trainingExerciseId == tExercise.id &&
+                    el.setNumber == setIndex &&
+                    el.trainingId == tExercise.trainingId);
+
+        final registeredId = currentEntry?.id;
+
         return GestureDetector(
           onTap: () async {
-            sl<ActiveTrainingBloc>().add(StartTimer(timerId: timerId));
+            context.read<TrainingHistoryBloc>().add(CreateOrUpdateHistoryEntry(
+                historyEntry: HistoryEntry(
+                    id: registeredId,
+                    trainingId: tExercise.trainingId,
+                    trainingExerciseId: tExercise.id,
+                    setNumber: setIndex,
+                    date: DateTime.now(),
+                    duration: tExercise.duration)));
+            context
+                .read<ActiveTrainingBloc>()
+                .add(StartTimer(timerId: timerId));
           },
           child: Container(
             alignment: Alignment.center,
