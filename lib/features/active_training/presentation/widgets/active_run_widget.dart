@@ -406,16 +406,18 @@ class IntervalWidget extends StatelessWidget {
           if (state is ActiveTrainingLoaded) {
             bool isStarted = false;
             final currentIsStarted = state.timersStateList
-                .firstWhereOrNull((el) => el.timerId == '$exerciseIndex-0')
+                .firstWhereOrNull((el) =>
+                    el.timerId ==
+                    '${exerciseIndex < 10 ? 0 : ''}$exerciseIndex-00')
                 ?.isStarted;
             if (currentIsStarted != null && currentIsStarted) {
               isStarted = true;
             }
             return GestureDetector(
               onTap: () async {
-                // final service = FlutterBackgroundService();
-                // service
-                //     .invoke('startTracking', {'timerId': '$exerciseIndex-0'});
+                context.read<ActiveTrainingBloc>().add(StartTimer(
+                    timerId:
+                        '${exerciseIndex < 10 ? 0 : ''}$exerciseIndex-00'));
               },
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -479,8 +481,12 @@ class IntervalRun extends StatelessWidget {
           isRunTimer: true,
           timerValue: 0,
           isCountDown: false,
-          targetDistance: tExercise.intervalDistance ?? 0,
-          targetDuration: tExercise.intervalDuration ?? 0,
+          targetDistance: tExercise.isIntervalInDistance!
+              ? tExercise.intervalDistance ?? 0
+              : 0,
+          targetDuration: tExercise.isIntervalInDistance!
+              ? 0
+              : tExercise.intervalDuration ?? 0,
           targetPace: tExercise.isTargetPaceSelected != null &&
                   tExercise.isTargetPaceSelected!
               ? tExercise.targetPace ?? 0
