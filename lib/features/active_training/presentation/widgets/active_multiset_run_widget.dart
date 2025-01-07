@@ -404,7 +404,7 @@ class IntervalWidget extends StatelessWidget {
             final currentIsStarted = state.timersStateList
                 .firstWhereOrNull((el) =>
                     el.timerId ==
-                    '$multisetIndex-$setIndex-$multisetExerciseIndex-0')
+                    '${multisetIndex < 10 ? 0 : ''}$multisetIndex-${setIndex < 10 ? 0 : ''}$setIndex-${multisetExerciseIndex < 10 ? 0 : ''}$multisetExerciseIndex-00')
                 ?.isStarted;
             if (currentIsStarted != null && currentIsStarted) {
               isStarted = true;
@@ -414,7 +414,7 @@ class IntervalWidget extends StatelessWidget {
               onTap: () async {
                 context.read<ActiveTrainingBloc>().add(StartTimer(
                     timerId:
-                        '$multisetIndex-$setIndex-$multisetExerciseIndex-0'));
+                        '${multisetIndex < 10 ? 0 : ''}$multisetIndex-${setIndex < 10 ? 0 : ''}$setIndex-${multisetExerciseIndex < 10 ? 0 : ''}$multisetExerciseIndex-00'));
               },
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -488,8 +488,12 @@ class IntervalRun extends StatelessWidget {
           isRunTimer: true,
           timerValue: 0,
           isCountDown: false,
-          targetDistance: tExercise.intervalDistance ?? 0,
-          targetDuration: tExercise.intervalDuration ?? 0,
+          targetDistance: tExercise.isIntervalInDistance!
+              ? tExercise.intervalDistance ?? 0
+              : 0,
+          targetDuration: tExercise.isIntervalInDistance!
+              ? 0
+              : tExercise.intervalDuration ?? 0,
           targetPace: tExercise.isTargetPaceSelected != null &&
                   tExercise.isTargetPaceSelected!
               ? tExercise.targetPace ?? 0
