@@ -15,4 +15,6 @@ abstract class HistoryRepository {
       HistoryEntry historyEntry);
 
   Future<Either<Failure, void>> deleteHistoryEntry(int id);
+
+  Future<Either<Failure, bool>> checkIfRecentEntry(int id);
 }

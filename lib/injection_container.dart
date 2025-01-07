@@ -1,5 +1,6 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get_it/get_it.dart';
+import 'package:my_fitness_tracker/features/training_history/domain/usecases/check_recent_entry.dart';
 import 'features/training_history/data/datasources/history_local_data_source.dart';
 import 'features/training_history/data/repositories/history_repository_impl.dart';
 import 'features/training_history/domain/repositories/history_repository.dart';
@@ -113,6 +114,7 @@ Future<void> init() async {
         updateHistoryEntry: sl(),
         deleteHistoryEntry: sl(),
         getHistoryEntry: sl(),
+        checkRecentEntry: sl(),
       ));
 
   // Usecases
@@ -121,6 +123,7 @@ Future<void> init() async {
   sl.registerLazySingleton(() => GetHistoryEntry(sl()));
   sl.registerLazySingleton(() => UpdateHistoryEntry(sl()));
   sl.registerLazySingleton(() => delete.DeleteHistoryEntry(sl()));
+  sl.registerLazySingleton(() => CheckRecentEntry(sl()));
 
   // Repository
   sl.registerLazySingleton<HistoryRepository>(

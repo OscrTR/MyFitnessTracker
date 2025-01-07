@@ -337,7 +337,7 @@ class _ActiveExerciseWidgetState extends State<ActiveExerciseWidget> {
   }
 }
 
-class ActiveExerciseRow extends StatelessWidget {
+class ActiveExerciseRow extends StatefulWidget {
   final TrainingExercise tExercise;
   final int exerciseIndex;
   final int setIndex;
@@ -356,9 +356,16 @@ class ActiveExerciseRow extends StatelessWidget {
   });
 
   @override
+  State<ActiveExerciseRow> createState() => _ActiveExerciseRowState();
+}
+
+class _ActiveExerciseRowState extends State<ActiveExerciseRow> {
+  bool isInitialized = false;
+
+  @override
   Widget build(BuildContext context) {
     final restTimerId =
-        '${exerciseIndex < 10 ? 0 : ''}$exerciseIndex-${setIndex < 10 ? 0 : ''}$setIndex';
+        '${widget.exerciseIndex < 10 ? 0 : ''}${widget.exerciseIndex}-${widget.setIndex < 10 ? 0 : ''}${widget.setIndex}';
     context.read<ActiveTrainingBloc>().add(CreateTimer(
             timerState: TimerState(
           timerId: restTimerId,
@@ -366,11 +373,12 @@ class ActiveExerciseRow extends StatelessWidget {
           isStarted: false,
           isRunTimer: false,
           timerValue: 0,
-          countDownValue:
-              isLastSet ? tExercise.exerciseRest ?? 0 : tExercise.setRest ?? 0,
+          countDownValue: widget.isLastSet
+              ? widget.tExercise.exerciseRest ?? 0
+              : widget.tExercise.setRest ?? 0,
           isCountDown: true,
           isAutostart: false,
-          exerciseGlobalKey: exerciseGlobalKey,
+          exerciseGlobalKey: widget.exerciseGlobalKey,
           trainingId: null,
           tExerciseId: null,
           setNumber: null,
@@ -388,23 +396,34 @@ class ActiveExerciseRow extends StatelessWidget {
           isStarted = true;
         }
 
-        final currentEntry =
-            (context.read<TrainingHistoryBloc>().state as TrainingHistoryLoaded)
-                .historyEntries
-                .firstWhereOrNull((el) =>
-                    el.trainingExerciseId == tExercise.id &&
-                    el.setNumber == setIndex &&
-                    el.trainingId == tExercise.trainingId);
+        int? registeredId;
 
-        final registeredId = currentEntry?.id;
-        if (registeredId != null && controller.text == '') {
-          controller.text = currentEntry?.reps.toString() ?? '';
+        if (!isInitialized) {
+          final entries = (context.read<TrainingHistoryBloc>().state
+                  as TrainingHistoryLoaded)
+              .historyEntries;
+          final List<HistoryEntry> matchingEntries = List.from(entries.where(
+              (el) =>
+                  el.trainingExerciseId == widget.tExercise.id &&
+                  el.setNumber == widget.setIndex &&
+                  el.trainingId == widget.tExercise.trainingId));
+
+          final latestEntry = matchingEntries.isNotEmpty
+              ? matchingEntries.reduce((HistoryEntry a, HistoryEntry b) =>
+                  a.date.isAfter(b.date) ? a : b)
+              : null;
+
+          registeredId = latestEntry?.id;
+          if (registeredId != null && widget.controller.text == '') {
+            widget.controller.text = latestEntry?.reps.toString() ?? '';
+            isInitialized = true;
+          }
         }
 
         return Row(
           children: [
             SmallTextFieldWidget(
-              controller: controller,
+              controller: widget.controller,
               backgroungColor:
                   isStarted ? AppColors.lightGrey : AppColors.white,
             ),
@@ -415,11 +434,11 @@ class ActiveExerciseRow extends StatelessWidget {
                     CreateOrUpdateHistoryEntry(
                         historyEntry: HistoryEntry(
                             id: registeredId,
-                            trainingId: tExercise.trainingId,
-                            trainingExerciseId: tExercise.id,
-                            setNumber: setIndex,
+                            trainingId: widget.tExercise.trainingId,
+                            trainingExerciseId: widget.tExercise.id,
+                            setNumber: widget.setIndex,
                             date: DateTime.now(),
-                            reps: int.tryParse(controller.text))));
+                            reps: int.tryParse(widget.controller.text))));
                 context
                     .read<ActiveTrainingBloc>()
                     .add(StartTimer(timerId: restTimerId));

@@ -62,4 +62,13 @@ class HistoryRepositoryImpl implements HistoryRepository {
       return const Left(DatabaseFailure());
     }
   }
+
+  @override
+  Future<Either<Failure, bool>> checkIfRecentEntry(int id) async {
+    try {
+      return Right(await localDataSource.checkIfRecentEntry(id));
+    } on LocalDatabaseException {
+      return const Left(DatabaseFailure());
+    }
+  }
 }

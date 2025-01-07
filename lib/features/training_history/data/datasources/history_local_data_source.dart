@@ -31,6 +31,11 @@ abstract class HistoryLocalDataSource {
   ///
   /// Throws a [LocalDatabaseException] for all error codes.
   Future<void> deleteHistoryEntry(int id);
+
+  /// Query the local database and check if there is a history entry from 2 hours ago or less.
+  ///
+  /// Throws a [LocalDatabaseException] for all error codes.
+  Future<bool> checkIfRecentEntry(int id);
 }
 
 class SQLiteHistoryLocalDataSource implements HistoryLocalDataSource {
@@ -100,6 +105,27 @@ class SQLiteHistoryLocalDataSource implements HistoryLocalDataSource {
       });
 
       return result;
+    } catch (e) {
+      throw LocalDatabaseException(e.toString());
+    }
+  }
+
+  @override
+  Future<bool> checkIfRecentEntry(int id) async {
+    try {
+      final twoHoursAgo =
+          DateTime.now().millisecondsSinceEpoch - (2 * 60 * 60 * 1000);
+      final result = await database.query(
+        'history',
+        where: 'id = ? AND date > ?',
+        whereArgs: [id, twoHoursAgo],
+      );
+
+      if (result.isNotEmpty) {
+        return true;
+      } else {
+        return false;
+      }
     } catch (e) {
       throw LocalDatabaseException(e.toString());
     }
