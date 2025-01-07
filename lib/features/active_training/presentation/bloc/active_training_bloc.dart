@@ -99,7 +99,8 @@ class ActiveTrainingBloc
             }
           } else {
             // Register history entry
-            if (!timerId.contains('rest')) {
+            if (!timerId.contains('rest') &&
+                currentTimerState.tExerciseId != null) {
               // Récupérer l'id de l'entrée existante
               final registeredId = (sl<TrainingHistoryBloc>().state
                       as TrainingHistoryLoaded)

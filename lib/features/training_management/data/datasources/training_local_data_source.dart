@@ -184,7 +184,6 @@ class SQLiteTrainingLocalDataSource implements TrainingLocalDataSource {
     }
   }
 
-// TODO : corriger
   @override
   Future<void> updateTraining(Training training) async {
     try {
