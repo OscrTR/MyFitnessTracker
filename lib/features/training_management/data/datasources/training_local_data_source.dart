@@ -184,6 +184,7 @@ class SQLiteTrainingLocalDataSource implements TrainingLocalDataSource {
     }
   }
 
+// TODO : corriger
   @override
   Future<void> updateTraining(Training training) async {
     try {
@@ -241,6 +242,13 @@ class SQLiteTrainingLocalDataSource implements TrainingLocalDataSource {
         'training_exercises',
         where:
             'training_id = ? AND multiset_id IS NULL AND id NOT IN (${currentTrainingExerciseIds.join(',')})',
+        whereArgs: [trainingId],
+      );
+      // Delete training exercises associated to deleted multiset
+      await txn.delete(
+        'training_exercises',
+        where:
+            'training_id = ? AND multiset_id IS NOT NULL AND multiset_id NOT IN (${currentMultisetsIds.join(',')})',
         whereArgs: [trainingId],
       );
     }

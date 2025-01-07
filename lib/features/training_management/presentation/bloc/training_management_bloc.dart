@@ -327,13 +327,11 @@ class TrainingManagementBloc
 
         // Remove the item
         combinedList.removeWhere((item) {
-          // Replace the condition with your specific criteria
           return (item['type'] == 'exercise') &&
               (item['data'] as TrainingExercise).key ==
                   event.trainingExerciseKey;
         });
         combinedList.removeWhere((item) {
-          // Replace the condition with your specific criteria
           return item['type'] == 'multiset' &&
               (item['data'] as Multiset).key == event.trainingExerciseKey;
         });
