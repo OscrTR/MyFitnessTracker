@@ -39,12 +39,14 @@ class SQLiteExerciseLocalDataSource implements ExerciseLocalDataSource {
   @override
   Future<ExerciseModel> createExercise(Exercise exerciseToCreate) async {
     try {
+      final model = ExerciseModel(
+          name: exerciseToCreate.name,
+          imagePath: exerciseToCreate.imagePath,
+          description: exerciseToCreate.description,
+          exerciseType: exerciseToCreate.exerciseType);
+      final values = model.toJson();
       // Insert the exercise into the database and get its generated ID
-      final id = await database.insert('exercises', {
-        'name': exerciseToCreate.name,
-        'image_path': exerciseToCreate.imagePath,
-        'description': exerciseToCreate.description,
-      });
+      final id = await database.insert('exercises', values);
 
       // Return the created exercise with the newly generated ID
       return ExerciseModel(
@@ -52,6 +54,7 @@ class SQLiteExerciseLocalDataSource implements ExerciseLocalDataSource {
         name: exerciseToCreate.name,
         imagePath: exerciseToCreate.imagePath,
         description: exerciseToCreate.description,
+        exerciseType: exerciseToCreate.exerciseType,
       );
     } catch (e) {
       throw LocalDatabaseException(e.toString());
@@ -95,19 +98,20 @@ class SQLiteExerciseLocalDataSource implements ExerciseLocalDataSource {
   @override
   Future<ExerciseModel> updateExercise(Exercise exerciseToUpdate) async {
     try {
-      final exerciseToUpdateModel = ExerciseModel(
-        id: exerciseToUpdate.id,
-        name: exerciseToUpdate.name,
-        imagePath: exerciseToUpdate.imagePath,
-        description: exerciseToUpdate.description,
-      );
+      final model = ExerciseModel(
+          id: exerciseToUpdate.id,
+          name: exerciseToUpdate.name,
+          imagePath: exerciseToUpdate.imagePath,
+          description: exerciseToUpdate.description,
+          exerciseType: exerciseToUpdate.exerciseType);
+      final values = model.toJson();
       await database.update(
         'exercises',
-        exerciseToUpdateModel.toJson(),
+        values,
         where: 'id = ?',
         whereArgs: [exerciseToUpdate.id],
       );
-      return exerciseToUpdateModel;
+      return model;
     } catch (e) {
       throw LocalDatabaseException(e.toString());
     }

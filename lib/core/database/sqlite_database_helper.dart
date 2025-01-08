@@ -18,7 +18,8 @@ class SQLiteDatabaseHelper {
         await db.execute('''
           CREATE TABLE exercises(
             id INTEGER PRIMARY KEY AUTOINCREMENT, 
-            name TEXT, 
+            name TEXT,
+            exercise_type INTEGER,
             description TEXT, 
             image_path TEXT
           )

@@ -6,6 +6,7 @@ class ExerciseModel extends Exercise {
     required super.name,
     super.imagePath,
     super.description,
+    required super.exerciseType,
   });
 
   factory ExerciseModel.fromJson(Map<String, dynamic> json) {
@@ -14,6 +15,7 @@ class ExerciseModel extends Exercise {
       name: json['name'] as String? ?? 'No Name',
       imagePath: json['image_path'] as String? ?? '',
       description: json['description'] as String? ?? '',
+      exerciseType: ExerciseType.values[json['exercise_type'] as int],
     );
   }
 
@@ -23,6 +25,7 @@ class ExerciseModel extends Exercise {
       'name': name,
       'image_path': imagePath,
       'description': description,
+      'exercise_type': exerciseType.index,
     };
   }
 }

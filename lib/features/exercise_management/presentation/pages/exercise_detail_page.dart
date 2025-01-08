@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:animated_custom_dropdown/custom_dropdown.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -9,6 +10,7 @@ import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 
 import '../../../../app_colors.dart';
+import '../../../../injection_container.dart';
 import '../../domain/entities/exercise.dart';
 import '../bloc/exercise_management_bloc.dart';
 import '../widgets/exercise_detail_back_app_bar_widget.dart';
@@ -29,6 +31,17 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
   File? _image;
   bool _isDataInitialized = false;
   File? _imageToDelete;
+  final List<ExerciseType> _exerciseType = [
+    ExerciseType.workout,
+    ExerciseType.yoga
+  ];
+  late ExerciseType _selectedExerciseType;
+
+  @override
+  void initState() {
+    _initType();
+    super.initState();
+  }
 
   @override
   void dispose() {
@@ -54,6 +67,15 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
     });
   }
 
+  void _initType() {
+    final selectedType =
+        (sl<ExerciseManagementBloc>().state as ExerciseManagementLoaded)
+            .selectedExercise
+            ?.exerciseType;
+    print(selectedType);
+    _selectedExerciseType = selectedType ?? ExerciseType.workout;
+  }
+
   Future<void> _deleteImageFile() async {
     final Directory directory = await getApplicationDocumentsDirectory();
     final String imgpath = directory.path;
@@ -63,6 +85,15 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
 
     if (await fileToDelete.exists()) {
       await fileToDelete.delete();
+    }
+  }
+
+  String _exerciseTypeToString(ExerciseType type) {
+    switch (type) {
+      case ExerciseType.workout:
+        return 'Workout';
+      case ExerciseType.yoga:
+        return 'Yoga';
     }
   }
 
@@ -106,6 +137,42 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
                   hintText: context.tr('exercise_detail_page_name_hint'),
                 ),
                 const SizedBox(height: 30),
+                CustomDropdown<ExerciseType>(
+                  items: _exerciseType,
+                  initialItem: _selectedExerciseType,
+                  decoration: CustomDropdownDecoration(
+                    listItemStyle: Theme.of(context)
+                        .textTheme
+                        .bodyMedium!
+                        .copyWith(color: AppColors.lightBlack),
+                    headerStyle: Theme.of(context)
+                        .textTheme
+                        .bodyMedium!
+                        .copyWith(color: AppColors.black),
+                    closedSuffixIcon: const Icon(
+                      Icons.keyboard_arrow_down_rounded,
+                      size: 20,
+                      color: AppColors.lightBlack,
+                    ),
+                    expandedSuffixIcon: const Icon(
+                      Icons.keyboard_arrow_up_rounded,
+                      size: 20,
+                      color: AppColors.lightBlack,
+                    ),
+                    closedBorder: Border.all(color: AppColors.lightBlack),
+                    expandedBorder: Border.all(color: AppColors.lightBlack),
+                  ),
+                  headerBuilder: (context, selectedItem, enabled) {
+                    return Text(_exerciseTypeToString(selectedItem));
+                  },
+                  listItemBuilder: (context, item, isSelected, onItemSelect) {
+                    return Text(_exerciseTypeToString(item));
+                  },
+                  onChanged: (value) {
+                    _selectedExerciseType = value!;
+                  },
+                ),
+                const SizedBox(height: 30),
                 ImagePickerWidget(
                   image: _image,
                   onAddImage: _pickImage,
@@ -134,14 +201,16 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
                             Exercise(
                                 name: _nameController.text,
                                 description: _descriptionController.text,
-                                imagePath: _image?.path ?? ''),
+                                imagePath: _image?.path ?? '',
+                                exerciseType: _selectedExerciseType),
                           )
                         : UpdateExerciseEvent(
                             Exercise(
                                 id: exercise.id!,
                                 name: _nameController.text,
                                 description: _descriptionController.text,
-                                imagePath: _image?.path ?? ''),
+                                imagePath: _image?.path ?? '',
+                                exerciseType: _selectedExerciseType),
                           );
                     BlocProvider.of<ExerciseManagementBloc>(context).add(event);
                     widget.fromTrainingCreation

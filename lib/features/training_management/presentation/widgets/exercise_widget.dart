@@ -29,7 +29,8 @@ class ExerciseWidget extends StatefulWidget {
 class _ExerciseWidgetState extends State<ExerciseWidget> {
   Timer? _debounceTimer;
 
-  Exercise selectedExercise = const Exercise(name: '');
+  Exercise selectedExercise =
+      const Exercise(name: '', exerciseType: ExerciseType.workout);
   TrainingExercise trainingExercise = const TrainingExercise();
   late final Map<String, TextEditingController> _controllers;
 
@@ -434,7 +435,8 @@ class _ExerciseWidgetState extends State<ExerciseWidget> {
               .firstWhere((exercise) => exercise.key == widget.exerciseKey)
               .exerciseId;
 
-          const ExerciseModel noExercise = ExerciseModel(name: 'no exercise');
+          const ExerciseModel noExercise = ExerciseModel(
+              name: 'no exercise', exerciseType: ExerciseType.workout);
 
           if (exerciseId != null) {
             final Exercise exercise = (context

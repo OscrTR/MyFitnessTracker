@@ -118,10 +118,12 @@ class ExerciseManagementBloc
             final updatedExercises =
                 List<Exercise>.from(currentState.exercises);
             updatedExercises[updatedExerciseIndex] = Exercise(
-                id: event.exercise.id,
-                name: event.exercise.name,
-                description: event.exercise.description,
-                imagePath: event.exercise.imagePath);
+              id: event.exercise.id,
+              name: event.exercise.name,
+              description: event.exercise.description,
+              imagePath: event.exercise.imagePath,
+              exerciseType: event.exercise.exerciseType,
+            );
             emit(currentState.copyWith(exercises: updatedExercises));
             messageBloc.add(AddMessageEvent(
                 message: tr('message_exercise_update_success',
