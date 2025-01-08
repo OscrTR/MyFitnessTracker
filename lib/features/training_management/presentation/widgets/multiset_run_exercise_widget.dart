@@ -42,6 +42,8 @@ class _MultisetRunExerciseWidgetState extends State<MultisetRunExerciseWidget> {
     'intervalSeconds': TextEditingController(),
     'intervalRestMinutes': TextEditingController(),
     'intervalRestSeconds': TextEditingController(),
+    'exerciseRestMinutes': TextEditingController(),
+    'exerciseRestSeconds': TextEditingController(),
   };
 
   @override
@@ -109,6 +111,12 @@ class _MultisetRunExerciseWidgetState extends State<MultisetRunExerciseWidget> {
           : '');
       _controllers['intervalRestSeconds']?.text = (exercise.intervalRest != null
           ? (exercise.intervalRest! % 60).toString()
+          : '');
+      _controllers['exerciseRestMinutes']?.text = (exercise.exerciseRest != null
+          ? (exercise.exerciseRest! % 3600 ~/ 60).toString()
+          : '');
+      _controllers['exerciseRestSeconds']?.text = (exercise.exerciseRest != null
+          ? (exercise.exerciseRest! % 60).toString()
           : '');
     }
   }
@@ -203,6 +211,16 @@ class _MultisetRunExerciseWidgetState extends State<MultisetRunExerciseWidget> {
                           _controllers['intervalRestSeconds']?.text ?? '') ??
                       0))
               : null,
+          exerciseRest: key == 'exerciseRestMinutes' ||
+                  key == 'exerciseRestSeconds'
+              ? ((int.tryParse(_controllers['exerciseRestMinutes']?.text ??
+                              '') ??
+                          0) *
+                      60) +
+                  ((int.tryParse(
+                          _controllers['exerciseRestSeconds']?.text ?? '') ??
+                      0))
+              : null,
         );
 
         updatedTrainingExercisesList[index] = updatedExercise;
@@ -248,6 +266,7 @@ class _MultisetRunExerciseWidgetState extends State<MultisetRunExerciseWidget> {
           _buildIntervalsChoiceOptions(),
           _buildTargetPace(),
           _buildIntervalRestRow(),
+          _buildExerciseRestRow(),
           _buildAutostart(),
           const SizedBox(height: 10),
           BigTextFieldWidget(
@@ -271,6 +290,28 @@ class _MultisetRunExerciseWidgetState extends State<MultisetRunExerciseWidget> {
         MoreWidget(
             multisetKey: widget.multisetKey, exerciseKey: widget.exerciseKey),
       ],
+    );
+  }
+
+  Widget _buildExerciseRestRow() {
+    return SizedBox(
+      height: 48,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(tr('exercise_exercise_rest'),
+              style: const TextStyle(color: AppColors.lightBlack)),
+          Row(
+            children: [
+              SmallTextFieldWidget(
+                  controller: _controllers['exerciseRestMinutes']!),
+              const Text(' : ', style: TextStyle(fontSize: 20)),
+              SmallTextFieldWidget(
+                  controller: _controllers['exerciseRestSeconds']!),
+            ],
+          ),
+        ],
+      ),
     );
   }
 

@@ -254,7 +254,11 @@ class DistanceOrDurationRun extends StatelessWidget {
               isStarted: false,
               isRunTimer: false,
               timerValue: 0,
-              countDownValue: tExercise.exerciseRest ?? 0,
+              countDownValue: isLastMultisetExercise
+                  ? isLastSet
+                      ? multiset.multisetRest ?? 0
+                      : multiset.setRest ?? 0
+                  : tExercise.exerciseRest ?? 0,
               isCountDown: true,
               isAutostart: true,
               exerciseGlobalKey: exerciseGlobalKey,
@@ -515,7 +519,11 @@ class IntervalRun extends StatelessWidget {
           timerValue: 0,
           isCountDown: true,
           countDownValue: isLastInterval
-              ? tExercise.exerciseRest ?? 0
+              ? isLastMultisetExercise
+                  ? isLastSet
+                      ? multiset.multisetRest ?? 0
+                      : multiset.setRest ?? 0
+                  : tExercise.exerciseRest ?? 0
               : tExercise.intervalRest ?? 0,
           isAutostart: true,
           exerciseGlobalKey: exerciseGlobalKey,

@@ -363,7 +363,7 @@ class _ActiveExerciseRowState extends State<ActiveExerciseRow> {
                 ? widget.isLastSet
                     ? widget.multiset.multisetRest ?? 0
                     : widget.multiset.setRest ?? 0
-                : 0,
+                : widget.tExercise.exerciseRest ?? 0,
             isCountDown: true,
             isAutostart: false,
             exerciseGlobalKey: widget.exerciseGlobalKey,
@@ -503,7 +503,7 @@ class ActiveExerciseDurationRow extends StatelessWidget {
                 ? isLastSet
                     ? multiset.multisetRest ?? 0
                     : multiset.setRest ?? 0
-                : 0,
+                : tExercise.exerciseRest ?? 0,
             isCountDown: true,
             isAutostart: true,
             exerciseGlobalKey: exerciseGlobalKey,
