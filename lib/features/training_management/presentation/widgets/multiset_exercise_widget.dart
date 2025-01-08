@@ -323,8 +323,13 @@ class _MultisetExerciseWidgetState extends State<MultisetExerciseWidget> {
     });
   }
 
+  TrainingExerciseType handleExerciseType(ExerciseType exerciseType) {
+    return TrainingExerciseType.values
+        .firstWhere((el) => el.name == exerciseType.name);
+  }
+
   Widget _buildExerciseSearch() {
-    void updateExerciseIdInBloc(int? id) {
+    void updateExerciseIdInBloc(Exercise? exercise) {
       final bloc = context.read<TrainingManagementBloc>();
       final currentState = bloc.state as TrainingManagementLoaded;
 
@@ -338,12 +343,13 @@ class _MultisetExerciseWidgetState extends State<MultisetExerciseWidget> {
         (exercise) => exercise.key == widget.exerciseKey,
       );
 
-      final updatedExercise = id != null
+      final updatedExercise = exercise?.id != null
           ? updatedTrainingExercisesList
               .firstWhere((exercise) => exercise.key == widget.exerciseKey)
               .copyWith(
-                exerciseId: id,
-              )
+                  exerciseId: exercise!.id,
+                  trainingExerciseType:
+                      handleExerciseType(exercise.exerciseType))
           : updatedTrainingExercisesList
               .firstWhere((exercise) => exercise.key == widget.exerciseKey)
               .copyWithExerciseIdNull();
@@ -362,7 +368,7 @@ class _MultisetExerciseWidgetState extends State<MultisetExerciseWidget> {
       updatedMultisets.add(updatedMultiset);
 
       bloc.add(UpdateSelectedTrainingProperty(multisets: updatedMultisets));
-      if (id != null) {
+      if (exercise?.id != null) {
         FocusScope.of(context).unfocus();
       }
     }
@@ -414,7 +420,7 @@ class _MultisetExerciseWidgetState extends State<MultisetExerciseWidget> {
                 element.name.toLowerCase() == query.searchKey.toLowerCase())
             .toList();
         if (filteredExercises.isNotEmpty) {
-          updateExerciseIdInBloc(filteredExercises[0].id!);
+          updateExerciseIdInBloc(filteredExercises[0]);
         }
       },
       onSearchTextChanged: (query) {
@@ -427,7 +433,7 @@ class _MultisetExerciseWidgetState extends State<MultisetExerciseWidget> {
             .toList();
 
         if (filteredExercises.isNotEmpty) {
-          updateExerciseIdInBloc(filteredExercises[0].id!);
+          updateExerciseIdInBloc(filteredExercises[0]);
         } else {
           updateExerciseIdInBloc(null);
         }
