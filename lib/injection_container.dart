@@ -1,18 +1,34 @@
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get_it/get_it.dart';
-import 'package:my_fitness_tracker/features/training_history/domain/usecases/check_recent_entry.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:sqflite/sqflite.dart';
+
+import 'core/database/sqlite_database_helper.dart';
+import 'core/messages/bloc/message_bloc.dart';
+
+import 'features/active_training/presentation/bloc/active_training_bloc.dart';
+
+import 'features/muscle_management/data/datasources/muscle_local_data_source.dart';
+import 'features/muscle_management/data/repositories/muscle_repository_impl.dart';
+import 'features/muscle_management/domain/repositories/muscle_repository.dart';
+import 'features/muscle_management/domain/usecases/assign_muscle_to_exercise.dart';
+import 'features/muscle_management/domain/usecases/create_muscle.dart';
+import 'features/muscle_management/domain/usecases/delete_muscle.dart';
+import 'features/muscle_management/domain/usecases/fetch_muscles.dart';
+import 'features/muscle_management/domain/usecases/get_muscle.dart';
+import 'features/muscle_management/domain/usecases/update_muscle.dart';
+import 'features/muscle_management/presentation/bloc/muscle_management_bloc.dart';
+
+import 'features/training_history/domain/usecases/check_recent_entry.dart';
 import 'features/training_history/data/datasources/history_local_data_source.dart';
 import 'features/training_history/data/repositories/history_repository_impl.dart';
 import 'features/training_history/domain/repositories/history_repository.dart';
 import 'features/training_history/domain/usecases/create_history_entry.dart';
 import 'features/training_history/domain/usecases/get_history_entry.dart';
 import 'features/training_history/domain/usecases/update_history_entry.dart';
-import 'features/training_history/domain/usecases/delete_history_entry.dart'
-    as delete;
-import 'features/training_history/domain/usecases/fetch_history_entries.dart'
-    as fetch;
+import 'features/training_history/domain/usecases/delete_history_entry.dart';
+import 'features/training_history/domain/usecases/fetch_history_entries.dart';
 import 'features/training_history/presentation/bloc/training_history_bloc.dart';
-import 'features/active_training/presentation/bloc/active_training_bloc.dart';
+
 import 'features/training_management/domain/usecases/create_training.dart';
 import 'features/training_management/domain/usecases/delete_training.dart';
 import 'features/training_management/domain/usecases/get_training.dart';
@@ -22,10 +38,7 @@ import 'features/training_management/data/repositories/training_repository_impl.
 import 'features/training_management/domain/repositories/training_repository.dart';
 import 'features/training_management/domain/usecases/fetch_trainings.dart';
 import 'features/training_management/presentation/bloc/training_management_bloc.dart';
-import 'package:sqflite/sqflite.dart';
 
-import 'core/database/sqlite_database_helper.dart';
-import 'core/messages/bloc/message_bloc.dart';
 import 'features/exercise_management/data/datasources/exercise_local_data_source.dart';
 import 'features/exercise_management/data/repositories/exercise_repository_impl.dart';
 import 'features/exercise_management/domain/repositories/exercise_repository.dart';
@@ -119,10 +132,10 @@ Future<void> init() async {
 
   // Usecases
   sl.registerLazySingleton(() => CreateHistoryEntry(sl()));
-  sl.registerLazySingleton(() => fetch.FetchHistoryEntries(sl()));
+  sl.registerLazySingleton(() => FetchHistoryEntries(sl()));
   sl.registerLazySingleton(() => GetHistoryEntry(sl()));
   sl.registerLazySingleton(() => UpdateHistoryEntry(sl()));
-  sl.registerLazySingleton(() => delete.DeleteHistoryEntry(sl()));
+  sl.registerLazySingleton(() => DeleteHistoryEntry(sl()));
   sl.registerLazySingleton(() => CheckRecentEntry(sl()));
 
   // Repository
@@ -132,6 +145,34 @@ Future<void> init() async {
   // Data sources
   sl.registerLazySingleton<HistoryLocalDataSource>(
       () => SQLiteHistoryLocalDataSource(database: sl()));
+
+  //! Features - Muscle management
+  // Bloc
+  sl.registerLazySingleton<MuscleManagementBloc>(() => MuscleManagementBloc(
+        messageBloc: sl(),
+        createMuscle: sl(),
+        fetchMuscles: sl(),
+        updateMuscle: sl(),
+        deleteMuscle: sl(),
+        getMuscle: sl(),
+        assignMuscleToExercise: sl(),
+      ));
+
+  // Usecases
+  sl.registerLazySingleton(() => CreateMuscle(sl()));
+  sl.registerLazySingleton(() => FetchMuscles(sl()));
+  sl.registerLazySingleton(() => GetMuscle(sl()));
+  sl.registerLazySingleton(() => UpdateMuscle(sl()));
+  sl.registerLazySingleton(() => DeleteMuscle(sl()));
+  sl.registerLazySingleton(() => AssignMuscleToExercise(sl()));
+
+  // Repository
+  sl.registerLazySingleton<MuscleRepository>(
+      () => MuscleRepositoryImpl(localDataSource: sl()));
+
+  // Data sources
+  sl.registerLazySingleton<MuscleLocalDataSource>(
+      () => SQLiteMuscleLocalDataSource(database: sl()));
 
   // External
 }

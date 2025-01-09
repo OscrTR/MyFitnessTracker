@@ -10,8 +10,8 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:location/location.dart';
-import 'package:my_fitness_tracker/features/training_history/domain/entities/history_entry.dart';
-import 'package:my_fitness_tracker/features/training_history/presentation/bloc/training_history_bloc.dart';
+import '../../../training_history/domain/entities/history_entry.dart';
+import '../../../training_history/presentation/bloc/training_history_bloc.dart';
 import 'package:pausable_timer/pausable_timer.dart';
 
 import 'package:uuid/uuid.dart';

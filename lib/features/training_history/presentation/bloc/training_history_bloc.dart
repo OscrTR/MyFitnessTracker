@@ -1,7 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:equatable/equatable.dart';
-import 'package:my_fitness_tracker/features/training_history/domain/entities/history_entry.dart';
+import '../../domain/entities/history_entry.dart';
 import '../../../../core/error/failures.dart';
 import '../../../../core/messages/bloc/message_bloc.dart';
 import '../../domain/usecases/create_history_entry.dart' as create;
@@ -35,7 +35,7 @@ class TrainingHistoryBloc
     required this.checkRecentEntry,
     required this.messageBloc,
   }) : super(TrainingHistoryInitial()) {
-    on<FetchHistoryEntries>((event, emit) async {
+    on<FetchHistoryEntriesEvent>((event, emit) async {
       final result = await fetchHistoryEntries(null);
 
       result.fold(
@@ -89,7 +89,7 @@ class TrainingHistoryBloc
       }
     });
 
-    on<DeleteHistoryEntry>((event, emit) async {
+    on<DeleteHistoryEntryEvent>((event, emit) async {
       if (state is TrainingHistoryLoaded) {
         final currentState = state as TrainingHistoryLoaded;
 

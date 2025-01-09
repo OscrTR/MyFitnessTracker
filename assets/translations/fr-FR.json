@@ -72,6 +72,7 @@
   "training_page_create_workout": "Crée un entraînement de musculation",
   "training_page_run": "Course",
   "training_page_create_run": "Crée un plan de course",
+  "training_page_create_muscle": "Ajoute un muscle",
 
   "training_detail_page_title_create": "Créer un entraînement",
   "training_detail_page_title_edit": "Modifier un entraînement",
@@ -82,6 +83,7 @@
   "training_detail_page_autostart": "Démarrage automatique",
 
   "exercise_page_exercises": "Exercices",
+  "muscles_page_muscles": "Muscles",
 
   "exercise_detail_page_title_create": "Créer un exercice",
   "exercise_detail_page_title_edit": "Modifier un exercise",

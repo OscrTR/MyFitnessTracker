@@ -1,4 +1,4 @@
-import 'package:my_fitness_tracker/features/training_history/data/models/history_entry_model.dart';
+import '../models/history_entry_model.dart';
 import 'package:sqflite/sqflite.dart';
 
 import '../../../../core/error/exceptions.dart';

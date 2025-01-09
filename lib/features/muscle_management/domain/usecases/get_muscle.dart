@@ -1,20 +1,20 @@
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
-import '../entities/history_entry.dart';
-
 import '../../../../core/error/failures.dart';
 import '../../../../core/usecases/usecase.dart';
-import '../repositories/history_repository.dart';
+import '../repositories/muscle_repository.dart';
 
-class GetHistoryEntry extends Usecase<HistoryEntry, Params> {
-  final HistoryRepository repository;
+import '../entities/muscle.dart';
 
-  GetHistoryEntry(this.repository);
+class GetMuscle extends Usecase<Muscle, Params> {
+  final MuscleRepository repository;
+
+  GetMuscle(this.repository);
 
   @override
-  Future<Either<Failure, HistoryEntry>> call(Params params) async {
+  Future<Either<Failure, Muscle>> call(Params params) async {
     try {
-      return await repository.getHistoryEntry(params.id);
+      return await repository.getMuscle(params.id);
     } catch (e) {
       return const Left(DatabaseFailure());
     }

@@ -1,13 +1,12 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'active_multiset_run_widget.dart';
-
-import '../../../../helper_functions.dart';
-import 'active_multiset_exercise_widget.dart';
-import '../../../training_management/domain/entities/multiset.dart';
 
 import '../../../../app_colors.dart';
+import '../../../../helper_functions.dart';
+import '../../../training_management/domain/entities/multiset.dart';
 import '../../../training_management/domain/entities/training_exercise.dart';
+import 'active_multiset_exercise_widget.dart';
+import 'active_multiset_run_widget.dart';
 
 class ActiveMultisetWidget extends StatefulWidget {
   final Multiset multiset;

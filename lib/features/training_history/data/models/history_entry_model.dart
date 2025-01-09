@@ -1,4 +1,4 @@
-import 'package:my_fitness_tracker/features/training_history/domain/entities/history_entry.dart';
+import '../../domain/entities/history_entry.dart';
 
 class HistoryEntryModel extends HistoryEntry {
   const HistoryEntryModel({

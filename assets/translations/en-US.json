@@ -72,6 +72,7 @@
   "training_page_create_workout": "Create a workout training",
   "training_page_run": "Run",
   "training_page_create_run": "Create a run training",
+  "training_page_create_muscle": "Add a muscle",
 
   "training_detail_page_title_create": "Create training",
   "training_detail_page_title_edit": "Edit training",
@@ -82,6 +83,7 @@
   "training_detail_page_autostart": "Auto start",
 
   "exercise_page_exercises": "Exercises",
+  "muscles_page_muscles": "Muscles",
 
   "exercise_detail_page_title_create": "Create exercise",
   "exercise_detail_page_title_edit": "Edit exercise",

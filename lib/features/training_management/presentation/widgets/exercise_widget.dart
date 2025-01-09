@@ -5,6 +5,8 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:searchfield/searchfield.dart';
+
 import '../../../../app_colors.dart';
 import '../../../../core/messages/bloc/message_bloc.dart';
 import '../../../exercise_management/data/models/exercise_model.dart';
@@ -15,7 +17,6 @@ import '../bloc/training_management_bloc.dart';
 import 'big_text_field_widget.dart';
 import 'more_widget.dart';
 import 'small_text_field_widget.dart';
-import 'package:searchfield/searchfield.dart';
 
 class ExerciseWidget extends StatefulWidget {
   final String exerciseKey;

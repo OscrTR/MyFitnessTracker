@@ -1,9 +1,9 @@
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
-import 'package:my_fitness_tracker/core/error/failures.dart';
-import 'package:my_fitness_tracker/core/usecases/usecase.dart';
-import 'package:my_fitness_tracker/features/training_history/domain/entities/history_entry.dart';
-import 'package:my_fitness_tracker/features/training_history/domain/repositories/history_repository.dart';
+import '../../../../core/error/failures.dart';
+import '../../../../core/usecases/usecase.dart';
+import '../entities/history_entry.dart';
+import '../repositories/history_repository.dart';
 
 class CreateHistoryEntry extends Usecase<HistoryEntry, Params> {
   final HistoryRepository repository;

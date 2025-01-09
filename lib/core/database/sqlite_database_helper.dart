@@ -26,6 +26,25 @@ class SQLiteDatabaseHelper {
         ''');
 
         await db.execute('''
+          CREATE TABLE muscles(
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            body_part TEXT
+          )
+        ''');
+
+        await db.execute('''
+          CREATE TABLE exercise_muscles(
+            exercise_id INTEGER,
+            muscle_id INTEGER,
+            is_primary BOOLEAN,
+            FOREIGN KEY (exercise_id) REFERENCES exercises (id) ON DELETE CASCADE,
+            FOREIGN KEY (muscle_id) REFERENCES muscles (id) ON DELETE CASCADE,
+            PRIMARY KEY (exercise_id, muscle_id)
+          )
+        ''');
+
+        await db.execute('''
           CREATE TABLE trainings(
             id INTEGER PRIMARY KEY AUTOINCREMENT, 
             name TEXT, 

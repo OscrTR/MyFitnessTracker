@@ -7,7 +7,7 @@ abstract class TrainingHistoryEvent extends Equatable {
   List<Object> get props => [];
 }
 
-class FetchHistoryEntries extends TrainingHistoryEvent {}
+class FetchHistoryEntriesEvent extends TrainingHistoryEvent {}
 
 class CreateOrUpdateHistoryEntry extends TrainingHistoryEvent {
   final HistoryEntry historyEntry;
@@ -18,10 +18,10 @@ class CreateOrUpdateHistoryEntry extends TrainingHistoryEvent {
   List<Object> get props => [historyEntry];
 }
 
-class DeleteHistoryEntry extends TrainingHistoryEvent {
+class DeleteHistoryEntryEvent extends TrainingHistoryEvent {
   final int id;
 
-  const DeleteHistoryEntry({required this.id});
+  const DeleteHistoryEntryEvent({required this.id});
 
   @override
   List<Object> get props => [id];

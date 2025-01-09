@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_fitness_tracker/features/training_history/presentation/bloc/training_history_bloc.dart';
+import '../bloc/training_history_bloc.dart';
 
 class HistoryPage extends StatelessWidget {
   const HistoryPage({super.key});
@@ -38,7 +38,7 @@ class HistoryPage extends StatelessWidget {
                           GestureDetector(
                             onTap: () {
                               context.read<TrainingHistoryBloc>().add(
-                                  DeleteHistoryEntry(
+                                  DeleteHistoryEntryEvent(
                                       id: historyEntries[index].id!));
                             },
                             child: Text('Delete'),
