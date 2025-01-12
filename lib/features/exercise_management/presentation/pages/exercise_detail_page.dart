@@ -72,7 +72,6 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
         (sl<ExerciseManagementBloc>().state as ExerciseManagementLoaded)
             .selectedExercise
             ?.exerciseType;
-    print(selectedType);
     _selectedExerciseType = selectedType ?? ExerciseType.workout;
   }
 

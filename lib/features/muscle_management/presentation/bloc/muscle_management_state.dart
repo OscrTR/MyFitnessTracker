@@ -19,6 +19,16 @@ class MuscleManagementLoaded extends MuscleManagementState {
     this.muscles = const [],
     this.selectedMuscle,
   });
+
+  MuscleManagementLoaded copyWith({
+    List<Muscle>? muscles,
+    Muscle? selectedMuscle,
+  }) {
+    return MuscleManagementLoaded(
+      muscles: muscles ?? this.muscles,
+      selectedMuscle: selectedMuscle ?? this.selectedMuscle,
+    );
+  }
 }
 
 class MuscleManagementFailure extends MuscleManagementState {

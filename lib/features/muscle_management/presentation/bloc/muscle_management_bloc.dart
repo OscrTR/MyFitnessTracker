@@ -3,7 +3,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:equatable/equatable.dart';
 import '../../domain/usecases/assign_muscle_to_exercise.dart' as assign;
 import '../../domain/usecases/create_muscle.dart' as create;
-import '../../domain/usecases/delete_muscle.dart';
+import '../../domain/usecases/delete_muscle.dart' as delete;
 import '../../domain/usecases/get_muscle.dart' as get_m;
 import '../../domain/usecases/update_muscle.dart' as update;
 
@@ -23,7 +23,7 @@ class MuscleManagementBloc
   final create.CreateMuscle createMuscle;
   final get_m.GetMuscle getMuscle;
   final update.UpdateMuscle updateMuscle;
-  final DeleteMuscle deleteMuscle;
+  final delete.DeleteMuscle deleteMuscle;
   final assign.AssignMuscleToExercise assignMuscleToExercise;
   final MessageBloc messageBloc;
   MuscleManagementBloc({
@@ -48,6 +48,70 @@ class MuscleManagementBloc
         );
       },
     );
+
+    on<GetMuscleEvent>((event, emit) async {
+      if (state is MuscleManagementLoaded) {
+        final currentState = state as MuscleManagementLoaded;
+        final result = await getMuscle(get_m.Params(event.id));
+
+        result.fold(
+          (failure) {
+            messageBloc.add(AddMessageEvent(
+                message: _mapFailureToMessage(failure), isError: true));
+          },
+          (muscle) {
+            emit(currentState.copyWith(selectedMuscle: muscle));
+          },
+        );
+      }
+    });
+
+    on<CreateOrUpdateMuscleEvent>((event, emit) async {
+      if (state is MuscleManagementLoaded) {
+        final currentState = state as MuscleManagementLoaded;
+        final result = event.muscle.id != null
+            ? await updateMuscle(update.Params(event.muscle))
+            : await createMuscle(create.Params(event.muscle));
+
+        result.fold(
+          (failure) {
+            messageBloc.add(AddMessageEvent(
+                message: _mapFailureToMessage(failure), isError: true));
+          },
+          (muscle) {
+            final List<Muscle> updatedMuscles = List.from(currentState.muscles);
+            if (event.muscle.id != null) {
+              final index =
+                  updatedMuscles.indexWhere((el) => el.id == event.muscle.id);
+              updatedMuscles[index] = muscle;
+            } else {
+              updatedMuscles.add(muscle);
+            }
+
+            emit(currentState.copyWith(muscles: updatedMuscles));
+          },
+        );
+      }
+    });
+
+    on<DeleteMuscleEvent>((event, emit) async {
+      if (state is MuscleManagementLoaded) {
+        final currentState = state as MuscleManagementLoaded;
+        final result = await deleteMuscle(delete.Params(event.id));
+
+        result.fold(
+          (failure) {
+            messageBloc.add(AddMessageEvent(
+                message: _mapFailureToMessage(failure), isError: true));
+          },
+          (muscle) {
+            final List<Muscle> updatedMuscles = List.from(currentState.muscles);
+            updatedMuscles.removeWhere((element) => element.id == event.id);
+            emit(currentState.copyWith(muscles: updatedMuscles));
+          },
+        );
+      }
+    });
   }
 }
 
