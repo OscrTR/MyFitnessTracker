@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import '../../domain/entities/exercise.dart';
 
 class ExerciseModel extends Exercise {
@@ -7,6 +9,7 @@ class ExerciseModel extends Exercise {
     super.imagePath,
     super.description,
     required super.exerciseType,
+    super.muscleGroups,
   });
 
   factory ExerciseModel.fromJson(Map<String, dynamic> json) {
@@ -16,6 +19,9 @@ class ExerciseModel extends Exercise {
       imagePath: json['image_path'] as String? ?? '',
       description: json['description'] as String? ?? '',
       exerciseType: ExerciseType.values[json['exercise_type'] as int],
+      muscleGroups: (jsonDecode(json['muscle_groups']) as List)
+          .map((i) => MuscleGroup.values[i])
+          .toList(),
     );
   }
 
@@ -26,6 +32,7 @@ class ExerciseModel extends Exercise {
       'image_path': imagePath,
       'description': description,
       'exercise_type': exerciseType.index,
+      'muscle_groups': jsonEncode(muscleGroups?.map((e) => e.index).toList()),
     };
   }
 }

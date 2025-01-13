@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:multi_select_flutter/multi_select_flutter.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 
@@ -36,6 +37,7 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
     ExerciseType.yoga
   ];
   late ExerciseType _selectedExerciseType;
+  List<MuscleGroup> _selectedMuscleGroups = [];
 
   @override
   void initState() {
@@ -68,11 +70,14 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
   }
 
   void _initType() {
-    final selectedType =
+    final exercise =
         (sl<ExerciseManagementBloc>().state as ExerciseManagementLoaded)
-            .selectedExercise
-            ?.exerciseType;
-    _selectedExerciseType = selectedType ?? ExerciseType.workout;
+            .selectedExercise;
+    _selectedExerciseType = exercise?.exerciseType ?? ExerciseType.workout;
+    if (exercise != null) {
+      _selectedMuscleGroups = exercise.muscleGroups ?? [];
+      print(_selectedMuscleGroups);
+    }
   }
 
   Future<void> _deleteImageFile() async {
@@ -172,6 +177,16 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
                   },
                 ),
                 const SizedBox(height: 30),
+                MultiSelectDialogField<MuscleGroup>(
+                  initialValue: _selectedMuscleGroups,
+                  items: MuscleGroup.values
+                      .map((e) => MultiSelectItem(e, e.name))
+                      .toList(),
+                  listType: MultiSelectListType.CHIP,
+                  onConfirm: (values) {
+                    _selectedMuscleGroups = values;
+                  },
+                ),
                 ImagePickerWidget(
                   image: _image,
                   onAddImage: _pickImage,
@@ -194,24 +209,18 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
                     if (_imageToDelete != null) {
                       _deleteImageFile();
                     }
-
-                    final event = exercise == null
-                        ? CreateExerciseEvent(
+                    context.read<ExerciseManagementBloc>().add(
+                          CreateOrUpdateExerciseEvent(
                             Exercise(
-                                name: _nameController.text,
-                                description: _descriptionController.text,
-                                imagePath: _image?.path ?? '',
-                                exerciseType: _selectedExerciseType),
-                          )
-                        : UpdateExerciseEvent(
-                            Exercise(
-                                id: exercise.id!,
-                                name: _nameController.text,
-                                description: _descriptionController.text,
-                                imagePath: _image?.path ?? '',
-                                exerciseType: _selectedExerciseType),
-                          );
-                    BlocProvider.of<ExerciseManagementBloc>(context).add(event);
+                              id: exercise?.id,
+                              name: _nameController.text,
+                              description: _descriptionController.text,
+                              imagePath: _image?.path ?? '',
+                              exerciseType: _selectedExerciseType,
+                              muscleGroups: _selectedMuscleGroups,
+                            ),
+                          ),
+                        );
                     widget.fromTrainingCreation
                         ? GoRouter.of(context).push('/training_detail')
                         : GoRouter.of(context).push('/trainings');

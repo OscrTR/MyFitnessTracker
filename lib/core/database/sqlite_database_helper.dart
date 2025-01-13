@@ -21,26 +21,8 @@ class SQLiteDatabaseHelper {
             name TEXT,
             exercise_type INTEGER,
             description TEXT, 
-            image_path TEXT
-          )
-        ''');
-
-        await db.execute('''
-          CREATE TABLE muscles(
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL,
-            body_part TEXT
-          )
-        ''');
-
-        await db.execute('''
-          CREATE TABLE exercise_muscles(
-            exercise_id INTEGER,
-            muscle_id INTEGER,
-            is_primary BOOLEAN,
-            FOREIGN KEY (exercise_id) REFERENCES exercises (id) ON DELETE CASCADE,
-            FOREIGN KEY (muscle_id) REFERENCES muscles (id) ON DELETE CASCADE,
-            PRIMARY KEY (exercise_id, muscle_id)
+            image_path TEXT,
+            muscle_groups TEXT NOT NULL
           )
         ''');
 

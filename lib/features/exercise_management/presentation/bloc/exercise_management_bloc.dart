@@ -73,13 +73,17 @@ class ExerciseManagementBloc
       }
     });
 
-    on<CreateExerciseEvent>((event, emit) async {
+    on<CreateOrUpdateExerciseEvent>((event, emit) async {
       if (state is ExerciseManagementLoaded) {
         final currentState = state as ExerciseManagementLoaded;
 
-        final result = await createExercise(
-          create.Params(event.exercise),
-        );
+        final isUpdate = event.exercise.id != null;
+
+        final result = isUpdate
+            ? await updateExercise(update.Params(event.exercise))
+            : await createExercise(
+                create.Params(event.exercise),
+              );
 
         result.fold(
           (failure) {
@@ -88,47 +92,23 @@ class ExerciseManagementBloc
           },
           (result) {
             messageBloc.add(AddMessageEvent(
-                message: tr('message_exercise_creation_success',
-                    args: [event.exercise.name]),
+                message: isUpdate
+                    ? tr('message_exercise_creation_success',
+                        args: [event.exercise.name])
+                    : tr('message_exercise_update_success',
+                        args: [event.exercise.name]),
                 isError: false));
-            final updatedExercises = List<Exercise>.from(currentState.exercises)
-              ..add(result);
-            emit(currentState.copyWith(exercises: updatedExercises));
-          },
-        );
-      }
-    });
 
-    on<UpdateExerciseEvent>((event, emit) async {
-      if (state is ExerciseManagementLoaded) {
-        final currentState = state as ExerciseManagementLoaded;
-
-        final result = await updateExercise(
-          update.Params(event.exercise),
-        );
-
-        result.fold(
-          (failure) {
-            messageBloc.add(AddMessageEvent(
-                message: _mapFailureToMessage(failure), isError: true));
-          },
-          (result) {
-            final updatedExerciseIndex = currentState.exercises
-                .indexWhere((el) => el.id == event.exercise.id);
             final updatedExercises =
                 List<Exercise>.from(currentState.exercises);
-            updatedExercises[updatedExerciseIndex] = Exercise(
-              id: event.exercise.id,
-              name: event.exercise.name,
-              description: event.exercise.description,
-              imagePath: event.exercise.imagePath,
-              exerciseType: event.exercise.exerciseType,
-            );
+            if (isUpdate) {
+              final index = updatedExercises
+                  .indexWhere((el) => el.id == event.exercise.id);
+              updatedExercises[index] = result;
+            } else {
+              updatedExercises.add(result);
+            }
             emit(currentState.copyWith(exercises: updatedExercises));
-            messageBloc.add(AddMessageEvent(
-                message: tr('message_exercise_update_success',
-                    args: [event.exercise.name]),
-                isError: false));
           },
         );
       }

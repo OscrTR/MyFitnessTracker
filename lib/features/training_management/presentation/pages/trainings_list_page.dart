@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:my_fitness_tracker/features/muscle_management/presentation/bloc/muscle_management_bloc.dart';
 import '../../../active_training/presentation/bloc/active_training_bloc.dart';
 
 import '../../../../app_colors.dart';
@@ -46,7 +45,6 @@ class TrainingsListPage extends StatelessWidget {
             SizedBox(height: 40),
             ExerciseSection(),
             SizedBox(height: 40),
-            MusclesSection(),
             SizedBox(height: 100),
           ],
         ),
@@ -160,89 +158,6 @@ class ExerciseSection extends StatelessWidget {
                     exerciseName: exercise.name,
                     exerciseImagePath: exercise.imagePath,
                     exerciseDescription: exercise.description,
-                  );
-                },
-              );
-            }
-            return Center(child: Text(context.tr('error_state')));
-          },
-        ),
-      ],
-    );
-  }
-}
-
-class MusclesSection extends StatelessWidget {
-  const MusclesSection({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        const HeaderWidget(
-          titleKey: 'muscles_page_muscles',
-          icon: Icons.list,
-          color: AppColors.lightGrey,
-        ),
-        const SizedBox(height: 20),
-        BlocBuilder<MuscleManagementBloc, MuscleManagementState>(
-          builder: (context, state) {
-            if (state is MuscleManagementLoaded) {
-              if (state.muscles.isEmpty) {
-                return CreateButton(
-                  textKey: 'training_page_create_muscle',
-                  onTap: () => GoRouter.of(context).push('/muscle_detail'),
-                );
-              }
-              return ListView.separated(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                separatorBuilder: (context, index) =>
-                    const SizedBox(height: 10.0),
-                itemCount: state.muscles.length,
-                itemBuilder: (context, index) {
-                  final muscle = state.muscles[index];
-                  return Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(color: AppColors.lightGrey),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: ListTile(
-                      contentPadding: const EdgeInsets.only(left: 10, right: 0),
-                      title: Text(
-                        muscle.name,
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                      trailing: PopupMenuButton(
-                        onSelected: (value) {
-                          final bloc = context.read<MuscleManagementBloc>();
-                          if (value == 'edit') {
-                            bloc.add(GetMuscleEvent(id: muscle.id!));
-                            GoRouter.of(context).push('/muscle_detail');
-                          } else if (value == 'delete') {
-                            bloc.add(DeleteMuscleEvent(id: muscle.id!));
-                          }
-                        },
-                        itemBuilder: (BuildContext context) => [
-                          PopupMenuItem(
-                            value: 'edit',
-                            child: Row(
-                              children: [Text(context.tr('global_edit'))],
-                            ),
-                          ),
-                          PopupMenuItem(
-                            value: 'delete',
-                            child: Row(
-                              children: [Text(context.tr('global_delete'))],
-                            ),
-                          ),
-                        ],
-                        icon: const Icon(
-                          Icons.more_horiz,
-                          color: AppColors.lightBlack,
-                        ),
-                      ),
-                    ),
                   );
                 },
               );

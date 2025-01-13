@@ -1,7 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_fitness_tracker/features/muscle_management/presentation/bloc/muscle_management_bloc.dart';
 import 'features/training_history/presentation/bloc/training_history_bloc.dart';
 import 'features/active_training/presentation/bloc/active_training_bloc.dart';
 
@@ -60,14 +59,7 @@ class MyApp extends StatelessWidget {
           create: (_) =>
               di.sl<TrainingHistoryBloc>()..add(FetchHistoryEntriesEvent()),
           lazy: false,
-        ),
-        BlocProvider<MuscleManagementBloc>(
-          create: (_) {
-            print('creating muscles bloc');
-            return di.sl<MuscleManagementBloc>()..add(FetchMusclesEvent());
-          },
-          lazy: false,
-        ),
+        )
       ],
       child: MaterialApp.router(
         routerConfig: router,

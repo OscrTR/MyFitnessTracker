@@ -7,15 +7,6 @@ abstract class ExerciseManagementEvent extends Equatable {
   List<Object> get props => [];
 }
 
-class CreateExerciseEvent extends ExerciseManagementEvent {
-  final Exercise exercise;
-
-  const CreateExerciseEvent(this.exercise);
-
-  @override
-  List<Object> get props => [exercise];
-}
-
 class GetExerciseEvent extends ExerciseManagementEvent {
   final int exerciseId;
 
@@ -31,10 +22,10 @@ class ClearSelectedExerciseEvent extends ExerciseManagementEvent {
 
 class FetchExercisesEvent extends ExerciseManagementEvent {}
 
-class UpdateExerciseEvent extends ExerciseManagementEvent {
+class CreateOrUpdateExerciseEvent extends ExerciseManagementEvent {
   final Exercise exercise;
 
-  const UpdateExerciseEvent(this.exercise);
+  const CreateOrUpdateExerciseEvent(this.exercise);
 
   @override
   List<Object> get props => [exercise];

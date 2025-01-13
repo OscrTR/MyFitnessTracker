@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
-import 'features/muscle_management/presentation/pages/muscle_detail_page.dart';
 import 'package:top_snackbar_flutter/custom_snack_bar.dart';
 import 'package:top_snackbar_flutter/top_snack_bar.dart';
 
@@ -84,22 +83,6 @@ final router = GoRouter(
             return CustomTransitionPage(
               child: ExerciseDetailPage(
                 fromTrainingCreation: fromTrainingCreation,
-              ),
-              transitionsBuilder:
-                  (context, animation, secondaryAnimation, child) {
-                return child;
-              },
-            );
-          },
-        ),
-        GoRoute(
-          path: '/muscle_detail',
-          pageBuilder: (context, state) {
-            final fromExerciseCreation =
-                (state.extra as String?) == 'exercise_detail';
-            return CustomTransitionPage(
-              child: MuscleDetailPage(
-                fromExerciseCreation: fromExerciseCreation,
               ),
               transitionsBuilder:
                   (context, animation, secondaryAnimation, child) {

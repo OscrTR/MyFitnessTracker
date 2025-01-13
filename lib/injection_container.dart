@@ -7,17 +7,6 @@ import 'core/messages/bloc/message_bloc.dart';
 
 import 'features/active_training/presentation/bloc/active_training_bloc.dart';
 
-import 'features/muscle_management/data/datasources/muscle_local_data_source.dart';
-import 'features/muscle_management/data/repositories/muscle_repository_impl.dart';
-import 'features/muscle_management/domain/repositories/muscle_repository.dart';
-import 'features/muscle_management/domain/usecases/assign_muscle_to_exercise.dart';
-import 'features/muscle_management/domain/usecases/create_muscle.dart';
-import 'features/muscle_management/domain/usecases/delete_muscle.dart';
-import 'features/muscle_management/domain/usecases/fetch_muscles.dart';
-import 'features/muscle_management/domain/usecases/get_muscle.dart';
-import 'features/muscle_management/domain/usecases/update_muscle.dart';
-import 'features/muscle_management/presentation/bloc/muscle_management_bloc.dart';
-
 import 'features/training_history/domain/usecases/check_recent_entry.dart';
 import 'features/training_history/data/datasources/history_local_data_source.dart';
 import 'features/training_history/data/repositories/history_repository_impl.dart';
@@ -145,34 +134,6 @@ Future<void> init() async {
   // Data sources
   sl.registerLazySingleton<HistoryLocalDataSource>(
       () => SQLiteHistoryLocalDataSource(database: sl()));
-
-  //! Features - Muscle management
-  // Bloc
-  sl.registerLazySingleton<MuscleManagementBloc>(() => MuscleManagementBloc(
-        messageBloc: sl(),
-        createMuscle: sl(),
-        fetchMuscles: sl(),
-        updateMuscle: sl(),
-        deleteMuscle: sl(),
-        getMuscle: sl(),
-        assignMuscleToExercise: sl(),
-      ));
-
-  // Usecases
-  sl.registerLazySingleton(() => CreateMuscle(sl()));
-  sl.registerLazySingleton(() => FetchMuscles(sl()));
-  sl.registerLazySingleton(() => GetMuscle(sl()));
-  sl.registerLazySingleton(() => UpdateMuscle(sl()));
-  sl.registerLazySingleton(() => DeleteMuscle(sl()));
-  sl.registerLazySingleton(() => AssignMuscleToExercise(sl()));
-
-  // Repository
-  sl.registerLazySingleton<MuscleRepository>(
-      () => MuscleRepositoryImpl(localDataSource: sl()));
-
-  // Data sources
-  sl.registerLazySingleton<MuscleLocalDataSource>(
-      () => SQLiteMuscleLocalDataSource(database: sl()));
 
   // External
 }

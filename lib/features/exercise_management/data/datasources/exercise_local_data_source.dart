@@ -43,7 +43,8 @@ class SQLiteExerciseLocalDataSource implements ExerciseLocalDataSource {
           name: exerciseToCreate.name,
           imagePath: exerciseToCreate.imagePath,
           description: exerciseToCreate.description,
-          exerciseType: exerciseToCreate.exerciseType);
+          exerciseType: exerciseToCreate.exerciseType,
+          muscleGroups: exerciseToCreate.muscleGroups);
       final values = model.toJson();
       // Insert the exercise into the database and get its generated ID
       final id = await database.insert('exercises', values);
@@ -55,6 +56,7 @@ class SQLiteExerciseLocalDataSource implements ExerciseLocalDataSource {
         imagePath: exerciseToCreate.imagePath,
         description: exerciseToCreate.description,
         exerciseType: exerciseToCreate.exerciseType,
+        muscleGroups: exerciseToCreate.muscleGroups,
       );
     } catch (e) {
       throw LocalDatabaseException(e.toString());
@@ -103,7 +105,8 @@ class SQLiteExerciseLocalDataSource implements ExerciseLocalDataSource {
           name: exerciseToUpdate.name,
           imagePath: exerciseToUpdate.imagePath,
           description: exerciseToUpdate.description,
-          exerciseType: exerciseToUpdate.exerciseType);
+          exerciseType: exerciseToUpdate.exerciseType,
+          muscleGroups: exerciseToUpdate.muscleGroups);
       final values = model.toJson();
       await database.update(
         'exercises',
