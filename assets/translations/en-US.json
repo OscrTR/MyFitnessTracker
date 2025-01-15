@@ -18,6 +18,12 @@
   "global_yes": "Yes",
   "global_no": "No",
 
+  "nav_home": "Home",
+  "nav_trainings": "Trainings",
+  "nav_history": "History",
+  "nav_stats": "Stats",
+  "nav_settings": "Settings",
+
   "message_unexpected_error": "Unexpected error.",
   "message_database_failure": "Database failure.",
   "message_exercise_creation_success": "Exercise {} created successfully.",
