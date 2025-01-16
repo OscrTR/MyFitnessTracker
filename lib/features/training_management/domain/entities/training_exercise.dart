@@ -1,9 +1,5 @@
 import 'package:equatable/equatable.dart';
 
-enum TrainingExerciseType { run, yoga, workout }
-
-enum RunExerciseTarget { distance, duration, intervals }
-
 class TrainingExercise extends Equatable {
   final int? id;
   final int? trainingId;
@@ -185,4 +181,42 @@ class TrainingExercise extends Equatable {
         position,
         key,
       ];
+}
+
+enum TrainingExerciseType {
+  run,
+  yoga,
+  workout;
+
+  String translate(String locale) {
+    switch (this) {
+      case TrainingExerciseType.yoga:
+        return locale == 'fr' ? 'Yoga' : 'Yoga';
+
+      case TrainingExerciseType.workout:
+        return locale == 'fr' ? 'Renforcement' : 'Workout';
+
+      case TrainingExerciseType.run:
+        return locale == 'fr' ? 'Course' : 'Run';
+    }
+  }
+}
+
+enum RunExerciseTarget {
+  distance,
+  duration,
+  intervals;
+
+  String translate(String locale) {
+    switch (this) {
+      case RunExerciseTarget.distance:
+        return locale == 'fr' ? 'Distance' : 'Distance';
+
+      case RunExerciseTarget.duration:
+        return locale == 'fr' ? 'Durée' : 'Duration';
+
+      case RunExerciseTarget.intervals:
+        return locale == 'fr' ? 'Intervalles' : 'Intervals';
+    }
+  }
 }

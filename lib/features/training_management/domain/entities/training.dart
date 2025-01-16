@@ -3,8 +3,6 @@ import 'package:equatable/equatable.dart';
 import 'multiset.dart';
 import 'training_exercise.dart';
 
-enum TrainingType { run, yoga, workout }
-
 class Training extends Equatable {
   final int? id;
   final String name;
@@ -43,4 +41,23 @@ class Training extends Equatable {
   @override
   List<Object?> get props =>
       [id, name, type, isSelected, trainingExercises, multisets];
+}
+
+enum TrainingType {
+  run,
+  yoga,
+  workout;
+
+  String translate(String locale) {
+    switch (this) {
+      case TrainingType.yoga:
+        return locale == 'fr' ? 'Yoga' : 'Yoga';
+
+      case TrainingType.workout:
+        return locale == 'fr' ? 'Renforcement' : 'Workout';
+
+      case TrainingType.run:
+        return locale == 'fr' ? 'Course' : 'Run';
+    }
+  }
 }

@@ -76,7 +76,6 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
     _selectedExerciseType = exercise?.exerciseType ?? ExerciseType.workout;
     if (exercise != null) {
       _selectedMuscleGroups = exercise.muscleGroups ?? [];
-      print(_selectedMuscleGroups);
     }
   }
 
@@ -89,15 +88,6 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
 
     if (await fileToDelete.exists()) {
       await fileToDelete.delete();
-    }
-  }
-
-  String _exerciseTypeToString(ExerciseType type) {
-    switch (type) {
-      case ExerciseType.workout:
-        return 'Workout';
-      case ExerciseType.yoga:
-        return 'Yoga';
     }
   }
 
@@ -167,10 +157,11 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
                     expandedBorder: Border.all(color: AppColors.lightBlack),
                   ),
                   headerBuilder: (context, selectedItem, enabled) {
-                    return Text(_exerciseTypeToString(selectedItem));
+                    return Text(
+                        selectedItem.translate(context.locale.languageCode));
                   },
                   listItemBuilder: (context, item, isSelected, onItemSelect) {
-                    return Text(_exerciseTypeToString(item));
+                    return Text(item.translate(context.locale.languageCode));
                   },
                   onChanged: (value) {
                     _selectedExerciseType = value!;

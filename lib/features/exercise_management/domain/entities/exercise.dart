@@ -1,7 +1,5 @@
 import 'package:equatable/equatable.dart';
 
-enum ExerciseType { yoga, workout }
-
 class Exercise extends Equatable {
   final int? id;
   final String name;
@@ -46,6 +44,21 @@ class Exercise extends Equatable {
         exerciseType,
         muscleGroups,
       ];
+}
+
+enum ExerciseType {
+  yoga,
+  workout;
+
+  String translate(String locale) {
+    switch (this) {
+      case ExerciseType.yoga:
+        return locale == 'fr' ? 'Yoga' : 'Yoga';
+
+      case ExerciseType.workout:
+        return locale == 'fr' ? 'Renforcement' : 'Workout';
+    }
+  }
 }
 
 enum MuscleGroup {
