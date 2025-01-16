@@ -102,6 +102,9 @@
   "exercise_detail_page_description_hint": "Exercise description",
 
   "settings_page_title": "Settings",
-  "settings_page_language": "App language",
-  "settings_page_version": "App version"
+  "settings_page_language": "Language",
+  "settings_page_language_description": "Select the app language",
+  "settings_page_notifications": "Notifications",
+  "settings_page_reminder": "Training reminders",
+  "settings_page_reminder_description": "Receive a reminder for your planned trainings"
 }

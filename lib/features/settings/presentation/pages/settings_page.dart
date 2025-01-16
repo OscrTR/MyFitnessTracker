@@ -2,6 +2,7 @@ import 'package:animated_custom_dropdown/custom_dropdown.dart';
 import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_advanced_switch/flutter_advanced_switch.dart';
 import 'package:go_router/go_router.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
@@ -16,6 +17,9 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingsPage> {
   String _appVersion = '';
+  bool isReminderNotificationActive = false;
+  final reminderNotification = ValueNotifier<bool>(false);
+
   final List<String> _languages = ['English', 'Français'];
   String? selectedItem;
 
@@ -39,6 +43,15 @@ class _SettingsPageState extends State<SettingsPage> {
   void initState() {
     super.initState();
     _loadAppVersion();
+    reminderNotification.addListener(() {
+      setState(() {
+        if (reminderNotification.value) {
+          isReminderNotificationActive = true;
+        } else {
+          isReminderNotificationActive = false;
+        }
+      });
+    });
     BackButtonInterceptor.add(myInterceptor);
   }
 
@@ -66,6 +79,8 @@ class _SettingsPageState extends State<SettingsPage> {
             const SizedBox(height: 20),
             _buildLanguageSection(),
             const SizedBox(height: 30),
+            _buildNotificationSection(),
+            const SizedBox(height: 30),
             _buildVersionSection(context),
           ],
         ),
@@ -73,45 +88,129 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
+  Widget _buildNotificationSection() {
+    return Container(
+        decoration: BoxDecoration(
+            border: Border.all(color: AppColors.taupeGray),
+            borderRadius: BorderRadius.circular(10)),
+        padding: const EdgeInsets.all(10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(
+                  Icons.notifications_outlined,
+                  color: AppColors.licorice,
+                ),
+                const SizedBox(width: 10),
+                Text(
+                  context.tr('settings_page_notifications'),
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Text(
+              tr('settings_page_reminder'),
+              style: const TextStyle(
+                color: AppColors.licorice,
+                fontWeight: FontWeight.w500,
+                fontSize: 14,
+              ),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                SizedBox(
+                  width: MediaQuery.of(context).size.width - 130,
+                  child: Text(
+                    tr('settings_page_reminder_description'),
+                    style: const TextStyle(
+                      color: AppColors.taupeGray,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+                AdvancedSwitch(
+                  controller: reminderNotification,
+                  width: 48,
+                  height: 24,
+                  inactiveColor: AppColors.timberwolf,
+                  activeColor: AppColors.folly,
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+          ],
+        ));
+  }
+
   Widget _buildLanguageSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          context.tr('settings_page_language'),
-          style: Theme.of(context).textTheme.titleLarge,
-        ),
-        const SizedBox(height: 20),
-        CustomDropdown<String>(
-          items: _languages,
-          initialItem: _getLocaleName(context.locale),
-          decoration: CustomDropdownDecoration(
-            listItemStyle: Theme.of(context)
-                .textTheme
-                .bodyMedium!
-                .copyWith(color: AppColors.lightBlack),
-            headerStyle: Theme.of(context)
-                .textTheme
-                .bodyMedium!
-                .copyWith(color: AppColors.lightBlack),
-            closedSuffixIcon: const Icon(
-              Icons.keyboard_arrow_down_rounded,
-              size: 20,
-              color: AppColors.lightBlack,
-            ),
-            expandedSuffixIcon: const Icon(
-              Icons.keyboard_arrow_up_rounded,
-              size: 20,
-              color: AppColors.lightBlack,
-            ),
-            closedBorder: Border.all(color: AppColors.lightBlack),
-            expandedBorder: Border.all(color: AppColors.lightBlack),
+    return Container(
+      decoration: BoxDecoration(
+          border: Border.all(color: AppColors.taupeGray),
+          borderRadius: BorderRadius.circular(10)),
+      padding: const EdgeInsets.all(10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(
+                Icons.translate,
+                color: AppColors.licorice,
+              ),
+              const SizedBox(width: 10),
+              Text(
+                context.tr('settings_page_language'),
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+            ],
           ),
-          onChanged: (value) {
-            _setLocale(context, value!);
-          },
-        ),
-      ],
+          const SizedBox(height: 10),
+          Text(
+            tr('settings_page_language_description'),
+            style: const TextStyle(
+              color: AppColors.taupeGray,
+              fontWeight: FontWeight.w500,
+              fontSize: 14,
+            ),
+          ),
+          const SizedBox(height: 20),
+          CustomDropdown<String>(
+            items: _languages,
+            initialItem: _getLocaleName(context.locale),
+            decoration: CustomDropdownDecoration(
+              listItemStyle: Theme.of(context)
+                  .textTheme
+                  .bodyMedium!
+                  .copyWith(color: AppColors.taupeGray, fontSize: 14),
+              headerStyle: Theme.of(context)
+                  .textTheme
+                  .bodyMedium!
+                  .copyWith(color: AppColors.taupeGray, fontSize: 14),
+              closedSuffixIcon: const Icon(
+                Icons.keyboard_arrow_down_rounded,
+                size: 20,
+                color: AppColors.lightBlack,
+              ),
+              expandedSuffixIcon: const Icon(
+                Icons.keyboard_arrow_up_rounded,
+                size: 20,
+                color: AppColors.lightBlack,
+              ),
+              closedBorder: Border.all(color: AppColors.lightBlack),
+              expandedBorder: Border.all(color: AppColors.lightBlack),
+            ),
+            onChanged: (value) {
+              _setLocale(context, value!);
+            },
+          ),
+          const SizedBox(height: 10),
+        ],
+      ),
     );
   }
 
@@ -171,22 +270,14 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   Widget _buildVersionSection(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          context.tr('settings_page_version'),
-          style: Theme.of(context).textTheme.titleLarge,
-        ),
-        const SizedBox(height: 10),
-        Text(
-          'Version : $_appVersion',
-          style: Theme.of(context)
-              .textTheme
-              .bodyMedium!
-              .copyWith(color: AppColors.lightBlack),
-        ),
-      ],
+    return Center(
+      child: Text(
+        'Version : $_appVersion',
+        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+              color: AppColors.taupeGray,
+              fontSize: 14,
+            ),
+      ),
     );
   }
 }

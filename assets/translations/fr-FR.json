@@ -102,6 +102,9 @@
   "exercise_detail_page_description_hint": "Description de l'exercice",
 
   "settings_page_title": "Paramètres",
-  "settings_page_language": "Langue de l'application",
-  "settings_page_version": "Version de l'application"
+  "settings_page_language": "Langue",
+  "settings_page_language_description": "Sélectionnez la langue de l'application",
+  "settings_page_notifications": "Notifications",
+  "settings_page_reminder": "Rappels d'entraînement",
+  "settings_page_reminder_description": "Recevez un rappel de vos séances prévues"
 }
