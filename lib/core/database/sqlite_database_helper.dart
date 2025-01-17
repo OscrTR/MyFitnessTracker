@@ -105,6 +105,22 @@ class SQLiteDatabaseHelper {
             FOREIGN KEY(training_id) REFERENCES trainings(id)
           )
         ''');
+
+        await db.execute('''
+          CREATE TABLE run_locations (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            training_id INTEGER,
+            training_exercise_id INTEGER,
+            latitude REAL,
+            longitude REAL,
+            altitude REAL,
+            timestamp TEXT,
+            accuracy REAL,
+            speed REAL,
+            FOREIGN KEY(training_exercise_id) REFERENCES training_exercises(id),
+            FOREIGN KEY(training_id) REFERENCES trainings(id)
+          )
+        ''');
       },
       version: 1,
     );

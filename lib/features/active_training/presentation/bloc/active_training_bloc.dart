@@ -10,6 +10,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:location/location.dart';
+import 'package:sqflite/sqflite.dart';
 import '../../../training_history/domain/entities/history_entry.dart';
 import '../../../training_history/presentation/bloc/training_history_bloc.dart';
 import 'package:pausable_timer/pausable_timer.dart';
@@ -606,7 +607,7 @@ class RunTracker {
     }
   }
 
-  void _updateLocationAndDistance(LocationData currentLocation) {
+  void _updateLocationAndDistance(LocationData currentLocation) async {
     if (_lastLocation != null) {
       double distanceInMeters = distanceBetween(
         _lastLocation!.latitude!,
@@ -618,6 +619,29 @@ class RunTracker {
       totalDistance += distanceInMeters;
     }
     _lastLocation = currentLocation;
+
+    final trainingId = (sl<ActiveTrainingBloc>().state as ActiveTrainingLoaded)
+        .timersStateList
+        .firstWhereOrNull((el) => el.isActive && el.timerId != 'primaryTimer')
+        ?.trainingId;
+
+    final exerciseId = (sl<ActiveTrainingBloc>().state as ActiveTrainingLoaded)
+        .timersStateList
+        .firstWhereOrNull((el) => el.isActive && el.timerId != 'primaryTimer')
+        ?.tExerciseId;
+
+    if (trainingId != null && exerciseId != null) {
+      await sl<Database>().insert('run_locations', {
+        'training_id': trainingId,
+        'exercise_id': exerciseId,
+        'latitude': currentLocation.latitude,
+        'longitude': currentLocation.longitude,
+        'altitude': currentLocation.altitude,
+        'timestamp': DateTime.now().toIso8601String(),
+        'accuracy': currentLocation.accuracy,
+        'speed': currentLocation.speed,
+      });
+    }
   }
 
   double distanceBetween(
