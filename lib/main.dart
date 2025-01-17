@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:my_fitness_tracker/features/settings/presentation/bloc/settings_bloc.dart';
 import 'features/training_history/presentation/bloc/training_history_bloc.dart';
 import 'features/active_training/presentation/bloc/active_training_bloc.dart';
 
@@ -58,6 +59,10 @@ class MyApp extends StatelessWidget {
         BlocProvider<TrainingHistoryBloc>(
           create: (_) =>
               di.sl<TrainingHistoryBloc>()..add(FetchHistoryEntriesEvent()),
+          lazy: false,
+        ),
+        BlocProvider<SettingsBloc>(
+          create: (_) => di.sl<SettingsBloc>()..add(LoadSettings()),
           lazy: false,
         )
       ],

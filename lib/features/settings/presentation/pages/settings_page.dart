@@ -3,7 +3,9 @@ import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_advanced_switch/flutter_advanced_switch.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:my_fitness_tracker/features/settings/presentation/bloc/settings_bloc.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../../../app_colors.dart';
@@ -17,8 +19,6 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingsPage> {
   String _appVersion = '';
-  bool isReminderNotificationActive = false;
-  final reminderNotification = ValueNotifier<bool>(false);
 
   final List<String> _languages = ['English', 'Français'];
   String? selectedItem;
@@ -43,15 +43,6 @@ class _SettingsPageState extends State<SettingsPage> {
   void initState() {
     super.initState();
     _loadAppVersion();
-    reminderNotification.addListener(() {
-      setState(() {
-        if (reminderNotification.value) {
-          isReminderNotificationActive = true;
-        } else {
-          isReminderNotificationActive = false;
-        }
-      });
-    });
     BackButtonInterceptor.add(myInterceptor);
   }
 
@@ -66,29 +57,37 @@ class _SettingsPageState extends State<SettingsPage> {
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(
-              height: 48,
-              child: Text(
-                context.tr('settings_page_title'),
-                style: Theme.of(context).textTheme.displayLarge,
-              ),
-            ),
-            const SizedBox(height: 20),
-            _buildLanguageSection(),
-            const SizedBox(height: 30),
-            _buildNotificationSection(),
-            const SizedBox(height: 30),
-            _buildVersionSection(context),
-          ],
-        ),
+        child:
+            BlocBuilder<SettingsBloc, SettingsState>(builder: (context, state) {
+          if (state is SettingsLoaded) {
+            final isReminderActive = state.isReminderNotificationActive;
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(
+                  height: 48,
+                  child: Text(
+                    context.tr('settings_page_title'),
+                    style: Theme.of(context).textTheme.displayLarge,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                _buildLanguageSection(),
+                const SizedBox(height: 30),
+                _buildNotificationSection(isReminderActive),
+                const SizedBox(height: 30),
+                _buildVersionSection(context),
+              ],
+            );
+          } else {
+            return const SizedBox();
+          }
+        }),
       ),
     );
   }
 
-  Widget _buildNotificationSection() {
+  Widget _buildNotificationSection(bool isReminderActive) {
     return Container(
         decoration: BoxDecoration(
             border: Border.all(color: AppColors.taupeGray),
@@ -134,11 +133,18 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                 ),
                 AdvancedSwitch(
-                  controller: reminderNotification,
+                  initialValue: isReminderActive,
                   width: 48,
                   height: 24,
                   inactiveColor: AppColors.timberwolf,
                   activeColor: AppColors.folly,
+                  onChanged: (value) {
+                    context.read<SettingsBloc>().add(
+                          SetReminderNotificationSettings(
+                            isReminderNotificationActive: value,
+                          ),
+                        );
+                  },
                 ),
               ],
             ),

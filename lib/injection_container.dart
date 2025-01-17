@@ -1,5 +1,7 @@
 import 'package:get_it/get_it.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:my_fitness_tracker/features/settings/presentation/bloc/settings_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 
 import 'core/database/sqlite_database_helper.dart';
@@ -51,6 +53,10 @@ Future<void> init() async {
   //! Core
   sl.registerLazySingleton(() => MessageBloc());
   sl.registerLazySingleton(() => FlutterLocalNotificationsPlugin());
+  sl.registerLazySingletonAsync(
+      () async => await SharedPreferences.getInstance());
+
+  await sl.isReady<SharedPreferences>();
 
   //! Features - Exercise Management
   // Bloc
@@ -135,5 +141,9 @@ Future<void> init() async {
   sl.registerLazySingleton<HistoryLocalDataSource>(
       () => SQLiteHistoryLocalDataSource(database: sl()));
 
-  // External
+  //! Features - Training Management
+  // Bloc
+  sl.registerLazySingleton<SettingsBloc>(() => SettingsBloc(
+        sharedPreferences: sl(),
+      ));
 }
