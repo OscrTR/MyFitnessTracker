@@ -19,10 +19,11 @@ class SQLiteDatabaseHelper {
           CREATE TABLE exercises(
             id INTEGER PRIMARY KEY AUTOINCREMENT, 
             name TEXT,
-            exercise_type INTEGER,
+            exercise_type TEXT,
+            intensity INTEGER,
             description TEXT, 
             image_path TEXT,
-            muscle_groups TEXT NOT NULL
+            muscle_groups TEXT
           )
         ''');
 

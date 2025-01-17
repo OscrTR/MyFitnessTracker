@@ -44,6 +44,7 @@ class SQLiteExerciseLocalDataSource implements ExerciseLocalDataSource {
           imagePath: exerciseToCreate.imagePath,
           description: exerciseToCreate.description,
           exerciseType: exerciseToCreate.exerciseType,
+          intensity: exerciseToCreate.intensity,
           muscleGroups: exerciseToCreate.muscleGroups);
       final values = model.toJson();
       // Insert the exercise into the database and get its generated ID
@@ -56,6 +57,7 @@ class SQLiteExerciseLocalDataSource implements ExerciseLocalDataSource {
         imagePath: exerciseToCreate.imagePath,
         description: exerciseToCreate.description,
         exerciseType: exerciseToCreate.exerciseType,
+        intensity: exerciseToCreate.intensity,
         muscleGroups: exerciseToCreate.muscleGroups,
       );
     } catch (e) {
@@ -106,6 +108,7 @@ class SQLiteExerciseLocalDataSource implements ExerciseLocalDataSource {
           imagePath: exerciseToUpdate.imagePath,
           description: exerciseToUpdate.description,
           exerciseType: exerciseToUpdate.exerciseType,
+          intensity: exerciseToUpdate.intensity,
           muscleGroups: exerciseToUpdate.muscleGroups);
       final values = model.toJson();
       await database.update(

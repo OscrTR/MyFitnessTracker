@@ -32,8 +32,8 @@ class MultisetExerciseWidget extends StatefulWidget {
 class _MultisetExerciseWidgetState extends State<MultisetExerciseWidget> {
   Timer? _debounceTimer;
 
-  Exercise selectedExercise =
-      const Exercise(name: '', exerciseType: ExerciseType.workout);
+  Exercise selectedExercise = const Exercise(
+      name: '', exerciseType: ExerciseType.workout, intensity: 3);
   TrainingExercise trainingExercise = const TrainingExercise();
   late final Map<String, TextEditingController> _controllers;
 
@@ -494,7 +494,9 @@ class _MultisetExerciseWidgetState extends State<MultisetExerciseWidget> {
               .exerciseId;
 
           const ExerciseModel noExercise = ExerciseModel(
-              name: 'no exercise', exerciseType: ExerciseType.workout);
+              name: 'no exercise',
+              exerciseType: ExerciseType.workout,
+              intensity: 3);
 
           if (exerciseId != null) {
             final Exercise exercise = (context

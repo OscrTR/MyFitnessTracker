@@ -18,6 +18,39 @@ import '../widgets/exercise_detail_back_app_bar_widget.dart';
 import '../widgets/exercise_detail_custom_text_field_widget.dart';
 import '../widgets/exercise_detail_image_picker_widget.dart';
 
+enum ExerciseDifficulty {
+  veryEasy,
+  easy,
+  moderate,
+  hard,
+  veryHard;
+
+  String translate(String locale) {
+    switch (this) {
+      case ExerciseDifficulty.veryEasy:
+        return locale == 'fr' ? 'Très facile' : 'Very easy';
+      case ExerciseDifficulty.easy:
+        return locale == 'fr' ? 'Facile' : 'Easy';
+      case ExerciseDifficulty.moderate:
+        return locale == 'fr' ? 'Modéré' : 'Moderate';
+      case ExerciseDifficulty.hard:
+        return locale == 'fr' ? 'Difficile' : 'Hard';
+      case ExerciseDifficulty.veryHard:
+        return locale == 'fr' ? 'Très difficile' : 'Very hard';
+    }
+  }
+}
+
+final Map<int, ExerciseDifficulty> difficultyMap = Map.fromIterables(
+  List.generate(ExerciseDifficulty.values.length, (index) => index + 1),
+  ExerciseDifficulty.values,
+);
+
+final Map<ExerciseDifficulty, int> difficultyLevelMap = Map.fromIterables(
+  ExerciseDifficulty.values,
+  List.generate(ExerciseDifficulty.values.length, (index) => index + 1),
+);
+
 class ExerciseDetailPage extends StatefulWidget {
   final bool fromTrainingCreation;
   const ExerciseDetailPage({super.key, required this.fromTrainingCreation});
@@ -38,6 +71,7 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
   ];
   late ExerciseType _selectedExerciseType;
   List<MuscleGroup> _selectedMuscleGroups = [];
+  late ExerciseDifficulty _selectedDifficulty;
 
   @override
   void initState() {
@@ -74,6 +108,8 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
         (sl<ExerciseManagementBloc>().state as ExerciseManagementLoaded)
             .selectedExercise;
     _selectedExerciseType = exercise?.exerciseType ?? ExerciseType.workout;
+    _selectedDifficulty =
+        difficultyMap[exercise?.intensity] ?? ExerciseDifficulty.moderate;
     if (exercise != null) {
       _selectedMuscleGroups = exercise.muscleGroups ?? [];
     }
@@ -167,6 +203,42 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
                     _selectedExerciseType = value!;
                   },
                 ),
+                CustomDropdown<ExerciseDifficulty>(
+                  items: ExerciseDifficulty.values,
+                  initialItem: _selectedDifficulty,
+                  decoration: CustomDropdownDecoration(
+                    listItemStyle: Theme.of(context)
+                        .textTheme
+                        .bodyMedium!
+                        .copyWith(color: AppColors.lightBlack),
+                    headerStyle: Theme.of(context)
+                        .textTheme
+                        .bodyMedium!
+                        .copyWith(color: AppColors.black),
+                    closedSuffixIcon: const Icon(
+                      Icons.keyboard_arrow_down_rounded,
+                      size: 20,
+                      color: AppColors.lightBlack,
+                    ),
+                    expandedSuffixIcon: const Icon(
+                      Icons.keyboard_arrow_up_rounded,
+                      size: 20,
+                      color: AppColors.lightBlack,
+                    ),
+                    closedBorder: Border.all(color: AppColors.lightBlack),
+                    expandedBorder: Border.all(color: AppColors.lightBlack),
+                  ),
+                  headerBuilder: (context, selectedItem, enabled) {
+                    return Text(
+                        selectedItem.translate(context.locale.languageCode));
+                  },
+                  listItemBuilder: (context, item, isSelected, onItemSelect) {
+                    return Text(item.translate(context.locale.languageCode));
+                  },
+                  onChanged: (value) {
+                    _selectedDifficulty = value!;
+                  },
+                ),
                 const SizedBox(height: 30),
                 MultiSelectDialogField<MuscleGroup>(
                   initialValue: _selectedMuscleGroups,
@@ -208,6 +280,8 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
                               description: _descriptionController.text,
                               imagePath: _image?.path ?? '',
                               exerciseType: _selectedExerciseType,
+                              intensity:
+                                  difficultyLevelMap[_selectedDifficulty]!,
                               muscleGroups: _selectedMuscleGroups,
                             ),
                           ),

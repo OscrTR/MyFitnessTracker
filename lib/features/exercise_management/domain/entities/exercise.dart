@@ -6,6 +6,7 @@ class Exercise extends Equatable {
   final String? imagePath;
   final String? description;
   final ExerciseType exerciseType;
+  final int intensity;
   final List<MuscleGroup>? muscleGroups;
 
   const Exercise({
@@ -14,6 +15,7 @@ class Exercise extends Equatable {
     this.imagePath,
     this.description,
     required this.exerciseType,
+    required this.intensity,
     this.muscleGroups,
   });
 
@@ -23,6 +25,7 @@ class Exercise extends Equatable {
     String? imagePath,
     String? description,
     ExerciseType? exerciseType,
+    int? intensity,
     List<MuscleGroup>? muscleGroups,
   }) {
     return Exercise(
@@ -31,6 +34,7 @@ class Exercise extends Equatable {
       imagePath: imagePath ?? this.imagePath,
       description: description ?? this.description,
       exerciseType: exerciseType ?? this.exerciseType,
+      intensity: intensity ?? this.intensity,
       muscleGroups: muscleGroups ?? this.muscleGroups,
     );
   }
@@ -48,15 +52,23 @@ class Exercise extends Equatable {
 
 enum ExerciseType {
   yoga,
+  meditation,
+  stretching,
+  cardio,
   workout;
 
   String translate(String locale) {
     switch (this) {
       case ExerciseType.yoga:
         return locale == 'fr' ? 'Yoga' : 'Yoga';
-
       case ExerciseType.workout:
         return locale == 'fr' ? 'Renforcement' : 'Workout';
+      case ExerciseType.meditation:
+        return locale == 'fr' ? 'Méditation' : 'Meditation';
+      case ExerciseType.stretching:
+        return locale == 'fr' ? 'Étirement' : 'Stretching';
+      case ExerciseType.cardio:
+        return locale == 'fr' ? 'Cardio' : 'Cardio';
     }
   }
 }
