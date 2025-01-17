@@ -46,6 +46,7 @@ class Exercise extends Equatable {
         imagePath,
         description,
         exerciseType,
+        intensity,
         muscleGroups,
       ];
 }

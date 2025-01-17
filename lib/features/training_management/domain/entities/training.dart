@@ -46,18 +46,22 @@ class Training extends Equatable {
 enum TrainingType {
   run,
   yoga,
+  cardio,
+  mixed,
   workout;
 
   String translate(String locale) {
     switch (this) {
       case TrainingType.yoga:
         return locale == 'fr' ? 'Yoga' : 'Yoga';
-
       case TrainingType.workout:
         return locale == 'fr' ? 'Renforcement' : 'Workout';
-
       case TrainingType.run:
         return locale == 'fr' ? 'Course' : 'Run';
+      case TrainingType.cardio:
+        return locale == 'fr' ? 'Cardio' : 'Cardio';
+      case TrainingType.mixed:
+        return locale == 'fr' ? 'Mixte' : 'Mixed';
     }
   }
 }

@@ -95,6 +95,7 @@ class SQLiteDatabaseHelper {
             multiset_set_number INTEGER,
             date INTEGER,
             reps INTEGER,
+            weight INTEGER,
             duration INTEGER,
             distance INTEGER,
             pace INTEGER,

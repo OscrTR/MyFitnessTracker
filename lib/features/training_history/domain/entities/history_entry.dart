@@ -8,6 +8,7 @@ class HistoryEntry extends Equatable {
   final int? multisetSetNumber;
   final DateTime date;
   final int? reps;
+  final int? weight;
   final int? duration;
   final int? distance;
   final int? pace;
@@ -20,6 +21,7 @@ class HistoryEntry extends Equatable {
     this.multisetSetNumber,
     required this.date,
     this.reps,
+    this.weight,
     this.duration,
     this.distance,
     this.pace,
@@ -27,6 +29,7 @@ class HistoryEntry extends Equatable {
 
   HistoryEntry copyWith({
     int? reps,
+    int? weight,
     int? duration,
     int? distance,
     int? pace,
@@ -39,6 +42,7 @@ class HistoryEntry extends Equatable {
       multisetSetNumber: multisetSetNumber,
       date: date,
       reps: reps ?? this.reps,
+      weight: weight ?? this.weight,
       duration: duration ?? this.duration,
       distance: distance ?? this.distance,
       pace: pace ?? this.pace,
@@ -54,6 +58,7 @@ class HistoryEntry extends Equatable {
         multisetSetNumber,
         date,
         reps,
+        weight,
         duration,
         distance,
         pace
