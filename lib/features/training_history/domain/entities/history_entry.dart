@@ -12,6 +12,7 @@ class HistoryEntry extends Equatable {
   final int? duration;
   final int? distance;
   final int? pace;
+  final int? calories;
 
   const HistoryEntry({
     this.id,
@@ -25,6 +26,7 @@ class HistoryEntry extends Equatable {
     this.duration,
     this.distance,
     this.pace,
+    this.calories,
   });
 
   HistoryEntry copyWith({
@@ -33,6 +35,7 @@ class HistoryEntry extends Equatable {
     int? duration,
     int? distance,
     int? pace,
+    int? calories,
   }) {
     return HistoryEntry(
       id: id,
@@ -46,6 +49,7 @@ class HistoryEntry extends Equatable {
       duration: duration ?? this.duration,
       distance: distance ?? this.distance,
       pace: pace ?? this.pace,
+      calories: calories ?? this.calories,
     );
   }
 
@@ -61,6 +65,7 @@ class HistoryEntry extends Equatable {
         weight,
         duration,
         distance,
-        pace
+        pace,
+        calories
       ];
 }

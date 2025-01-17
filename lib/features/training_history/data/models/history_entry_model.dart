@@ -13,6 +13,7 @@ class HistoryEntryModel extends HistoryEntry {
     super.duration,
     super.distance,
     super.pace,
+    super.calories,
   });
 
   factory HistoryEntryModel.fromJson(Map<String, dynamic> json) {
@@ -28,6 +29,7 @@ class HistoryEntryModel extends HistoryEntry {
       duration: json['duration'],
       distance: json['distance'],
       pace: json['pace'],
+      calories: json['calories'],
     );
   }
 
@@ -44,6 +46,7 @@ class HistoryEntryModel extends HistoryEntry {
       'duration': duration,
       'distance': distance,
       'pace': pace,
+      'calories': calories,
     };
   }
 }

@@ -21,7 +21,6 @@ class _SettingsPageState extends State<SettingsPage> {
   String _appVersion = '';
 
   final List<String> _languages = ['English', 'Français'];
-  String? selectedItem;
 
   Future<void> _loadAppVersion() async {
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
