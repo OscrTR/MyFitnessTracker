@@ -21,7 +21,7 @@ class ExerciseModel extends Exercise {
       description: json['description'] as String? ?? '',
       exerciseType: ExerciseType.values
           .firstWhere((el) => el.name == (json['exercise_type'] as String)),
-      intensity: json['intensity'] as int,
+      intensity: json['intensity'],
       muscleGroups: (jsonDecode(json['muscle_groups']) as List)
           .map((i) => MuscleGroup.values[i])
           .toList(),

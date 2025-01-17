@@ -10,6 +10,7 @@ class Training extends Equatable {
   final bool isSelected;
   final List<TrainingExercise> trainingExercises;
   final List<Multiset> multisets;
+  final List<WeekDay>? trainingDays;
 
   const Training({
     this.id,
@@ -18,6 +19,7 @@ class Training extends Equatable {
     required this.isSelected,
     required this.trainingExercises,
     required this.multisets,
+    this.trainingDays,
   });
 
   Training copyWith({
@@ -27,6 +29,7 @@ class Training extends Equatable {
     bool? isSelected,
     List<TrainingExercise>? trainingExercises,
     List<Multiset>? multisets,
+    List<WeekDay>? trainingDays,
   }) {
     return Training(
       id: id ?? this.id,
@@ -35,12 +38,13 @@ class Training extends Equatable {
       isSelected: isSelected ?? this.isSelected,
       trainingExercises: trainingExercises ?? this.trainingExercises,
       multisets: multisets ?? this.multisets,
+      trainingDays: trainingDays ?? this.trainingDays,
     );
   }
 
   @override
   List<Object?> get props =>
-      [id, name, type, isSelected, trainingExercises, multisets];
+      [id, name, type, isSelected, trainingExercises, multisets, trainingDays];
 }
 
 enum TrainingType {
@@ -62,6 +66,35 @@ enum TrainingType {
         return locale == 'fr' ? 'Cardio' : 'Cardio';
       case TrainingType.mixed:
         return locale == 'fr' ? 'Mixte' : 'Mixed';
+    }
+  }
+}
+
+enum WeekDay {
+  monday,
+  tuesday,
+  wednesday,
+  thursday,
+  friday,
+  saturday,
+  sunday;
+
+  String translate(String locale) {
+    switch (this) {
+      case WeekDay.monday:
+        return locale == 'fr' ? 'Lundi' : 'Monday';
+      case WeekDay.tuesday:
+        return locale == 'fr' ? 'Mardi' : 'Tuesday';
+      case WeekDay.wednesday:
+        return locale == 'fr' ? 'Mercredi' : 'Wednesday';
+      case WeekDay.thursday:
+        return locale == 'fr' ? 'Jeudi' : 'Thursday';
+      case WeekDay.friday:
+        return locale == 'fr' ? 'Vendredi' : 'Friday';
+      case WeekDay.saturday:
+        return locale == 'fr' ? 'Samedi' : 'Saturday';
+      case WeekDay.sunday:
+        return locale == 'fr' ? 'Dimanche' : 'Sunday';
     }
   }
 }

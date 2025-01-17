@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import '../../domain/entities/training.dart';
 import 'multiset_model.dart';
 import 'training_exercise_model.dart';
@@ -10,6 +12,7 @@ class TrainingModel extends Training {
     required super.isSelected,
     required super.trainingExercises,
     required super.multisets,
+    super.trainingDays,
   });
 
   factory TrainingModel.fromJson(Map<String, dynamic> json) {
@@ -27,7 +30,10 @@ class TrainingModel extends Training {
               ?.map((multisetJson) =>
                   MultisetModel.fromJson(multisetJson as Map<String, dynamic>))
               .toList() ??
-          [], // Default to empty list if null
+          [],
+      trainingDays: (jsonDecode(json['training_days']) as List)
+          .map((i) => WeekDay.values[i])
+          .toList(),
     );
   }
 
@@ -37,6 +43,7 @@ class TrainingModel extends Training {
       'name': name,
       'type': type.index,
       'is_selected': isSelected == true ? 1 : 0,
+      'training_days': json.encode(trainingDays?.map((e) => e.index).toList()),
     };
   }
 
