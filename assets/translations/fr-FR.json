@@ -17,6 +17,7 @@
   "global_validate": "Valider",
   "global_yes": "Oui",
   "global_no": "Non",
+  "global_select": "Sélectionner",
 
   "nav_home": "Accueil",
   "nav_trainings": "Entraînements",
@@ -100,6 +101,9 @@
   "exercise_detail_page_change": "Changer",
   "exercise_detail_page_description": "Description",
   "exercise_detail_page_description_hint": "Description de l'exercice",
+  "exercise_detail_page_type": "Type d'exercice",
+  "exercise_detail_page_intensity": "Intensité",
+  "exercise_detail_page_muscles": "Groupes musculaires",
 
   "settings_page_title": "Paramètres",
   "settings_page_language": "Langue",

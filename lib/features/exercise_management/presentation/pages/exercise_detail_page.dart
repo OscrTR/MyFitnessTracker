@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:multi_select_flutter/multi_select_flutter.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 
@@ -14,42 +13,8 @@ import '../../../../app_colors.dart';
 import '../../../../injection_container.dart';
 import '../../domain/entities/exercise.dart';
 import '../bloc/exercise_management_bloc.dart';
-import '../widgets/exercise_detail_back_app_bar_widget.dart';
 import '../widgets/exercise_detail_custom_text_field_widget.dart';
 import '../widgets/exercise_detail_image_picker_widget.dart';
-
-enum ExerciseDifficulty {
-  veryEasy,
-  easy,
-  moderate,
-  hard,
-  veryHard;
-
-  String translate(String locale) {
-    switch (this) {
-      case ExerciseDifficulty.veryEasy:
-        return locale == 'fr' ? 'Très facile' : 'Very easy';
-      case ExerciseDifficulty.easy:
-        return locale == 'fr' ? 'Facile' : 'Easy';
-      case ExerciseDifficulty.moderate:
-        return locale == 'fr' ? 'Modéré' : 'Moderate';
-      case ExerciseDifficulty.hard:
-        return locale == 'fr' ? 'Difficile' : 'Hard';
-      case ExerciseDifficulty.veryHard:
-        return locale == 'fr' ? 'Très difficile' : 'Very hard';
-    }
-  }
-}
-
-final Map<int, ExerciseDifficulty> difficultyMap = Map.fromIterables(
-  List.generate(ExerciseDifficulty.values.length, (index) => index + 1),
-  ExerciseDifficulty.values,
-);
-
-final Map<ExerciseDifficulty, int> difficultyLevelMap = Map.fromIterables(
-  ExerciseDifficulty.values,
-  List.generate(ExerciseDifficulty.values.length, (index) => index + 1),
-);
 
 class ExerciseDetailPage extends StatefulWidget {
   final bool fromTrainingCreation;
@@ -70,7 +35,7 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
     ExerciseType.yoga
   ];
   late ExerciseType _selectedExerciseType;
-  List<MuscleGroup> _selectedMuscleGroups = [];
+  Map<MuscleGroup, bool> _selectedMuscleGroups = {};
   late ExerciseDifficulty _selectedDifficulty;
 
   @override
@@ -110,8 +75,19 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
     _selectedExerciseType = exercise?.exerciseType ?? ExerciseType.workout;
     _selectedDifficulty =
         difficultyMap[exercise?.intensity] ?? ExerciseDifficulty.moderate;
+
+    // Réinitialiser la map avant de la remplir
+    _selectedMuscleGroups = {}; // Ou créez une nouvelle map
+
     if (exercise != null) {
-      _selectedMuscleGroups = exercise.muscleGroups ?? [];
+      // Remplir avec tous les muscle groups en une fois
+      _selectedMuscleGroups = Map.fromEntries(MuscleGroup.values.map(
+          (muscleGroup) => MapEntry(muscleGroup,
+              exercise.muscleGroups?.contains(muscleGroup) ?? false)));
+    } else {
+      // Initialiser tous à false en une fois
+      _selectedMuscleGroups = Map.fromEntries(MuscleGroup.values
+          .map((muscleGroup) => MapEntry(muscleGroup, false)));
     }
   }
 
@@ -129,196 +105,423 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: BlocBuilder<ExerciseManagementBloc, ExerciseManagementState>(
-            builder: (context, state) {
-          if (state is ExerciseManagementLoaded) {
-            final exercise = state.selectedExercise;
+    return Stack(children: [
+      SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: BlocBuilder<ExerciseManagementBloc, ExerciseManagementState>(
+              builder: (context, state) {
+            if (state is ExerciseManagementLoaded) {
+              final exercise = state.selectedExercise;
 
-            if (exercise != null && !_isDataInitialized) {
-              _nameController.text = exercise.name;
-              _descriptionController.text = exercise.description ?? '';
-              _image = exercise.imagePath != null && exercise.imagePath != ''
-                  ? File(exercise.imagePath!)
-                  : null;
-              _isDataInitialized = true;
-            }
+              if (exercise != null && !_isDataInitialized) {
+                _nameController.text = exercise.name;
+                _descriptionController.text = exercise.description ?? '';
+                _image = exercise.imagePath != null && exercise.imagePath != ''
+                    ? File(exercise.imagePath!)
+                    : null;
+                _isDataInitialized = true;
+              }
 
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                BackAppBar(
-                  title: context.tr(exercise == null
-                      ? 'exercise_detail_page_title_create'
-                      : 'exercise_detail_page_title_edit'),
-                  onBack: () {
-                    widget.fromTrainingCreation
-                        ? GoRouter.of(context).push('/training_detail')
-                        : GoRouter.of(context).push('/trainings');
-                    BlocProvider.of<ExerciseManagementBloc>(context)
-                        .add(const ClearSelectedExerciseEvent());
-                  },
-                ),
-                const SizedBox(height: 30),
-                CustomTextField(
-                  controller: _nameController,
-                  hintText: context.tr('exercise_detail_page_name_hint'),
-                ),
-                const SizedBox(height: 30),
-                CustomDropdown<ExerciseType>(
-                  items: _exerciseType,
-                  initialItem: _selectedExerciseType,
-                  decoration: CustomDropdownDecoration(
-                    listItemStyle: Theme.of(context)
-                        .textTheme
-                        .bodyMedium!
-                        .copyWith(color: AppColors.lightBlack),
-                    headerStyle: Theme.of(context)
-                        .textTheme
-                        .bodyMedium!
-                        .copyWith(color: AppColors.black),
-                    closedSuffixIcon: const Icon(
-                      Icons.keyboard_arrow_down_rounded,
-                      size: 20,
-                      color: AppColors.lightBlack,
-                    ),
-                    expandedSuffixIcon: const Icon(
-                      Icons.keyboard_arrow_up_rounded,
-                      size: 20,
-                      color: AppColors.lightBlack,
-                    ),
-                    closedBorder: Border.all(color: AppColors.lightBlack),
-                    expandedBorder: Border.all(color: AppColors.lightBlack),
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildHeader(context, exercise),
+                  const SizedBox(height: 30),
+                  CustomTextField(
+                    controller: _nameController,
+                    hintText: context.tr('exercise_detail_page_name_hint'),
                   ),
-                  headerBuilder: (context, selectedItem, enabled) {
-                    return Text(
-                        selectedItem.translate(context.locale.languageCode));
-                  },
-                  listItemBuilder: (context, item, isSelected, onItemSelect) {
-                    return Text(item.translate(context.locale.languageCode));
-                  },
-                  onChanged: (value) {
-                    _selectedExerciseType = value!;
-                  },
-                ),
-                CustomDropdown<ExerciseDifficulty>(
-                  items: ExerciseDifficulty.values,
-                  initialItem: _selectedDifficulty,
-                  decoration: CustomDropdownDecoration(
-                    listItemStyle: Theme.of(context)
-                        .textTheme
-                        .bodyMedium!
-                        .copyWith(color: AppColors.lightBlack),
-                    headerStyle: Theme.of(context)
-                        .textTheme
-                        .bodyMedium!
-                        .copyWith(color: AppColors.black),
-                    closedSuffixIcon: const Icon(
-                      Icons.keyboard_arrow_down_rounded,
-                      size: 20,
-                      color: AppColors.lightBlack,
-                    ),
-                    expandedSuffixIcon: const Icon(
-                      Icons.keyboard_arrow_up_rounded,
-                      size: 20,
-                      color: AppColors.lightBlack,
-                    ),
-                    closedBorder: Border.all(color: AppColors.lightBlack),
-                    expandedBorder: Border.all(color: AppColors.lightBlack),
+                  const SizedBox(height: 20),
+                  CustomTextField(
+                    controller: _descriptionController,
+                    hintText:
+                        context.tr('exercise_detail_page_description_hint'),
                   ),
-                  headerBuilder: (context, selectedItem, enabled) {
-                    return Text(
-                        selectedItem.translate(context.locale.languageCode));
-                  },
-                  listItemBuilder: (context, item, isSelected, onItemSelect) {
-                    return Text(item.translate(context.locale.languageCode));
-                  },
-                  onChanged: (value) {
-                    _selectedDifficulty = value!;
-                  },
-                ),
-                const SizedBox(height: 30),
-                MultiSelectDialogField<MuscleGroup>(
-                  initialValue: _selectedMuscleGroups,
-                  items: MuscleGroup.values
-                      .map((e) => MultiSelectItem(e, e.name))
-                      .toList(),
-                  listType: MultiSelectListType.CHIP,
-                  onConfirm: (values) {
-                    _selectedMuscleGroups = values;
-                  },
-                ),
-                ImagePickerWidget(
-                  image: _image,
-                  onAddImage: _pickImage,
-                  onChangeImage: _pickImage,
-                  onDeleteImage: () {
-                    setState(() {
-                      _imageToDelete = _image;
-                      _image = null;
-                    });
-                  },
-                ),
-                const SizedBox(height: 30),
-                CustomTextField(
-                  controller: _descriptionController,
-                  hintText: context.tr('exercise_detail_page_description_hint'),
-                ),
-                const SizedBox(height: 30),
-                GestureDetector(
-                  onTap: () {
-                    if (_imageToDelete != null) {
-                      _deleteImageFile();
-                    }
-                    context.read<ExerciseManagementBloc>().add(
-                          CreateOrUpdateExerciseEvent(
-                            Exercise(
-                              id: exercise?.id,
-                              name: _nameController.text,
-                              description: _descriptionController.text,
-                              imagePath: _image?.path ?? '',
-                              exerciseType: _selectedExerciseType,
-                              intensity:
-                                  difficultyLevelMap[_selectedDifficulty]!,
-                              muscleGroups: _selectedMuscleGroups,
+                  const SizedBox(height: 20),
+                  Text(
+                    tr('exercise_detail_page_type'),
+                    style: const TextStyle(color: AppColors.taupeGray),
+                  ),
+                  const SizedBox(height: 10),
+                  CustomDropdown<ExerciseType>(
+                    items: _exerciseType,
+                    initialItem: _selectedExerciseType,
+                    decoration: CustomDropdownDecoration(
+                      listItemStyle: Theme.of(context)
+                          .textTheme
+                          .bodyMedium!
+                          .copyWith(color: AppColors.timberwolf),
+                      headerStyle: Theme.of(context)
+                          .textTheme
+                          .bodyMedium!
+                          .copyWith(color: AppColors.licorice),
+                      closedSuffixIcon: const Icon(
+                        Icons.keyboard_arrow_down_rounded,
+                        size: 20,
+                        color: AppColors.timberwolf,
+                      ),
+                      expandedSuffixIcon: const Icon(
+                        Icons.keyboard_arrow_up_rounded,
+                        size: 20,
+                        color: AppColors.timberwolf,
+                      ),
+                      closedBorder: Border.all(color: AppColors.timberwolf),
+                      expandedBorder: Border.all(color: AppColors.timberwolf),
+                    ),
+                    headerBuilder: (context, selectedItem, enabled) {
+                      return Text(
+                          selectedItem.translate(context.locale.languageCode));
+                    },
+                    listItemBuilder: (context, item, isSelected, onItemSelect) {
+                      return Text(item.translate(context.locale.languageCode));
+                    },
+                    onChanged: (value) {
+                      _selectedExerciseType = value!;
+                    },
+                  ),
+                  const SizedBox(height: 20),
+                  Text(
+                    tr('exercise_detail_page_intensity'),
+                    style: const TextStyle(color: AppColors.taupeGray),
+                  ),
+                  const SizedBox(height: 10),
+                  CustomDropdown<ExerciseDifficulty>(
+                    items: ExerciseDifficulty.values,
+                    initialItem: _selectedDifficulty,
+                    decoration: CustomDropdownDecoration(
+                      listItemStyle: Theme.of(context)
+                          .textTheme
+                          .bodyMedium!
+                          .copyWith(color: AppColors.timberwolf),
+                      headerStyle: Theme.of(context)
+                          .textTheme
+                          .bodyMedium!
+                          .copyWith(color: AppColors.licorice),
+                      closedSuffixIcon: const Icon(
+                        Icons.keyboard_arrow_down_rounded,
+                        size: 20,
+                        color: AppColors.timberwolf,
+                      ),
+                      expandedSuffixIcon: const Icon(
+                        Icons.keyboard_arrow_up_rounded,
+                        size: 20,
+                        color: AppColors.timberwolf,
+                      ),
+                      closedBorder: Border.all(color: AppColors.timberwolf),
+                      expandedBorder: Border.all(color: AppColors.timberwolf),
+                    ),
+                    headerBuilder: (context, selectedItem, enabled) {
+                      return Text(
+                          selectedItem.translate(context.locale.languageCode));
+                    },
+                    listItemBuilder: (context, item, isSelected, onItemSelect) {
+                      return Text(item.translate(context.locale.languageCode));
+                    },
+                    onChanged: (value) {
+                      _selectedDifficulty = value!;
+                    },
+                  ),
+                  const SizedBox(height: 20),
+                  _buildMuscleGroups(context),
+                  const SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        tr('exercise_detail_page_image'),
+                        style: const TextStyle(color: AppColors.taupeGray),
+                      ),
+                      if (_image == null)
+                        GestureDetector(
+                          onTap: _pickImage,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 15, vertical: 7),
+                            decoration: BoxDecoration(
+                                border: Border.all(color: AppColors.timberwolf),
+                                borderRadius: BorderRadius.circular(5)),
+                            child: Text(
+                              tr('global_select'),
+                              style:
+                                  const TextStyle(color: AppColors.taupeGray),
                             ),
                           ),
-                        );
-                    widget.fromTrainingCreation
-                        ? GoRouter.of(context).push('/training_detail')
-                        : GoRouter.of(context).push('/trainings');
-                    BlocProvider.of<ExerciseManagementBloc>(context)
-                        .add(const ClearSelectedExerciseEvent());
-                  },
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: AppColors.black,
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    height: 60,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          context.tr('global_save'),
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleMedium!
-                              .copyWith(color: AppColors.white),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  ImagePickerWidget(
+                    image: _image,
+                    onAddImage: _pickImage,
+                    onChangeImage: _pickImage,
+                    onDeleteImage: () {
+                      setState(() {
+                        _imageToDelete = _image;
+                        _image = null;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 70)
+                ],
+              );
+            }
+            return Center(child: Text(context.tr('error_state')));
+          }),
+        ),
+      ),
+      Positioned(
+          bottom: 0,
+          left: 0,
+          right: 0,
+          child: Container(
+            color: AppColors.floralWhite,
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            height: 70,
+            child: GestureDetector(
+              onTap: () {
+                if (_imageToDelete != null) {
+                  _deleteImageFile();
+                }
+                context.read<ExerciseManagementBloc>().add(
+                      CreateOrUpdateExerciseEvent(
+                        Exercise(
+                          id: (sl<ExerciseManagementBloc>().state
+                                  as ExerciseManagementLoaded)
+                              .selectedExercise
+                              ?.id,
+                          name: _nameController.text,
+                          description: _descriptionController.text,
+                          imagePath: _image?.path ?? '',
+                          exerciseType: _selectedExerciseType,
+                          intensity: difficultyLevelMap[_selectedDifficulty]!,
+                          muscleGroups: _selectedMuscleGroups.entries
+                              .where((el) => el.value == true)
+                              .map((el) => el.key)
+                              .toList(),
+                        ),
+                      ),
+                    );
+                widget.fromTrainingCreation
+                    ? GoRouter.of(context).push('/training_detail')
+                    : GoRouter.of(context).push('/trainings');
+                BlocProvider.of<ExerciseManagementBloc>(context)
+                    .add(const ClearSelectedExerciseEvent());
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                    color: AppColors.folly,
+                    borderRadius: BorderRadius.circular(5)),
+                child: Center(
+                  child: Text(
+                    tr('global_save'),
+                    style: const TextStyle(color: AppColors.white),
+                  ),
+                ),
+              ),
+            ),
+          ))
+    ]);
+  }
+
+  Column _buildMuscleGroups(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              tr('exercise_detail_page_muscles'),
+              style: const TextStyle(color: AppColors.taupeGray),
+            ),
+            GestureDetector(
+              onTap: () {
+                showDialog(
+                  context: context,
+                  builder: (dialogContext) => StatefulBuilder(
+                    builder: (context, setDialogState) => AlertDialog(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      title: Text(tr('global_select')),
+                      content: Wrap(
+                        spacing: 4,
+                        children: _selectedMuscleGroups.keys
+                            .map(
+                              (e) => FilterChip(
+                                side: BorderSide(
+                                    color: _selectedMuscleGroups[e]!
+                                        ? AppColors.white
+                                        : AppColors.timberwolf),
+                                label: Text(
+                                  e.translate(context.locale.languageCode),
+                                ),
+                                labelStyle: TextStyle(
+                                  color: _selectedMuscleGroups[e]!
+                                      ? AppColors.white
+                                      : AppColors.taupeGray,
+                                ),
+                                showCheckmark: true,
+                                selectedColor: AppColors.taupeGray,
+                                checkmarkColor: AppColors.white,
+                                selected: _selectedMuscleGroups[e]!,
+                                onSelected: (bool value) {
+                                  setDialogState(() {
+                                    _selectedMuscleGroups[e] = value;
+                                  });
+                                  setState(() {});
+                                },
+                              ),
+                            )
+                            .toList(),
+                      ),
+                      actions: <Widget>[
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, 'Cancel'),
+                          child: Text(tr('global_cancel')),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, 'OK'),
+                          child: const Text('OK'),
                         ),
                       ],
                     ),
                   ),
+                );
+              },
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 15, vertical: 7),
+                decoration: BoxDecoration(
+                    border: Border.all(color: AppColors.timberwolf),
+                    borderRadius: BorderRadius.circular(5)),
+                child: Text(
+                  tr('global_select'),
+                  style: const TextStyle(color: AppColors.taupeGray),
                 ),
-              ],
-            );
-          }
-          return Center(child: Text(context.tr('error_state')));
-        }),
+              ),
+            ),
+          ],
+        ),
+        Wrap(
+          spacing: 4,
+          children: [
+            ..._selectedMuscleGroups.entries
+                .where((entry) => entry.value == true)
+                .map(
+                  (entry) => FilterChip(
+                    side: BorderSide(
+                        color: _selectedMuscleGroups[entry.key]!
+                            ? AppColors.white
+                            : AppColors.timberwolf),
+                    label: Text(
+                      entry.key.translate(context.locale.languageCode),
+                    ),
+                    labelStyle: TextStyle(
+                      color: _selectedMuscleGroups[entry.key]!
+                          ? AppColors.white
+                          : AppColors.taupeGray,
+                    ),
+                    showCheckmark: true,
+                    selectedColor: AppColors.taupeGray,
+                    checkmarkColor: AppColors.white,
+                    selected: _selectedMuscleGroups[entry.key]!,
+                    onSelected: (bool value) {
+                      setState(() {
+                        _selectedMuscleGroups[entry.key] = value;
+                      });
+                    },
+                  ),
+                ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  SizedBox _buildHeader(BuildContext context, Exercise? exercise) {
+    return SizedBox(
+      height: 40,
+      child: Stack(
+        children: [
+          Positioned(
+            top: 0,
+            bottom: 0,
+            child: GestureDetector(
+              onTap: () {
+                widget.fromTrainingCreation
+                    ? GoRouter.of(context).push('/training_detail')
+                    : GoRouter.of(context).push('/trainings');
+                BlocProvider.of<ExerciseManagementBloc>(context)
+                    .add(const ClearSelectedExerciseEvent());
+              },
+              child: const Icon(
+                Icons.arrow_back_ios,
+                color: AppColors.licorice,
+              ),
+            ),
+          ),
+          Center(
+            child: Text(
+              context.tr(exercise == null
+                  ? 'exercise_detail_page_title_create'
+                  : 'exercise_detail_page_title_edit'),
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+          ),
+          if (exercise != null)
+            Positioned(
+              top: 0,
+              bottom: 0,
+              right: 0,
+              child: GestureDetector(
+                onTap: () {
+                  sl<ExerciseManagementBloc>()
+                      .add(DeleteExerciseEvent(exercise.id!));
+                  GoRouter.of(context).push('/trainings');
+                },
+                child: const Icon(
+                  Icons.delete_outline,
+                  color: AppColors.licorice,
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }
 }
+
+enum ExerciseDifficulty {
+  veryEasy,
+  easy,
+  moderate,
+  hard,
+  veryHard;
+
+  String translate(String locale) {
+    switch (this) {
+      case ExerciseDifficulty.veryEasy:
+        return locale == 'fr' ? 'Très facile' : 'Very easy';
+      case ExerciseDifficulty.easy:
+        return locale == 'fr' ? 'Facile' : 'Easy';
+      case ExerciseDifficulty.moderate:
+        return locale == 'fr' ? 'Modéré' : 'Moderate';
+      case ExerciseDifficulty.hard:
+        return locale == 'fr' ? 'Difficile' : 'Hard';
+      case ExerciseDifficulty.veryHard:
+        return locale == 'fr' ? 'Très difficile' : 'Very hard';
+    }
+  }
+}
+
+final Map<int, ExerciseDifficulty> difficultyMap = Map.fromIterables(
+  List.generate(ExerciseDifficulty.values.length, (index) => index + 1),
+  ExerciseDifficulty.values,
+);
+
+final Map<ExerciseDifficulty, int> difficultyLevelMap = Map.fromIterables(
+  ExerciseDifficulty.values,
+  List.generate(ExerciseDifficulty.values.length, (index) => index + 1),
+);

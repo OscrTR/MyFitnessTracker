@@ -6,19 +6,19 @@ final ThemeData appTheme = ThemeData(
   fontFamily: 'Inter',
   colorScheme: ColorScheme.fromSeed(
     seedColor: AppColors.white,
-    primary: AppColors.black,
+    primary: AppColors.licorice,
     onPrimary: AppColors.white,
-    primaryContainer: AppColors.black,
+    primaryContainer: AppColors.licorice,
     secondary: AppColors.lightGrey,
-    onSecondary: AppColors.black,
+    onSecondary: AppColors.licorice,
     secondaryContainer: AppColors.lightGrey,
-    onSecondaryContainer: AppColors.black,
+    onSecondaryContainer: AppColors.licorice,
     tertiary: AppColors.lightGrey,
-    onTertiary: AppColors.black,
+    onTertiary: AppColors.licorice,
     tertiaryContainer: AppColors.lightGrey,
-    onTertiaryContainer: AppColors.black,
+    onTertiaryContainer: AppColors.licorice,
     surface: AppColors.lightGrey,
-    onSurface: AppColors.black,
+    onSurface: AppColors.licorice,
   ),
   unselectedWidgetColor: AppColors.lightBlack,
   scaffoldBackgroundColor: Colors.white,
@@ -32,26 +32,26 @@ final ThemeData appTheme = ThemeData(
     ),
   ),
   filledButtonTheme: FilledButtonThemeData(
-      style: FilledButton.styleFrom(backgroundColor: AppColors.black)),
+      style: FilledButton.styleFrom(backgroundColor: AppColors.licorice)),
   textTheme: const TextTheme(
     // H1
     displayLarge: TextStyle(
-        fontSize: 28, fontWeight: FontWeight.w600, color: AppColors.black),
+        fontSize: 28, fontWeight: FontWeight.w600, color: AppColors.licorice),
     // H2
     titleLarge: TextStyle(
-        fontSize: 20, fontWeight: FontWeight.w600, color: AppColors.black),
+        fontSize: 20, fontWeight: FontWeight.w600, color: AppColors.licorice),
     // H3
     titleMedium: TextStyle(
-        fontSize: 18, fontWeight: FontWeight.w500, color: AppColors.black),
+        fontSize: 18, fontWeight: FontWeight.w500, color: AppColors.licorice),
     // Regular text
     bodyMedium: TextStyle(
-        fontSize: 16, fontWeight: FontWeight.w400, color: AppColors.black),
+        fontSize: 16, fontWeight: FontWeight.w400, color: AppColors.licorice),
     // Small text
     bodySmall: TextStyle(
-        fontSize: 14, fontWeight: FontWeight.w400, color: AppColors.black),
+        fontSize: 14, fontWeight: FontWeight.w400, color: AppColors.licorice),
     // Extra small text
     labelMedium: TextStyle(
-        fontSize: 12, fontWeight: FontWeight.w400, color: AppColors.black),
+        fontSize: 12, fontWeight: FontWeight.w400, color: AppColors.licorice),
   ),
   checkboxTheme: const CheckboxThemeData(
       side: BorderSide(color: AppColors.lightBlack, width: 2)),
