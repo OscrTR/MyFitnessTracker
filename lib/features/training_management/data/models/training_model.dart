@@ -31,9 +31,7 @@ class TrainingModel extends Training {
                   MultisetModel.fromJson(multisetJson as Map<String, dynamic>))
               .toList() ??
           [],
-      trainingDays: (jsonDecode(json['training_days']) as List)
-          .map((i) => WeekDay.values[i])
-          .toList(),
+      trainingDays: parseTrainingDays(json),
     );
   }
 
@@ -66,5 +64,35 @@ class TrainingModel extends Training {
         isSelected: training.isSelected,
         trainingExercises: training.trainingExercises,
         multisets: training.multisets);
+  }
+}
+
+List<WeekDay> parseTrainingDays(Map<String, dynamic> json) {
+  try {
+    // Vérification si la clé existe et n'est pas null
+    if (!json.containsKey('training_days') || json['training_days'] == null) {
+      return [];
+    }
+
+    // Décodage du JSON
+    final dynamic decodedDays = jsonDecode(json['training_days']);
+
+    // Vérification si le résultat est bien une Liste
+    if (decodedDays is! List) {
+      return [];
+    }
+
+    // Conversion et validation des indices
+    return decodedDays
+        .whereType<int>() // Filtre uniquement les entiers
+        .where((i) =>
+            i >= 0 &&
+            i < WeekDay.values.length) // Vérifie que l'index est valide
+        .map((i) => WeekDay.values[i])
+        .toList();
+  } catch (e) {
+    // En cas d'erreur de parsing JSON ou autre
+    print('Erreur lors du parsing des training days: $e');
+    return [];
   }
 }
