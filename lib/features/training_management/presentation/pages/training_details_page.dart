@@ -5,18 +5,21 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:material_symbols_icons/symbols.dart';
+import 'package:my_fitness_tracker/features/exercise_management/presentation/bloc/exercise_management_bloc.dart';
 import 'package:my_fitness_tracker/features/training_management/domain/entities/training.dart';
 
 import '../../../../app_colors.dart';
 import '../../../../injection_container.dart';
 import '../../../../core/widgets/custom_text_field_widget.dart';
+import '../../../exercise_management/domain/entities/exercise.dart';
 import '../../domain/entities/multiset.dart';
 import '../../domain/entities/training_exercise.dart';
 import '../bloc/training_management_bloc.dart';
 import '../widgets/exercise_widget.dart';
 import '../widgets/multiset_widget.dart';
 import '../widgets/run_exercise_widget.dart';
-import '../widgets/training_actions_widget.dart';
+import '../widgets/small_text_field_widget.dart';
 
 class TrainingDetailsPage extends StatefulWidget {
   const TrainingDetailsPage({super.key});
@@ -29,9 +32,13 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
   late TextEditingController _nameController;
   late TextEditingController _objectivesController;
   late TrainingType _selectedTrainingType;
+  late final Map<String, TextEditingController> _controllers;
   Timer? _nameDebounceTimer;
   Timer? _objectivesDebounceTimer;
   List<WeekDay> _selectedDays = [];
+  TrainingExerciseType _createdExerciseType = TrainingExerciseType.workout;
+  Exercise? _createdExercise;
+  bool _createdExerciseInReps = true;
 
   static const int _debounceMilliseconds = 500;
 
@@ -59,6 +66,20 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
   void _initializeControllers() {
     _nameController = TextEditingController(text: '');
     _objectivesController = TextEditingController(text: '');
+    _controllers = {
+      'exercise': TextEditingController(),
+      'sets': TextEditingController(),
+      'durationMinutes': TextEditingController(),
+      'durationSeconds': TextEditingController(),
+      'minReps': TextEditingController(),
+      'maxReps': TextEditingController(),
+      'setRestMinutes': TextEditingController(),
+      'setRestSeconds': TextEditingController(),
+      'exerciseRestMinutes': TextEditingController(),
+      'exerciseRestSeconds': TextEditingController(),
+      'specialInstructions': TextEditingController(),
+      'objectives': TextEditingController(),
+    };
   }
 
   void _setupListeners() {
@@ -258,7 +279,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                           ),
                         ),
                       const SizedBox(height: 20),
-                      const TrainingActionsWidget(),
+                      _buildAddButtons(context),
                       const SizedBox(height: 70),
                     ],
                   ),
@@ -308,6 +329,335 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
         }
         return Center(child: Text(context.tr('error_state')));
       },
+    );
+  }
+
+  Row _buildAddButtons(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: GestureDetector(
+            onTap: () {
+              showDialog(
+                context: context,
+                builder: (dialogContext) => StatefulBuilder(
+                  builder: (context, setDialogState) => AlertDialog(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    backgroundColor: AppColors.white,
+                    title: Text(tr('training_detail_page_add_exercise')),
+                    content: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          tr('exercise_detail_page_type'),
+                          style: const TextStyle(color: AppColors.taupeGray),
+                        ),
+                        const SizedBox(height: 10),
+                        CustomDropdown<TrainingExerciseType>(
+                          items: TrainingExerciseType.values,
+                          initialItem: TrainingExerciseType.workout,
+                          decoration: CustomDropdownDecoration(
+                            listItemStyle: Theme.of(context)
+                                .textTheme
+                                .bodyMedium!
+                                .copyWith(color: AppColors.timberwolf),
+                            headerStyle: Theme.of(context)
+                                .textTheme
+                                .bodyMedium!
+                                .copyWith(color: AppColors.licorice),
+                            closedSuffixIcon: const Icon(
+                              Icons.keyboard_arrow_down_rounded,
+                              size: 20,
+                              color: AppColors.timberwolf,
+                            ),
+                            expandedSuffixIcon: const Icon(
+                              Icons.keyboard_arrow_up_rounded,
+                              size: 20,
+                              color: AppColors.timberwolf,
+                            ),
+                            closedBorder:
+                                Border.all(color: AppColors.timberwolf),
+                            expandedBorder:
+                                Border.all(color: AppColors.timberwolf),
+                          ),
+                          headerBuilder: (context, selectedItem, enabled) {
+                            return Text(selectedItem
+                                .translate(context.locale.languageCode));
+                          },
+                          listItemBuilder:
+                              (context, item, isSelected, onItemSelect) {
+                            return Text(
+                                item.translate(context.locale.languageCode));
+                          },
+                          onChanged: (value) {
+                            _createdExerciseType = value!;
+                          },
+                        ),
+                        const SizedBox(height: 20),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              tr('trainings_page_exercise'),
+                              style:
+                                  const TextStyle(color: AppColors.taupeGray),
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.pop(context, 'New exercise');
+                                GoRouter.of(context).push('/exercise_detail',
+                                    extra: 'training_detail');
+                              },
+                              child: Row(
+                                children: [
+                                  Text(tr('trainings_page_new'),
+                                      style: const TextStyle(
+                                          color: AppColors.timberwolf)),
+                                  const Icon(
+                                    Symbols.arrow_right_alt,
+                                    color: AppColors.timberwolf,
+                                  ),
+                                ],
+                              ),
+                            )
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        CustomDropdown<Exercise>.search(
+                          items: (sl<ExerciseManagementBloc>().state
+                                  as ExerciseManagementLoaded)
+                              .exercises,
+                          hintText: tr('exercise_search'),
+                          decoration: CustomDropdownDecoration(
+                            listItemStyle: Theme.of(context)
+                                .textTheme
+                                .bodyMedium!
+                                .copyWith(color: AppColors.timberwolf),
+                            headerStyle: Theme.of(context)
+                                .textTheme
+                                .bodyMedium!
+                                .copyWith(color: AppColors.licorice),
+                            closedSuffixIcon: const Icon(
+                              Icons.keyboard_arrow_down_rounded,
+                              size: 20,
+                              color: AppColors.timberwolf,
+                            ),
+                            expandedSuffixIcon: const Icon(
+                              Icons.keyboard_arrow_up_rounded,
+                              size: 20,
+                              color: AppColors.timberwolf,
+                            ),
+                            closedBorder:
+                                Border.all(color: AppColors.timberwolf),
+                            expandedBorder:
+                                Border.all(color: AppColors.timberwolf),
+                          ),
+                          headerBuilder: (context, selectedItem, enabled) {
+                            return Text(selectedItem.name);
+                          },
+                          listItemBuilder:
+                              (context, item, isSelected, onItemSelect) {
+                            return Text(item.name);
+                          },
+                          onChanged: (value) {
+                            _createdExercise = value!;
+                          },
+                        ),
+                        const SizedBox(height: 20),
+                        // TODO
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(tr('exercise_sets'),
+                                style: const TextStyle(
+                                    color: AppColors.lightBlack)),
+                            SmallTextFieldWidget(
+                                controller: _controllers['sets']!),
+                          ],
+                        ),
+                        _buildSetsChoiceOption(
+                          choice: tr('exercise_reps'),
+                          choiceValue: true,
+                          currentSelection: _createdExerciseInReps,
+                          isReps: true,
+                          onSelectionChanged: (bool newValue) {
+                            setDialogState(() {
+                              _createdExerciseInReps = newValue;
+                            });
+                          },
+                          controller1: _controllers['minReps'],
+                          controller2: _controllers['maxReps'],
+                        ),
+                        _buildSetsChoiceOption(
+                          choice: tr('exercise_duration'),
+                          choiceValue: false,
+                          currentSelection: _createdExerciseInReps,
+                          isReps: false,
+                          onSelectionChanged: (bool newValue) {
+                            setDialogState(() {
+                              _createdExerciseInReps = newValue;
+                            });
+                          },
+                          controller1: _controllers['durationMinutes'],
+                          controller2: _controllers['durationSeconds'],
+                        ),
+                      ],
+                    ),
+                    actions: [
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.pop(context, 'Save');
+                        },
+                        child: Container(
+                          width: MediaQuery.of(context).size.width - 80,
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 10, horizontal: 20),
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              color: AppColors.licorice),
+                          child: Center(
+                            child: Text(
+                              tr('global_save'),
+                              style: const TextStyle(color: AppColors.white),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  color: AppColors.licorice),
+              child: Center(
+                child: Text(
+                  tr('training_detail_page_add_exercise'),
+                  style: const TextStyle(color: AppColors.white),
+                ),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: GestureDetector(
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  color: AppColors.licorice),
+              child: Center(
+                child: Text(
+                  tr('training_detail_page_add_multiset'),
+                  style: const TextStyle(color: AppColors.white),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSetsChoiceOption({
+    required String choice,
+    required bool choiceValue,
+    required bool currentSelection,
+    required bool isReps,
+    required ValueChanged<bool> onSelectionChanged, // Ajout du callback
+    TextEditingController? controller1,
+    TextEditingController? controller2,
+  }) {
+    return GestureDetector(
+      onTap: () {
+        _createdExerciseInReps = choiceValue;
+        onSelectionChanged(choiceValue);
+      },
+      child: Row(
+        children: [
+          SizedBox(
+            width: 20,
+            child: Radio<bool>(
+              value: choiceValue,
+              groupValue: currentSelection,
+              onChanged: (value) {
+                if (value != null) {
+                  onSelectionChanged(value);
+                }
+              },
+              activeColor: AppColors.black,
+              fillColor: WidgetStateProperty.resolveWith<Color>((states) {
+                return currentSelection == choiceValue
+                    ? AppColors.black
+                    : AppColors.lightBlack;
+              }),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  choice,
+                  style: const TextStyle(color: AppColors.lightBlack),
+                ),
+                Row(
+                  children: [
+                    if (controller1 != null)
+                      SmallTextFieldWidget(
+                        controller: controller1,
+                        textColor: currentSelection == choiceValue
+                            ? AppColors.black
+                            : AppColors.lightBlack,
+                      ),
+                    if (controller2 != null && isReps)
+                      SizedBox(
+                        width: 20,
+                        child: Center(
+                          child: Text('-',
+                              style: TextStyle(
+                                fontSize: 20,
+                                color: currentSelection == choiceValue
+                                    ? AppColors.black
+                                    : AppColors.lightBlack,
+                              )),
+                        ),
+                      ),
+                    if (controller2 != null && !isReps)
+                      SizedBox(
+                        width: 20,
+                        child: Center(
+                          child: Text(':',
+                              style: TextStyle(
+                                fontSize: 20,
+                                color: currentSelection == choiceValue
+                                    ? AppColors.black
+                                    : AppColors.lightBlack,
+                              )),
+                        ),
+                      ),
+                    if (controller2 != null)
+                      SmallTextFieldWidget(
+                        controller: controller2,
+                        textColor: currentSelection == choiceValue
+                            ? AppColors.black
+                            : AppColors.lightBlack,
+                      ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
