@@ -16,6 +16,7 @@ import '../../../exercise_management/domain/entities/exercise.dart';
 import '../../domain/entities/multiset.dart';
 import '../../domain/entities/training_exercise.dart';
 import '../bloc/training_management_bloc.dart';
+import '../widgets/big_text_field_widget.dart';
 import '../widgets/exercise_widget.dart';
 import '../widgets/multiset_widget.dart';
 import '../widgets/run_exercise_widget.dart';
@@ -36,9 +37,11 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
   Timer? _nameDebounceTimer;
   Timer? _objectivesDebounceTimer;
   List<WeekDay> _selectedDays = [];
-  TrainingExerciseType _createdExerciseType = TrainingExerciseType.workout;
-  Exercise? _createdExercise;
-  bool _createdExerciseInReps = true;
+
+  TrainingExercise _tExerciseToCreateOrEdit = const TrainingExercise(
+      isSetsInReps: true,
+      trainingExerciseType: TrainingExerciseType.workout,
+      autoStart: false);
 
   static const int _debounceMilliseconds = 500;
 
@@ -346,165 +349,288 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                       borderRadius: BorderRadius.circular(10),
                     ),
                     backgroundColor: AppColors.white,
-                    title: Text(tr('training_detail_page_add_exercise')),
-                    content: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
+                    title: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          tr('exercise_detail_page_type'),
-                          style: const TextStyle(color: AppColors.taupeGray),
-                        ),
-                        const SizedBox(height: 10),
-                        CustomDropdown<TrainingExerciseType>(
-                          items: TrainingExerciseType.values,
-                          initialItem: TrainingExerciseType.workout,
-                          decoration: CustomDropdownDecoration(
-                            listItemStyle: Theme.of(context)
-                                .textTheme
-                                .bodyMedium!
-                                .copyWith(color: AppColors.timberwolf),
-                            headerStyle: Theme.of(context)
-                                .textTheme
-                                .bodyMedium!
-                                .copyWith(color: AppColors.licorice),
-                            closedSuffixIcon: const Icon(
-                              Icons.keyboard_arrow_down_rounded,
-                              size: 20,
-                              color: AppColors.timberwolf,
-                            ),
-                            expandedSuffixIcon: const Icon(
-                              Icons.keyboard_arrow_up_rounded,
-                              size: 20,
-                              color: AppColors.timberwolf,
-                            ),
-                            closedBorder:
-                                Border.all(color: AppColors.timberwolf),
-                            expandedBorder:
-                                Border.all(color: AppColors.timberwolf),
-                          ),
-                          headerBuilder: (context, selectedItem, enabled) {
-                            return Text(selectedItem
-                                .translate(context.locale.languageCode));
-                          },
-                          listItemBuilder:
-                              (context, item, isSelected, onItemSelect) {
-                            return Text(
-                                item.translate(context.locale.languageCode));
-                          },
-                          onChanged: (value) {
-                            _createdExerciseType = value!;
-                          },
-                        ),
-                        const SizedBox(height: 20),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              tr('trainings_page_exercise'),
-                              style:
-                                  const TextStyle(color: AppColors.taupeGray),
-                            ),
-                            GestureDetector(
-                              onTap: () {
-                                Navigator.pop(context, 'New exercise');
-                                GoRouter.of(context).push('/exercise_detail',
-                                    extra: 'training_detail');
-                              },
-                              child: Row(
-                                children: [
-                                  Text(tr('trainings_page_new'),
-                                      style: const TextStyle(
-                                          color: AppColors.timberwolf)),
-                                  const Icon(
-                                    Symbols.arrow_right_alt,
-                                    color: AppColors.timberwolf,
-                                  ),
-                                ],
+                        Text(tr('training_detail_page_add_exercise')),
+                        GestureDetector(
+                          onTap: () => Navigator.pop(context, 'Close'),
+                          child: Container(
+                            height: 30,
+                            width: 30,
+                            alignment: Alignment.centerRight,
+                            child: const ClipRect(
+                              child: Align(
+                                alignment: Alignment.centerRight,
+                                widthFactor: 0.85,
+                                child: Icon(
+                                  Icons.close,
+                                  color: AppColors.licorice,
+                                ),
                               ),
-                            )
-                          ],
-                        ),
-                        const SizedBox(height: 10),
-                        CustomDropdown<Exercise>.search(
-                          items: (sl<ExerciseManagementBloc>().state
-                                  as ExerciseManagementLoaded)
-                              .exercises,
-                          hintText: tr('exercise_search'),
-                          decoration: CustomDropdownDecoration(
-                            listItemStyle: Theme.of(context)
-                                .textTheme
-                                .bodyMedium!
-                                .copyWith(color: AppColors.timberwolf),
-                            headerStyle: Theme.of(context)
-                                .textTheme
-                                .bodyMedium!
-                                .copyWith(color: AppColors.licorice),
-                            closedSuffixIcon: const Icon(
-                              Icons.keyboard_arrow_down_rounded,
-                              size: 20,
-                              color: AppColors.timberwolf,
                             ),
-                            expandedSuffixIcon: const Icon(
-                              Icons.keyboard_arrow_up_rounded,
-                              size: 20,
-                              color: AppColors.timberwolf,
-                            ),
-                            closedBorder:
-                                Border.all(color: AppColors.timberwolf),
-                            expandedBorder:
-                                Border.all(color: AppColors.timberwolf),
                           ),
-                          headerBuilder: (context, selectedItem, enabled) {
-                            return Text(selectedItem.name);
-                          },
-                          listItemBuilder:
-                              (context, item, isSelected, onItemSelect) {
-                            return Text(item.name);
-                          },
-                          onChanged: (value) {
-                            _createdExercise = value!;
-                          },
-                        ),
-                        const SizedBox(height: 20),
-                        // TODO
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(tr('exercise_sets'),
-                                style: const TextStyle(
-                                    color: AppColors.lightBlack)),
-                            SmallTextFieldWidget(
-                                controller: _controllers['sets']!),
-                          ],
-                        ),
-                        _buildSetsChoiceOption(
-                          choice: tr('exercise_reps'),
-                          choiceValue: true,
-                          currentSelection: _createdExerciseInReps,
-                          isReps: true,
-                          onSelectionChanged: (bool newValue) {
-                            setDialogState(() {
-                              _createdExerciseInReps = newValue;
-                            });
-                          },
-                          controller1: _controllers['minReps'],
-                          controller2: _controllers['maxReps'],
-                        ),
-                        _buildSetsChoiceOption(
-                          choice: tr('exercise_duration'),
-                          choiceValue: false,
-                          currentSelection: _createdExerciseInReps,
-                          isReps: false,
-                          onSelectionChanged: (bool newValue) {
-                            setDialogState(() {
-                              _createdExerciseInReps = newValue;
-                            });
-                          },
-                          controller1: _controllers['durationMinutes'],
-                          controller2: _controllers['durationSeconds'],
-                        ),
+                        )
                       ],
+                    ),
+                    content: SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            tr('exercise_detail_page_type'),
+                            style: const TextStyle(color: AppColors.taupeGray),
+                          ),
+                          const SizedBox(height: 10),
+                          CustomDropdown<TrainingExerciseType>(
+                            items: TrainingExerciseType.values,
+                            initialItem: TrainingExerciseType.workout,
+                            decoration: CustomDropdownDecoration(
+                              listItemStyle: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium!
+                                  .copyWith(color: AppColors.timberwolf),
+                              headerStyle: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium!
+                                  .copyWith(color: AppColors.licorice),
+                              closedSuffixIcon: const Icon(
+                                Icons.keyboard_arrow_down_rounded,
+                                size: 20,
+                                color: AppColors.timberwolf,
+                              ),
+                              expandedSuffixIcon: const Icon(
+                                Icons.keyboard_arrow_up_rounded,
+                                size: 20,
+                                color: AppColors.timberwolf,
+                              ),
+                              closedBorder:
+                                  Border.all(color: AppColors.timberwolf),
+                              expandedBorder:
+                                  Border.all(color: AppColors.timberwolf),
+                            ),
+                            headerBuilder: (context, selectedItem, enabled) {
+                              return Text(selectedItem
+                                  .translate(context.locale.languageCode));
+                            },
+                            listItemBuilder:
+                                (context, item, isSelected, onItemSelect) {
+                              return Text(
+                                  item.translate(context.locale.languageCode));
+                            },
+                            onChanged: (value) {
+                              _tExerciseToCreateOrEdit =
+                                  _tExerciseToCreateOrEdit.copyWith(
+                                      trainingExerciseType: value);
+                            },
+                          ),
+                          const SizedBox(height: 20),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                tr('trainings_page_exercise'),
+                                style:
+                                    const TextStyle(color: AppColors.taupeGray),
+                              ),
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.pop(context, 'New exercise');
+                                  GoRouter.of(context).push('/exercise_detail',
+                                      extra: 'training_detail');
+                                },
+                                child: Row(
+                                  children: [
+                                    Text(tr('trainings_page_new'),
+                                        style: const TextStyle(
+                                            color: AppColors.timberwolf)),
+                                    const Icon(
+                                      Symbols.arrow_right_alt,
+                                      color: AppColors.timberwolf,
+                                    ),
+                                  ],
+                                ),
+                              )
+                            ],
+                          ),
+                          const SizedBox(height: 10),
+                          CustomDropdown<Exercise>.search(
+                            items: (sl<ExerciseManagementBloc>().state
+                                    as ExerciseManagementLoaded)
+                                .exercises,
+                            hintText: tr('exercise_search'),
+                            decoration: CustomDropdownDecoration(
+                              listItemStyle: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium!
+                                  .copyWith(color: AppColors.timberwolf),
+                              headerStyle: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium!
+                                  .copyWith(color: AppColors.licorice),
+                              closedSuffixIcon: const Icon(
+                                Icons.keyboard_arrow_down_rounded,
+                                size: 20,
+                                color: AppColors.timberwolf,
+                              ),
+                              expandedSuffixIcon: const Icon(
+                                Icons.keyboard_arrow_up_rounded,
+                                size: 20,
+                                color: AppColors.timberwolf,
+                              ),
+                              closedBorder:
+                                  Border.all(color: AppColors.timberwolf),
+                              expandedBorder:
+                                  Border.all(color: AppColors.timberwolf),
+                            ),
+                            headerBuilder: (context, selectedItem, enabled) {
+                              return Text(selectedItem.name);
+                            },
+                            listItemBuilder:
+                                (context, item, isSelected, onItemSelect) {
+                              return Text(item.name);
+                            },
+                            onChanged: (value) {
+                              _tExerciseToCreateOrEdit =
+                                  _tExerciseToCreateOrEdit.copyWith(
+                                      exerciseId: value?.id);
+                            },
+                          ),
+                          const SizedBox(height: 20),
+                          // TODO : run case
+                          SizedBox(
+                            height: 48,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(tr('exercise_sets'),
+                                    style: const TextStyle(
+                                        color: AppColors.lightBlack)),
+                                SmallTextFieldWidget(
+                                    controller: _controllers['sets']!),
+                              ],
+                            ),
+                          ),
+                          _buildSetsChoiceOption(
+                            choice: tr('exercise_reps'),
+                            choiceValue: true,
+                            currentSelection:
+                                _tExerciseToCreateOrEdit.isSetsInReps!,
+                            isReps: true,
+                            onSelectionChanged: (bool newValue) {
+                              setDialogState(() {
+                                _tExerciseToCreateOrEdit =
+                                    _tExerciseToCreateOrEdit.copyWith(
+                                        isSetsInReps: newValue);
+                              });
+                            },
+                            controller1: _controllers['minReps'],
+                            controller2: _controllers['maxReps'],
+                          ),
+                          _buildSetsChoiceOption(
+                            choice: tr('exercise_duration'),
+                            choiceValue: false,
+                            currentSelection:
+                                _tExerciseToCreateOrEdit.isSetsInReps!,
+                            isReps: false,
+                            onSelectionChanged: (bool newValue) {
+                              setDialogState(() {
+                                _tExerciseToCreateOrEdit =
+                                    _tExerciseToCreateOrEdit.copyWith(
+                                        isSetsInReps: newValue);
+                              });
+                            },
+                            controller1: _controllers['durationMinutes'],
+                            controller2: _controllers['durationSeconds'],
+                          ),
+                          SizedBox(
+                            height: 48,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(tr('exercise_set_rest'),
+                                    style: const TextStyle(
+                                        color: AppColors.lightBlack)),
+                                Row(
+                                  children: [
+                                    SmallTextFieldWidget(
+                                        controller:
+                                            _controllers['setRestMinutes']!),
+                                    const SizedBox(
+                                      width: 20,
+                                      child: Center(
+                                        child: Text(':',
+                                            style: TextStyle(fontSize: 20)),
+                                      ),
+                                    ),
+                                    SmallTextFieldWidget(
+                                        controller:
+                                            _controllers['setRestSeconds']!),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                          SizedBox(
+                            height: 48,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(tr('exercise_exercise_rest'),
+                                    style: const TextStyle(
+                                        color: AppColors.lightBlack)),
+                                Row(
+                                  children: [
+                                    SmallTextFieldWidget(
+                                        controller: _controllers[
+                                            'exerciseRestMinutes']!),
+                                    const SizedBox(
+                                      width: 20,
+                                      child: Center(
+                                        child: Text(':',
+                                            style: TextStyle(fontSize: 20)),
+                                      ),
+                                    ),
+                                    SmallTextFieldWidget(
+                                        controller: _controllers[
+                                            'exerciseRestSeconds']!),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                          Row(
+                            children: [
+                              SizedBox(
+                                width: 20,
+                                child: Checkbox(
+                                  value: _tExerciseToCreateOrEdit.autoStart!,
+                                  onChanged: (bool? value) {
+                                    _tExerciseToCreateOrEdit =
+                                        _tExerciseToCreateOrEdit.copyWith(
+                                            autoStart: value);
+                                  },
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              Text(
+                                tr('training_detail_page_autostart'),
+                                style: const TextStyle(
+                                    color: AppColors.lightBlack),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 10),
+                          BigTextFieldWidget(
+                              controller: _controllers['specialInstructions']!,
+                              hintText: tr('global_special_instructions')),
+                          const SizedBox(height: 10),
+                          BigTextFieldWidget(
+                              controller: _controllers['objectives']!,
+                              hintText: tr('global_objectives'))
+                        ],
+                      ),
                     ),
                     actions: [
                       GestureDetector(
@@ -571,13 +697,12 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
     required bool choiceValue,
     required bool currentSelection,
     required bool isReps,
-    required ValueChanged<bool> onSelectionChanged, // Ajout du callback
+    required ValueChanged<bool> onSelectionChanged,
     TextEditingController? controller1,
     TextEditingController? controller2,
   }) {
     return GestureDetector(
       onTap: () {
-        _createdExerciseInReps = choiceValue;
         onSelectionChanged(choiceValue);
       },
       child: Row(
