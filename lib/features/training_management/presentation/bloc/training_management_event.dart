@@ -63,7 +63,9 @@ class UpdateSelectedTrainingProperty extends TrainingManagementEvent {
   final TrainingType? type;
   final bool? isSelected;
   final List<TrainingExercise>? trainingExercises;
+  final String? objectives;
   final List<Multiset>? multisets;
+  final List<WeekDay>? trainingDays;
 
   const UpdateSelectedTrainingProperty({
     this.id,
@@ -71,12 +73,22 @@ class UpdateSelectedTrainingProperty extends TrainingManagementEvent {
     this.type,
     this.isSelected,
     this.trainingExercises,
+    this.objectives,
     this.multisets,
+    this.trainingDays,
   });
 
   @override
-  List<Object?> get props =>
-      [id, name, type, isSelected, trainingExercises, multisets];
+  List<Object?> get props => [
+        id,
+        name,
+        type,
+        isSelected,
+        trainingExercises,
+        multisets,
+        objectives,
+        trainingDays
+      ];
 }
 
 class AddExerciseToSelectedTrainingEvent extends TrainingManagementEvent {

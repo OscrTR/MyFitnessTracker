@@ -10,6 +10,7 @@ class Training extends Equatable {
   final bool isSelected;
   final List<TrainingExercise> trainingExercises;
   final List<Multiset> multisets;
+  final String? objectives;
   final List<WeekDay>? trainingDays;
 
   const Training({
@@ -19,6 +20,7 @@ class Training extends Equatable {
     required this.isSelected,
     required this.trainingExercises,
     required this.multisets,
+    this.objectives,
     this.trainingDays,
   });
 
@@ -29,6 +31,7 @@ class Training extends Equatable {
     bool? isSelected,
     List<TrainingExercise>? trainingExercises,
     List<Multiset>? multisets,
+    String? objectives,
     List<WeekDay>? trainingDays,
   }) {
     return Training(
@@ -38,13 +41,22 @@ class Training extends Equatable {
       isSelected: isSelected ?? this.isSelected,
       trainingExercises: trainingExercises ?? this.trainingExercises,
       multisets: multisets ?? this.multisets,
+      objectives: objectives ?? this.objectives,
       trainingDays: trainingDays ?? this.trainingDays,
     );
   }
 
   @override
-  List<Object?> get props =>
-      [id, name, type, isSelected, trainingExercises, multisets, trainingDays];
+  List<Object?> get props => [
+        id,
+        name,
+        type,
+        isSelected,
+        trainingExercises,
+        multisets,
+        objectives,
+        trainingDays
+      ];
 }
 
 enum TrainingType {

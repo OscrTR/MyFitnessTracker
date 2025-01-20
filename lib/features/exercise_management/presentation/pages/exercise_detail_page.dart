@@ -13,7 +13,7 @@ import '../../../../app_colors.dart';
 import '../../../../injection_container.dart';
 import '../../domain/entities/exercise.dart';
 import '../bloc/exercise_management_bloc.dart';
-import '../widgets/exercise_detail_custom_text_field_widget.dart';
+import '../../../../core/widgets/custom_text_field_widget.dart';
 import '../widgets/exercise_detail_image_picker_widget.dart';
 
 class ExerciseDetailPage extends StatefulWidget {
@@ -30,10 +30,6 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
   File? _image;
   bool _isDataInitialized = false;
   File? _imageToDelete;
-  final List<ExerciseType> _exerciseType = [
-    ExerciseType.workout,
-    ExerciseType.yoga
-  ];
   late ExerciseType _selectedExerciseType;
   Map<MuscleGroup, bool> _selectedMuscleGroups = {};
   late ExerciseDifficulty _selectedDifficulty;
@@ -145,7 +141,7 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
                   ),
                   const SizedBox(height: 10),
                   CustomDropdown<ExerciseType>(
-                    items: _exerciseType,
+                    items: ExerciseType.values,
                     initialItem: _selectedExerciseType,
                     decoration: CustomDropdownDecoration(
                       listItemStyle: Theme.of(context)

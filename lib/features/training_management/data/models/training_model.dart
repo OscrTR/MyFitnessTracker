@@ -12,6 +12,7 @@ class TrainingModel extends Training {
     required super.isSelected,
     required super.trainingExercises,
     required super.multisets,
+    super.objectives,
     super.trainingDays,
   });
 
@@ -31,6 +32,7 @@ class TrainingModel extends Training {
                   MultisetModel.fromJson(multisetJson as Map<String, dynamic>))
               .toList() ??
           [],
+      objectives: json['objectives'] as String,
       trainingDays: parseTrainingDays(json),
     );
   }
@@ -42,6 +44,7 @@ class TrainingModel extends Training {
       'type': type.index,
       'is_selected': isSelected == true ? 1 : 0,
       'training_days': json.encode(trainingDays?.map((e) => e.index).toList()),
+      'objectives': objectives,
     };
   }
 
@@ -52,6 +55,7 @@ class TrainingModel extends Training {
       type: training.type,
       isSelected: training.isSelected,
       multisets: training.multisets,
+      objectives: training.objectives,
       trainingExercises: training.trainingExercises,
     );
   }
@@ -63,6 +67,7 @@ class TrainingModel extends Training {
         type: training.type,
         isSelected: training.isSelected,
         trainingExercises: training.trainingExercises,
+        objectives: training.objectives,
         multisets: training.multisets);
   }
 }

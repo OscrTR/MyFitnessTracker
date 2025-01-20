@@ -85,6 +85,7 @@ class SQLiteTrainingLocalDataSource implements TrainingLocalDataSource {
             'is_selected': row['is_selected'],
             'multisets': [],
             'training_exercises': [],
+            'objectives': row['objectives'],
             'training_days': row['training_days'],
           };
         } else {
