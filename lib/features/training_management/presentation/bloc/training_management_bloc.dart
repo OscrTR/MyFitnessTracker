@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:equatable/equatable.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../../../core/error/failures.dart';
 import '../../../../core/messages/bloc/message_bloc.dart';
@@ -18,6 +19,7 @@ part 'training_management_state.dart';
 
 final String databaseFailureMessage = tr('message_database_failure');
 final String invalidNameFailureMessage = tr('message_name_error');
+const uuid = Uuid();
 
 class TrainingManagementBloc
     extends Bloc<TrainingManagementEvent, TrainingManagementState> {
@@ -292,6 +294,61 @@ class TrainingManagementBloc
         final trainingExercises = List<TrainingExercise>.from(
             currentState.selectedTraining?.trainingExercises ?? []);
         trainingExercises.add(event.trainingExercise);
+
+        final updatedTraining = currentState.selectedTraining?.copyWith(
+          trainingExercises: trainingExercises,
+        );
+
+        emit(currentState.copyWith(selectedTraining: updatedTraining));
+      }
+    });
+
+    on<AddOrUpdateTrainingExerciseEvent>((event, emit) {
+      if (state is TrainingManagementLoaded) {
+        final currentState = state as TrainingManagementLoaded;
+        final trainingExercises = List<TrainingExercise>.from(
+            currentState.selectedTraining?.trainingExercises ?? []);
+        final trainingMultisets = List<TrainingExercise>.from(
+            currentState.selectedTraining?.multisets ?? []);
+
+        // Add
+        if (event.trainingExercise.key == null) {
+          final tExerciseToAdd = TrainingExercise(
+            id: event.trainingExercise.id,
+            trainingId: event.trainingExercise.trainingId,
+            multisetId: event.trainingExercise.multisetId,
+            exerciseId: event.trainingExercise.exerciseId,
+            trainingExerciseType: event.trainingExercise.trainingExerciseType,
+            specialInstructions: event.trainingExercise.specialInstructions,
+            objectives: event.trainingExercise.objectives,
+            targetDistance: event.trainingExercise.targetDistance,
+            targetDuration: event.trainingExercise.targetDuration,
+            targetPace: event.trainingExercise.targetPace,
+            intervals: event.trainingExercise.intervals,
+            intervalDistance: event.trainingExercise.intervalDistance,
+            intervalDuration: event.trainingExercise.intervalDuration,
+            intervalRest: event.trainingExercise.intervalRest,
+            sets: event.trainingExercise.sets,
+            isSetsInReps: event.trainingExercise.isSetsInReps,
+            minReps: event.trainingExercise.minReps,
+            maxReps: event.trainingExercise.maxReps,
+            duration: event.trainingExercise.duration,
+            setRest: event.trainingExercise.setRest,
+            exerciseRest: event.trainingExercise.exerciseRest,
+            autoStart: event.trainingExercise.autoStart,
+            position: trainingExercises.length + trainingMultisets.length,
+            key: uuid.v4(),
+            runExerciseTarget: event.trainingExercise.runExerciseTarget,
+          );
+
+          trainingExercises.add(tExerciseToAdd);
+        }
+        // Update
+        else {
+          final index = trainingExercises.indexWhere(
+              (tExercise) => tExercise.key == event.trainingExercise.key);
+          trainingExercises[index] = event.trainingExercise;
+        }
 
         final updatedTraining = currentState.selectedTraining?.copyWith(
           trainingExercises: trainingExercises,

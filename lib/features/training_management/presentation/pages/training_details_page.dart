@@ -30,13 +30,19 @@ class TrainingDetailsPage extends StatefulWidget {
 }
 
 class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
-  late TextEditingController _nameController;
-  late TextEditingController _objectivesController;
   late TrainingType _selectedTrainingType;
   late final Map<String, TextEditingController> _controllers;
-  Timer? _nameDebounceTimer;
-  Timer? _objectivesDebounceTimer;
+  Timer? _debounceTimer;
   List<WeekDay> _selectedDays = [];
+
+  final TrainingExercise _defaultTExercise = const TrainingExercise(
+    isSetsInReps: true,
+    trainingExerciseType: TrainingExerciseType.workout,
+    autoStart: false,
+    runExerciseTarget: RunExerciseTarget.distance,
+    isIntervalInDistance: true,
+    isTargetPaceSelected: false,
+  );
 
   TrainingExercise _tExerciseToCreateOrEdit = const TrainingExercise(
     isSetsInReps: true,
@@ -47,33 +53,45 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
     isTargetPaceSelected: false,
   );
 
-  static const int _debounceMilliseconds = 500;
-
   @override
   void initState() {
     super.initState();
     _initializeControllers();
-    _setupListeners();
+    _attachListeners();
+    _initializeTrainingGeneralInfo();
+  }
+
+  @override
+  void dispose() {
+    _debounceTimer?.cancel();
+    for (var controller in _controllers.values) {
+      controller.dispose();
+    }
+    super.dispose();
+  }
+
+  void _initializeTrainingGeneralInfo() {
     final training =
         (sl<TrainingManagementBloc>().state as TrainingManagementLoaded)
             .selectedTraining;
     _selectedTrainingType = training?.type ?? TrainingType.workout;
     _selectedDays = training?.trainingDays ?? [];
+    _controllers['trainingName']!.text = training?.name ?? '';
+    _controllers['trainingObjectives']!.text = training?.objectives ?? '';
   }
 
-  @override
-  void dispose() {
-    _nameDebounceTimer?.cancel();
-    _objectivesDebounceTimer?.cancel();
-    _nameController.dispose();
-    _objectivesController.dispose();
-    super.dispose();
+  void initializeExercises() {
+    // TODO
+  }
+
+  void initializeExerciseControllers(String key) {
+    // TODO
   }
 
   void _initializeControllers() {
-    _nameController = TextEditingController(text: '');
-    _objectivesController = TextEditingController(text: '');
     _controllers = {
+      'trainingName': TextEditingController(),
+      'trainingObjectives': TextEditingController(),
       'exercise': TextEditingController(),
       'sets': TextEditingController(),
       'distance': TextEditingController(),
@@ -99,59 +117,137 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
     };
   }
 
-  void _setupListeners() {
-    _nameController.addListener(() => _onNameChanged());
-    _objectivesController.addListener(() => _onObjectivesChanged());
+  void _attachListeners() {
+    _controllers.forEach((key, controller) {
+      controller.addListener(() => _onControllerChanged(key));
+    });
   }
 
-  void _onNameChanged() {
-    _debounce(
-      timer: _nameDebounceTimer,
-      onTimerUpdate: (timer) => _nameDebounceTimer = timer,
-      callback: () => _updateName(_nameController.text),
-    );
+  void _onControllerChanged(String key) {
+    _debounce(() => _updateData(key));
   }
 
-  void _onObjectivesChanged() {
-    _debounce(
-      timer: _objectivesDebounceTimer,
-      onTimerUpdate: (timer) => _objectivesDebounceTimer = timer,
-      callback: () => _updateObjectives(_objectivesController.text),
-    );
+  void _debounce(Function() action,
+      [Duration delay = const Duration(milliseconds: 500)]) {
+    _debounceTimer?.cancel();
+    _debounceTimer = Timer(delay, action);
   }
 
-  void _debounce({
-    required Timer? timer,
-    required void Function(Timer?) onTimerUpdate,
-    required VoidCallback callback,
-  }) {
-    if (timer?.isActive ?? false) timer?.cancel();
-
-    final newTimer = Timer(
-      const Duration(milliseconds: _debounceMilliseconds),
-      callback,
-    );
-    onTimerUpdate(newTimer);
-  }
-
-  void _updateName(String name) {
+  void _updateData(String key) {
     if (!mounted) return;
 
-    context.read<TrainingManagementBloc>().add(
-          UpdateSelectedTrainingProperty(
-            name: name.trim(),
-          ),
-        );
+    final bloc = context.read<TrainingManagementBloc>();
+
+    if (key == 'trainingName') {
+      bloc.add(
+        UpdateSelectedTrainingProperty(
+          name: _controllers['trainingName']!.text.trim(),
+        ),
+      );
+    } else if (key == 'trainingObjectives') {
+      bloc.add(
+        UpdateSelectedTrainingProperty(
+          name: _controllers['trainingObjectives']!.text.trim(),
+        ),
+      );
+    } else {
+      _tExerciseToCreateOrEdit = _tExerciseToCreateOrEdit.copyWith(
+        sets: key == 'sets'
+            ? int.tryParse(_controllers['sets']?.text ?? '')
+            : null,
+        minReps: key == 'minReps'
+            ? int.tryParse(_controllers['minReps']?.text ?? '')
+            : null,
+        maxReps: key == 'maxReps'
+            ? int.tryParse(_controllers['maxReps']?.text ?? '')
+            : null,
+        duration: key == 'durationMinutes' || key == 'durationSeconds'
+            ? ((int.tryParse(_controllers['durationMinutes']?.text ?? '') ??
+                        0) *
+                    60) +
+                ((int.tryParse(_controllers['durationSeconds']?.text ?? '') ??
+                    0))
+            : null,
+        setRest: key == 'setRestMinutes' || key == 'setRestSeconds'
+            ? ((int.tryParse(_controllers['setRestMinutes']?.text ?? '') ?? 0) *
+                    60) +
+                ((int.tryParse(_controllers['setRestSeconds']?.text ?? '') ??
+                    0))
+            : null,
+        exerciseRest: key == 'exerciseRestMinutes' ||
+                key == 'exerciseRestSeconds'
+            ? ((int.tryParse(_controllers['exerciseRestMinutes']?.text ?? '') ??
+                        0) *
+                    60) +
+                ((int.tryParse(
+                        _controllers['exerciseRestSeconds']?.text ?? '') ??
+                    0))
+            : null,
+        specialInstructions: key == 'specialInstructions'
+            ? _controllers['specialInstructions']?.text ?? ''
+            : null,
+        objectives:
+            key == 'objectives' ? _controllers['objectives']?.text ?? '' : null,
+        targetDistance: key == 'distance'
+            ? ((double.tryParse((_controllers['distance']?.text ?? '')
+                            .replaceAll(',', '.')) ??
+                        0) *
+                    1000)
+                .toInt()
+            : null,
+        targetDuration: key == 'durationHours' ||
+                key == 'durationMinutes' ||
+                key == 'durationSeconds'
+            ? ((int.tryParse(_controllers['durationHours']?.text ?? '') ?? 0) *
+                    3600) +
+                ((int.tryParse(_controllers['durationMinutes']?.text ?? '') ??
+                        0) *
+                    60) +
+                ((int.tryParse(_controllers['durationSeconds']?.text ?? '') ??
+                    0))
+            : null,
+        intervals: key == 'intervals'
+            ? int.tryParse(_controllers['intervals']?.text ?? '')
+            : null,
+        targetPace: key == 'paceMinutes' || key == 'paceSeconds'
+            ? ((int.tryParse(_controllers['paceMinutes']?.text ?? '') ?? 0) *
+                    60) +
+                ((int.tryParse(_controllers['paceSeconds']?.text ?? '') ?? 0))
+            : null,
+        intervalDistance: key == 'intervalDistance'
+            ? ((double.tryParse((_controllers['intervalDistance']?.text ?? '')
+                            .replaceAll(',', '.')) ??
+                        0) *
+                    1000)
+                .toInt()
+            : null,
+        intervalDuration: key == 'intervalMinutes' || key == 'intervalSeconds'
+            ? ((int.tryParse(_controllers['intervalMinutes']?.text ?? '') ??
+                        0) *
+                    60) +
+                ((int.tryParse(_controllers['intervalSeconds']?.text ?? '') ??
+                    0))
+            : null,
+        intervalRest: key == 'intervalRestMinutes' ||
+                key == 'intervalRestSeconds'
+            ? ((int.tryParse(_controllers['intervalRestMinutes']?.text ?? '') ??
+                        0) *
+                    60) +
+                ((int.tryParse(
+                        _controllers['intervalRestSeconds']?.text ?? '') ??
+                    0))
+            : null,
+      );
+    }
   }
 
-  void _updateObjectives(String objectives) {
-    if (!mounted) return;
-
-    context.read<TrainingManagementBloc>().add(
-          UpdateSelectedTrainingProperty(
-            objectives: objectives.trim(),
-          ),
-        );
+  void _resetData() {
+    _tExerciseToCreateOrEdit = _defaultTExercise;
+    _controllers.forEach((key, controller) {
+      if (key != 'trainingName' && key != 'trainingObjectives') {
+        controller.text = '';
+      }
+    });
   }
 
   @override
@@ -171,8 +267,8 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
             return aPosition.compareTo(bPosition);
           });
 
-          final initialName = state.selectedTraining?.name ?? '';
-          _nameController.text = initialName;
+          // final initialName = state.selectedTraining?.name ?? '';
+          // _controllers['trainingName']!.text = initialName;
 
           return Stack(
             children: [
@@ -490,9 +586,13 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                                   child: Checkbox(
                                     value: _tExerciseToCreateOrEdit.autoStart!,
                                     onChanged: (bool? value) {
-                                      _tExerciseToCreateOrEdit =
-                                          _tExerciseToCreateOrEdit.copyWith(
-                                              autoStart: value);
+                                      setDialogState(
+                                        () {
+                                          _tExerciseToCreateOrEdit =
+                                              _tExerciseToCreateOrEdit.copyWith(
+                                                  autoStart: value);
+                                        },
+                                      );
                                     },
                                   ),
                                 ),
@@ -519,6 +619,10 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                       actions: [
                         GestureDetector(
                           onTap: () {
+                            sl<TrainingManagementBloc>().add(
+                                AddOrUpdateTrainingExerciseEvent(
+                                    _tExerciseToCreateOrEdit));
+                            _resetData();
                             Navigator.pop(context, 'Save');
                           },
                           child: Container(
@@ -1160,13 +1264,13 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           CustomTextField(
-            controller: _nameController,
+            controller: _controllers['trainingName']!,
             hintText: tr('global_name'),
             borderColor: AppColors.parchment,
           ),
           const SizedBox(height: 20),
           CustomTextField(
-            controller: _objectivesController,
+            controller: _controllers['trainingObjectives']!,
             hintText: tr('global_objectives'),
             borderColor: AppColors.parchment,
           ),

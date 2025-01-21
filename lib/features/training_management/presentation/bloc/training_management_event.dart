@@ -100,6 +100,15 @@ class AddExerciseToSelectedTrainingEvent extends TrainingManagementEvent {
   List<Object> get props => [trainingExercise];
 }
 
+class AddOrUpdateTrainingExerciseEvent extends TrainingManagementEvent {
+  final TrainingExercise trainingExercise;
+
+  const AddOrUpdateTrainingExerciseEvent(this.trainingExercise);
+
+  @override
+  List<Object> get props => [trainingExercise];
+}
+
 class RemoveExerciseFromSelectedTrainingEvent extends TrainingManagementEvent {
   final String trainingExerciseKey;
 
