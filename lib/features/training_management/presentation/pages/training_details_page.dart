@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:animated_custom_dropdown/custom_dropdown.dart';
+import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -85,7 +87,76 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
   }
 
   void initializeExerciseControllers(String key) {
-    // TODO
+    final bloc = context.read<TrainingManagementBloc>();
+    final currentState = bloc.state;
+
+    if (currentState is TrainingManagementLoaded) {
+      final trainingExercises =
+          currentState.selectedTraining?.trainingExercises ?? [];
+      final exercise =
+          trainingExercises.firstWhere((exercise) => exercise.key == key);
+
+      _tExerciseToCreateOrEdit = _tExerciseToCreateOrEdit.copyWith(key: key);
+
+      _controllers['sets']?.text = exercise.sets?.toString() ?? '';
+      _controllers['durationMinutes']?.text = (exercise.duration != null
+          ? (exercise.duration! % 3600 ~/ 60).toString()
+          : '');
+      _controllers['durationSeconds']?.text = (exercise.duration != null
+          ? (exercise.duration! % 60).toString()
+          : '');
+      _controllers['minReps']?.text = exercise.minReps?.toString() ?? '';
+      _controllers['maxReps']?.text = exercise.maxReps?.toString() ?? '';
+      _controllers['setRestMinutes']?.text = (exercise.setRest != null
+          ? (exercise.setRest! % 3600 ~/ 60).toString()
+          : '');
+      _controllers['setRestSeconds']?.text =
+          (exercise.setRest != null ? (exercise.setRest! % 60).toString() : '');
+      _controllers['specialInstructions']?.text =
+          exercise.specialInstructions?.toString() ?? '';
+      _controllers['objectives']?.text = exercise.objectives?.toString() ?? '';
+      _controllers['distance']?.text = (exercise.targetDistance != null
+          ? (exercise.targetDistance! ~/ 1000).toString()
+          : '');
+      _controllers['durationHours']?.text = (exercise.targetDuration != null
+          ? (exercise.targetDuration! ~/ 3600).toString()
+          : '');
+      _controllers['durationMinutes']?.text = (exercise.targetDuration != null
+          ? (exercise.targetDuration! % 3600 ~/ 60).toString()
+          : '');
+      _controllers['durationSeconds']?.text = (exercise.targetDuration != null
+          ? (exercise.targetDuration! % 60).toString()
+          : '');
+      _controllers['intervals']?.text = exercise.intervals?.toString() ?? '';
+      _controllers['paceMinutes']?.text = (exercise.targetPace != null
+          ? (exercise.targetPace! % 3600 ~/ 60).toString()
+          : '');
+      _controllers['paceSeconds']?.text = (exercise.targetPace != null
+          ? (exercise.targetPace! % 60).toString()
+          : '');
+      _controllers['intervalDistance']?.text =
+          (exercise.intervalDistance != null
+              ? (exercise.intervalDistance! ~/ 1000).toString()
+              : '');
+      _controllers['intervalMinutes']?.text = (exercise.intervalDuration != null
+          ? (exercise.intervalDuration! % 3600 ~/ 60).toString()
+          : '');
+      _controllers['intervalSeconds']?.text = (exercise.intervalDuration != null
+          ? (exercise.intervalDuration! % 60).toString()
+          : '');
+      _controllers['intervalRestMinutes']?.text = (exercise.intervalRest != null
+          ? (exercise.intervalRest! % 3600 ~/ 60).toString()
+          : '');
+      _controllers['intervalRestSeconds']?.text = (exercise.intervalRest != null
+          ? (exercise.intervalRest! % 60).toString()
+          : '');
+      _controllers['exerciseRestMinutes']?.text = (exercise.exerciseRest != null
+          ? (exercise.exerciseRest! % 3600 ~/ 60).toString()
+          : '');
+      _controllers['exerciseRestSeconds']?.text = (exercise.exerciseRest != null
+          ? (exercise.exerciseRest! % 60).toString()
+          : '');
+    }
   }
 
   void _initializeControllers() {
@@ -280,117 +351,13 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                       _buildHeader(context, state),
                       const SizedBox(height: 30),
                       _buildTrainingGeneralInfo(context),
-                      const SizedBox(height: 20),
                       if (state.selectedTraining != null &&
                           exercisesAndMultisetsList.length < 2)
-                        ListView(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          children: exercisesAndMultisetsList
-                              .asMap()
-                              .entries
-                              .map((entry) {
-                            var item = entry.value;
-                            if (item['type'] == 'exercise') {
-                              var tExercise = item['data'] as TrainingExercise;
-                              if (tExercise.trainingExerciseType ==
-                                  TrainingExerciseType.run) {
-                                return RunExerciseWidget(
-                                  exerciseKey: tExercise.key!,
-                                );
-                              }
-                              return ExerciseWidget(
-                                exerciseKey: tExercise.key!,
-                              );
-                            } else if (item['type'] == 'multiset') {
-                              var tMultiset = item['data'] as Multiset;
-                              return MultisetWidget(
-                                  multisetKey: tMultiset.key!);
-                            }
-                            return const SizedBox
-                                .shrink(); // Fallback for unknown types
-                          }).toList(),
-                        ),
+                        _buildSimpleListView(
+                            exercisesAndMultisetsList, context),
                       if (exercisesAndMultisetsList.length > 1)
-                        ReorderableListView(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          onReorder: (int oldIndex, int newIndex) {
-                            if (newIndex > oldIndex) {
-                              newIndex--;
-                            }
-
-                            final combinedList =
-                                List<Map<String, dynamic>>.from(
-                                    exercisesAndMultisetsList);
-
-                            // Remove and reinsert the item
-                            final movedItem = combinedList.removeAt(oldIndex);
-                            combinedList.insert(newIndex, movedItem);
-
-                            // Update positions for exercises
-                            final updatedExercises = combinedList
-                                .where((item) => item['type'] == 'exercise')
-                                .map((item) {
-                              final exercise = item['data'] as TrainingExercise;
-                              final newPosition = combinedList.indexOf(item);
-                              return exercise.copyWith(position: newPosition);
-                            }).toList();
-
-                            final updatedMultisets = combinedList
-                                .where((item) => item['type'] == 'multiset')
-                                .map((item) {
-                              final multiset = item['data'] as Multiset;
-                              final newPosition = combinedList.indexOf(item);
-                              return multiset.copyWith(position: newPosition);
-                            }).toList();
-
-                            // Dispatch the updated training exercises to the bloc
-                            context.read<TrainingManagementBloc>().add(
-                                  UpdateSelectedTrainingProperty(
-                                      trainingExercises: updatedExercises,
-                                      multisets: updatedMultisets),
-                                );
-                          },
-                          children: exercisesAndMultisetsList
-                              .asMap()
-                              .entries
-                              .map((entry) {
-                            int index = entry.key;
-                            var item = entry.value;
-
-                            if (item['type'] == 'exercise') {
-                              var tExercise = item['data'] as TrainingExercise;
-                              if (tExercise.trainingExerciseType ==
-                                  TrainingExerciseType.run) {
-                                return RunExerciseWidget(
-                                  key: ValueKey(tExercise
-                                      .key), // Unique key for exercises
-                                  exerciseKey: tExercise.key!,
-                                );
-                              }
-                              return ExerciseWidget(
-                                key: ValueKey(
-                                    tExercise.key), // Unique key for exercises
-                                exerciseKey: tExercise.key!,
-                              );
-                            } else if (item['type'] == 'multiset') {
-                              var tMultiset = item['data'] as Multiset;
-                              return MultisetWidget(
-                                key:
-                                    ValueKey(index), // Unique key for multisets
-                                multisetKey: tMultiset.key!,
-                              );
-                            }
-                            return const SizedBox
-                                .shrink(); // Fallback for unknown types
-                          }).toList(),
-                          proxyDecorator: (child, index, animation) => Material(
-                            color: Colors.transparent,
-                            elevation: 0,
-                            child: child,
-                          ),
-                        ),
+                        _buildReorderableListview(
+                            exercisesAndMultisetsList, context),
                       const SizedBox(height: 20),
                       _buildAddButtons(context),
                       const SizedBox(height: 70),
@@ -445,211 +412,352 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
     );
   }
 
+  ReorderableListView _buildReorderableListview(
+      List<Map<String, Object>> exercisesAndMultisetsList,
+      BuildContext context) {
+    return ReorderableListView(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      onReorder: (int oldIndex, int newIndex) {
+        if (newIndex > oldIndex) {
+          newIndex--;
+        }
+
+        final combinedList =
+            List<Map<String, dynamic>>.from(exercisesAndMultisetsList);
+
+        // Remove and reinsert the item
+        final movedItem = combinedList.removeAt(oldIndex);
+        combinedList.insert(newIndex, movedItem);
+
+        // Update positions for exercises
+        final updatedExercises = combinedList
+            .where((item) => item['type'] == 'exercise')
+            .map((item) {
+          final exercise = item['data'] as TrainingExercise;
+          final newPosition = combinedList.indexOf(item);
+          return exercise.copyWith(position: newPosition);
+        }).toList();
+
+        final updatedMultisets = combinedList
+            .where((item) => item['type'] == 'multiset')
+            .map((item) {
+          final multiset = item['data'] as Multiset;
+          final newPosition = combinedList.indexOf(item);
+          return multiset.copyWith(position: newPosition);
+        }).toList();
+
+        // Dispatch the updated training exercises to the bloc
+        context.read<TrainingManagementBloc>().add(
+              UpdateSelectedTrainingProperty(
+                  trainingExercises: updatedExercises,
+                  multisets: updatedMultisets),
+            );
+      },
+      children: exercisesAndMultisetsList.asMap().entries.map((entry) {
+        int index = entry.key;
+        var item = entry.value;
+
+        if (item['type'] == 'exercise') {
+          var tExercise = item['data'] as TrainingExercise;
+          if (tExercise.trainingExerciseType == TrainingExerciseType.run) {
+            return RunExerciseWidget(
+              key: ValueKey(tExercise.key), // Unique key for exercises
+              exerciseKey: tExercise.key!,
+            );
+          }
+          final Exercise? exercise = (context
+                  .read<ExerciseManagementBloc>()
+                  .state as ExerciseManagementLoaded)
+              .exercises
+              .firstWhereOrNull(
+                (el) => el.id == tExercise.exerciseId,
+              );
+          return Container(
+            key: ValueKey(tExercise.key),
+            margin: const EdgeInsets.only(top: 20),
+            decoration: BoxDecoration(
+                border: Border.all(color: AppColors.timberwolf),
+                borderRadius: BorderRadius.circular(10),
+                color: AppColors.white),
+            padding: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (exercise?.imagePath != null &&
+                    exercise!.imagePath!.isNotEmpty)
+                  Column(
+                    children: [
+                      const SizedBox(height: 10),
+                      SizedBox(
+                        width: 130,
+                        height: 100,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(15),
+                          child: Image.file(
+                            File(exercise.imagePath!),
+                            width: MediaQuery.of(context).size.width - 40,
+                            fit: BoxFit.cover,
+                            alignment: Alignment.bottomCenter,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          SizedBox(
+                            width: 160,
+                            child: Text(
+                              exercise?.name ?? tr('exercise_unknown'),
+                              style: Theme.of(context).textTheme.titleMedium,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          Container(
+                            width: 30,
+                            alignment: Alignment.topCenter,
+                            child: ClipRect(
+                              child: PopupMenuButton(
+                                elevation: 0,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                    side: const BorderSide(
+                                        color: AppColors.timberwolf)),
+                                color: AppColors.white,
+                                onSelected: (value) {
+                                  if (value == 'edit') {
+                                    initializeExerciseControllers(
+                                        tExercise.key!);
+                                    _buildExerciseDialog(context);
+                                  } else if (value == 'delete') {
+                                    final bloc =
+                                        BlocProvider.of<TrainingManagementBloc>(
+                                            context);
+                                    bloc.add(
+                                        RemoveExerciseFromSelectedTrainingEvent(
+                                            tExercise.key!));
+                                  }
+                                },
+                                itemBuilder: (BuildContext context) => [
+                                  PopupMenuItem(
+                                    value: 'edit',
+                                    child: Text(
+                                      tr('global_edit'),
+                                      style: const TextStyle(
+                                          color: AppColors.taupeGray),
+                                    ),
+                                  ),
+                                  PopupMenuItem(
+                                    value: 'delete',
+                                    child: Text(
+                                      tr('global_delete'),
+                                      style: const TextStyle(
+                                          color: AppColors.taupeGray),
+                                    ),
+                                  ),
+                                ],
+                                icon: const Icon(
+                                  Icons.more_horiz,
+                                  color: AppColors.lightBlack,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      Text(
+                        '${tExercise.sets}x${tExercise.isSetsInReps! ? '${tExercise.minReps ?? 0}-${tExercise.maxReps ?? 0} reps' : '${tExercise.duration} seconds'}',
+                        style: const TextStyle(color: AppColors.taupeGray),
+                      ),
+                      Text(
+                        '${tExercise.setRest ?? 0} seconds rest',
+                        style: const TextStyle(color: AppColors.taupeGray),
+                      )
+                    ],
+                  ),
+                )
+              ],
+            ),
+          );
+        } else if (item['type'] == 'multiset') {
+          var tMultiset = item['data'] as Multiset;
+          return MultisetWidget(
+            key: ValueKey(index), // Unique key for multisets
+            multisetKey: tMultiset.key!,
+          );
+        }
+        return const SizedBox.shrink(); // Fallback for unknown types
+      }).toList(),
+      proxyDecorator: (child, index, animation) => Material(
+        color: Colors.transparent,
+        elevation: 0,
+        child: child,
+      ),
+    );
+  }
+
+  ListView _buildSimpleListView(
+      List<Map<String, Object>> exercisesAndMultisetsList,
+      BuildContext context) {
+    return ListView(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      children: exercisesAndMultisetsList.asMap().entries.map((entry) {
+        var item = entry.value;
+        if (item['type'] == 'exercise') {
+          var tExercise = item['data'] as TrainingExercise;
+          if (tExercise.trainingExerciseType == TrainingExerciseType.run) {
+            return RunExerciseWidget(
+              exerciseKey: tExercise.key!,
+            );
+          }
+          final Exercise? exercise = (context
+                  .read<ExerciseManagementBloc>()
+                  .state as ExerciseManagementLoaded)
+              .exercises
+              .firstWhereOrNull(
+                (el) => el.id == tExercise.exerciseId,
+              );
+          return Container(
+            decoration: BoxDecoration(
+                border: Border.all(color: AppColors.timberwolf),
+                borderRadius: BorderRadius.circular(10)),
+            padding: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (exercise?.imagePath != null &&
+                    exercise!.imagePath!.isNotEmpty)
+                  Column(
+                    children: [
+                      const SizedBox(height: 10),
+                      SizedBox(
+                        width: 130,
+                        height: 100,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(15),
+                          child: Image.file(
+                            File(exercise.imagePath!),
+                            width: MediaQuery.of(context).size.width - 40,
+                            fit: BoxFit.cover,
+                            alignment: Alignment.bottomCenter,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          SizedBox(
+                            width: 160,
+                            child: Text(
+                              exercise?.name ?? tr('exercise_unknown'),
+                              style: Theme.of(context).textTheme.titleMedium,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          Container(
+                            width: 30,
+                            alignment: Alignment.topCenter,
+                            child: ClipRect(
+                              child: PopupMenuButton(
+                                elevation: 0,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                    side: const BorderSide(
+                                        color: AppColors.timberwolf)),
+                                color: AppColors.white,
+                                onSelected: (value) {
+                                  if (value == 'edit') {
+                                    initializeExerciseControllers(
+                                        tExercise.key!);
+                                    _buildExerciseDialog(context);
+                                  } else if (value == 'delete') {
+                                    final bloc =
+                                        BlocProvider.of<TrainingManagementBloc>(
+                                            context);
+                                    bloc.add(
+                                        RemoveExerciseFromSelectedTrainingEvent(
+                                            tExercise.key!));
+                                  }
+                                },
+                                itemBuilder: (BuildContext context) => [
+                                  PopupMenuItem(
+                                    value: 'edit',
+                                    child: Text(
+                                      tr('global_edit'),
+                                      style: const TextStyle(
+                                          color: AppColors.taupeGray),
+                                    ),
+                                  ),
+                                  PopupMenuItem(
+                                    value: 'delete',
+                                    child: Text(
+                                      tr('global_delete'),
+                                      style: const TextStyle(
+                                          color: AppColors.taupeGray),
+                                    ),
+                                  ),
+                                ],
+                                icon: const Icon(
+                                  Icons.more_horiz,
+                                  color: AppColors.lightBlack,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      Text(
+                        '${tExercise.sets}x${tExercise.isSetsInReps! ? '${tExercise.minReps ?? 0}-${tExercise.maxReps ?? 0} reps' : '${tExercise.duration} seconds'}',
+                        style: const TextStyle(color: AppColors.taupeGray),
+                      ),
+                      Text(
+                        '${tExercise.setRest ?? 0} seconds rest',
+                        style: const TextStyle(color: AppColors.taupeGray),
+                      )
+                    ],
+                  ),
+                )
+              ],
+            ),
+          );
+        } else if (item['type'] == 'multiset') {
+          var tMultiset = item['data'] as Multiset;
+          return MultisetWidget(multisetKey: tMultiset.key!);
+        }
+        return const SizedBox.shrink(); // Fallback for unknown types
+      }).toList(),
+    );
+  }
+
   Row _buildAddButtons(BuildContext context) {
     return Row(
       children: [
         Expanded(
           child: GestureDetector(
             onTap: () {
-              showDialog(
-                context: context,
-                builder: (dialogContext) => StatefulBuilder(
-                  builder: (context, setDialogState) =>
-                      Builder(builder: (context) {
-                    return AlertDialog(
-                      insetPadding: const EdgeInsets.symmetric(horizontal: 20),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      backgroundColor: AppColors.white,
-                      title: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(tr('training_detail_page_add_exercise')),
-                          GestureDetector(
-                            onTap: () => Navigator.pop(context, 'Close'),
-                            child: Container(
-                              height: 30,
-                              width: 30,
-                              alignment: Alignment.centerRight,
-                              child: const ClipRect(
-                                child: Align(
-                                  alignment: Alignment.centerRight,
-                                  widthFactor: 0.85,
-                                  child: Icon(
-                                    Icons.close,
-                                    color: AppColors.licorice,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          )
-                        ],
-                      ),
-                      content: SingleChildScrollView(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              tr('exercise_detail_page_type'),
-                              style:
-                                  const TextStyle(color: AppColors.taupeGray),
-                            ),
-                            const SizedBox(height: 10),
-                            CustomDropdown<TrainingExerciseType>(
-                              items: TrainingExerciseType.values,
-                              initialItem:
-                                  _tExerciseToCreateOrEdit.trainingExerciseType,
-                              decoration: CustomDropdownDecoration(
-                                listItemStyle: Theme.of(context)
-                                    .textTheme
-                                    .bodyMedium!
-                                    .copyWith(color: AppColors.timberwolf),
-                                headerStyle: Theme.of(context)
-                                    .textTheme
-                                    .bodyMedium!
-                                    .copyWith(color: AppColors.licorice),
-                                closedSuffixIcon: const Icon(
-                                  Icons.keyboard_arrow_down_rounded,
-                                  size: 20,
-                                  color: AppColors.timberwolf,
-                                ),
-                                expandedSuffixIcon: const Icon(
-                                  Icons.keyboard_arrow_up_rounded,
-                                  size: 20,
-                                  color: AppColors.timberwolf,
-                                ),
-                                closedBorder:
-                                    Border.all(color: AppColors.timberwolf),
-                                expandedBorder:
-                                    Border.all(color: AppColors.timberwolf),
-                              ),
-                              headerBuilder: (context, selectedItem, enabled) {
-                                return Text(selectedItem
-                                    .translate(context.locale.languageCode));
-                              },
-                              listItemBuilder:
-                                  (context, item, isSelected, onItemSelect) {
-                                return Text(item
-                                    .translate(context.locale.languageCode));
-                              },
-                              onChanged: (value) {
-                                setDialogState(
-                                  () {
-                                    _tExerciseToCreateOrEdit =
-                                        _tExerciseToCreateOrEdit.copyWith(
-                                            trainingExerciseType: value);
-                                  },
-                                );
-                              },
-                            ),
-                            const SizedBox(height: 20),
-                            _tExerciseToCreateOrEdit.trainingExerciseType !=
-                                    TrainingExerciseType.run
-                                ? _buildYogaOrWorkoutFields(
-                                    context, setDialogState)
-                                : _buildRunFields(setDialogState),
-                            SizedBox(
-                              height: 48,
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(tr('exercise_exercise_rest'),
-                                      style: const TextStyle(
-                                          color: AppColors.lightBlack)),
-                                  Row(
-                                    children: [
-                                      SmallTextFieldWidget(
-                                          controller: _controllers[
-                                              'exerciseRestMinutes']!),
-                                      const SizedBox(
-                                        width: 20,
-                                        child: Center(
-                                          child: Text(':',
-                                              style: TextStyle(fontSize: 20)),
-                                        ),
-                                      ),
-                                      SmallTextFieldWidget(
-                                          controller: _controllers[
-                                              'exerciseRestSeconds']!),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Row(
-                              children: [
-                                SizedBox(
-                                  width: 20,
-                                  child: Checkbox(
-                                    value: _tExerciseToCreateOrEdit.autoStart!,
-                                    onChanged: (bool? value) {
-                                      setDialogState(
-                                        () {
-                                          _tExerciseToCreateOrEdit =
-                                              _tExerciseToCreateOrEdit.copyWith(
-                                                  autoStart: value);
-                                        },
-                                      );
-                                    },
-                                  ),
-                                ),
-                                const SizedBox(width: 10),
-                                Text(
-                                  tr('training_detail_page_autostart'),
-                                  style: const TextStyle(
-                                      color: AppColors.lightBlack),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 10),
-                            BigTextFieldWidget(
-                                controller:
-                                    _controllers['specialInstructions']!,
-                                hintText: tr('global_special_instructions')),
-                            const SizedBox(height: 10),
-                            BigTextFieldWidget(
-                                controller: _controllers['objectives']!,
-                                hintText: tr('global_objectives'))
-                          ],
-                        ),
-                      ),
-                      actions: [
-                        GestureDetector(
-                          onTap: () {
-                            sl<TrainingManagementBloc>().add(
-                                AddOrUpdateTrainingExerciseEvent(
-                                    _tExerciseToCreateOrEdit));
-                            _resetData();
-                            Navigator.pop(context, 'Save');
-                          },
-                          child: Container(
-                            width: MediaQuery.of(context).size.width,
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 10, horizontal: 20),
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10),
-                                color: AppColors.licorice),
-                            child: Center(
-                              child: Text(
-                                tr('global_save'),
-                                style: const TextStyle(color: AppColors.white),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    );
-                  }),
-                ),
-              );
+              _buildExerciseDialog(context);
             },
             child: Container(
               padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
               decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(5),
                   color: AppColors.licorice),
               child: Center(
                 child: Text(
@@ -666,7 +774,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
             child: Container(
               padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
               decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(5),
                   color: AppColors.licorice),
               child: Center(
                 child: Text(
@@ -679,6 +787,196 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
         ),
       ],
     );
+  }
+
+  Future<void> _buildExerciseDialog(BuildContext context) async {
+    await showDialog(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setDialogState) => Builder(builder: (context) {
+          final bool isEdit = _tExerciseToCreateOrEdit.key != null;
+          return AlertDialog(
+            insetPadding: const EdgeInsets.symmetric(horizontal: 20),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            backgroundColor: AppColors.white,
+            title: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(isEdit
+                    ? tr('exercise_detail_page_title_edit')
+                    : tr('training_detail_page_add_exercise')),
+                GestureDetector(
+                  onTap: () => Navigator.pop(context, 'Close'),
+                  child: Container(
+                    height: 30,
+                    width: 30,
+                    alignment: Alignment.centerRight,
+                    child: const ClipRect(
+                      child: Align(
+                        alignment: Alignment.centerRight,
+                        widthFactor: 0.85,
+                        child: Icon(
+                          Icons.close,
+                          color: AppColors.licorice,
+                        ),
+                      ),
+                    ),
+                  ),
+                )
+              ],
+            ),
+            content: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    tr('exercise_detail_page_type'),
+                    style: const TextStyle(color: AppColors.taupeGray),
+                  ),
+                  const SizedBox(height: 10),
+                  CustomDropdown<TrainingExerciseType>(
+                    items: TrainingExerciseType.values,
+                    initialItem: _tExerciseToCreateOrEdit.trainingExerciseType,
+                    decoration: CustomDropdownDecoration(
+                      listItemStyle: Theme.of(context)
+                          .textTheme
+                          .bodyMedium!
+                          .copyWith(color: AppColors.timberwolf),
+                      headerStyle: Theme.of(context)
+                          .textTheme
+                          .bodyMedium!
+                          .copyWith(color: AppColors.licorice),
+                      closedSuffixIcon: const Icon(
+                        Icons.keyboard_arrow_down_rounded,
+                        size: 20,
+                        color: AppColors.timberwolf,
+                      ),
+                      expandedSuffixIcon: const Icon(
+                        Icons.keyboard_arrow_up_rounded,
+                        size: 20,
+                        color: AppColors.timberwolf,
+                      ),
+                      closedBorder: Border.all(color: AppColors.timberwolf),
+                      expandedBorder: Border.all(color: AppColors.timberwolf),
+                    ),
+                    headerBuilder: (context, selectedItem, enabled) {
+                      return Text(
+                          selectedItem.translate(context.locale.languageCode));
+                    },
+                    listItemBuilder: (context, item, isSelected, onItemSelect) {
+                      return Text(item.translate(context.locale.languageCode));
+                    },
+                    onChanged: (value) {
+                      setDialogState(
+                        () {
+                          _tExerciseToCreateOrEdit = _tExerciseToCreateOrEdit
+                              .copyWith(trainingExerciseType: value);
+                        },
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 20),
+                  _tExerciseToCreateOrEdit.trainingExerciseType !=
+                          TrainingExerciseType.run
+                      ? _buildYogaOrWorkoutFields(context, setDialogState)
+                      : _buildRunFields(setDialogState),
+                  SizedBox(
+                    height: 48,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(tr('exercise_exercise_rest'),
+                            style:
+                                const TextStyle(color: AppColors.lightBlack)),
+                        Row(
+                          children: [
+                            SmallTextFieldWidget(
+                                controller:
+                                    _controllers['exerciseRestMinutes']!),
+                            const SizedBox(
+                              width: 20,
+                              child: Center(
+                                child:
+                                    Text(':', style: TextStyle(fontSize: 20)),
+                              ),
+                            ),
+                            SmallTextFieldWidget(
+                                controller:
+                                    _controllers['exerciseRestSeconds']!),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  Row(
+                    children: [
+                      SizedBox(
+                        width: 20,
+                        child: Checkbox(
+                          value: _tExerciseToCreateOrEdit.autoStart!,
+                          onChanged: (bool? value) {
+                            setDialogState(
+                              () {
+                                _tExerciseToCreateOrEdit =
+                                    _tExerciseToCreateOrEdit.copyWith(
+                                        autoStart: value);
+                              },
+                            );
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Text(
+                        tr('training_detail_page_autostart'),
+                        style: const TextStyle(color: AppColors.lightBlack),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  BigTextFieldWidget(
+                      controller: _controllers['specialInstructions']!,
+                      hintText: tr('global_special_instructions')),
+                  const SizedBox(height: 10),
+                  BigTextFieldWidget(
+                      controller: _controllers['objectives']!,
+                      hintText: tr('global_objectives'))
+                ],
+              ),
+            ),
+            actions: [
+              GestureDetector(
+                onTap: () {
+                  sl<TrainingManagementBloc>().add(
+                      AddOrUpdateTrainingExerciseEvent(
+                          _tExerciseToCreateOrEdit));
+                  _resetData();
+                  Navigator.pop(context, 'Save');
+                },
+                child: Container(
+                  width: MediaQuery.of(context).size.width,
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      color: AppColors.licorice),
+                  child: Center(
+                    child: Text(
+                      tr('global_save'),
+                      style: const TextStyle(color: AppColors.white),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          );
+        }),
+      ),
+    );
+
+    _resetData();
   }
 
   Column _buildRunFields(StateSetter setDialogState) {
