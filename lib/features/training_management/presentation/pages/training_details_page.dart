@@ -21,7 +21,6 @@ import '../../domain/entities/training_exercise.dart';
 import '../bloc/training_management_bloc.dart';
 import '../widgets/big_text_field_widget.dart';
 import '../widgets/multiset_widget.dart';
-import '../widgets/run_exercise_widget.dart';
 import '../widgets/small_text_field_widget.dart';
 
 class TrainingDetailsPage extends StatefulWidget {
@@ -119,7 +118,13 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
           trainingExercises.firstWhere((exercise) => exercise.key == key);
 
       _tExerciseToCreateOrEdit = _tExerciseToCreateOrEdit.copyWith(
-          key: key, trainingExerciseType: exercise.trainingExerciseType);
+        key: key,
+        trainingExerciseType: exercise.trainingExerciseType,
+        runExerciseTarget: exercise.runExerciseTarget,
+        isIntervalInDistance: exercise.isIntervalInDistance,
+        isTargetPaceSelected: exercise.isTargetPaceSelected,
+        autoStart: exercise.autoStart,
+      );
 
       _controllers['sets']?.text = exercise.sets?.toString() ?? '';
       _controllers['durationMinutes']?.text = (exercise.duration != null
@@ -429,9 +434,6 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
             return aPosition.compareTo(bPosition);
           });
 
-          // final initialName = state.selectedTraining?.name ?? '';
-          // _controllers['trainingName']!.text = initialName;
-
           return Stack(
             children: [
               SingleChildScrollView(
@@ -554,9 +556,83 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
         if (item['type'] == 'exercise') {
           var tExercise = item['data'] as TrainingExercise;
           if (tExercise.trainingExerciseType == TrainingExerciseType.run) {
-            return RunExerciseWidget(
-              key: ValueKey(tExercise.key), // Unique key for exercises
-              exerciseKey: tExercise.key!,
+            return Container(
+              key: ValueKey(tExercise.key),
+              margin: const EdgeInsets.only(top: 10),
+              decoration: BoxDecoration(
+                  border: Border.all(color: AppColors.timberwolf),
+                  borderRadius: BorderRadius.circular(10),
+                  color: AppColors.white),
+              padding: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      SizedBox(
+                        width: 160,
+                        child: Text(
+                          tr('global_run'),
+                          style: Theme.of(context).textTheme.titleMedium,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      Container(
+                        width: 30,
+                        alignment: Alignment.topCenter,
+                        child: ClipRect(
+                          child: PopupMenuButton(
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                side: const BorderSide(
+                                    color: AppColors.timberwolf)),
+                            color: AppColors.white,
+                            onSelected: (value) {
+                              if (value == 'edit') {
+                                initializeExerciseControllers(tExercise.key!);
+                                _buildExerciseDialog(context);
+                              } else if (value == 'delete') {
+                                final bloc =
+                                    BlocProvider.of<TrainingManagementBloc>(
+                                        context);
+                                bloc.add(
+                                    RemoveExerciseFromSelectedTrainingEvent(
+                                        tExercise.key!));
+                              }
+                            },
+                            itemBuilder: (BuildContext context) => [
+                              PopupMenuItem(
+                                value: 'edit',
+                                child: Text(
+                                  tr('global_edit'),
+                                  style: const TextStyle(
+                                      color: AppColors.taupeGray),
+                                ),
+                              ),
+                              PopupMenuItem(
+                                value: 'delete',
+                                child: Text(
+                                  tr('global_delete'),
+                                  style: const TextStyle(
+                                      color: AppColors.taupeGray),
+                                ),
+                              ),
+                            ],
+                            icon: const Icon(
+                              Icons.more_horiz,
+                              color: AppColors.lightBlack,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  _buildRunText(tExercise),
+                ],
+              ),
             );
           }
           final Exercise? exercise = (context
@@ -1556,8 +1632,12 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
               child: Checkbox(
                 value: _tExerciseToCreateOrEdit.isTargetPaceSelected,
                 onChanged: (value) {
-                  _tExerciseToCreateOrEdit = _tExerciseToCreateOrEdit.copyWith(
-                      isTargetPaceSelected: value);
+                  setDialogState(
+                    () {
+                      _tExerciseToCreateOrEdit = _tExerciseToCreateOrEdit
+                          .copyWith(isTargetPaceSelected: value);
+                    },
+                  );
                 },
               ),
             ),
