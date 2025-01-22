@@ -10,12 +10,6 @@ import 'distance_widget.dart';
 import 'duration_timer_widget.dart';
 import 'pace_widget.dart';
 
-String formatPace(int seconds) {
-  final minutes = seconds ~/ 60;
-  final secs = seconds % 60;
-  return '$minutes:${secs.toString().padLeft(2, '0')}/km';
-}
-
 class ActiveRunWidget extends StatefulWidget {
   final TrainingExercise tExercise;
   final int exerciseIndex;

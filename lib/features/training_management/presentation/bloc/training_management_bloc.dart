@@ -308,8 +308,8 @@ class TrainingManagementBloc
         final currentState = state as TrainingManagementLoaded;
         final trainingExercises = List<TrainingExercise>.from(
             currentState.selectedTraining?.trainingExercises ?? []);
-        final trainingMultisets = List<TrainingExercise>.from(
-            currentState.selectedTraining?.multisets ?? []);
+        final trainingMultisets =
+            List<Multiset>.from(currentState.selectedTraining?.multisets ?? []);
 
         // Add
         if (event.trainingExercise.key == null) {
@@ -352,6 +352,46 @@ class TrainingManagementBloc
 
         final updatedTraining = currentState.selectedTraining?.copyWith(
           trainingExercises: trainingExercises,
+        );
+
+        emit(currentState.copyWith(selectedTraining: updatedTraining));
+      }
+    });
+
+    on<AddOrUpdateMultisetEvent>((event, emit) {
+      if (state is TrainingManagementLoaded) {
+        final currentState = state as TrainingManagementLoaded;
+        final trainingExercises = List<TrainingExercise>.from(
+            currentState.selectedTraining?.trainingExercises ?? []);
+        final trainingMultisets =
+            List<Multiset>.from(currentState.selectedTraining?.multisets ?? []);
+
+        // Add
+        if (event.multiset.key == null) {
+          final multisetToAdd = Multiset(
+            id: event.multiset.id,
+            trainingId: event.multiset.trainingId,
+            trainingExercises: event.multiset.trainingExercises,
+            sets: event.multiset.sets,
+            setRest: event.multiset.setRest,
+            multisetRest: event.multiset.multisetRest,
+            specialInstructions: event.multiset.specialInstructions,
+            objectives: event.multiset.objectives,
+            position: trainingExercises.length + trainingMultisets.length,
+            key: uuid.v4(),
+          );
+
+          trainingMultisets.add(multisetToAdd);
+        }
+        // Update
+        else {
+          final index = trainingMultisets
+              .indexWhere((multiset) => multiset.key == event.multiset.key);
+          trainingMultisets[index] = event.multiset;
+        }
+
+        final updatedTraining = currentState.selectedTraining?.copyWith(
+          multisets: trainingMultisets,
         );
 
         emit(currentState.copyWith(selectedTraining: updatedTraining));

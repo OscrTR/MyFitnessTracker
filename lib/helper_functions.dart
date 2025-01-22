@@ -10,3 +10,9 @@ String formatDurationToHoursMinutesSeconds(int seconds) {
   final secs = seconds % 60;
   return '${hours > 0 ? '$hours:' : ''}${minutes.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}';
 }
+
+String formatPace(int seconds) {
+  final minutes = seconds ~/ 60;
+  final secs = seconds % 60;
+  return '$minutes:${secs.toString().padLeft(2, '0')}/km';
+}
