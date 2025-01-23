@@ -20,7 +20,6 @@ import '../../domain/entities/multiset.dart';
 import '../../domain/entities/training_exercise.dart';
 import '../bloc/training_management_bloc.dart';
 import '../widgets/big_text_field_widget.dart';
-import '../widgets/multiset_widget.dart';
 import '../widgets/small_text_field_widget.dart';
 
 class TrainingDetailsPage extends StatefulWidget {
@@ -444,13 +443,8 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                       _buildHeader(context, state),
                       const SizedBox(height: 30),
                       _buildTrainingGeneralInfo(context),
-                      if (state.selectedTraining != null &&
-                          exercisesAndMultisetsList.length < 2)
-                        _buildSimpleListView(
-                            exercisesAndMultisetsList, context),
-                      if (exercisesAndMultisetsList.length > 1)
-                        _buildReorderableListview(
-                            exercisesAndMultisetsList, context),
+                      _buildReorderableListview(
+                          exercisesAndMultisetsList, context),
                       const SizedBox(height: 20),
                       _buildAddButtons(context),
                       const SizedBox(height: 70),
@@ -514,6 +508,9 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       onReorder: (int oldIndex, int newIndex) {
+        if (exercisesAndMultisetsList.length <= 1) {
+          return;
+        }
         if (newIndex > oldIndex) {
           newIndex--;
         }
@@ -550,90 +547,20 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
             );
       },
       children: exercisesAndMultisetsList.asMap().entries.map((entry) {
-        int index = entry.key;
         var item = entry.value;
 
         if (item['type'] == 'exercise') {
           var tExercise = item['data'] as TrainingExercise;
           if (tExercise.trainingExerciseType == TrainingExerciseType.run) {
-            return Container(
-              key: ValueKey(tExercise.key),
-              margin: const EdgeInsets.only(top: 10),
-              decoration: BoxDecoration(
-                  border: Border.all(color: AppColors.timberwolf),
-                  borderRadius: BorderRadius.circular(10),
-                  color: AppColors.white),
-              padding: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      SizedBox(
-                        width: 160,
-                        child: Text(
-                          tr('global_run'),
-                          style: Theme.of(context).textTheme.titleMedium,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      Container(
-                        width: 30,
-                        alignment: Alignment.topCenter,
-                        child: ClipRect(
-                          child: PopupMenuButton(
-                            elevation: 0,
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                                side: const BorderSide(
-                                    color: AppColors.timberwolf)),
-                            color: AppColors.white,
-                            onSelected: (value) {
-                              if (value == 'edit') {
-                                initializeExerciseControllers(tExercise.key!);
-                                _buildExerciseDialog(context);
-                              } else if (value == 'delete') {
-                                final bloc =
-                                    BlocProvider.of<TrainingManagementBloc>(
-                                        context);
-                                bloc.add(
-                                    RemoveExerciseFromSelectedTrainingEvent(
-                                        tExercise.key!));
-                              }
-                            },
-                            itemBuilder: (BuildContext context) => [
-                              PopupMenuItem(
-                                value: 'edit',
-                                child: Text(
-                                  tr('global_edit'),
-                                  style: const TextStyle(
-                                      color: AppColors.taupeGray),
-                                ),
-                              ),
-                              PopupMenuItem(
-                                value: 'delete',
-                                child: Text(
-                                  tr('global_delete'),
-                                  style: const TextStyle(
-                                      color: AppColors.taupeGray),
-                                ),
-                              ),
-                            ],
-                            icon: const Icon(
-                              Icons.more_horiz,
-                              color: AppColors.lightBlack,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  _buildRunText(tExercise),
-                ],
-              ),
-            );
+            if (exercisesAndMultisetsList.length <= 1) {
+              return GestureDetector(
+                key: ValueKey(tExercise.key),
+                onLongPress: () {},
+                child: _buildRunExerciseItem(tExercise, context),
+              );
+            } else {
+              return _buildRunExerciseItem(tExercise, context);
+            }
           }
           final Exercise? exercise = (context
                   .read<ExerciseManagementBloc>()
@@ -642,126 +569,27 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
               .firstWhereOrNull(
                 (el) => el.id == tExercise.exerciseId,
               );
-          return Container(
-            key: ValueKey(tExercise.key),
-            margin: const EdgeInsets.only(top: 20),
-            decoration: BoxDecoration(
-                border: Border.all(color: AppColors.timberwolf),
-                borderRadius: BorderRadius.circular(10),
-                color: AppColors.white),
-            padding: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (exercise?.imagePath != null &&
-                    exercise!.imagePath!.isNotEmpty)
-                  Column(
-                    children: [
-                      const SizedBox(height: 10),
-                      SizedBox(
-                        width: 130,
-                        height: 100,
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(15),
-                          child: Image.file(
-                            File(exercise.imagePath!),
-                            width: MediaQuery.of(context).size.width - 40,
-                            fit: BoxFit.cover,
-                            alignment: Alignment.bottomCenter,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          SizedBox(
-                            width: 160,
-                            child: Text(
-                              exercise?.name ?? tr('exercise_unknown'),
-                              style: Theme.of(context).textTheme.titleMedium,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          Container(
-                            width: 30,
-                            alignment: Alignment.topCenter,
-                            child: ClipRect(
-                              child: PopupMenuButton(
-                                elevation: 0,
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                    side: const BorderSide(
-                                        color: AppColors.timberwolf)),
-                                color: AppColors.white,
-                                onSelected: (value) {
-                                  if (value == 'edit') {
-                                    initializeExerciseControllers(
-                                        tExercise.key!);
-                                    _buildExerciseDialog(context);
-                                  } else if (value == 'delete') {
-                                    final bloc =
-                                        BlocProvider.of<TrainingManagementBloc>(
-                                            context);
-                                    bloc.add(
-                                        RemoveExerciseFromSelectedTrainingEvent(
-                                            tExercise.key!));
-                                  }
-                                },
-                                itemBuilder: (BuildContext context) => [
-                                  PopupMenuItem(
-                                    value: 'edit',
-                                    child: Text(
-                                      tr('global_edit'),
-                                      style: const TextStyle(
-                                          color: AppColors.taupeGray),
-                                    ),
-                                  ),
-                                  PopupMenuItem(
-                                    value: 'delete',
-                                    child: Text(
-                                      tr('global_delete'),
-                                      style: const TextStyle(
-                                          color: AppColors.taupeGray),
-                                    ),
-                                  ),
-                                ],
-                                icon: const Icon(
-                                  Icons.more_horiz,
-                                  color: AppColors.lightBlack,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      Text(
-                        '${tExercise.sets}x${tExercise.isSetsInReps! ? '${tExercise.minReps ?? 0}-${tExercise.maxReps ?? 0} reps' : '${tExercise.duration} seconds'}',
-                        style: const TextStyle(color: AppColors.taupeGray),
-                      ),
-                      Text(
-                        '${tExercise.setRest ?? 0} seconds rest',
-                        style: const TextStyle(color: AppColors.taupeGray),
-                      )
-                    ],
-                  ),
-                )
-              ],
-            ),
-          );
+          if (exercisesAndMultisetsList.length <= 1) {
+            return GestureDetector(
+              key: ValueKey(tExercise.key),
+              onLongPress: () {},
+              child: _buildExerciseItem(tExercise, exercise, context),
+            );
+          } else {
+            return _buildExerciseItem(tExercise, exercise, context);
+          }
         } else if (item['type'] == 'multiset') {
           var tMultiset = item['data'] as Multiset;
-          return MultisetWidget(
-            key: ValueKey(index), // Unique key for multisets
-            multisetKey: tMultiset.key!,
-          );
+
+          if (exercisesAndMultisetsList.length <= 1) {
+            return GestureDetector(
+              key: ValueKey(tMultiset.key),
+              onLongPress: () {},
+              child: _buildMultisetItem(context, tMultiset),
+            );
+          } else {
+            return _buildMultisetItem(context, tMultiset);
+          }
         }
         return const SizedBox.shrink(); // Fallback for unknown types
       }).toList(),
@@ -773,231 +601,49 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
     );
   }
 
-  ListView _buildSimpleListView(
-      List<Map<String, Object>> exercisesAndMultisetsList,
-      BuildContext context) {
-    return ListView(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      children: exercisesAndMultisetsList.asMap().entries.map((entry) {
-        var item = entry.value;
-        if (item['type'] == 'exercise') {
-          var tExercise = item['data'] as TrainingExercise;
-          final Exercise? exercise = (context
-                  .read<ExerciseManagementBloc>()
-                  .state as ExerciseManagementLoaded)
-              .exercises
-              .firstWhereOrNull(
-                (el) => el.id == tExercise.exerciseId,
-              );
-          if (tExercise.trainingExerciseType == TrainingExerciseType.run) {
-            return Container(
-              margin: const EdgeInsets.only(top: 10),
-              decoration: BoxDecoration(
-                  border: Border.all(color: AppColors.timberwolf),
-                  borderRadius: BorderRadius.circular(10)),
-              padding: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      SizedBox(
-                        width: 160,
-                        child: Text(
-                          tr('global_run'),
-                          style: Theme.of(context).textTheme.titleMedium,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      Container(
-                        width: 30,
-                        alignment: Alignment.topCenter,
-                        child: ClipRect(
-                          child: PopupMenuButton(
-                            elevation: 0,
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                                side: const BorderSide(
-                                    color: AppColors.timberwolf)),
-                            color: AppColors.white,
-                            onSelected: (value) {
-                              if (value == 'edit') {
-                                initializeExerciseControllers(tExercise.key!);
-                                _buildExerciseDialog(context);
-                              } else if (value == 'delete') {
-                                final bloc =
-                                    BlocProvider.of<TrainingManagementBloc>(
-                                        context);
-                                bloc.add(
-                                    RemoveExerciseFromSelectedTrainingEvent(
-                                        tExercise.key!));
-                              }
-                            },
-                            itemBuilder: (BuildContext context) => [
-                              PopupMenuItem(
-                                value: 'edit',
-                                child: Text(
-                                  tr('global_edit'),
-                                  style: const TextStyle(
-                                      color: AppColors.taupeGray),
-                                ),
-                              ),
-                              PopupMenuItem(
-                                value: 'delete',
-                                child: Text(
-                                  tr('global_delete'),
-                                  style: const TextStyle(
-                                      color: AppColors.taupeGray),
-                                ),
-                              ),
-                            ],
-                            icon: const Icon(
-                              Icons.more_horiz,
-                              color: AppColors.lightBlack,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  _buildRunText(tExercise),
-                ],
-              ),
-            );
-          }
-          return Container(
-            margin: const EdgeInsets.only(top: 10),
-            decoration: BoxDecoration(
-                border: Border.all(color: AppColors.timberwolf),
-                borderRadius: BorderRadius.circular(10)),
-            padding: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+  Container _buildExerciseItem(
+      TrainingExercise tExercise, Exercise? exercise, BuildContext context) {
+    return Container(
+      key: ValueKey(tExercise.key),
+      margin: const EdgeInsets.only(top: 20),
+      decoration: BoxDecoration(
+          border: Border.all(color: AppColors.timberwolf),
+          borderRadius: BorderRadius.circular(10),
+          color: AppColors.white),
+      padding: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (exercise?.imagePath != null && exercise!.imagePath!.isNotEmpty)
+            Column(
               children: [
-                if (exercise?.imagePath != null &&
-                    exercise!.imagePath!.isNotEmpty)
-                  Column(
-                    children: [
-                      const SizedBox(height: 10),
-                      SizedBox(
-                        width: 130,
-                        height: 100,
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(15),
-                          child: Image.file(
-                            File(exercise.imagePath!),
-                            width: MediaQuery.of(context).size.width - 40,
-                            fit: BoxFit.cover,
-                            alignment: Alignment.bottomCenter,
-                          ),
-                        ),
-                      ),
-                    ],
+                const SizedBox(height: 10),
+                SizedBox(
+                  width: 130,
+                  height: 100,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(15),
+                    child: Image.file(
+                      File(exercise.imagePath!),
+                      width: MediaQuery.of(context).size.width - 40,
+                      fit: BoxFit.cover,
+                      alignment: Alignment.bottomCenter,
+                    ),
                   ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          SizedBox(
-                            width: 160,
-                            child: Text(
-                              exercise?.name ?? tr('exercise_unknown'),
-                              style: Theme.of(context).textTheme.titleMedium,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          Container(
-                            width: 30,
-                            alignment: Alignment.topCenter,
-                            child: ClipRect(
-                              child: PopupMenuButton(
-                                elevation: 0,
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                    side: const BorderSide(
-                                        color: AppColors.timberwolf)),
-                                color: AppColors.white,
-                                onSelected: (value) {
-                                  if (value == 'edit') {
-                                    initializeExerciseControllers(
-                                        tExercise.key!);
-                                    _buildExerciseDialog(context);
-                                  } else if (value == 'delete') {
-                                    final bloc =
-                                        BlocProvider.of<TrainingManagementBloc>(
-                                            context);
-                                    bloc.add(
-                                        RemoveExerciseFromSelectedTrainingEvent(
-                                            tExercise.key!));
-                                  }
-                                },
-                                itemBuilder: (BuildContext context) => [
-                                  PopupMenuItem(
-                                    value: 'edit',
-                                    child: Text(
-                                      tr('global_edit'),
-                                      style: const TextStyle(
-                                          color: AppColors.taupeGray),
-                                    ),
-                                  ),
-                                  PopupMenuItem(
-                                    value: 'delete',
-                                    child: Text(
-                                      tr('global_delete'),
-                                      style: const TextStyle(
-                                          color: AppColors.taupeGray),
-                                    ),
-                                  ),
-                                ],
-                                icon: const Icon(
-                                  Icons.more_horiz,
-                                  color: AppColors.lightBlack,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      Text(
-                        '${tExercise.sets}x${tExercise.isSetsInReps! ? '${tExercise.minReps ?? 0}-${tExercise.maxReps ?? 0} reps' : '${tExercise.duration} seconds'}',
-                        style: const TextStyle(color: AppColors.taupeGray),
-                      ),
-                      Text(
-                        '${tExercise.setRest ?? 0} seconds rest',
-                        style: const TextStyle(color: AppColors.taupeGray),
-                      )
-                    ],
-                  ),
-                )
+                ),
               ],
             ),
-          );
-        } else if (item['type'] == 'multiset') {
-          var tMultiset = item['data'] as Multiset;
-          return Container(
-            margin: const EdgeInsets.only(top: 10),
-            decoration: BoxDecoration(
-                border: Border.all(color: AppColors.timberwolf),
-                borderRadius: BorderRadius.circular(10)),
-            padding: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
+          const SizedBox(width: 10),
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    SizedBox(
-                      width: 160,
+                    Expanded(
                       child: Text(
-                        tr('global_multiset'),
+                        exercise?.name ?? tr('exercise_unknown'),
                         style: Theme.of(context).textTheme.titleMedium,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -1016,14 +662,14 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                           color: AppColors.white,
                           onSelected: (value) {
                             if (value == 'edit') {
-                              initializeMultisetControllers(tMultiset.key!);
-                              _buildMultisetDialog(context);
+                              initializeExerciseControllers(tExercise.key!);
+                              _buildExerciseDialog(context);
                             } else if (value == 'delete') {
                               final bloc =
                                   BlocProvider.of<TrainingManagementBloc>(
                                       context);
                               bloc.add(RemoveExerciseFromSelectedTrainingEvent(
-                                  tMultiset.key!));
+                                  tExercise.key!));
                             }
                           },
                           itemBuilder: (BuildContext context) => [
@@ -1054,20 +700,229 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                   ],
                 ),
                 Text(
-                  '${tMultiset.sets} set(s)',
+                  '${tExercise.sets}x${tExercise.isSetsInReps! ? '${tExercise.minReps ?? 0}-${tExercise.maxReps ?? 0} reps' : '${tExercise.duration} seconds'}',
                   style: const TextStyle(color: AppColors.taupeGray),
                 ),
                 Text(
-                  '${tMultiset.setRest ?? 0} seconds rest',
+                  '${tExercise.setRest ?? 0} seconds rest',
                   style: const TextStyle(color: AppColors.taupeGray),
                 )
               ],
             ),
-          );
-        }
-        return const SizedBox.shrink(); // Fallback for unknown types
-      }).toList(),
+          )
+        ],
+      ),
     );
+  }
+
+  Container _buildRunExerciseItem(
+      TrainingExercise tExercise, BuildContext context) {
+    return Container(
+      key: ValueKey(tExercise.key),
+      margin: const EdgeInsets.only(top: 10),
+      decoration: BoxDecoration(
+          border: Border.all(color: AppColors.timberwolf),
+          borderRadius: BorderRadius.circular(10),
+          color: AppColors.white),
+      padding: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              SizedBox(
+                width: 160,
+                child: Text(
+                  tr('global_run'),
+                  style: Theme.of(context).textTheme.titleMedium,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              Container(
+                width: 30,
+                alignment: Alignment.topCenter,
+                child: ClipRect(
+                  child: PopupMenuButton(
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        side: const BorderSide(color: AppColors.timberwolf)),
+                    color: AppColors.white,
+                    onSelected: (value) {
+                      if (value == 'edit') {
+                        initializeExerciseControllers(tExercise.key!);
+                        _buildExerciseDialog(context);
+                      } else if (value == 'delete') {
+                        final bloc =
+                            BlocProvider.of<TrainingManagementBloc>(context);
+                        bloc.add(RemoveExerciseFromSelectedTrainingEvent(
+                            tExercise.key!));
+                      }
+                    },
+                    itemBuilder: (BuildContext context) => [
+                      PopupMenuItem(
+                        value: 'edit',
+                        child: Text(
+                          tr('global_edit'),
+                          style: const TextStyle(color: AppColors.taupeGray),
+                        ),
+                      ),
+                      PopupMenuItem(
+                        value: 'delete',
+                        child: Text(
+                          tr('global_delete'),
+                          style: const TextStyle(color: AppColors.taupeGray),
+                        ),
+                      ),
+                    ],
+                    icon: const Icon(
+                      Icons.more_horiz,
+                      color: AppColors.lightBlack,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          _buildRunText(tExercise),
+        ],
+      ),
+    );
+  }
+
+  Container _buildMultisetItem(BuildContext context, Multiset tMultiset) {
+    return Container(
+      key: ValueKey(tMultiset.key!),
+      margin: const EdgeInsets.only(top: 10),
+      decoration: BoxDecoration(
+          border: Border.all(color: AppColors.timberwolf),
+          borderRadius: BorderRadius.circular(10)),
+      padding: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              SizedBox(
+                width: 160,
+                child: Text(
+                  tr('global_multiset'),
+                  style: Theme.of(context).textTheme.titleMedium,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              Container(
+                width: 30,
+                alignment: Alignment.topCenter,
+                child: ClipRect(
+                  child: PopupMenuButton(
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        side: const BorderSide(color: AppColors.timberwolf)),
+                    color: AppColors.white,
+                    onSelected: (value) {
+                      if (value == 'edit') {
+                        initializeMultisetControllers(tMultiset.key!);
+                        _buildMultisetDialog(context);
+                      } else if (value == 'delete') {
+                        final bloc =
+                            BlocProvider.of<TrainingManagementBloc>(context);
+                        bloc.add(RemoveExerciseFromSelectedTrainingEvent(
+                            tMultiset.key!));
+                      }
+                    },
+                    itemBuilder: (BuildContext context) => [
+                      PopupMenuItem(
+                        value: 'edit',
+                        child: Text(
+                          tr('global_edit'),
+                          style: const TextStyle(color: AppColors.taupeGray),
+                        ),
+                      ),
+                      PopupMenuItem(
+                        value: 'delete',
+                        child: Text(
+                          tr('global_delete'),
+                          style: const TextStyle(color: AppColors.taupeGray),
+                        ),
+                      ),
+                    ],
+                    icon: const Icon(
+                      Icons.more_horiz,
+                      color: AppColors.lightBlack,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          Text(
+            '${tMultiset.sets} set(s)',
+            style: const TextStyle(color: AppColors.taupeGray),
+          ),
+          Text(
+            '${tMultiset.setRest ?? 0} seconds rest',
+            style: const TextStyle(color: AppColors.taupeGray),
+          ),
+          _buildExercisesList(tMultiset.key!),
+          const SizedBox(height: 20),
+          GestureDetector(
+            onTap: () {
+              _buildExerciseDialog(context, multisetKey: tMultiset.key);
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(5),
+                  color: AppColors.licorice),
+              child: Center(
+                child: Text(
+                  tr('training_detail_page_add_exercise'),
+                  style: const TextStyle(color: AppColors.white),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildExercisesList(String multisetKey) {
+    final multisetExercises = (context.read<TrainingManagementBloc>().state
+                as TrainingManagementLoaded)
+            .selectedTraining
+            ?.multisets
+            .firstWhere((multiset) => multiset.key == multisetKey)
+            .trainingExercises ??
+        [];
+
+    return ListView.separated(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemBuilder: (context, index) {
+          final tExercise = multisetExercises[index];
+          if (tExercise.trainingExerciseType == TrainingExerciseType.run) {
+            return _buildRunExerciseItem(tExercise, context);
+          }
+          final Exercise? exercise = (context
+                  .read<ExerciseManagementBloc>()
+                  .state as ExerciseManagementLoaded)
+              .exercises
+              .firstWhereOrNull(
+                (el) => el.id == tExercise.exerciseId,
+              );
+          return _buildExerciseItem(tExercise, exercise, context);
+        },
+        separatorBuilder: (context, index) {
+          return const SizedBox(height: 10);
+        },
+        itemCount: multisetExercises.length);
   }
 
   Column _buildRunText(TrainingExercise tExercise) {
@@ -1344,7 +1199,8 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
     _resetData();
   }
 
-  Future<void> _buildExerciseDialog(BuildContext context) async {
+  Future<void> _buildExerciseDialog(BuildContext context,
+      {String? multisetKey}) async {
     await showDialog(
       context: context,
       builder: (dialogContext) => StatefulBuilder(
@@ -1436,7 +1292,8 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                   const SizedBox(height: 20),
                   _tExerciseToCreateOrEdit.trainingExerciseType !=
                           TrainingExerciseType.run
-                      ? _buildYogaOrWorkoutFields(context, setDialogState)
+                      ? _buildYogaOrWorkoutFields(
+                          context, setDialogState, multisetKey)
                       : _buildRunFields(setDialogState),
                   SizedBox(
                     height: 48,
@@ -1504,9 +1361,17 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
             actions: [
               GestureDetector(
                 onTap: () {
-                  sl<TrainingManagementBloc>().add(
-                      AddOrUpdateTrainingExerciseEvent(
-                          _tExerciseToCreateOrEdit));
+                  if (multisetKey != null) {
+                    sl<TrainingManagementBloc>().add(
+                        AddOrUpdateMultisetExerciseEvent(
+                            trainingExercise: _tExerciseToCreateOrEdit,
+                            multisetKey: multisetKey));
+                  } else {
+                    sl<TrainingManagementBloc>().add(
+                        AddOrUpdateTrainingExerciseEvent(
+                            _tExerciseToCreateOrEdit));
+                  }
+
                   _resetData();
                   Navigator.pop(context, 'Save');
                 },
@@ -1781,7 +1646,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
   }
 
   Column _buildYogaOrWorkoutFields(
-      BuildContext context, StateSetter setDialogState) {
+      BuildContext context, StateSetter setDialogState, String? multisetKey) {
     return Column(
       children: [
         Row(
@@ -1850,17 +1715,18 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
           },
         ),
         const SizedBox(height: 20),
-        SizedBox(
-          height: 48,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(tr('exercise_sets'),
-                  style: const TextStyle(color: AppColors.lightBlack)),
-              SmallTextFieldWidget(controller: _controllers['sets']!),
-            ],
+        if (multisetKey == null)
+          SizedBox(
+            height: 48,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(tr('exercise_sets'),
+                    style: const TextStyle(color: AppColors.lightBlack)),
+                SmallTextFieldWidget(controller: _controllers['sets']!),
+              ],
+            ),
           ),
-        ),
         _buildSetsChoiceOption(
           choice: tr('exercise_reps'),
           choiceValue: true,
@@ -1889,30 +1755,31 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
           controller1: _controllers['durationMinutes'],
           controller2: _controllers['durationSeconds'],
         ),
-        SizedBox(
-          height: 48,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(tr('exercise_set_rest'),
-                  style: const TextStyle(color: AppColors.lightBlack)),
-              Row(
-                children: [
-                  SmallTextFieldWidget(
-                      controller: _controllers['setRestMinutes']!),
-                  const SizedBox(
-                    width: 20,
-                    child: Center(
-                      child: Text(':', style: TextStyle(fontSize: 20)),
+        if (multisetKey == null)
+          SizedBox(
+            height: 48,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(tr('exercise_set_rest'),
+                    style: const TextStyle(color: AppColors.lightBlack)),
+                Row(
+                  children: [
+                    SmallTextFieldWidget(
+                        controller: _controllers['setRestMinutes']!),
+                    const SizedBox(
+                      width: 20,
+                      child: Center(
+                        child: Text(':', style: TextStyle(fontSize: 20)),
+                      ),
                     ),
-                  ),
-                  SmallTextFieldWidget(
-                      controller: _controllers['setRestSeconds']!),
-                ],
-              ),
-            ],
+                    SmallTextFieldWidget(
+                        controller: _controllers['setRestSeconds']!),
+                  ],
+                ),
+              ],
+            ),
           ),
-        ),
       ],
     );
   }

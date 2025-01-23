@@ -137,6 +137,17 @@ class AddMultisetToSelectedTrainingEvent extends TrainingManagementEvent {
   List<Object> get props => [multiset];
 }
 
+class AddOrUpdateMultisetExerciseEvent extends TrainingManagementEvent {
+  final String multisetKey;
+  final TrainingExercise trainingExercise;
+
+  const AddOrUpdateMultisetExerciseEvent(
+      {required this.multisetKey, required this.trainingExercise});
+
+  @override
+  List<Object> get props => [multisetKey, trainingExercise];
+}
+
 class AddExerciseToSelectedTrainingMultisetEvent
     extends TrainingManagementEvent {
   final String multisetKey;

@@ -459,6 +459,87 @@ class TrainingManagementBloc
       }
     });
 
+    on<AddOrUpdateMultisetExerciseEvent>((event, emit) {
+      if (state is TrainingManagementLoaded) {
+        final currentState = state as TrainingManagementLoaded;
+
+        // Find the multiset by key and retrieve its trainingExercises
+        final multisetIndex = currentState.selectedTraining?.multisets
+            .indexWhere((multiset) => multiset.key == event.multisetKey);
+
+        if (multisetIndex != null && multisetIndex != -1) {
+          final multisetExercises = List<TrainingExercise>.from(
+            currentState.selectedTraining!.multisets[multisetIndex]
+                    .trainingExercises ??
+                [],
+          );
+
+          // Add
+          if (event.trainingExercise.key == null) {
+            final tExerciseToAdd = TrainingExercise(
+              id: event.trainingExercise.id,
+              trainingId: event.trainingExercise.trainingId,
+              multisetId: event.trainingExercise.multisetId,
+              exerciseId: event.trainingExercise.exerciseId,
+              trainingExerciseType: event.trainingExercise.trainingExerciseType,
+              specialInstructions: event.trainingExercise.specialInstructions,
+              objectives: event.trainingExercise.objectives,
+              targetDistance: event.trainingExercise.targetDistance,
+              targetDuration: event.trainingExercise.targetDuration,
+              targetPace: event.trainingExercise.targetPace,
+              intervals: event.trainingExercise.intervals,
+              intervalDistance: event.trainingExercise.intervalDistance,
+              intervalDuration: event.trainingExercise.intervalDuration,
+              intervalRest: event.trainingExercise.intervalRest,
+              sets: event.trainingExercise.sets,
+              isSetsInReps: event.trainingExercise.isSetsInReps,
+              minReps: event.trainingExercise.minReps,
+              maxReps: event.trainingExercise.maxReps,
+              duration: event.trainingExercise.duration,
+              setRest: event.trainingExercise.setRest,
+              exerciseRest: event.trainingExercise.exerciseRest,
+              autoStart: event.trainingExercise.autoStart,
+              position: multisetExercises.length,
+              key: uuid.v4(),
+              runExerciseTarget: event.trainingExercise.runExerciseTarget,
+            );
+            multisetExercises.add(tExerciseToAdd);
+          }
+
+          // Update
+          else {
+            final index = multisetExercises.indexWhere(
+                (tExercise) => tExercise.key == event.trainingExercise.key);
+            multisetExercises[index] = event.trainingExercise;
+          }
+
+          // Create an updated multiset
+          final updatedMultiset = currentState
+              .selectedTraining!.multisets[multisetIndex]
+              .copyWith(trainingExercises: multisetExercises);
+
+          // Replace the old multiset with the updated one in the multisets list
+          final updatedMultisets = List<Multiset>.from(
+            currentState.selectedTraining!.multisets,
+          );
+          updatedMultisets[multisetIndex] = updatedMultiset;
+
+          // Update the training with the modified multisets list
+          final updatedTraining = currentState.selectedTraining?.copyWith(
+            multisets: updatedMultisets,
+          );
+
+          // Emit the updated state
+          emit(currentState.copyWith(selectedTraining: updatedTraining));
+        } else {
+          AddMessageEvent(
+              message:
+                  tr('message_multiset_not_found', args: [event.multisetKey]),
+              isError: true);
+        }
+      }
+    });
+
     on<AddExerciseToSelectedTrainingMultisetEvent>((event, emit) {
       if (state is TrainingManagementLoaded) {
         final currentState = state as TrainingManagementLoaded;
