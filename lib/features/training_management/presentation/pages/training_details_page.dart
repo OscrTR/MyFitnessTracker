@@ -36,6 +36,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
   List<WeekDay> _selectedDays = [];
 
   final TrainingExercise _defaultTExercise = const TrainingExercise(
+    sets: 1,
     isSetsInReps: true,
     trainingExerciseType: TrainingExerciseType.workout,
     autoStart: false,
@@ -45,6 +46,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
   );
 
   TrainingExercise _tExerciseToCreateOrEdit = const TrainingExercise(
+    sets: 1,
     isSetsInReps: true,
     trainingExerciseType: TrainingExerciseType.workout,
     autoStart: false,
@@ -111,9 +113,13 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
     final currentState = bloc.state;
 
     if (currentState is TrainingManagementLoaded) {
-      final trainingExercises =
-          currentState.selectedTraining?.trainingExercises ?? [];
-      final exercise =
+      final trainingExercises = [
+        ...currentState.selectedTraining?.trainingExercises ?? [],
+        ...currentState.selectedTraining?.multisets
+                .expand((m) => m.trainingExercises ?? []) ??
+            []
+      ];
+      final TrainingExercise exercise =
           trainingExercises.firstWhere((exercise) => exercise.key == key);
 
       _tExerciseToCreateOrEdit = _tExerciseToCreateOrEdit.copyWith(
@@ -123,6 +129,27 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
         isIntervalInDistance: exercise.isIntervalInDistance,
         isTargetPaceSelected: exercise.isTargetPaceSelected,
         autoStart: exercise.autoStart,
+        isSetsInReps: exercise.isSetsInReps,
+        exerciseId: exercise.exerciseId,
+        sets: exercise.sets,
+        duration: exercise.duration,
+        minReps: exercise.minReps,
+        maxReps: exercise.maxReps,
+        setRest: exercise.setRest,
+        specialInstructions: exercise.specialInstructions,
+        objectives: exercise.objectives,
+        targetDistance: exercise.targetDistance,
+        targetDuration: exercise.targetDuration,
+        intervals: exercise.intervals,
+        id: exercise.id,
+        trainingId: exercise.trainingId,
+        multisetId: exercise.multisetId,
+        targetPace: exercise.targetPace,
+        intervalDistance: exercise.intervalDistance,
+        intervalDuration: exercise.intervalDuration,
+        intervalRest: exercise.intervalRest,
+        exerciseRest: exercise.exerciseRest,
+        position: exercise.position,
       );
 
       _controllers['sets']?.text = exercise.sets?.toString() ?? '';
@@ -194,7 +221,18 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
       final multisets = currentState.selectedTraining?.multisets ?? [];
       final multiset = multisets.firstWhere((multiset) => multiset.key == key);
 
-      _multisetToCreateOrEdit = _multisetToCreateOrEdit.copyWith(key: key);
+      _multisetToCreateOrEdit = _multisetToCreateOrEdit.copyWith(
+        key: key,
+        id: multiset.id,
+        trainingId: multiset.trainingId,
+        trainingExercises: multiset.trainingExercises,
+        sets: multiset.sets,
+        setRest: multiset.setRest,
+        multisetRest: multiset.multisetRest,
+        specialInstructions: multiset.specialInstructions,
+        objectives: multiset.objectives,
+        position: multiset.position,
+      );
 
       _controllers['multisetSets']?.text = multiset.sets?.toString() ?? '';
       _controllers['multisetSetRestMinutes']?.text = (multiset.setRest != null
@@ -287,27 +325,28 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
     } else if (key.contains('multiset')) {
       _multisetToCreateOrEdit = _multisetToCreateOrEdit.copyWith(
         sets: key == 'multisetSets'
-            ? int.tryParse(_controllers['multisetSets']?.text ?? '')
-            : null,
+            ? int.tryParse(_controllers['multisetSets']?.text ?? '1')
+            : 1,
         setRest: key == 'multisetSetRestMinutes' ||
                 key == 'multisetSetRestSeconds'
             ? ((int.tryParse(_controllers['multisetSetRestMinutes']?.text ??
-                            '') ??
+                            '0') ??
                         0) *
                     60) +
                 ((int.tryParse(
-                        _controllers['multisetSetRestSeconds']?.text ?? '') ??
+                        _controllers['multisetSetRestSeconds']?.text ?? '0') ??
                     0))
-            : null,
+            : 0,
         multisetRest: key == 'multisetRestMinutes' ||
                 key == 'multisetRestSeconds'
-            ? ((int.tryParse(_controllers['multisetRestMinutes']?.text ?? '') ??
+            ? ((int.tryParse(
+                            _controllers['multisetRestMinutes']?.text ?? '0') ??
                         0) *
                     60) +
                 ((int.tryParse(
-                        _controllers['multisetRestSeconds']?.text ?? '') ??
+                        _controllers['multisetRestSeconds']?.text ?? '0') ??
                     0))
-            : null,
+            : 0,
         specialInstructions: key == 'multisetInstructions'
             ? _controllers['multisetInstructions']?.text ?? ''
             : null,
@@ -317,9 +356,8 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
       );
     } else {
       _tExerciseToCreateOrEdit = _tExerciseToCreateOrEdit.copyWith(
-        sets: key == 'sets'
-            ? int.tryParse(_controllers['sets']?.text ?? '')
-            : null,
+        sets:
+            key == 'sets' ? int.tryParse(_controllers['sets']?.text ?? '1') : 1,
         minReps: key == 'minReps'
             ? int.tryParse(_controllers['minReps']?.text ?? '')
             : null,
@@ -327,27 +365,29 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
             ? int.tryParse(_controllers['maxReps']?.text ?? '')
             : null,
         duration: key == 'durationMinutes' || key == 'durationSeconds'
-            ? ((int.tryParse(_controllers['durationMinutes']?.text ?? '') ??
+            ? ((int.tryParse(_controllers['durationMinutes']?.text ?? '0') ??
                         0) *
                     60) +
-                ((int.tryParse(_controllers['durationSeconds']?.text ?? '') ??
+                ((int.tryParse(_controllers['durationSeconds']?.text ?? '0') ??
                     0))
-            : null,
+            : 0,
         setRest: key == 'setRestMinutes' || key == 'setRestSeconds'
-            ? ((int.tryParse(_controllers['setRestMinutes']?.text ?? '') ?? 0) *
+            ? ((int.tryParse(_controllers['setRestMinutes']?.text ?? '0') ??
+                        0) *
                     60) +
-                ((int.tryParse(_controllers['setRestSeconds']?.text ?? '') ??
+                ((int.tryParse(_controllers['setRestSeconds']?.text ?? '0') ??
                     0))
-            : null,
+            : 0,
         exerciseRest: key == 'exerciseRestMinutes' ||
                 key == 'exerciseRestSeconds'
-            ? ((int.tryParse(_controllers['exerciseRestMinutes']?.text ?? '') ??
+            ? ((int.tryParse(
+                            _controllers['exerciseRestMinutes']?.text ?? '0') ??
                         0) *
                     60) +
                 ((int.tryParse(
-                        _controllers['exerciseRestSeconds']?.text ?? '') ??
+                        _controllers['exerciseRestSeconds']?.text ?? '0') ??
                     0))
-            : null,
+            : 0,
         specialInstructions: key == 'specialInstructions'
             ? _controllers['specialInstructions']?.text ?? ''
             : null,
@@ -372,8 +412,8 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                     0))
             : null,
         intervals: key == 'intervals'
-            ? int.tryParse(_controllers['intervals']?.text ?? '')
-            : null,
+            ? int.tryParse(_controllers['intervals']?.text ?? '1')
+            : 1,
         targetPace: key == 'paceMinutes' || key == 'paceSeconds'
             ? ((int.tryParse(_controllers['paceMinutes']?.text ?? '') ?? 0) *
                     60) +
@@ -387,21 +427,22 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                 .toInt()
             : null,
         intervalDuration: key == 'intervalMinutes' || key == 'intervalSeconds'
-            ? ((int.tryParse(_controllers['intervalMinutes']?.text ?? '') ??
+            ? ((int.tryParse(_controllers['intervalMinutes']?.text ?? '0') ??
                         0) *
                     60) +
-                ((int.tryParse(_controllers['intervalSeconds']?.text ?? '') ??
+                ((int.tryParse(_controllers['intervalSeconds']?.text ?? '0') ??
                     0))
-            : null,
+            : 0,
         intervalRest: key == 'intervalRestMinutes' ||
                 key == 'intervalRestSeconds'
-            ? ((int.tryParse(_controllers['intervalRestMinutes']?.text ?? '') ??
+            ? ((int.tryParse(
+                            _controllers['intervalRestMinutes']?.text ?? '0') ??
                         0) *
                     60) +
                 ((int.tryParse(
-                        _controllers['intervalRestSeconds']?.text ?? '') ??
+                        _controllers['intervalRestSeconds']?.text ?? '0') ??
                     0))
-            : null,
+            : 0,
       );
     }
   }
@@ -556,10 +597,10 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
               return GestureDetector(
                 key: ValueKey(tExercise.key),
                 onLongPress: () {},
-                child: _buildRunExerciseItem(tExercise, context),
+                child: _buildRunExerciseItem(tExercise, context, null),
               );
             } else {
-              return _buildRunExerciseItem(tExercise, context);
+              return _buildRunExerciseItem(tExercise, context, null);
             }
           }
           final Exercise? exercise = (context
@@ -573,10 +614,10 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
             return GestureDetector(
               key: ValueKey(tExercise.key),
               onLongPress: () {},
-              child: _buildExerciseItem(tExercise, exercise, context),
+              child: _buildExerciseItem(tExercise, exercise, context, null),
             );
           } else {
-            return _buildExerciseItem(tExercise, exercise, context);
+            return _buildExerciseItem(tExercise, exercise, context, null);
           }
         } else if (item['type'] == 'multiset') {
           var tMultiset = item['data'] as Multiset;
@@ -601,11 +642,11 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
     );
   }
 
-  Container _buildExerciseItem(
-      TrainingExercise tExercise, Exercise? exercise, BuildContext context) {
+  Container _buildExerciseItem(TrainingExercise tExercise, Exercise? exercise,
+      BuildContext context, String? multisetKey) {
     return Container(
       key: ValueKey(tExercise.key),
-      margin: const EdgeInsets.only(top: 20),
+      margin: EdgeInsets.only(top: multisetKey == null ? 20 : 10),
       decoration: BoxDecoration(
           border: Border.all(color: AppColors.timberwolf),
           borderRadius: BorderRadius.circular(10),
@@ -633,7 +674,8 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                 ),
               ],
             ),
-          const SizedBox(width: 10),
+          if (exercise?.imagePath != null && exercise!.imagePath!.isNotEmpty)
+            const SizedBox(width: 10),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -663,13 +705,20 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                           onSelected: (value) {
                             if (value == 'edit') {
                               initializeExerciseControllers(tExercise.key!);
-                              _buildExerciseDialog(context);
+                              _buildExerciseDialog(context,
+                                  multisetKey: multisetKey);
                             } else if (value == 'delete') {
                               final bloc =
                                   BlocProvider.of<TrainingManagementBloc>(
                                       context);
-                              bloc.add(RemoveExerciseFromSelectedTrainingEvent(
-                                  tExercise.key!));
+                              if (multisetKey != null) {
+                                bloc.add(RemoveMultisetExerciseEvent(
+                                    multisetKey: multisetKey,
+                                    exerciseKey: tExercise.key!));
+                              } else {
+                                bloc.add(RemoveTrainingExerciseEvent(
+                                    tExercise.key!));
+                              }
                             }
                           },
                           itemBuilder: (BuildContext context) => [
@@ -700,11 +749,11 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                   ],
                 ),
                 Text(
-                  '${tExercise.sets}x${tExercise.isSetsInReps! ? '${tExercise.minReps ?? 0}-${tExercise.maxReps ?? 0} reps' : '${tExercise.duration} seconds'}',
+                  '${multisetKey == null ? '${tExercise.sets}x' : ''}${tExercise.isSetsInReps! ? '${tExercise.minReps ?? 0}-${tExercise.maxReps ?? 0} reps' : '${tExercise.duration} seconds'}',
                   style: const TextStyle(color: AppColors.taupeGray),
                 ),
                 Text(
-                  '${tExercise.setRest ?? 0} seconds rest',
+                  '${multisetKey == null ? (tExercise.setRest ?? 0) : tExercise.exerciseRest ?? 0} seconds rest',
                   style: const TextStyle(color: AppColors.taupeGray),
                 )
               ],
@@ -716,7 +765,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
   }
 
   Container _buildRunExerciseItem(
-      TrainingExercise tExercise, BuildContext context) {
+      TrainingExercise tExercise, BuildContext context, String? multisetKey) {
     return Container(
       key: ValueKey(tExercise.key),
       margin: const EdgeInsets.only(top: 10),
@@ -753,12 +802,11 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                     onSelected: (value) {
                       if (value == 'edit') {
                         initializeExerciseControllers(tExercise.key!);
-                        _buildExerciseDialog(context);
+                        _buildExerciseDialog(context, multisetKey: multisetKey);
                       } else if (value == 'delete') {
                         final bloc =
                             BlocProvider.of<TrainingManagementBloc>(context);
-                        bloc.add(RemoveExerciseFromSelectedTrainingEvent(
-                            tExercise.key!));
+                        bloc.add(RemoveTrainingExerciseEvent(tExercise.key!));
                       }
                     },
                     itemBuilder: (BuildContext context) => [
@@ -795,7 +843,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
   Container _buildMultisetItem(BuildContext context, Multiset tMultiset) {
     return Container(
       key: ValueKey(tMultiset.key!),
-      margin: const EdgeInsets.only(top: 10),
+      margin: const EdgeInsets.only(top: 20),
       decoration: BoxDecoration(
           border: Border.all(color: AppColors.timberwolf),
           borderRadius: BorderRadius.circular(10)),
@@ -832,8 +880,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                       } else if (value == 'delete') {
                         final bloc =
                             BlocProvider.of<TrainingManagementBloc>(context);
-                        bloc.add(RemoveExerciseFromSelectedTrainingEvent(
-                            tMultiset.key!));
+                        bloc.add(RemoveTrainingExerciseEvent(tMultiset.key!));
                       }
                     },
                     itemBuilder: (BuildContext context) => [
@@ -902,13 +949,13 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
             .trainingExercises ??
         [];
 
-    return ListView.separated(
+    return ListView.builder(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         itemBuilder: (context, index) {
           final tExercise = multisetExercises[index];
           if (tExercise.trainingExerciseType == TrainingExerciseType.run) {
-            return _buildRunExerciseItem(tExercise, context);
+            return _buildRunExerciseItem(tExercise, context, multisetKey);
           }
           final Exercise? exercise = (context
                   .read<ExerciseManagementBloc>()
@@ -917,10 +964,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
               .firstWhereOrNull(
                 (el) => el.id == tExercise.exerciseId,
               );
-          return _buildExerciseItem(tExercise, exercise, context);
-        },
-        separatorBuilder: (context, index) {
-          return const SizedBox(height: 10);
+          return _buildExerciseItem(tExercise, exercise, context, multisetKey);
         },
         itemCount: multisetExercises.length);
   }
@@ -940,6 +984,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
       final intervals = tExercise.intervals ?? 1;
       if (tExercise.isIntervalInDistance == true) {
         return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               '${intervals}x $targetDistance$targetPace',
@@ -953,6 +998,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
         );
       } else {
         return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               '${intervals}x $targetDuration$targetPace',
@@ -1292,8 +1338,8 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                   const SizedBox(height: 20),
                   _tExerciseToCreateOrEdit.trainingExerciseType !=
                           TrainingExerciseType.run
-                      ? _buildYogaOrWorkoutFields(
-                          context, setDialogState, multisetKey)
+                      ? _buildYogaOrWorkoutFields(context, setDialogState,
+                          multisetKey, _tExerciseToCreateOrEdit.exerciseId)
                       : _buildRunFields(setDialogState),
                   SizedBox(
                     height: 48,
@@ -1645,8 +1691,8 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
     );
   }
 
-  Column _buildYogaOrWorkoutFields(
-      BuildContext context, StateSetter setDialogState, String? multisetKey) {
+  Column _buildYogaOrWorkoutFields(BuildContext context,
+      StateSetter setDialogState, String? multisetKey, int? exerciseId) {
     return Column(
       children: [
         Row(
@@ -1681,6 +1727,11 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
               (sl<ExerciseManagementBloc>().state as ExerciseManagementLoaded)
                   .exercises,
           hintText: tr('exercise_search'),
+          initialItem: exerciseId != null
+              ? (sl<ExerciseManagementBloc>().state as ExerciseManagementLoaded)
+                  .exercises
+                  .firstWhereOrNull((exercise) => exercise.id == exerciseId)
+              : null,
           decoration: CustomDropdownDecoration(
             listItemStyle: Theme.of(context)
                 .textTheme

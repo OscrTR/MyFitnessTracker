@@ -63,6 +63,7 @@ class Multiset extends Equatable {
         multisetRest,
         specialInstructions,
         objectives,
-        position
+        position,
+        key,
       ];
 }
