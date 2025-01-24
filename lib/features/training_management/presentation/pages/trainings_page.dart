@@ -179,9 +179,64 @@ class _TrainingsPageState extends State<TrainingsPage> {
                                       Border.all(color: AppColors.timberwolf),
                                   borderRadius: BorderRadius.circular(10)),
                               child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Row(
-                                    children: [Text(training.name)],
+                                  Wrap(
+                                    spacing: 10,
+                                    children: [
+                                      Text(training.name),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 5, vertical: 3),
+                                        decoration: BoxDecoration(
+                                            color: AppColors.parchment,
+                                            borderRadius:
+                                                BorderRadius.circular(5)),
+                                        child: Text(
+                                          training.type.translate(
+                                              context.locale.languageCode),
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodySmall,
+                                        ),
+                                      ),
+                                      if (training.trainingDays != null)
+                                        if (training.trainingDays!.length == 7)
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 5, vertical: 3),
+                                            decoration: BoxDecoration(
+                                                color: AppColors.platinum,
+                                                borderRadius:
+                                                    BorderRadius.circular(5)),
+                                            child: Text(
+                                              tr('global_everyday'),
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .bodySmall,
+                                            ),
+                                          )
+                                        else
+                                          ...training.trainingDays!.map((day) =>
+                                              Container(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 5,
+                                                        vertical: 3),
+                                                decoration: BoxDecoration(
+                                                    color: AppColors.platinum,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            5)),
+                                                child: Text(
+                                                  day.translate(context
+                                                      .locale.languageCode),
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .bodySmall,
+                                                ),
+                                              )),
+                                    ],
                                   ),
                                   const SizedBox(height: 10),
                                   GestureDetector(
