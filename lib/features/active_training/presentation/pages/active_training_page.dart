@@ -186,7 +186,7 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage> {
                                         vertical: 10, horizontal: 20),
                                     decoration: BoxDecoration(
                                         color: isNotificationAuthorized
-                                            ? AppColors.lightGrey
+                                            ? AppColors.whiteSmoke
                                             : AppColors.licorice,
                                         borderRadius:
                                             BorderRadius.circular(10)),
@@ -196,7 +196,7 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage> {
                                           : 'Ask',
                                       style: TextStyle(
                                           color: isNotificationAuthorized
-                                              ? AppColors.lightBlack
+                                              ? AppColors.frenchGray
                                               : AppColors.white),
                                     )),
                               ),
@@ -214,7 +214,7 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage> {
                                     decoration: BoxDecoration(
                                         color: isLocationPermissionGranted ==
                                                 PermissionStatus.granted
-                                            ? AppColors.lightGrey
+                                            ? AppColors.whiteSmoke
                                             : AppColors.licorice,
                                         borderRadius:
                                             BorderRadius.circular(10)),
@@ -226,7 +226,7 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage> {
                                       style: TextStyle(
                                           color: isLocationPermissionGranted ==
                                                   PermissionStatus.granted
-                                              ? AppColors.lightBlack
+                                              ? AppColors.frenchGray
                                               : AppColors.white),
                                     )),
                               ),
@@ -242,7 +242,7 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage> {
                                         vertical: 10, horizontal: 20),
                                     decoration: BoxDecoration(
                                         color: isLocationEnabled
-                                            ? AppColors.lightGrey
+                                            ? AppColors.whiteSmoke
                                             : AppColors.licorice,
                                         borderRadius:
                                             BorderRadius.circular(10)),
@@ -250,7 +250,7 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage> {
                                       isLocationEnabled ? 'Granted' : 'Ask',
                                       style: TextStyle(
                                           color: isLocationEnabled
-                                              ? AppColors.lightBlack
+                                              ? AppColors.frenchGray
                                               : AppColors.white),
                                     )),
                               ),
@@ -277,7 +277,7 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage> {
                                       vertical: 10, horizontal: 20),
                                   decoration: BoxDecoration(
                                       color: isNotificationAuthorized
-                                          ? AppColors.lightGrey
+                                          ? AppColors.whiteSmoke
                                           : AppColors.licorice,
                                       borderRadius: BorderRadius.circular(10)),
                                   child: Text(
@@ -286,7 +286,7 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage> {
                                         : 'Ask',
                                     style: TextStyle(
                                         color: isNotificationAuthorized
-                                            ? AppColors.lightBlack
+                                            ? AppColors.frenchGray
                                             : AppColors.white),
                                   )),
                             ),

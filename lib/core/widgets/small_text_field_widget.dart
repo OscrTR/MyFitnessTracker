@@ -22,7 +22,7 @@ class SmallTextFieldWidget extends StatelessWidget {
         color: backgroungColor ?? AppColors.white,
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
-          color: AppColors.lightBlack,
+          color: AppColors.frenchGray,
           width: 1.0,
         ),
       ),
@@ -38,7 +38,7 @@ class SmallTextFieldWidget extends StatelessWidget {
             labelStyle: Theme.of(context)
                 .textTheme
                 .bodyMedium!
-                .copyWith(color: AppColors.lightBlack),
+                .copyWith(color: AppColors.frenchGray),
             border: InputBorder.none,
           ),
         ),

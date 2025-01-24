@@ -26,7 +26,7 @@ class DurationTimerWidget extends StatelessWidget {
                   0;
               return Text(
                 formatDurationToHoursMinutesSeconds(timerValue),
-                style: const TextStyle(color: AppColors.lightBlack),
+                style: const TextStyle(color: AppColors.frenchGray),
               );
             }
             return const SizedBox();

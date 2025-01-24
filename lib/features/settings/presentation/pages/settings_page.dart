@@ -199,15 +199,15 @@ class _SettingsPageState extends State<SettingsPage> {
               closedSuffixIcon: const Icon(
                 Icons.keyboard_arrow_down_rounded,
                 size: 20,
-                color: AppColors.lightBlack,
+                color: AppColors.frenchGray,
               ),
               expandedSuffixIcon: const Icon(
                 Icons.keyboard_arrow_up_rounded,
                 size: 20,
-                color: AppColors.lightBlack,
+                color: AppColors.frenchGray,
               ),
-              closedBorder: Border.all(color: AppColors.lightBlack),
-              expandedBorder: Border.all(color: AppColors.lightBlack),
+              closedBorder: Border.all(color: AppColors.frenchGray),
+              expandedBorder: Border.all(color: AppColors.frenchGray),
             ),
             onChanged: (value) {
               _setLocale(context, value!);

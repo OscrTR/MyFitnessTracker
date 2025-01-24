@@ -136,7 +136,7 @@ class _ActiveExerciseWidgetState extends State<ActiveExerciseWidget> {
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
             color: isActiveExercise ? exerciseActiveColor : AppColors.white,
-            border: Border.all(color: AppColors.lightBlack),
+            border: Border.all(color: AppColors.frenchGray),
             borderRadius: BorderRadius.circular(15),
           ),
           child: Column(
@@ -190,12 +190,12 @@ class _ActiveExerciseWidgetState extends State<ActiveExerciseWidget> {
       children: [
         Text(
           tr(title),
-          style: const TextStyle(color: AppColors.lightBlack),
+          style: const TextStyle(color: AppColors.frenchGray),
         ),
         Text(
           content,
           style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                color: AppColors.lightBlack,
+                color: AppColors.frenchGray,
               ),
         ),
         const SizedBox(height: 10),
@@ -218,7 +218,7 @@ class _ActiveExerciseWidgetState extends State<ActiveExerciseWidget> {
             children: [
               Text(
                 'Set ${index + 1}',
-                style: const TextStyle(color: AppColors.lightBlack),
+                style: const TextStyle(color: AppColors.frenchGray),
               ),
               isSetsInReps
                   ? ActiveExerciseRow(
@@ -253,7 +253,7 @@ class _ActiveExerciseWidgetState extends State<ActiveExerciseWidget> {
         children: [
           Container(
             decoration: BoxDecoration(
-              border: Border.all(color: AppColors.lightBlack, width: 1),
+              border: Border.all(color: AppColors.frenchGray, width: 1),
               borderRadius: BorderRadius.circular(15),
             ),
             child: ClipRRect(
@@ -276,7 +276,7 @@ class _ActiveExerciseWidgetState extends State<ActiveExerciseWidget> {
               style: Theme.of(context)
                   .textTheme
                   .bodySmall!
-                  .copyWith(color: AppColors.lightBlack),
+                  .copyWith(color: AppColors.frenchGray),
             ),
           if (matchingExercise != null &&
               matchingExercise.description != null &&
@@ -420,7 +420,7 @@ class _ActiveExerciseRowState extends State<ActiveExerciseRow> {
             SmallTextFieldWidget(
               controller: widget.controller,
               backgroungColor:
-                  isStarted ? AppColors.lightGrey : AppColors.white,
+                  isStarted ? AppColors.whiteSmoke : AppColors.white,
             ),
             const SizedBox(width: 10),
             GestureDetector(
@@ -441,7 +441,7 @@ class _ActiveExerciseRowState extends State<ActiveExerciseRow> {
               },
               child: Text(
                 isStarted ? 'OK' : tr('global_validate'),
-                style: const TextStyle(color: AppColors.lightBlack),
+                style: const TextStyle(color: AppColors.frenchGray),
               ),
             ),
           ],
@@ -531,14 +531,14 @@ class ActiveExerciseDurationRow extends StatelessWidget {
             alignment: Alignment.center,
             padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
             decoration: BoxDecoration(
-                color: isStarted ? AppColors.lightGrey : AppColors.licorice,
+                color: isStarted ? AppColors.whiteSmoke : AppColors.licorice,
                 borderRadius: const BorderRadius.all(Radius.circular(10))),
             child: Text(
               isStarted
                   ? 'OK'
                   : '${tr('global_start')} ${formatDurationToMinutesSeconds(tExercise.duration ?? 0)}',
               style: TextStyle(
-                  color: isStarted ? AppColors.lightBlack : AppColors.white),
+                  color: isStarted ? AppColors.frenchGray : AppColors.white),
             ),
           ),
         );

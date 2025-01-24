@@ -39,7 +39,7 @@ class ExerciseListItemOptionsMenu extends StatelessWidget {
       ],
       icon: const Icon(
         Icons.more_horiz,
-        color: AppColors.lightBlack,
+        color: AppColors.frenchGray,
       ),
     );
   }

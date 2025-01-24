@@ -37,7 +37,7 @@ class PaceWidget extends StatelessWidget {
               }
               return Text(
                 "$paceMinutes:${paceSeconds.toString().padLeft(2, '0')}",
-                style: const TextStyle(color: AppColors.lightBlack),
+                style: const TextStyle(color: AppColors.frenchGray),
               );
             }
             return const SizedBox();

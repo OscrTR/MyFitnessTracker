@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -171,6 +173,20 @@ class _TrainingsPageState extends State<TrainingsPage> {
                           itemBuilder: (context, index) {
                             final training =
                                 displayedTrainings.elementAt(index);
+                            final exercisesAndMultisetsList = [
+                              ...training.trainingExercises
+                                  .map((e) => {'type': 'exercise', 'data': e}),
+                              ...training.multisets
+                                  .map((m) => {'type': 'multiset', 'data': m}),
+                            ];
+                            exercisesAndMultisetsList.sort((a, b) {
+                              final aPosition =
+                                  (a['data'] as dynamic).position ?? 0;
+                              final bPosition =
+                                  (b['data'] as dynamic).position ?? 0;
+                              return aPosition.compareTo(bPosition);
+                            });
+
                             return Container(
                               margin: const EdgeInsets.only(top: 20),
                               padding: const EdgeInsets.all(10),
@@ -181,64 +197,12 @@ class _TrainingsPageState extends State<TrainingsPage> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Wrap(
-                                    spacing: 10,
-                                    children: [
-                                      Text(training.name),
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 5, vertical: 3),
-                                        decoration: BoxDecoration(
-                                            color: AppColors.parchment,
-                                            borderRadius:
-                                                BorderRadius.circular(5)),
-                                        child: Text(
-                                          training.type.translate(
-                                              context.locale.languageCode),
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodySmall,
-                                        ),
-                                      ),
-                                      if (training.trainingDays != null)
-                                        if (training.trainingDays!.length == 7)
-                                          Container(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 5, vertical: 3),
-                                            decoration: BoxDecoration(
-                                                color: AppColors.platinum,
-                                                borderRadius:
-                                                    BorderRadius.circular(5)),
-                                            child: Text(
-                                              tr('global_everyday'),
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .bodySmall,
-                                            ),
-                                          )
-                                        else
-                                          ...training.trainingDays!.map((day) =>
-                                              Container(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                        horizontal: 5,
-                                                        vertical: 3),
-                                                decoration: BoxDecoration(
-                                                    color: AppColors.platinum,
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            5)),
-                                                child: Text(
-                                                  day.translate(context
-                                                      .locale.languageCode),
-                                                  style: Theme.of(context)
-                                                      .textTheme
-                                                      .bodySmall,
-                                                ),
-                                              )),
-                                    ],
-                                  ),
+                                  _buildTrainingItemHeader(training, context),
                                   const SizedBox(height: 10),
+                                  Row(children: [
+                                    Text(
+                                        '${exercisesAndMultisetsList.length} exercices')
+                                  ]),
                                   GestureDetector(
                                     onTap: () {
                                       context
@@ -259,7 +223,10 @@ class _TrainingsPageState extends State<TrainingsPage> {
                                       ),
                                       child: Center(
                                           child: Text(
-                                              tr('training_page_see_details'))),
+                                        tr('training_page_see_details'),
+                                        style: const TextStyle(
+                                            color: AppColors.taupeGray),
+                                      )),
                                     ),
                                   ),
                                   const SizedBox(height: 10),
@@ -332,8 +299,105 @@ class _TrainingsPageState extends State<TrainingsPage> {
                               itemBuilder: (context, index) {
                                 final exercise =
                                     displayedExercises.elementAt(index);
-                                return ListTile(
-                                  title: Text(exercise.toString()),
+                                return Container(
+                                  margin: const EdgeInsets.only(top: 20),
+                                  padding: const EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
+                                      border: Border.all(
+                                          color: AppColors.timberwolf),
+                                      borderRadius: BorderRadius.circular(10)),
+                                  child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      if (exercise.imagePath != null &&
+                                          exercise.imagePath!.isNotEmpty)
+                                        Column(
+                                          children: [
+                                            SizedBox(
+                                              width: 130,
+                                              height: 110,
+                                              child: ClipRRect(
+                                                borderRadius:
+                                                    BorderRadius.circular(15),
+                                                child: Image.file(
+                                                  File(exercise.imagePath!),
+                                                  width: MediaQuery.of(context)
+                                                          .size
+                                                          .width -
+                                                      40,
+                                                  fit: BoxFit.cover,
+                                                  alignment:
+                                                      Alignment.bottomCenter,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      const SizedBox(width: 10),
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            exercise.name,
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .titleMedium,
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                          const SizedBox(height: 5),
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 5, vertical: 3),
+                                            decoration: BoxDecoration(
+                                                color: AppColors.parchment,
+                                                borderRadius:
+                                                    BorderRadius.circular(5)),
+                                            child: Text(
+                                              exercise.exerciseType.translate(
+                                                  context.locale.languageCode),
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .bodySmall,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 10),
+                                          GestureDetector(
+                                            onTap: () {
+                                              context
+                                                  .read<
+                                                      ExerciseManagementBloc>()
+                                                  .add(GetExerciseEvent(
+                                                      exercise.id!));
+                                              GoRouter.of(context)
+                                                  .push('/exercise_detail');
+                                            },
+                                            child: Container(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 10,
+                                                      vertical: 7),
+                                              decoration: BoxDecoration(
+                                                border: Border.all(
+                                                    color:
+                                                        AppColors.timberwolf),
+                                                borderRadius:
+                                                    BorderRadius.circular(5),
+                                              ),
+                                              child: Center(
+                                                  child: Text(
+                                                tr('training_page_see_details'),
+                                                style: const TextStyle(
+                                                    color: AppColors.taupeGray),
+                                              )),
+                                            ),
+                                          ),
+                                        ],
+                                      )
+                                    ],
+                                  ),
                                 );
                               },
                             );
@@ -351,6 +415,49 @@ class _TrainingsPageState extends State<TrainingsPage> {
           ],
         ),
       ),
+    );
+  }
+
+  Wrap _buildTrainingItemHeader(Training training, BuildContext context) {
+    return Wrap(
+      spacing: 10,
+      children: [
+        Text(training.name),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
+          decoration: BoxDecoration(
+              color: AppColors.parchment,
+              borderRadius: BorderRadius.circular(5)),
+          child: Text(
+            training.type.translate(context.locale.languageCode),
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+        ),
+        if (training.trainingDays != null)
+          if (training.trainingDays!.length == 7)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
+              decoration: BoxDecoration(
+                  color: AppColors.platinum,
+                  borderRadius: BorderRadius.circular(5)),
+              child: Text(
+                tr('global_everyday'),
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            )
+          else
+            ...training.trainingDays!.map((day) => Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
+                  decoration: BoxDecoration(
+                      color: AppColors.platinum,
+                      borderRadius: BorderRadius.circular(5)),
+                  child: Text(
+                    day.translate(context.locale.languageCode),
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                )),
+      ],
     );
   }
 }

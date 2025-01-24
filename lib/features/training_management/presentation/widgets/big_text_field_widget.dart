@@ -20,19 +20,19 @@ class BigTextFieldWidget extends StatelessWidget {
         labelStyle: Theme.of(context)
             .textTheme
             .bodyMedium!
-            .copyWith(color: AppColors.lightBlack),
+            .copyWith(color: AppColors.frenchGray),
         border: InputBorder.none,
         enabledBorder: const OutlineInputBorder(
           borderRadius: BorderRadius.all(Radius.circular(15)),
           borderSide: BorderSide(
-            color: AppColors.lightBlack,
+            color: AppColors.frenchGray,
             width: 1.0,
           ),
         ),
         focusedBorder: const OutlineInputBorder(
           borderRadius: BorderRadius.all(Radius.circular(15)),
           borderSide: BorderSide(
-            color: AppColors.lightBlack,
+            color: AppColors.frenchGray,
             width: 1.0,
           ),
         ),

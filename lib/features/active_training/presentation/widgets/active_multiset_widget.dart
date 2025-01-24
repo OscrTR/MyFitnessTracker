@@ -39,7 +39,7 @@ class _ActiveMultisetWidgetState extends State<ActiveMultisetWidget> {
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
             color: AppColors.white,
-            border: Border.all(color: AppColors.lightBlack),
+            border: Border.all(color: AppColors.frenchGray),
             borderRadius: BorderRadius.circular(15),
           ),
           child: Column(
@@ -155,12 +155,12 @@ Widget _buildOptionalInfo({
     children: [
       Text(
         tr(title),
-        style: const TextStyle(color: AppColors.lightBlack),
+        style: const TextStyle(color: AppColors.frenchGray),
       ),
       Text(
         content,
         style: Theme.of(context).textTheme.bodySmall!.copyWith(
-              color: AppColors.lightBlack,
+              color: AppColors.frenchGray,
             ),
       ),
       const SizedBox(height: 10),

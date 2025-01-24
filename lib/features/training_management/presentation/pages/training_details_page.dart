@@ -754,7 +754,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                           ],
                           icon: const Icon(
                             Icons.more_horiz,
-                            color: AppColors.lightBlack,
+                            color: AppColors.frenchGray,
                           ),
                         ),
                       ),
@@ -840,7 +840,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                     ],
                     icon: const Icon(
                       Icons.more_horiz,
-                      color: AppColors.lightBlack,
+                      color: AppColors.frenchGray,
                     ),
                   ),
                 ),
@@ -914,7 +914,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                     ],
                     icon: const Icon(
                       Icons.more_horiz,
-                      color: AppColors.lightBlack,
+                      color: AppColors.frenchGray,
                     ),
                   ),
                 ),
@@ -1152,7 +1152,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                         children: [
                           Text(tr('exercise_sets'),
                               style:
-                                  const TextStyle(color: AppColors.lightBlack)),
+                                  const TextStyle(color: AppColors.frenchGray)),
                           SmallTextFieldWidget(
                               controller: _controllers['multisetSets']!),
                         ],
@@ -1165,7 +1165,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                         children: [
                           Text(tr('exercise_set_rest'),
                               style:
-                                  const TextStyle(color: AppColors.lightBlack)),
+                                  const TextStyle(color: AppColors.frenchGray)),
                           Row(
                             children: [
                               SmallTextFieldWidget(
@@ -1193,7 +1193,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                         children: [
                           Text(tr('exercise_multiset_rest'),
                               style:
-                                  const TextStyle(color: AppColors.lightBlack)),
+                                  const TextStyle(color: AppColors.frenchGray)),
                           Row(
                             children: [
                               SmallTextFieldWidget(
@@ -1362,7 +1362,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                       children: [
                         Text(tr('exercise_exercise_rest'),
                             style:
-                                const TextStyle(color: AppColors.lightBlack)),
+                                const TextStyle(color: AppColors.frenchGray)),
                         Row(
                           children: [
                             SmallTextFieldWidget(
@@ -1403,7 +1403,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                       const SizedBox(width: 10),
                       Text(
                         tr('training_detail_page_autostart'),
-                        style: const TextStyle(color: AppColors.lightBlack),
+                        style: const TextStyle(color: AppColors.frenchGray),
                       ),
                     ],
                   ),
@@ -1532,7 +1532,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(tr('exercise_interval_rest'),
-                  style: const TextStyle(color: AppColors.lightBlack)),
+                  style: const TextStyle(color: AppColors.frenchGray)),
               Row(
                 children: [
                   SmallTextFieldWidget(
@@ -1573,7 +1573,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(tr('exercise_pace'),
-                      style: const TextStyle(color: AppColors.lightBlack)),
+                      style: const TextStyle(color: AppColors.frenchGray)),
                   Row(
                     children: [
                       SmallTextFieldWidget(
@@ -1581,7 +1581,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                         textColor:
                             _tExerciseToCreateOrEdit.isTargetPaceSelected!
                                 ? AppColors.licorice
-                                : AppColors.lightBlack,
+                                : AppColors.frenchGray,
                       ),
                       SizedBox(
                         width: 20,
@@ -1592,7 +1592,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                                 color: _tExerciseToCreateOrEdit
                                         .isTargetPaceSelected!
                                     ? AppColors.licorice
-                                    : AppColors.lightBlack,
+                                    : AppColors.frenchGray,
                               )),
                         ),
                       ),
@@ -1601,7 +1601,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                         textColor:
                             _tExerciseToCreateOrEdit.isTargetPaceSelected!
                                 ? AppColors.licorice
-                                : AppColors.lightBlack,
+                                : AppColors.frenchGray,
                       ),
                     ],
                   ),
@@ -1643,8 +1643,8 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                         RunExerciseTarget.intervals
                     ? currentSelection == choiceValue
                         ? AppColors.licorice
-                        : AppColors.lightBlack
-                    : AppColors.lightBlack;
+                        : AppColors.frenchGray
+                    : AppColors.frenchGray;
               }),
             ),
           ),
@@ -1655,7 +1655,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
               children: [
                 Text(
                   choice,
-                  style: const TextStyle(color: AppColors.lightBlack),
+                  style: const TextStyle(color: AppColors.frenchGray),
                 ),
                 Row(
                   children: [
@@ -1666,8 +1666,8 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                                 RunExerciseTarget.intervals
                             ? currentSelection == choiceValue
                                 ? AppColors.licorice
-                                : AppColors.lightBlack
-                            : AppColors.lightBlack,
+                                : AppColors.frenchGray
+                            : AppColors.frenchGray,
                       ),
                     if (controller2 != null)
                       SizedBox(
@@ -1681,8 +1681,8 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                                         RunExerciseTarget.intervals
                                     ? currentSelection == choiceValue
                                         ? AppColors.licorice
-                                        : AppColors.lightBlack
-                                    : AppColors.lightBlack,
+                                        : AppColors.frenchGray
+                                    : AppColors.frenchGray,
                               )),
                         ),
                       ),
@@ -1693,8 +1693,8 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                                 RunExerciseTarget.intervals
                             ? currentSelection == choiceValue
                                 ? AppColors.licorice
-                                : AppColors.lightBlack
-                            : AppColors.lightBlack,
+                                : AppColors.frenchGray
+                            : AppColors.frenchGray,
                       ),
                   ],
                 ),
@@ -1788,7 +1788,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(tr('exercise_sets'),
-                    style: const TextStyle(color: AppColors.lightBlack)),
+                    style: const TextStyle(color: AppColors.frenchGray)),
                 SmallTextFieldWidget(controller: _controllers['sets']!),
               ],
             ),
@@ -1828,7 +1828,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(tr('exercise_set_rest'),
-                    style: const TextStyle(color: AppColors.lightBlack)),
+                    style: const TextStyle(color: AppColors.frenchGray)),
                 Row(
                   children: [
                     SmallTextFieldWidget(
@@ -1877,7 +1877,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
               fillColor: WidgetStateProperty.resolveWith<Color>((states) {
                 return currentSelection == choiceValue
                     ? AppColors.licorice
-                    : AppColors.lightBlack;
+                    : AppColors.frenchGray;
               }),
             ),
           ),
@@ -1888,7 +1888,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
               children: [
                 Text(
                   choice,
-                  style: const TextStyle(color: AppColors.lightBlack),
+                  style: const TextStyle(color: AppColors.frenchGray),
                 ),
                 Row(
                   children: [
@@ -1897,7 +1897,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                         controller: controller1,
                         textColor: currentSelection == choiceValue
                             ? AppColors.licorice
-                            : AppColors.lightBlack,
+                            : AppColors.frenchGray,
                       ),
                     if (controller2 != null)
                       SizedBox(
@@ -1908,7 +1908,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                                 fontSize: 20,
                                 color: currentSelection == choiceValue
                                     ? AppColors.licorice
-                                    : AppColors.lightBlack,
+                                    : AppColors.frenchGray,
                               )),
                         ),
                       ),
@@ -1917,7 +1917,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                         controller: controller2,
                         textColor: currentSelection == choiceValue
                             ? AppColors.licorice
-                            : AppColors.lightBlack,
+                            : AppColors.frenchGray,
                       ),
                     if (controller3 != null)
                       SizedBox(
@@ -1928,7 +1928,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                                 fontSize: 20,
                                 color: currentSelection == choiceValue
                                     ? AppColors.licorice
-                                    : AppColors.lightBlack,
+                                    : AppColors.frenchGray,
                               )),
                         ),
                       ),
@@ -1937,7 +1937,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                         controller: controller3,
                         textColor: currentSelection == choiceValue
                             ? AppColors.licorice
-                            : AppColors.lightBlack,
+                            : AppColors.frenchGray,
                       ),
                   ],
                 ),
@@ -1978,7 +1978,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
               fillColor: WidgetStateProperty.resolveWith<Color>((states) {
                 return currentSelection == choiceValue
                     ? AppColors.licorice
-                    : AppColors.lightBlack;
+                    : AppColors.frenchGray;
               }),
             ),
           ),
@@ -1989,7 +1989,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
               children: [
                 Text(
                   choice,
-                  style: const TextStyle(color: AppColors.lightBlack),
+                  style: const TextStyle(color: AppColors.frenchGray),
                 ),
                 Row(
                   children: [
@@ -1998,7 +1998,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                         controller: controller1,
                         textColor: currentSelection == choiceValue
                             ? AppColors.licorice
-                            : AppColors.lightBlack,
+                            : AppColors.frenchGray,
                       ),
                     if (controller2 != null && isReps)
                       SizedBox(
@@ -2009,7 +2009,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                                 fontSize: 20,
                                 color: currentSelection == choiceValue
                                     ? AppColors.licorice
-                                    : AppColors.lightBlack,
+                                    : AppColors.frenchGray,
                               )),
                         ),
                       ),
@@ -2022,7 +2022,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                                 fontSize: 20,
                                 color: currentSelection == choiceValue
                                     ? AppColors.licorice
-                                    : AppColors.lightBlack,
+                                    : AppColors.frenchGray,
                               )),
                         ),
                       ),
@@ -2031,7 +2031,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                         controller: controller2,
                         textColor: currentSelection == choiceValue
                             ? AppColors.licorice
-                            : AppColors.lightBlack,
+                            : AppColors.frenchGray,
                       ),
                   ],
                 ),

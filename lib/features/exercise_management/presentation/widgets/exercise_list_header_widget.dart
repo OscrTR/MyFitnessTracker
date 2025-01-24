@@ -12,7 +12,7 @@ class ExerciseListHeader extends StatelessWidget {
       height: 60,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
-        color: AppColors.lightGrey,
+        color: AppColors.whiteSmoke,
       ),
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Row(

@@ -44,7 +44,7 @@ class _ActiveMultisetRunWidgetState extends State<ActiveMultisetRunWidget> {
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: AppColors.white,
-        border: Border.all(color: AppColors.lightBlack),
+        border: Border.all(color: AppColors.frenchGray),
         borderRadius: BorderRadius.circular(15),
       ),
       child: Column(
@@ -126,12 +126,12 @@ class _ActiveMultisetRunWidgetState extends State<ActiveMultisetRunWidget> {
       children: [
         Text(
           tr(title),
-          style: const TextStyle(color: AppColors.lightBlack),
+          style: const TextStyle(color: AppColors.frenchGray),
         ),
         Text(
           content,
           style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                color: AppColors.lightBlack,
+                color: AppColors.frenchGray,
               ),
         ),
         const SizedBox(height: 10),
@@ -285,7 +285,7 @@ class DistanceOrDurationRun extends StatelessWidget {
               children: [
                 const Text(
                   'Duration',
-                  style: TextStyle(color: AppColors.lightBlack),
+                  style: TextStyle(color: AppColors.frenchGray),
                 ),
                 DurationTimerWidget(
                   timerId: timerId,
@@ -297,7 +297,7 @@ class DistanceOrDurationRun extends StatelessWidget {
               children: [
                 const Text(
                   'Distance (km)',
-                  style: TextStyle(color: AppColors.lightBlack),
+                  style: TextStyle(color: AppColors.frenchGray),
                 ),
                 DistanceWidget(timerId: timerId)
               ],
@@ -307,7 +307,7 @@ class DistanceOrDurationRun extends StatelessWidget {
               children: [
                 const Text(
                   'Pace (min/km)',
-                  style: TextStyle(color: AppColors.lightBlack),
+                  style: TextStyle(color: AppColors.frenchGray),
                 ),
                 PaceWidget(timerId: timerId),
               ],
@@ -331,14 +331,14 @@ class DistanceOrDurationRun extends StatelessWidget {
                         horizontal: 20, vertical: 10),
                     decoration: BoxDecoration(
                         color: isStarted
-                            ? AppColors.lightGrey
+                            ? AppColors.whiteSmoke
                             : AppColors.licorice,
                         borderRadius: BorderRadius.circular(10)),
                     child: Text(
                       isStarted ? 'Started' : tr('global_start'),
                       style: TextStyle(
                           color: isStarted
-                              ? AppColors.lightBlack
+                              ? AppColors.frenchGray
                               : AppColors.white),
                     ),
                   ),
@@ -431,14 +431,14 @@ class IntervalWidget extends StatelessWidget {
                         horizontal: 20, vertical: 10),
                     decoration: BoxDecoration(
                         color: isStarted
-                            ? AppColors.lightGrey
+                            ? AppColors.whiteSmoke
                             : AppColors.licorice,
                         borderRadius: BorderRadius.circular(10)),
                     child: Text(
                       isStarted ? 'Started' : tr('global_start'),
                       style: TextStyle(
                           color: isStarted
-                              ? AppColors.lightBlack
+                              ? AppColors.frenchGray
                               : AppColors.white),
                     ),
                   ),
@@ -544,7 +544,7 @@ class IntervalRun extends StatelessWidget {
             children: [
               const Text(
                 'Duration',
-                style: TextStyle(color: AppColors.lightBlack),
+                style: TextStyle(color: AppColors.frenchGray),
               ),
               DurationTimerWidget(
                 timerId: timerId,
@@ -556,7 +556,7 @@ class IntervalRun extends StatelessWidget {
             children: [
               const Text(
                 'Distance (km)',
-                style: TextStyle(color: AppColors.lightBlack),
+                style: TextStyle(color: AppColors.frenchGray),
               ),
               DistanceWidget(timerId: timerId)
             ],
@@ -566,7 +566,7 @@ class IntervalRun extends StatelessWidget {
             children: [
               const Text(
                 'Pace (min/km)',
-                style: TextStyle(color: AppColors.lightBlack),
+                style: TextStyle(color: AppColors.frenchGray),
               ),
               PaceWidget(timerId: timerId),
             ],
@@ -580,7 +580,7 @@ class IntervalRun extends StatelessWidget {
                 const Icon(
                   Icons.snooze,
                   size: 20,
-                  color: AppColors.lightBlack,
+                  color: AppColors.frenchGray,
                 ),
                 const SizedBox(width: 5),
                 Text(
@@ -588,7 +588,7 @@ class IntervalRun extends StatelessWidget {
                       ? formatDurationToHoursMinutesSeconds(
                           tExercise.intervalRest!)
                       : '0:00',
-                  style: const TextStyle(color: AppColors.lightBlack),
+                  style: const TextStyle(color: AppColors.frenchGray),
                 ),
                 const SizedBox(width: 5),
                 const Expanded(child: Divider()),

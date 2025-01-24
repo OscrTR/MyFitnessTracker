@@ -21,7 +21,7 @@ class ExerciseListItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        border: Border.all(color: AppColors.lightGrey),
+        border: Border.all(color: AppColors.whiteSmoke),
         borderRadius: BorderRadius.circular(10),
       ),
       child: ListTile(

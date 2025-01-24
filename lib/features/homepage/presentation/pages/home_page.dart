@@ -65,11 +65,11 @@ class _HomePageState extends State<HomePage> {
                         children: [
                           Text(
                             tr('home_page_see_all'),
-                            style: const TextStyle(color: AppColors.lightBlack),
+                            style: const TextStyle(color: AppColors.frenchGray),
                           ),
                           const Icon(
                             Icons.chevron_right,
-                            color: AppColors.lightBlack,
+                            color: AppColors.frenchGray,
                           )
                         ],
                       )),
@@ -93,7 +93,7 @@ Widget _buildSelectedWidgets() {
           height: 200,
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-              border: Border.all(color: AppColors.lightGrey),
+              border: Border.all(color: AppColors.whiteSmoke),
               borderRadius: BorderRadius.circular(15)),
         );
       }
@@ -111,7 +111,7 @@ Widget _buildSelectedWidgets() {
               },
               child: CustomPaint(
                 painter: DashedBorderPainter(
-                  color: AppColors.lightBlack,
+                  color: AppColors.frenchGray,
                   strokeWidth: 1.0,
                   dashLength: 5.0,
                   gapLength: 5.0,
@@ -125,10 +125,10 @@ Widget _buildSelectedWidgets() {
                       Text(
                         textAlign: TextAlign.center,
                         tr('home_page_select_training'),
-                        style: const TextStyle(color: AppColors.lightBlack),
+                        style: const TextStyle(color: AppColors.frenchGray),
                       ),
                       const SizedBox(width: 5),
-                      const Icon(Icons.add, color: AppColors.lightBlack),
+                      const Icon(Icons.add, color: AppColors.frenchGray),
                     ],
                   ),
                 ),
@@ -223,7 +223,7 @@ Widget _buildSelectedWidgets() {
                             ],
                             icon: const Icon(
                               Icons.more_horiz,
-                              color: AppColors.lightBlack,
+                              color: AppColors.frenchGray,
                             ),
                           ),
                         ),

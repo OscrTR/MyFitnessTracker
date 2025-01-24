@@ -25,7 +25,7 @@ class DistanceWidget extends StatelessWidget {
                   0;
               return Text(
                 (distance / 1000).toStringAsFixed(2),
-                style: const TextStyle(color: AppColors.lightBlack),
+                style: const TextStyle(color: AppColors.frenchGray),
               );
             }
             return const SizedBox();

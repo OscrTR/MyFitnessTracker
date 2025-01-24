@@ -9,23 +9,23 @@ final ThemeData appTheme = ThemeData(
     primary: AppColors.licorice,
     onPrimary: AppColors.white,
     primaryContainer: AppColors.licorice,
-    secondary: AppColors.lightGrey,
+    secondary: AppColors.whiteSmoke,
     onSecondary: AppColors.licorice,
-    secondaryContainer: AppColors.lightGrey,
+    secondaryContainer: AppColors.whiteSmoke,
     onSecondaryContainer: AppColors.licorice,
-    tertiary: AppColors.lightGrey,
+    tertiary: AppColors.whiteSmoke,
     onTertiary: AppColors.licorice,
-    tertiaryContainer: AppColors.lightGrey,
+    tertiaryContainer: AppColors.whiteSmoke,
     onTertiaryContainer: AppColors.licorice,
-    surface: AppColors.lightGrey,
+    surface: AppColors.whiteSmoke,
     onSurface: AppColors.licorice,
   ),
-  unselectedWidgetColor: AppColors.lightBlack,
+  unselectedWidgetColor: AppColors.frenchGray,
   scaffoldBackgroundColor: Colors.white,
-  popupMenuTheme: const PopupMenuThemeData(color: AppColors.lightGrey),
+  popupMenuTheme: const PopupMenuThemeData(color: AppColors.whiteSmoke),
   outlinedButtonTheme: OutlinedButtonThemeData(
     style: OutlinedButton.styleFrom(
-      side: const BorderSide(color: AppColors.lightBlack, width: 1),
+      side: const BorderSide(color: AppColors.frenchGray, width: 1),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
       ),
@@ -54,5 +54,5 @@ final ThemeData appTheme = ThemeData(
         fontSize: 12, fontWeight: FontWeight.w400, color: AppColors.licorice),
   ),
   checkboxTheme: const CheckboxThemeData(
-      side: BorderSide(color: AppColors.lightBlack, width: 2)),
+      side: BorderSide(color: AppColors.frenchGray, width: 2)),
 );
