@@ -59,8 +59,118 @@ class SQLiteTrainingLocalDataSource implements TrainingLocalDataSource {
   @override
   Future<List<TrainingModel>> fetchTrainings() async {
     try {
-      final List<Map<String, dynamic>> maps = await database.query('trainings');
-      return maps.map((map) => TrainingModel.fromJson(map)).toList();
+      Future<List<Map<String, dynamic>>> getTrainingsBasicInfo() async {
+        final queryResult = await database.query('trainings');
+
+        return queryResult
+            .map((row) => {
+                  'id': row['id'],
+                  'name': row['name'],
+                  'type': row['type'],
+                  'is_selected': row['is_selected'],
+                  'multisets': [],
+                  'training_exercises': [],
+                  'objectives': row['objectives'],
+                  'training_days': row['training_days'],
+                })
+            .toList();
+      }
+
+      Future<Map<int, List<Map<String, dynamic>>>>
+          fetchMultisetsForTrainings() async {
+        final queryResult = await database.query('multisets');
+
+        Map<int, List<Map<String, dynamic>>> multisetsMap = {};
+        for (var row in queryResult) {
+          final trainingId = row['training_id'] as int;
+          if (!multisetsMap.containsKey(trainingId)) {
+            multisetsMap[trainingId] = [];
+          }
+          multisetsMap[trainingId]!.add({
+            'id': row['id'],
+            'training_id': row['training_id'],
+            'sets': row['sets'],
+            'set_rest': row['set_rest'],
+            'multiset_rest': row['multiset_rest'],
+            'special_instructions': row['special_instructions'],
+            'objectives': row['objectives'],
+            'position': row['position'],
+            'training_exercises': [],
+            'key': row['key'],
+          });
+        }
+        return multisetsMap;
+      }
+
+      Future<Map<int, List<Map<String, dynamic>>>>
+          fetchTrainingExercisesForTrainings() async {
+        final queryResult = await database.query('training_exercises');
+
+        Map<int, List<Map<String, dynamic>>> exercisesMap = {};
+        for (var row in queryResult) {
+          final trainingId = row['training_id'] as int;
+          if (!exercisesMap.containsKey(trainingId)) {
+            exercisesMap[trainingId] = [];
+          }
+          exercisesMap[trainingId]!.add({
+            'id': row['id'],
+            'training_id': row['training_id'],
+            'multiset_id': row['multiset_id'],
+            'exercise_id': row['exercise_id'],
+            'name': row['name'],
+            'description': row['description'],
+            'imagePath': row['imagePath'],
+            'training_exercise_type': row['training_exercise_type'],
+            'sets': row['sets'],
+            'is_sets_in_reps': row['is_sets_in_reps'],
+            'min_reps': row['min_reps'],
+            'max_reps': row['max_reps'],
+            'actual_reps': row['actual_reps'],
+            'duration': row['duration'],
+            'set_rest': row['set_rest'],
+            'exercise_rest': row['exercise_rest'],
+            'auto_start': row['auto_start'],
+            'run_exercise_target': row['run_exercise_target'],
+            'target_distance': row['target_distance'],
+            'target_duration': row['target_duration'],
+            'is_target_pace_selected': row['is_target_pace_selected'],
+            'target_pace': row['target_pace'],
+            'intervals': row['intervals'],
+            'is_interval_in_distance': row['is_interval_in_distance'],
+            'interval_distance': row['interval_distance'],
+            'interval_duration': row['interval_duration'],
+            'interval_rest': row['interval_rest'],
+            'special_instructions': row['special_instructions'],
+            'objectives': row['objectives'],
+            'position': row['position'],
+            'key': row['key'],
+          });
+        }
+        return exercisesMap;
+      }
+
+      final trainings = await getTrainingsBasicInfo();
+      final multisetsByTraining = await fetchMultisetsForTrainings();
+      final exercisesByTraining = await fetchTrainingExercisesForTrainings();
+
+      for (var training in trainings) {
+        final trainingId = training['id'];
+        final trainingExercises = exercisesByTraining[trainingId] ?? [];
+        final multisets = multisetsByTraining[trainingId] ?? [];
+
+        for (var exercise in trainingExercises) {
+          final multisetId = exercise['multiset_id'];
+          if (multisetId == null) {
+            (training['training_exercises'] as List).add(exercise);
+          } else {
+            final multiset = multisets.firstWhere((m) => m['id'] == multisetId);
+            (multiset['training_exercises'] as List).add(exercise);
+          }
+        }
+        training['multisets'] = multisets;
+      }
+
+      return trainings.map((t) => TrainingModel.fromJson(t)).toList();
     } catch (e) {
       throw LocalDatabaseException(e.toString());
     }
