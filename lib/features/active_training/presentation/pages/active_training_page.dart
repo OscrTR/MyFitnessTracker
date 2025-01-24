@@ -187,7 +187,7 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage> {
                                     decoration: BoxDecoration(
                                         color: isNotificationAuthorized
                                             ? AppColors.lightGrey
-                                            : AppColors.black,
+                                            : AppColors.licorice,
                                         borderRadius:
                                             BorderRadius.circular(10)),
                                     child: Text(
@@ -215,7 +215,7 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage> {
                                         color: isLocationPermissionGranted ==
                                                 PermissionStatus.granted
                                             ? AppColors.lightGrey
-                                            : AppColors.black,
+                                            : AppColors.licorice,
                                         borderRadius:
                                             BorderRadius.circular(10)),
                                     child: Text(
@@ -243,7 +243,7 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage> {
                                     decoration: BoxDecoration(
                                         color: isLocationEnabled
                                             ? AppColors.lightGrey
-                                            : AppColors.black,
+                                            : AppColors.licorice,
                                         borderRadius:
                                             BorderRadius.circular(10)),
                                     child: Text(
@@ -278,7 +278,7 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage> {
                                   decoration: BoxDecoration(
                                       color: isNotificationAuthorized
                                           ? AppColors.lightGrey
-                                          : AppColors.black,
+                                          : AppColors.licorice,
                                       borderRadius: BorderRadius.circular(10)),
                                   child: Text(
                                     isNotificationAuthorized
@@ -334,7 +334,7 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage> {
                                     padding: const EdgeInsets.symmetric(
                                         vertical: 10, horizontal: 20),
                                     decoration: BoxDecoration(
-                                        color: AppColors.black,
+                                        color: AppColors.licorice,
                                         borderRadius:
                                             BorderRadius.circular(10)),
                                     child: Text(

@@ -7,7 +7,6 @@ class Training extends Equatable {
   final int? id;
   final String name;
   final TrainingType type;
-  final bool isSelected;
   final List<TrainingExercise> trainingExercises;
   final List<Multiset> multisets;
   final String? objectives;
@@ -17,7 +16,6 @@ class Training extends Equatable {
     this.id,
     required this.name,
     required this.type,
-    required this.isSelected,
     required this.trainingExercises,
     required this.multisets,
     this.objectives,
@@ -38,7 +36,6 @@ class Training extends Equatable {
       id: id ?? this.id,
       name: name ?? this.name,
       type: type ?? this.type,
-      isSelected: isSelected ?? this.isSelected,
       trainingExercises: trainingExercises ?? this.trainingExercises,
       multisets: multisets ?? this.multisets,
       objectives: objectives ?? this.objectives,
@@ -47,23 +44,13 @@ class Training extends Equatable {
   }
 
   @override
-  List<Object?> get props => [
-        id,
-        name,
-        type,
-        isSelected,
-        trainingExercises,
-        multisets,
-        objectives,
-        trainingDays
-      ];
+  List<Object?> get props =>
+      [id, name, type, trainingExercises, multisets, objectives, trainingDays];
 }
 
 enum TrainingType {
   run,
   yoga,
-  cardio,
-  mixed,
   workout;
 
   String translate(String locale) {
@@ -74,10 +61,6 @@ enum TrainingType {
         return locale == 'fr' ? 'Renforcement' : 'Workout';
       case TrainingType.run:
         return locale == 'fr' ? 'Course' : 'Run';
-      case TrainingType.cardio:
-        return locale == 'fr' ? 'Cardio' : 'Cardio';
-      case TrainingType.mixed:
-        return locale == 'fr' ? 'Mixte' : 'Mixed';
     }
   }
 }

@@ -155,7 +155,7 @@ final router = GoRouter(
                               CustomSnackBar.success(
                                   icon: const Icon(null),
                                   textStyle: const TextStyle(
-                                      fontSize: 16, color: AppColors.black),
+                                      fontSize: 16, color: AppColors.licorice),
                                   backgroundColor: const Color(0xffadebb3),
                                   message: state.message),
                             );
@@ -167,7 +167,7 @@ final router = GoRouter(
                               CustomSnackBar.error(
                                   icon: const Icon(null),
                                   textStyle: const TextStyle(
-                                      fontSize: 16, color: AppColors.black),
+                                      fontSize: 16, color: AppColors.licorice),
                                   backgroundColor: const Color(0xffff857a),
                                   message: state.message),
                             );

@@ -120,13 +120,8 @@ class _ActiveExerciseWidgetState extends State<ActiveExerciseWidget> {
     return BlocBuilder<ActiveTrainingBloc, ActiveTrainingState>(
         builder: (context, state) {
       if (state is ActiveTrainingLoaded) {
-        Color exerciseActiveColor =
-            widget.tExercise.trainingExerciseType == TrainingExerciseType.yoga
-                ? AppColors.purple
-                : widget.tExercise.trainingExerciseType ==
-                        TrainingExerciseType.workout
-                    ? AppColors.orange
-                    : AppColors.blue;
+        Color exerciseActiveColor = AppColors.whiteSmoke;
+
         bool isActiveExercise = false;
         final lastStartedTimerId = state.lastStartedTimerId;
         final exerciseIndex = widget.exerciseIndex;
@@ -536,7 +531,7 @@ class ActiveExerciseDurationRow extends StatelessWidget {
             alignment: Alignment.center,
             padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
             decoration: BoxDecoration(
-                color: isStarted ? AppColors.lightGrey : AppColors.black,
+                color: isStarted ? AppColors.lightGrey : AppColors.licorice,
                 borderRadius: const BorderRadius.all(Radius.circular(10))),
             child: Text(
               isStarted

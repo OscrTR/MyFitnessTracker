@@ -30,7 +30,7 @@ class SmallTextFieldWidget extends StatelessWidget {
         child: TextField(
           controller: controller,
           textAlign: TextAlign.center,
-          style: TextStyle(color: textColor ?? AppColors.black),
+          style: TextStyle(color: textColor ?? AppColors.licorice),
           keyboardType: TextInputType.number,
           decoration: InputDecoration(
             isCollapsed: true,

@@ -99,9 +99,7 @@ Widget _buildSelectedWidgets() {
       }
 
       if ((state is TrainingManagementLoaded)) {
-        final filteredTrainings = state.trainings.where((training) {
-          return training.isSelected;
-        }).toList();
+        final filteredTrainings = state.trainings;
 
         if (filteredTrainings.isEmpty) {
           return Container(
@@ -144,20 +142,15 @@ Widget _buildSelectedWidgets() {
             child: ListView.builder(
                 scrollDirection: Axis.horizontal,
                 itemBuilder: (context, index) {
-                  final training = state.trainings
-                      .where((training) => training.isSelected)
-                      .toList()[index];
+                  final training = state.trainings.toList()[index];
 
                   Color color = AppColors.white;
                   IconData icon = Icons.self_improvement;
                   if (training.type == TrainingType.yoga) {
-                    color = AppColors.purple;
                     icon = Icons.self_improvement;
                   } else if (training.type == TrainingType.run) {
-                    color = AppColors.blue;
                     icon = Symbols.sprint;
                   } else if (training.type == TrainingType.workout) {
-                    color = AppColors.orange;
                     icon = Icons.fitness_center;
                   }
                   return Container(
@@ -238,9 +231,7 @@ Widget _buildSelectedWidgets() {
                     ),
                   );
                 },
-                itemCount: state.trainings
-                    .where((training) => training.isSelected)
-                    .length),
+                itemCount: state.trainings.length),
           );
         }
       }

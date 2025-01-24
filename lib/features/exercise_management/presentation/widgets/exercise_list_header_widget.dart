@@ -19,7 +19,7 @@ class ExerciseListHeader extends StatelessWidget {
         children: [
           const Icon(
             Icons.list,
-            color: AppColors.black,
+            color: AppColors.licorice,
             size: 30,
           ),
           const SizedBox(width: 10),

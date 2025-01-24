@@ -41,8 +41,6 @@ class TrainingManagementLoaded extends TrainingManagementState {
           : (selectedTraining ?? this.selectedTraining)?.copyWith(
               name: selectedTraining?.name ?? this.selectedTraining?.name,
               type: selectedTraining?.type ?? this.selectedTraining?.type,
-              isSelected: selectedTraining?.isSelected ??
-                  this.selectedTraining?.isSelected,
               trainingExercises: selectedTraining?.trainingExercises ??
                   this.selectedTraining?.trainingExercises,
               multisets: selectedTraining?.multisets ??

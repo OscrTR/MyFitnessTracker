@@ -52,18 +52,17 @@ class TrainingManagementBloc
 
     on<DeleteTrainingEvent>((event, emit) async {
       if (state is TrainingManagementLoaded) {
-        final currentState = state as TrainingManagementLoaded;
-
         final result = await deleteTraining(delete.Params(event.id));
 
         result.fold(
           (failure) => messageBloc.add(AddMessageEvent(
               message: _mapFailureToMessage(failure), isError: true)),
           (success) {
-            final updatedTrainings = currentState.trainings
-                .where((training) => training.id != event.id)
-                .toList();
-            emit(currentState.copyWith(trainings: updatedTrainings));
+            messageBloc.add(AddMessageEvent(
+                message: tr('message_training_deletion_success'),
+                isError: false));
+
+            add(FetchTrainingsEvent());
           },
         );
       }
@@ -163,8 +162,6 @@ class TrainingManagementBloc
           id: event.id ?? currentState.selectedTraining!.id,
           name: event.name ?? currentState.selectedTraining!.name,
           type: event.type ?? currentState.selectedTraining!.type,
-          isSelected:
-              event.isSelected ?? currentState.selectedTraining!.isSelected,
           trainingExercises: event.trainingExercises ??
               currentState.selectedTraining!.trainingExercises,
           multisets:
@@ -184,7 +181,6 @@ class TrainingManagementBloc
           trainingToCreateOrUpdate = const Training(
             name: 'Unnamed training',
             type: TrainingType.workout,
-            isSelected: true,
             trainingExercises: [],
             multisets: [],
           );
@@ -193,9 +189,10 @@ class TrainingManagementBloc
         }
 
         trainingToCreateOrUpdate = trainingToCreateOrUpdate.copyWith(
-          name: event.training.name,
+          name: event.training.name.trim() != ''
+              ? event.training.name.trim()
+              : 'Unnamed training',
           type: event.training.type,
-          isSelected: event.training.isSelected,
           objectives: event.training.objectives,
           trainingDays: event.training.trainingDays,
         );
@@ -211,8 +208,11 @@ class TrainingManagementBloc
                   message: _mapFailureToMessage(failure), isError: true));
             },
             (success) {
-              messageBloc.add(const AddMessageEvent(
-                  message: 'Training created successfully.', isError: false));
+              messageBloc.add(AddMessageEvent(
+                  message: currentState.selectedTraining == null
+                      ? tr('message_training_creation_success')
+                      : tr('message_training_update_success'),
+                  isError: false));
 
               add(FetchTrainingsEvent());
             },
@@ -243,7 +243,6 @@ class TrainingManagementBloc
     on<AddOrUpdateTrainingExerciseEvent>((event, emit) {
       if (state is TrainingManagementLoaded) {
         final currentState = state as TrainingManagementLoaded;
-        print('selected training is ${currentState.selectedTraining}');
         final trainingExercises = List<TrainingExercise>.from(
             currentState.selectedTraining?.trainingExercises ?? []);
         final trainingMultisets =
@@ -293,9 +292,8 @@ class TrainingManagementBloc
                 trainingExercises: trainingExercises,
               )
             : Training(
-                name: 'Unnamed training',
+                name: '',
                 type: TrainingType.workout,
-                isSelected: true,
                 trainingExercises: trainingExercises,
                 multisets: const [],
               );
@@ -403,9 +401,8 @@ class TrainingManagementBloc
                 multisets: trainingMultisets,
               )
             : Training(
-                name: 'Unnamed training',
+                name: '',
                 type: TrainingType.workout,
-                isSelected: true,
                 trainingExercises: const [],
                 multisets: trainingMultisets,
               );

@@ -9,7 +9,6 @@ class TrainingModel extends Training {
     super.id,
     required super.name,
     required super.type,
-    required super.isSelected,
     required super.trainingExercises,
     required super.multisets,
     super.objectives,
@@ -21,7 +20,6 @@ class TrainingModel extends Training {
       id: json['id'] as int?,
       name: json['name'] as String,
       type: TrainingType.values[json['type'] as int],
-      isSelected: (json['is_selected'] as int) == 1 ? true : false,
       trainingExercises: (json['training_exercises'] as List<dynamic>?)
               ?.map((exerciseJson) => TrainingExerciseModel.fromJson(
                   exerciseJson as Map<String, dynamic>))
@@ -38,13 +36,10 @@ class TrainingModel extends Training {
   }
 
   Map<String, dynamic> toJson() {
-    print(
-        'training_days is ${json.encode(trainingDays?.map((e) => e.index).toList())}');
     return {
       'id': id,
       'name': name,
       'type': type.index,
-      'is_selected': isSelected == true ? 1 : 0,
       'training_days': json.encode(trainingDays?.map((e) => e.index).toList()),
       'objectives': objectives,
     };
@@ -55,7 +50,6 @@ class TrainingModel extends Training {
       id: trainingId,
       name: training.name,
       type: training.type,
-      isSelected: training.isSelected,
       multisets: training.multisets,
       objectives: training.objectives,
       trainingExercises: training.trainingExercises,
@@ -68,7 +62,6 @@ class TrainingModel extends Training {
       id: training.id,
       name: training.name,
       type: training.type,
-      isSelected: training.isSelected,
       trainingExercises: training.trainingExercises,
       objectives: training.objectives,
       multisets: training.multisets,

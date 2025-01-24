@@ -40,13 +40,7 @@ class _ActiveRunWidgetState extends State<ActiveRunWidget> {
         BlocBuilder<ActiveTrainingBloc, ActiveTrainingState>(
             builder: (context, state) {
           if (state is ActiveTrainingLoaded) {
-            Color exerciseActiveColor = widget.tExercise.trainingExerciseType ==
-                    TrainingExerciseType.yoga
-                ? AppColors.purple
-                : widget.tExercise.trainingExerciseType ==
-                        TrainingExerciseType.workout
-                    ? AppColors.orange
-                    : AppColors.blue;
+            Color exerciseActiveColor = AppColors.whiteSmoke;
             bool isActiveExercise = false;
             final lastStartedTimerId = state.lastStartedTimerId;
             final exerciseIndex = widget.exerciseIndex;
@@ -338,8 +332,9 @@ class DistanceOrDurationRun extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(
                         horizontal: 20, vertical: 10),
                     decoration: BoxDecoration(
-                        color:
-                            isStarted ? AppColors.lightGrey : AppColors.black,
+                        color: isStarted
+                            ? AppColors.lightGrey
+                            : AppColors.licorice,
                         borderRadius: BorderRadius.circular(10)),
                     child: Text(
                       isStarted ? 'Started' : tr('global_start'),
@@ -422,8 +417,9 @@ class IntervalWidget extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(
                         horizontal: 20, vertical: 10),
                     decoration: BoxDecoration(
-                        color:
-                            isStarted ? AppColors.lightGrey : AppColors.black,
+                        color: isStarted
+                            ? AppColors.lightGrey
+                            : AppColors.licorice,
                         borderRadius: BorderRadius.circular(10)),
                     child: Text(
                       isStarted ? 'Started' : tr('global_start'),

@@ -116,7 +116,7 @@ class TimerWidgetState extends State<TimerWidget> {
                 height: 40,
                 width: 40,
                 decoration: BoxDecoration(
-                    color: AppColors.black,
+                    color: AppColors.licorice,
                     borderRadius: BorderRadius.circular(999)),
                 child: BlocBuilder<ActiveTrainingBloc, ActiveTrainingState>(
                     builder: (context, state) {

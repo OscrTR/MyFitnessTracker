@@ -32,7 +32,6 @@ class SQLiteDatabaseHelper {
             id INTEGER PRIMARY KEY AUTOINCREMENT, 
             name TEXT, 
             type INTEGER, 
-            is_selected INTEGER,
             objectives TEXT,
             training_days TEXT
           )

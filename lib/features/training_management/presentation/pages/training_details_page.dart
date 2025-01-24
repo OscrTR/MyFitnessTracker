@@ -35,9 +35,8 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
   bool _isDataInitialized = false;
 
   final Training _defaultTraining = const Training(
-    name: 'Unnamed training',
+    name: '',
     type: TrainingType.workout,
-    isSelected: true,
     trainingExercises: [],
     multisets: [],
     objectives: '',
@@ -47,7 +46,6 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
   Training _trainingToCreateOrEdit = const Training(
     name: '',
     type: TrainingType.workout,
-    isSelected: true,
     trainingExercises: [],
     multisets: [],
     objectives: '',
@@ -1579,7 +1577,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                         controller: _controllers['paceMinutes']!,
                         textColor:
                             _tExerciseToCreateOrEdit.isTargetPaceSelected!
-                                ? AppColors.black
+                                ? AppColors.licorice
                                 : AppColors.lightBlack,
                       ),
                       SizedBox(
@@ -1590,7 +1588,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                                 fontSize: 20,
                                 color: _tExerciseToCreateOrEdit
                                         .isTargetPaceSelected!
-                                    ? AppColors.black
+                                    ? AppColors.licorice
                                     : AppColors.lightBlack,
                               )),
                         ),
@@ -1599,7 +1597,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                         controller: _controllers['paceSeconds']!,
                         textColor:
                             _tExerciseToCreateOrEdit.isTargetPaceSelected!
-                                ? AppColors.black
+                                ? AppColors.licorice
                                 : AppColors.lightBlack,
                       ),
                     ],
@@ -1636,12 +1634,12 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                   onSelectionChanged(value);
                 }
               },
-              activeColor: AppColors.black,
+              activeColor: AppColors.licorice,
               fillColor: WidgetStateProperty.resolveWith<Color>((states) {
                 return _tExerciseToCreateOrEdit.runExerciseTarget ==
                         RunExerciseTarget.intervals
                     ? currentSelection == choiceValue
-                        ? AppColors.black
+                        ? AppColors.licorice
                         : AppColors.lightBlack
                     : AppColors.lightBlack;
               }),
@@ -1664,7 +1662,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                         textColor: _tExerciseToCreateOrEdit.runExerciseTarget ==
                                 RunExerciseTarget.intervals
                             ? currentSelection == choiceValue
-                                ? AppColors.black
+                                ? AppColors.licorice
                                 : AppColors.lightBlack
                             : AppColors.lightBlack,
                       ),
@@ -1679,7 +1677,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                                             .runExerciseTarget ==
                                         RunExerciseTarget.intervals
                                     ? currentSelection == choiceValue
-                                        ? AppColors.black
+                                        ? AppColors.licorice
                                         : AppColors.lightBlack
                                     : AppColors.lightBlack,
                               )),
@@ -1691,7 +1689,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                         textColor: _tExerciseToCreateOrEdit.runExerciseTarget ==
                                 RunExerciseTarget.intervals
                             ? currentSelection == choiceValue
-                                ? AppColors.black
+                                ? AppColors.licorice
                                 : AppColors.lightBlack
                             : AppColors.lightBlack,
                       ),
@@ -1872,10 +1870,10 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                   onSelectionChanged(value);
                 }
               },
-              activeColor: AppColors.black,
+              activeColor: AppColors.licorice,
               fillColor: WidgetStateProperty.resolveWith<Color>((states) {
                 return currentSelection == choiceValue
-                    ? AppColors.black
+                    ? AppColors.licorice
                     : AppColors.lightBlack;
               }),
             ),
@@ -1895,7 +1893,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                       SmallTextFieldWidget(
                         controller: controller1,
                         textColor: currentSelection == choiceValue
-                            ? AppColors.black
+                            ? AppColors.licorice
                             : AppColors.lightBlack,
                       ),
                     if (controller2 != null)
@@ -1906,7 +1904,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                               style: TextStyle(
                                 fontSize: 20,
                                 color: currentSelection == choiceValue
-                                    ? AppColors.black
+                                    ? AppColors.licorice
                                     : AppColors.lightBlack,
                               )),
                         ),
@@ -1915,7 +1913,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                       SmallTextFieldWidget(
                         controller: controller2,
                         textColor: currentSelection == choiceValue
-                            ? AppColors.black
+                            ? AppColors.licorice
                             : AppColors.lightBlack,
                       ),
                     if (controller3 != null)
@@ -1926,7 +1924,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                               style: TextStyle(
                                 fontSize: 20,
                                 color: currentSelection == choiceValue
-                                    ? AppColors.black
+                                    ? AppColors.licorice
                                     : AppColors.lightBlack,
                               )),
                         ),
@@ -1935,7 +1933,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                       SmallTextFieldWidget(
                         controller: controller3,
                         textColor: currentSelection == choiceValue
-                            ? AppColors.black
+                            ? AppColors.licorice
                             : AppColors.lightBlack,
                       ),
                   ],
@@ -1973,10 +1971,10 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                   onSelectionChanged(value);
                 }
               },
-              activeColor: AppColors.black,
+              activeColor: AppColors.licorice,
               fillColor: WidgetStateProperty.resolveWith<Color>((states) {
                 return currentSelection == choiceValue
-                    ? AppColors.black
+                    ? AppColors.licorice
                     : AppColors.lightBlack;
               }),
             ),
@@ -1996,7 +1994,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                       SmallTextFieldWidget(
                         controller: controller1,
                         textColor: currentSelection == choiceValue
-                            ? AppColors.black
+                            ? AppColors.licorice
                             : AppColors.lightBlack,
                       ),
                     if (controller2 != null && isReps)
@@ -2007,7 +2005,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                               style: TextStyle(
                                 fontSize: 20,
                                 color: currentSelection == choiceValue
-                                    ? AppColors.black
+                                    ? AppColors.licorice
                                     : AppColors.lightBlack,
                               )),
                         ),
@@ -2020,7 +2018,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                               style: TextStyle(
                                 fontSize: 20,
                                 color: currentSelection == choiceValue
-                                    ? AppColors.black
+                                    ? AppColors.licorice
                                     : AppColors.lightBlack,
                               )),
                         ),
@@ -2029,7 +2027,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                       SmallTextFieldWidget(
                         controller: controller2,
                         textColor: currentSelection == choiceValue
-                            ? AppColors.black
+                            ? AppColors.licorice
                             : AppColors.lightBlack,
                       ),
                   ],
@@ -2189,7 +2187,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
               },
               child: const Icon(
                 Icons.arrow_back_ios,
-                color: AppColors.black,
+                color: AppColors.licorice,
               ),
             ),
           ),
