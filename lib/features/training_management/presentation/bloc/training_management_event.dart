@@ -7,20 +7,6 @@ abstract class TrainingManagementEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-//! Trainings
-class FetchTrainingsEvent extends TrainingManagementEvent {}
-
-class UpdateTrainingEvent extends TrainingManagementEvent {}
-
-class UnselectTrainingEvent extends TrainingManagementEvent {
-  final int trainingId;
-
-  const UnselectTrainingEvent(this.trainingId);
-
-  @override
-  List<Object> get props => [trainingId];
-}
-
 class StartTrainingEvent extends TrainingManagementEvent {
   final int trainingId;
 
@@ -29,6 +15,9 @@ class StartTrainingEvent extends TrainingManagementEvent {
   @override
   List<Object> get props => [trainingId];
 }
+
+//! Trainings
+class FetchTrainingsEvent extends TrainingManagementEvent {}
 
 class DeleteTrainingEvent extends TrainingManagementEvent {
   final int id;
@@ -39,23 +28,25 @@ class DeleteTrainingEvent extends TrainingManagementEvent {
   List<Object> get props => [id];
 }
 
-//! Selected training
-class LoadInitialSelectedTrainingData extends TrainingManagementEvent {}
-
-class SelectTrainingEvent extends TrainingManagementEvent {
+class GetTrainingEvent extends TrainingManagementEvent {
   final int id;
 
-  const SelectTrainingEvent({required this.id});
+  const GetTrainingEvent({required this.id});
 
   @override
   List<Object?> get props => [id];
 }
 
-class ClearSelectedTrainingEvent extends TrainingManagementEvent {
-  const ClearSelectedTrainingEvent();
-}
+class ClearSelectedTrainingEvent extends TrainingManagementEvent {}
 
-class SaveSelectedTrainingEvent extends TrainingManagementEvent {}
+class AddOrUpdateTrainingEvent extends TrainingManagementEvent {
+  final Training training;
+
+  const AddOrUpdateTrainingEvent(this.training);
+
+  @override
+  List<Object?> get props => [training];
+}
 
 class UpdateSelectedTrainingProperty extends TrainingManagementEvent {
   final int? id;

@@ -218,12 +218,7 @@ Widget _buildSelectedWidgets() {
                           right: -12,
                           child: PopupMenuButton(
                             onSelected: (value) {
-                              final bloc =
-                                  BlocProvider.of<TrainingManagementBloc>(
-                                      context);
-                              if (value == 'unselect') {
-                                bloc.add(UnselectTrainingEvent(training.id!));
-                              }
+                              if (value == 'unselect') {}
                             },
                             itemBuilder: (BuildContext context) => [
                               PopupMenuItem(

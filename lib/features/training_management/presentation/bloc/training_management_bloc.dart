@@ -70,110 +70,18 @@ class TrainingManagementBloc
     });
 
     //! Selected training
-    on<LoadInitialSelectedTrainingData>((event, emit) async {
+    on<GetTrainingEvent>((event, emit) async {
       if (state is TrainingManagementLoaded) {
         final currentState = state as TrainingManagementLoaded;
-
-        final result = await fetchTrainings(null);
-        const selectedTraining = Training(
-          name: 'Unnamed training',
-          type: TrainingType.workout,
-          isSelected: true,
-          trainingExercises: [],
-          multisets: [],
-        );
-
-        result.fold(
-          (failure) => messageBloc.add(AddMessageEvent(
-              message: _mapFailureToMessage(failure), isError: true)),
-          (trainings) {
-            emit(
-              currentState.copyWith(selectedTraining: selectedTraining),
-            );
-          },
-        );
-      }
-    });
-    on<SelectTrainingEvent>((event, emit) async {
-      if (state is TrainingManagementLoaded) {
-        final currentState = state as TrainingManagementLoaded;
-
-        Training? training;
-
         final result = await getTraining(get_tr.Params(event.id));
+
         result.fold(
           (failure) => messageBloc.add(AddMessageEvent(
               message: _mapFailureToMessage(failure), isError: true)),
-          (success) {
-            training = success;
+          (training) {
+            emit(currentState.copyWith(selectedTraining: training));
           },
         );
-
-        emit(currentState.copyWith(selectedTraining: training));
-      }
-    });
-    on<UnselectTrainingEvent>((event, emit) async {
-      if (state is! TrainingManagementLoaded) return;
-
-      final currentState = state as TrainingManagementLoaded;
-
-      try {
-        // Fetch the training
-        final getResult = await getTraining(get_tr.Params(event.trainingId));
-
-        final training = getResult.fold<Training?>(
-          (failure) {
-            messageBloc.add(AddMessageEvent(
-              message: _mapFailureToMessage(failure),
-              isError: true,
-            ));
-            return null;
-          },
-          (training) => training,
-        );
-
-        if (training == null) return;
-
-        // Update the training to unselected
-        final updatedTraining = training.copyWith(isSelected: false);
-        final updateResult =
-            await updateTraining(update.Params(updatedTraining));
-
-        final updateSuccess = updateResult.fold<bool>(
-          (failure) {
-            messageBloc.add(AddMessageEvent(
-              message: _mapFailureToMessage(failure),
-              isError: true,
-            ));
-            return false;
-          },
-          (_) => true,
-        );
-
-        if (!updateSuccess) return;
-
-        // Fetch updated trainings
-        final fetchResult = await fetchTrainings(null);
-
-        fetchResult.fold(
-          (failure) {
-            messageBloc.add(AddMessageEvent(
-              message: _mapFailureToMessage(failure),
-              isError: true,
-            ));
-          },
-          (trainings) {
-            if (!emit.isDone) {
-              emit(currentState.copyWith(trainings: trainings));
-            }
-          },
-        );
-      } catch (e) {
-        // Handle any unexpected exceptions
-        messageBloc.add(AddMessageEvent(
-          message: 'An unexpected error occurred: ${e.toString()}',
-          isError: true,
-        ));
       }
     });
 
@@ -267,54 +175,67 @@ class TrainingManagementBloc
       }
     });
 
-    on<UpdateTrainingEvent>((event, emit) async {
+    on<AddOrUpdateTrainingEvent>((event, emit) async {
       if (state is TrainingManagementLoaded) {
         final currentState = state as TrainingManagementLoaded;
+        Training trainingToCreateOrUpdate;
 
-        final updatedResult =
-            await updateTraining(update.Params(currentState.selectedTraining!));
-
-        updatedResult.fold(
-          (failure) {
-            messageBloc.add(AddMessageEvent(
-                message: _mapFailureToMessage(failure), isError: true));
-          },
-          (success) {
-            messageBloc.add(const AddMessageEvent(
-                message: 'Training updated successfully.', isError: false));
-
-            add(FetchTrainingsEvent());
-          },
-        );
-      }
-    });
-
-    on<SaveSelectedTrainingEvent>((event, emit) async {
-      if (state is TrainingManagementLoaded) {
-        final currentState = state as TrainingManagementLoaded;
-
-        // Ensure selectedTraining is not null
         if (currentState.selectedTraining == null) {
-          messageBloc.add(const AddMessageEvent(
-              message: 'No training selected to save.', isError: true));
-          return;
+          trainingToCreateOrUpdate = const Training(
+            name: 'Unnamed training',
+            type: TrainingType.workout,
+            isSelected: true,
+            trainingExercises: [],
+            multisets: [],
+          );
+        } else {
+          trainingToCreateOrUpdate = currentState.selectedTraining!;
         }
 
-        final createResult =
-            await createTraining(create.Params(currentState.selectedTraining!));
-
-        createResult.fold(
-          (failure) {
-            messageBloc.add(AddMessageEvent(
-                message: _mapFailureToMessage(failure), isError: true));
-          },
-          (success) {
-            messageBloc.add(const AddMessageEvent(
-                message: 'Training created successfully.', isError: false));
-
-            add(FetchTrainingsEvent());
-          },
+        trainingToCreateOrUpdate = trainingToCreateOrUpdate.copyWith(
+          name: event.training.name,
+          type: event.training.type,
+          isSelected: event.training.isSelected,
+          objectives: event.training.objectives,
+          trainingDays: event.training.trainingDays,
         );
+
+        // Add
+        if (trainingToCreateOrUpdate.id == null) {
+          final createResult =
+              await createTraining(create.Params(trainingToCreateOrUpdate));
+
+          createResult.fold(
+            (failure) {
+              messageBloc.add(AddMessageEvent(
+                  message: _mapFailureToMessage(failure), isError: true));
+            },
+            (success) {
+              messageBloc.add(const AddMessageEvent(
+                  message: 'Training created successfully.', isError: false));
+
+              add(FetchTrainingsEvent());
+            },
+          );
+        }
+        // Update
+        else {
+          final updatedResult =
+              await updateTraining(update.Params(trainingToCreateOrUpdate));
+
+          updatedResult.fold(
+            (failure) {
+              messageBloc.add(AddMessageEvent(
+                  message: _mapFailureToMessage(failure), isError: true));
+            },
+            (success) {
+              messageBloc.add(const AddMessageEvent(
+                  message: 'Training updated successfully.', isError: false));
+
+              add(FetchTrainingsEvent());
+            },
+          );
+        }
       }
     });
 
@@ -322,6 +243,7 @@ class TrainingManagementBloc
     on<AddOrUpdateTrainingExerciseEvent>((event, emit) {
       if (state is TrainingManagementLoaded) {
         final currentState = state as TrainingManagementLoaded;
+        print('selected training is ${currentState.selectedTraining}');
         final trainingExercises = List<TrainingExercise>.from(
             currentState.selectedTraining?.trainingExercises ?? []);
         final trainingMultisets =
@@ -366,9 +288,17 @@ class TrainingManagementBloc
           trainingExercises[index] = event.trainingExercise;
         }
 
-        final updatedTraining = currentState.selectedTraining?.copyWith(
-          trainingExercises: trainingExercises,
-        );
+        final updatedTraining = currentState.selectedTraining != null
+            ? currentState.selectedTraining!.copyWith(
+                trainingExercises: trainingExercises,
+              )
+            : Training(
+                name: 'Unnamed training',
+                type: TrainingType.workout,
+                isSelected: true,
+                trainingExercises: trainingExercises,
+                multisets: const [],
+              );
 
         emit(currentState.copyWith(selectedTraining: updatedTraining));
       }
@@ -468,9 +398,17 @@ class TrainingManagementBloc
           trainingMultisets[index] = event.multiset;
         }
 
-        final updatedTraining = currentState.selectedTraining?.copyWith(
-          multisets: trainingMultisets,
-        );
+        final updatedTraining = currentState.selectedTraining != null
+            ? currentState.selectedTraining!.copyWith(
+                multisets: trainingMultisets,
+              )
+            : Training(
+                name: 'Unnamed training',
+                type: TrainingType.workout,
+                isSelected: true,
+                trainingExercises: const [],
+                multisets: trainingMultisets,
+              );
 
         emit(currentState.copyWith(selectedTraining: updatedTraining));
       }

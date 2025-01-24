@@ -20,7 +20,7 @@ import '../../domain/entities/multiset.dart';
 import '../../domain/entities/training_exercise.dart';
 import '../bloc/training_management_bloc.dart';
 import '../widgets/big_text_field_widget.dart';
-import '../widgets/small_text_field_widget.dart';
+import '../../../../core/widgets/small_text_field_widget.dart';
 
 class TrainingDetailsPage extends StatefulWidget {
   const TrainingDetailsPage({super.key});
@@ -30,10 +30,29 @@ class TrainingDetailsPage extends StatefulWidget {
 }
 
 class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
-  late TrainingType _selectedTrainingType;
   late final Map<String, TextEditingController> _controllers;
   Timer? _debounceTimer;
-  List<WeekDay> _selectedDays = [];
+  bool _isDataInitialized = false;
+
+  final Training _defaultTraining = const Training(
+    name: 'Unnamed training',
+    type: TrainingType.workout,
+    isSelected: true,
+    trainingExercises: [],
+    multisets: [],
+    objectives: '',
+    trainingDays: [],
+  );
+
+  Training _trainingToCreateOrEdit = const Training(
+    name: '',
+    type: TrainingType.workout,
+    isSelected: true,
+    trainingExercises: [],
+    multisets: [],
+    objectives: '',
+    trainingDays: [],
+  );
 
   final TrainingExercise _defaultTExercise = const TrainingExercise(
     sets: 1,
@@ -82,7 +101,6 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
     super.initState();
     _initializeControllers();
     _attachListeners();
-    _initializeTrainingGeneralInfo();
   }
 
   @override
@@ -98,14 +116,14 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
     final training =
         (sl<TrainingManagementBloc>().state as TrainingManagementLoaded)
             .selectedTraining;
-    _selectedTrainingType = training?.type ?? TrainingType.workout;
-    _selectedDays = training?.trainingDays ?? [];
+
+    _trainingToCreateOrEdit = _trainingToCreateOrEdit.copyWith(
+        name: training?.name,
+        objectives: training?.objectives,
+        trainingDays: training?.trainingDays,
+        type: training?.type ?? TrainingType.workout);
     _controllers['trainingName']!.text = training?.name ?? '';
     _controllers['trainingObjectives']!.text = training?.objectives ?? '';
-  }
-
-  void initializeExercises() {
-    // TODO
   }
 
   void initializeExerciseControllers(String key) {
@@ -308,20 +326,12 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
   void _updateData(String key) {
     if (!mounted) return;
 
-    final bloc = context.read<TrainingManagementBloc>();
-
     if (key == 'trainingName') {
-      bloc.add(
-        UpdateSelectedTrainingProperty(
-          name: _controllers['trainingName']!.text.trim(),
-        ),
-      );
+      _trainingToCreateOrEdit = _trainingToCreateOrEdit.copyWith(
+          name: _controllers['trainingName']!.text.trim());
     } else if (key == 'trainingObjectives') {
-      bloc.add(
-        UpdateSelectedTrainingProperty(
-          name: _controllers['trainingObjectives']!.text.trim(),
-        ),
-      );
+      _trainingToCreateOrEdit = _trainingToCreateOrEdit.copyWith(
+          objectives: _controllers['trainingObjectives']!.text.trim());
     } else if (key.contains('multiset')) {
       _multisetToCreateOrEdit = _multisetToCreateOrEdit.copyWith(
         sets: key == 'multisetSets'
@@ -462,17 +472,26 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
     return BlocBuilder<TrainingManagementBloc, TrainingManagementState>(
       builder: (context, state) {
         if (state is TrainingManagementLoaded) {
-          final exercisesAndMultisetsList = [
-            ...state.selectedTraining!.trainingExercises
-                .map((e) => {'type': 'exercise', 'data': e}),
-            ...state.selectedTraining!.multisets
-                .map((m) => {'type': 'multiset', 'data': m}),
-          ];
-          exercisesAndMultisetsList.sort((a, b) {
-            final aPosition = (a['data'] as dynamic).position ?? 0;
-            final bPosition = (b['data'] as dynamic).position ?? 0;
-            return aPosition.compareTo(bPosition);
-          });
+          final training = state.selectedTraining;
+          List<Map<String, Object>> exercisesAndMultisetsList = [];
+
+          if (training != null) {
+            if (!_isDataInitialized) {
+              _initializeTrainingGeneralInfo();
+              _isDataInitialized = true;
+            }
+            exercisesAndMultisetsList = [
+              ...state.selectedTraining!.trainingExercises
+                  .map((e) => {'type': 'exercise', 'data': e}),
+              ...state.selectedTraining!.multisets
+                  .map((m) => {'type': 'multiset', 'data': m}),
+            ];
+            exercisesAndMultisetsList.sort((a, b) {
+              final aPosition = (a['data'] as dynamic).position ?? 0;
+              final bPosition = (b['data'] as dynamic).position ?? 0;
+              return aPosition.compareTo(bPosition);
+            });
+          }
 
           return Stack(
             children: [
@@ -515,22 +534,17 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
         child: GestureDetector(
           onTap: () {
             final bloc = context.read<TrainingManagementBloc>();
-            final trainingId =
-                (bloc.state as TrainingManagementLoaded).selectedTraining?.id;
-            if (trainingId != null) {
-              bloc.add(UpdateTrainingEvent());
-              GoRouter.of(context).push('/trainings');
-            } else {
-              bloc.add(SaveSelectedTrainingEvent());
-              GoRouter.of(context).push('/trainings');
-            }
+            bloc.add(AddOrUpdateTrainingEvent(_trainingToCreateOrEdit));
+            _trainingToCreateOrEdit = _defaultTraining;
+            GoRouter.of(context).push('/trainings');
           },
           child: Container(
             decoration: BoxDecoration(
                 color: AppColors.folly, borderRadius: BorderRadius.circular(5)),
             child: Center(
               child: Text(
-                state.selectedTraining!.id == null
+                state.selectedTraining == null ||
+                        state.selectedTraining!.id == null
                     ? tr('global_create')
                     : tr('global_save'),
                 style: const TextStyle(color: AppColors.white),
@@ -2057,7 +2071,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
           const SizedBox(height: 10),
           CustomDropdown<TrainingType>(
             items: TrainingType.values,
-            initialItem: _selectedTrainingType,
+            initialItem: _trainingToCreateOrEdit.type,
             decoration: CustomDropdownDecoration(
               listItemStyle: Theme.of(context)
                   .textTheme
@@ -2087,7 +2101,8 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
               return Text(item.translate(context.locale.languageCode));
             },
             onChanged: (value) {
-              _selectedTrainingType = value!;
+              _trainingToCreateOrEdit =
+                  _trainingToCreateOrEdit.copyWith(type: value!);
             },
           ),
           const SizedBox(height: 20),
@@ -2099,21 +2114,24 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: WeekDay.values.map((day) {
-              bool isSelected = _selectedDays.contains(day);
+              bool isSelected =
+                  _trainingToCreateOrEdit.trainingDays!.contains(day);
 
               return Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   GestureDetector(
                     onTap: () {
-                      List<WeekDay> newSelection = List.from(_selectedDays);
+                      List<WeekDay> newSelection =
+                          List.from(_trainingToCreateOrEdit.trainingDays!);
                       if (isSelected) {
                         newSelection.remove(day);
                       } else {
                         newSelection.add(day);
                       }
                       setState(() {
-                        _selectedDays = newSelection;
+                        _trainingToCreateOrEdit = _trainingToCreateOrEdit
+                            .copyWith(trainingDays: newSelection);
                       });
                     },
                     child: Column(
@@ -2167,7 +2185,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                 GoRouter.of(context).push('/trainings');
                 context
                     .read<TrainingManagementBloc>()
-                    .add(const ClearSelectedTrainingEvent());
+                    .add(ClearSelectedTrainingEvent());
               },
               child: const Icon(
                 Icons.arrow_back_ios,

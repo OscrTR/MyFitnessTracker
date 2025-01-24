@@ -32,12 +32,14 @@ class TrainingModel extends Training {
                   MultisetModel.fromJson(multisetJson as Map<String, dynamic>))
               .toList() ??
           [],
-      objectives: json['objectives'] as String,
+      objectives: json['objectives'] as String?,
       trainingDays: parseTrainingDays(json),
     );
   }
 
   Map<String, dynamic> toJson() {
+    print(
+        'training_days is ${json.encode(trainingDays?.map((e) => e.index).toList())}');
     return {
       'id': id,
       'name': name,
@@ -57,18 +59,21 @@ class TrainingModel extends Training {
       multisets: training.multisets,
       objectives: training.objectives,
       trainingExercises: training.trainingExercises,
+      trainingDays: training.trainingDays,
     );
   }
 
   factory TrainingModel.fromTraining(Training training) {
     return TrainingModel(
-        id: training.id,
-        name: training.name,
-        type: training.type,
-        isSelected: training.isSelected,
-        trainingExercises: training.trainingExercises,
-        objectives: training.objectives,
-        multisets: training.multisets);
+      id: training.id,
+      name: training.name,
+      type: training.type,
+      isSelected: training.isSelected,
+      trainingExercises: training.trainingExercises,
+      objectives: training.objectives,
+      multisets: training.multisets,
+      trainingDays: training.trainingDays,
+    );
   }
 }
 

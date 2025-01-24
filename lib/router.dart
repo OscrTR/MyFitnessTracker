@@ -23,7 +23,6 @@ final router = GoRouter(
     GoRoute(
       path: '/',
       builder: (BuildContext context, GoRouterState state) {
-        // TODO : remplacer par splash screen
         return const HomePage();
       },
     ),

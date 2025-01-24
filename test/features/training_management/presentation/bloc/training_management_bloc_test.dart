@@ -171,7 +171,7 @@ void main() {
     );
   });
 
-  group('SelectTrainingEvent', () {
+  group('GetTrainingEvent', () {
     const trainingId = 1;
     const training = Training(
       id: trainingId,
@@ -190,7 +190,7 @@ void main() {
         return bloc;
       },
       seed: () => const TrainingManagementLoaded(trainings: [training]),
-      act: (bloc) => bloc.add(const SelectTrainingEvent(id: trainingId)),
+      act: (bloc) => bloc.add(const GetTrainingEvent(id: trainingId)),
       expect: () => [
         const TrainingManagementLoaded(
           trainings: [training],
@@ -200,7 +200,7 @@ void main() {
     );
   });
 
-  group('UnselectTrainingEvent', () {
+  group('UnGetTrainingEvent', () {
     const trainingId = 1;
     const initialTraining = Training(
       id: trainingId,
@@ -239,7 +239,7 @@ void main() {
         trainings: [initialTraining],
         selectedTraining: null,
       ),
-      act: (bloc) => bloc.add(const UnselectTrainingEvent(trainingId)),
+      act: (bloc) => bloc.add(const UnGetTrainingEvent(trainingId)),
       expect: () => [
         TrainingManagementLoaded(
           trainings: [initialTraining.copyWith(isSelected: false)],

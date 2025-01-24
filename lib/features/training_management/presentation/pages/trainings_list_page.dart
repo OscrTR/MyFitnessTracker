@@ -303,11 +303,12 @@ class TrainingList extends StatelessWidget {
               onSelected: (value) {
                 final trainingManagementBloc =
                     BlocProvider.of<TrainingManagementBloc>(context);
-                final activeTrainingBloc = context.read<ActiveTrainingBloc>();
+                // final activeTrainingBloc = context.read<ActiveTrainingBloc>();
                 if (value == 'edit') {
-                  trainingManagementBloc
-                      .add(SelectTrainingEvent(id: training.id!));
-                  activeTrainingBloc.add(LoadDefaultActiveTraining());
+                  // activeTrainingBloc.add(LoadDefaultActiveTraining());
+                  context
+                      .read<TrainingManagementBloc>()
+                      .add(GetTrainingEvent(id: training.id!));
                   GoRouter.of(context).push('/training_detail');
                 }
                 if (value == 'delete') {

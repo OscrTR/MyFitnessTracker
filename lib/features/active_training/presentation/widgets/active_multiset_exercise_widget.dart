@@ -16,7 +16,7 @@ import '../../../../app_colors.dart';
 import '../../../exercise_management/domain/entities/exercise.dart';
 import '../../../exercise_management/presentation/bloc/exercise_management_bloc.dart';
 import '../../../training_management/domain/entities/training_exercise.dart';
-import '../../../training_management/presentation/widgets/small_text_field_widget.dart';
+import '../../../../core/widgets/small_text_field_widget.dart';
 
 class ActiveMultisetExerciseWidget extends StatefulWidget {
   final Multiset multiset;

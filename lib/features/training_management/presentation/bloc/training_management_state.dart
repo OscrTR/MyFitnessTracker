@@ -19,12 +19,7 @@ class TrainingManagementLoaded extends TrainingManagementState {
   const TrainingManagementLoaded({
     this.trainings = const [],
     this.activeTraining,
-    this.selectedTraining = const Training(
-        name: 'Unnamed training',
-        type: TrainingType.workout,
-        isSelected: true,
-        trainingExercises: [],
-        multisets: []),
+    this.selectedTraining,
   });
 
   TrainingManagementLoaded copyWith({
@@ -42,13 +37,7 @@ class TrainingManagementLoaded extends TrainingManagementState {
       trainings: trainings ?? this.trainings,
       activeTraining: activeTraining ?? this.activeTraining,
       selectedTraining: resetSelectedTraining
-          ? const Training(
-              name: 'Unnamed training',
-              type: TrainingType.workout,
-              isSelected: true,
-              trainingExercises: [],
-              multisets: [],
-            )
+          ? null
           : (selectedTraining ?? this.selectedTraining)?.copyWith(
               name: selectedTraining?.name ?? this.selectedTraining?.name,
               type: selectedTraining?.type ?? this.selectedTraining?.type,
