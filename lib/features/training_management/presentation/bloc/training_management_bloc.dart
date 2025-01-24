@@ -292,10 +292,10 @@ class TrainingManagementBloc
                 trainingExercises: trainingExercises,
               )
             : Training(
-                name: '',
-                type: TrainingType.workout,
+                name: event.training.name,
+                type: event.training.type,
                 trainingExercises: trainingExercises,
-                multisets: const [],
+                multisets: event.training.multisets,
               );
 
         emit(currentState.copyWith(selectedTraining: updatedTraining));
@@ -401,9 +401,9 @@ class TrainingManagementBloc
                 multisets: trainingMultisets,
               )
             : Training(
-                name: '',
-                type: TrainingType.workout,
-                trainingExercises: const [],
+                name: event.training.name,
+                type: event.training.type,
+                trainingExercises: event.training.trainingExercises,
                 multisets: trainingMultisets,
               );
 

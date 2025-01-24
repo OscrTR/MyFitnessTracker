@@ -151,11 +151,14 @@ class _TrainingsPageState extends State<TrainingsPage> {
                               _selectedTrainingTypes[training.type] ?? false)
                           : state.trainings;
 
-                      if (displayedTrainings.isEmpty) {
-                        return const Center(
-                          child: Padding(
-                            padding: EdgeInsets.all(16.0),
-                            child: Text('Aucun entraînement trouvé'),
+                      if (displayedTrainings.isEmpty && !_isExercisesSelected) {
+                        return SizedBox(
+                          height: MediaQuery.of(context).size.height - 250,
+                          child: Center(
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Text(tr('training_page_no_training')),
+                            ),
                           ),
                         );
                       }
@@ -178,11 +181,7 @@ class _TrainingsPageState extends State<TrainingsPage> {
                               child: Column(
                                 children: [
                                   Row(
-                                    children: [
-                                      Text(training.name != ''
-                                          ? training.name
-                                          : 'Unnamed')
-                                    ],
+                                    children: [Text(training.name)],
                                   ),
                                   const SizedBox(height: 10),
                                   GestureDetector(
@@ -256,6 +255,20 @@ class _TrainingsPageState extends State<TrainingsPage> {
                             ExerciseManagementState>(builder: (context, state) {
                           if (state is ExerciseManagementLoaded) {
                             final displayedExercises = state.exercises;
+
+                            if (displayedExercises.isEmpty) {
+                              return SizedBox(
+                                height:
+                                    MediaQuery.of(context).size.height - 250,
+                                child: Center(
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(16.0),
+                                    child:
+                                        Text(tr('training_page_no_exercise')),
+                                  ),
+                                ),
+                              );
+                            }
 
                             return ListView.builder(
                               shrinkWrap: true,

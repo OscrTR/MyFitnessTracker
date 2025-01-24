@@ -85,11 +85,13 @@ class UpdateSelectedTrainingProperty extends TrainingManagementEvent {
 //! Training exercises
 class AddOrUpdateTrainingExerciseEvent extends TrainingManagementEvent {
   final TrainingExercise trainingExercise;
+  final Training training;
 
-  const AddOrUpdateTrainingExerciseEvent(this.trainingExercise);
+  const AddOrUpdateTrainingExerciseEvent(
+      {required this.trainingExercise, required this.training});
 
   @override
-  List<Object> get props => [trainingExercise];
+  List<Object> get props => [trainingExercise, training];
 }
 
 class RemoveTrainingExerciseEvent extends TrainingManagementEvent {
@@ -104,11 +106,13 @@ class RemoveTrainingExerciseEvent extends TrainingManagementEvent {
 //! Multiset
 class AddOrUpdateMultisetEvent extends TrainingManagementEvent {
   final Multiset multiset;
+  final Training training;
 
-  const AddOrUpdateMultisetEvent(this.multiset);
+  const AddOrUpdateMultisetEvent(
+      {required this.multiset, required this.training});
 
   @override
-  List<Object> get props => [multiset];
+  List<Object> get props => [multiset, training];
 }
 
 class AddOrUpdateMultisetExerciseEvent extends TrainingManagementEvent {

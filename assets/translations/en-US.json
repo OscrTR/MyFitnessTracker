@@ -71,16 +71,14 @@
   "trainings_page_new": "New",
   "trainings_page_add_new": "Add new",
   "trainings_page_exercise": "Exercise",
-  "trainings_page_yoga": "Yoga training",
-  "trainings_page_run": "Run training",
-  "trainings_page_workout": "Workout training",
-
   "training_page_create_exercise": "An exercise",
   "training_page_create_training": "A training",
   "training_page_yoga": "Yoga",
   "training_page_workout": "Workout",
   "training_page_run": "Run",
   "training_page_see_details": "See details",
+  "training_page_no_training": "No training found.",
+  "training_page_no_exercise": "No exercise found.",
 
   "training_detail_page_title_create": "Create training",
   "training_detail_page_title_edit": "Edit training",

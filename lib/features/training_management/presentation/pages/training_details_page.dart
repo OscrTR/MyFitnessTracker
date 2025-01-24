@@ -120,6 +120,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
         objectives: training?.objectives,
         trainingDays: training?.trainingDays,
         type: training?.type ?? TrainingType.workout);
+
     _controllers['trainingName']!.text = training?.name ?? '';
     _controllers['trainingObjectives']!.text = training?.objectives ?? '';
   }
@@ -1227,8 +1228,9 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
               actions: [
                 GestureDetector(
                   onTap: () {
-                    sl<TrainingManagementBloc>()
-                        .add(AddOrUpdateMultisetEvent(_multisetToCreateOrEdit));
+                    sl<TrainingManagementBloc>().add(AddOrUpdateMultisetEvent(
+                        multiset: _multisetToCreateOrEdit,
+                        training: _trainingToCreateOrEdit));
                     _resetData();
                     Navigator.pop(context, 'Save');
                   },
@@ -1427,7 +1429,8 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                   } else {
                     sl<TrainingManagementBloc>().add(
                         AddOrUpdateTrainingExerciseEvent(
-                            _tExerciseToCreateOrEdit));
+                            trainingExercise: _tExerciseToCreateOrEdit,
+                            training: _trainingToCreateOrEdit));
                   }
 
                   _resetData();
