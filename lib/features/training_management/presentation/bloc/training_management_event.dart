@@ -48,6 +48,15 @@ class AddOrUpdateTrainingEvent extends TrainingManagementEvent {
   List<Object?> get props => [training];
 }
 
+class AddOrUpdateSelectedTrainingEvent extends TrainingManagementEvent {
+  final Training training;
+
+  const AddOrUpdateSelectedTrainingEvent(this.training);
+
+  @override
+  List<Object?> get props => [training];
+}
+
 class UpdateSelectedTrainingProperty extends TrainingManagementEvent {
   final int? id;
   final String? name;

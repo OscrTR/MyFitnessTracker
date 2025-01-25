@@ -239,6 +239,38 @@ class TrainingManagementBloc
       }
     });
 
+    on<AddOrUpdateSelectedTrainingEvent>((event, emit) async {
+      if (state is TrainingManagementLoaded) {
+        final currentState = state as TrainingManagementLoaded;
+        Training trainingToCreateOrUpdate;
+
+        // Add
+        if (currentState.selectedTraining == null) {
+          trainingToCreateOrUpdate = const Training(
+            name: 'Unnamed training',
+            type: TrainingType.workout,
+            objectives: '',
+            trainingDays: [],
+            trainingExercises: [],
+            multisets: [],
+          );
+        }
+        // Update
+        else {
+          trainingToCreateOrUpdate = currentState.selectedTraining!;
+        }
+
+        trainingToCreateOrUpdate = trainingToCreateOrUpdate.copyWith(
+          name: event.training.name.trim(),
+          type: event.training.type,
+          objectives: event.training.objectives,
+          trainingDays: event.training.trainingDays,
+        );
+
+        emit(currentState.copyWith(selectedTraining: trainingToCreateOrUpdate));
+      }
+    });
+
     //! Training exercise
     on<AddOrUpdateTrainingExerciseEvent>((event, emit) {
       if (state is TrainingManagementLoaded) {

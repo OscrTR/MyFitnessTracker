@@ -331,10 +331,14 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
       _trainingToCreateOrEdit = _trainingToCreateOrEdit.copyWith(
         name: _controllers['trainingName']!.text.trim(),
       );
+      sl<TrainingManagementBloc>()
+          .add(AddOrUpdateSelectedTrainingEvent(_trainingToCreateOrEdit));
     } else if (key == 'trainingObjectives') {
       _trainingToCreateOrEdit = _trainingToCreateOrEdit.copyWith(
         objectives: _controllers['trainingObjectives']!.text.trim(),
       );
+      sl<TrainingManagementBloc>()
+          .add(AddOrUpdateSelectedTrainingEvent(_trainingToCreateOrEdit));
     } else if (key.contains('multiset')) {
       // Pour multiset, on ne met à jour que le champ concerné
       final currentSets = _multisetToCreateOrEdit.sets;
@@ -1301,7 +1305,6 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
       builder: (dialogContext) => StatefulBuilder(
         builder: (context, setDialogState) => Builder(builder: (context) {
           final bool isEdit = _tExerciseToCreateOrEdit.key != null;
-          print(_tExerciseToCreateOrEdit);
           return AlertDialog(
             insetPadding: const EdgeInsets.symmetric(horizontal: 20),
             shape: RoundedRectangleBorder(
@@ -2140,6 +2143,8 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
             onChanged: (value) {
               _trainingToCreateOrEdit =
                   _trainingToCreateOrEdit.copyWith(type: value!);
+              sl<TrainingManagementBloc>().add(
+                  AddOrUpdateSelectedTrainingEvent(_trainingToCreateOrEdit));
             },
           ),
           const SizedBox(height: 20),
@@ -2169,6 +2174,9 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                       setState(() {
                         _trainingToCreateOrEdit = _trainingToCreateOrEdit
                             .copyWith(trainingDays: newSelection);
+                        sl<TrainingManagementBloc>().add(
+                            AddOrUpdateSelectedTrainingEvent(
+                                _trainingToCreateOrEdit));
                       });
                     },
                     child: Column(
