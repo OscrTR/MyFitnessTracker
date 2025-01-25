@@ -58,4 +58,13 @@ class TrainingRepositoryImpl implements TrainingRepository {
       return const Left(DatabaseFailure());
     }
   }
+
+  @override
+  Future<Either<Failure, int?>> getDaysSinceTraining(int id) async {
+    try {
+      return Right(await localDataSource.getDaysSinceTraining(id));
+    } on LocalDatabaseException {
+      return const Left(DatabaseFailure());
+    }
+  }
 }

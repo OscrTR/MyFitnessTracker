@@ -15,11 +15,13 @@ class TrainingManagementLoaded extends TrainingManagementState {
   final List<Training> trainings;
   final Training? selectedTraining;
   final Training? activeTraining;
+  final Map<int, int?> daysSinceLastTraining;
 
   const TrainingManagementLoaded({
     this.trainings = const [],
     this.activeTraining,
     this.selectedTraining,
+    this.daysSinceLastTraining = const {},
   });
 
   TrainingManagementLoaded copyWith({
@@ -31,10 +33,13 @@ class TrainingManagementLoaded extends TrainingManagementState {
     TrainingType? type,
     List<TrainingExercise>? trainingExercises,
     List<Multiset>? multisets,
+    Map<int, int?>? daysSinceLastTraining,
     bool resetSelectedTraining = false,
   }) {
     return TrainingManagementLoaded(
       trainings: trainings ?? this.trainings,
+      daysSinceLastTraining:
+          daysSinceLastTraining ?? this.daysSinceLastTraining,
       activeTraining: activeTraining ?? this.activeTraining,
       selectedTraining: resetSelectedTraining
           ? null
@@ -71,6 +76,7 @@ class TrainingManagementLoaded extends TrainingManagementState {
         trainings,
         selectedTraining,
         activeTraining,
+        daysSinceLastTraining,
       ];
 }
 

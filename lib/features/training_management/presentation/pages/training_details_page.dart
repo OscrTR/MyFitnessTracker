@@ -8,8 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:my_fitness_tracker/features/exercise_management/presentation/bloc/exercise_management_bloc.dart';
-import 'package:my_fitness_tracker/features/training_management/domain/entities/training.dart';
+import '../../../exercise_management/presentation/bloc/exercise_management_bloc.dart';
+import '../../domain/entities/training.dart';
 
 import '../../../../app_colors.dart';
 import '../../../../helper_functions.dart';

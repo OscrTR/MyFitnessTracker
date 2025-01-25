@@ -3,17 +3,17 @@ import 'package:equatable/equatable.dart';
 
 import '../../../../core/error/failures.dart';
 import '../../../../core/usecases/usecase.dart';
-import '../repositories/history_repository.dart';
+import '../repositories/training_repository.dart';
 
-class DeleteHistoryEntry extends Usecase<void, Params> {
-  final HistoryRepository repository;
+class GetDaysSinceTraining extends Usecase<int?, Params> {
+  final TrainingRepository repository;
 
-  DeleteHistoryEntry(this.repository);
+  GetDaysSinceTraining(this.repository);
 
   @override
-  Future<Either<Failure, void>> call(Params params) async {
+  Future<Either<Failure, int?>> call(Params params) async {
     try {
-      return await repository.deleteHistoryEntry(params.id);
+      return await repository.getDaysSinceTraining(params.id);
     } catch (e) {
       return const Left(DatabaseFailure());
     }

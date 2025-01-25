@@ -19,6 +19,8 @@ class StartTrainingEvent extends TrainingManagementEvent {
 //! Trainings
 class FetchTrainingsEvent extends TrainingManagementEvent {}
 
+class LoadDaysSinceTrainingEvent extends TrainingManagementEvent {}
+
 class DeleteTrainingEvent extends TrainingManagementEvent {
   final int id;
 

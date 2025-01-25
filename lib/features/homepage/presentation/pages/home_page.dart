@@ -4,10 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import '../../../active_training/presentation/bloc/active_training_bloc.dart';
 
 import '../../../../app_colors.dart';
 import '../../../../core/widgets/dash_border_painter_widget.dart';
+import '../../../active_training/presentation/bloc/active_training_bloc.dart';
 import '../../../training_management/domain/entities/training.dart';
 import '../../../training_management/presentation/bloc/training_management_bloc.dart';
 

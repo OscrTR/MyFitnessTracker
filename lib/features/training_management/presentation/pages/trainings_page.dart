@@ -5,9 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:my_fitness_tracker/features/training_management/domain/entities/training_exercise.dart';
+import '../../domain/entities/training_exercise.dart';
 import '../../../../app_colors.dart';
 import '../../../../helper_functions.dart';
+import '../../../../injection_container.dart';
 import '../../../exercise_management/presentation/bloc/exercise_management_bloc.dart';
 import '../bloc/training_management_bloc.dart';
 import '../../domain/entities/training.dart';
@@ -219,6 +220,10 @@ class _TrainingsPageState extends State<TrainingsPage> {
           return aPosition.compareTo(bPosition);
         });
 
+        final daysSinceTraining =
+            (sl<TrainingManagementBloc>().state as TrainingManagementLoaded)
+                .daysSinceLastTraining[training.id];
+
         return Container(
           margin: const EdgeInsets.only(top: 20),
           padding: const EdgeInsets.all(10),
@@ -247,7 +252,8 @@ class _TrainingsPageState extends State<TrainingsPage> {
                   size: 16,
                 ),
                 const SizedBox(width: 5),
-                Text('${exercisesAndMultisetsList.length} exercices')
+                Text(tr('training_page_exercises_count',
+                    args: ['${exercisesAndMultisetsList.length}']))
               ]),
               Row(children: [
                 const Icon(
@@ -256,7 +262,11 @@ class _TrainingsPageState extends State<TrainingsPage> {
                   size: 16,
                 ),
                 const SizedBox(width: 5),
-                Text('${0} days ago')
+                if (daysSinceTraining != null)
+                  Text(tr('training_page_days_since_training',
+                      args: ['$daysSinceTraining']))
+                else
+                  Text(tr('global_never'))
               ]),
               const SizedBox(height: 10),
               GestureDetector(

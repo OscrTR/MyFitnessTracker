@@ -17,6 +17,11 @@ abstract class TrainingLocalDataSource {
   Future<void> updateTraining(Training training);
 
   Future<void> deleteTraining(int id);
+
+  /// Query the local database and check how many days have passed since the last training for a specific id.
+  ///
+  /// Throws a [LocalDatabaseException] for all error codes.
+  Future<int?> getDaysSinceTraining(int id);
 }
 
 class SQLiteTrainingLocalDataSource implements TrainingLocalDataSource {
@@ -429,5 +434,18 @@ class SQLiteTrainingLocalDataSource implements TrainingLocalDataSource {
       where: '$column = ? AND id NOT IN (${validIds.join(',')})',
       whereArgs: [parentId],
     );
+  }
+
+  @override
+  Future<int?> getDaysSinceTraining(int id) async {
+    final result = await database.rawQuery('''
+      SELECT CAST((julianday('now') - julianday(datetime(date/1000, 'unixepoch'))) AS INTEGER) AS days
+      FROM history 
+      WHERE training_id = ?
+      ORDER BY date DESC
+      LIMIT 1
+    ''', [id]);
+
+    return result.isNotEmpty ? result.first['days'] as int : null;
   }
 }

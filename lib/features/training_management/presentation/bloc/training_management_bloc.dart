@@ -11,6 +11,7 @@ import '../../domain/entities/training_exercise.dart';
 import '../../domain/usecases/create_training.dart' as create;
 import '../../domain/usecases/delete_training.dart' as delete;
 import '../../domain/usecases/fetch_trainings.dart' as fetch;
+import '../../domain/usecases/get_days_since_training.dart' as get_d;
 import '../../domain/usecases/get_training.dart' as get_tr;
 import '../../domain/usecases/update_training.dart' as update;
 
@@ -28,6 +29,7 @@ class TrainingManagementBloc
   final get_tr.GetTraining getTraining;
   final update.UpdateTraining updateTraining;
   final delete.DeleteTraining deleteTraining;
+  final get_d.GetDaysSinceTraining getDaysSinceTraining;
   final MessageBloc messageBloc;
 
   TrainingManagementBloc({
@@ -36,6 +38,7 @@ class TrainingManagementBloc
     required this.getTraining,
     required this.updateTraining,
     required this.deleteTraining,
+    required this.getDaysSinceTraining,
     required this.messageBloc,
   }) : super(TrainingManagementInitial()) {
     //! Trainings
@@ -48,6 +51,25 @@ class TrainingManagementBloc
           emit(TrainingManagementLoaded(trainings: trainings));
         },
       );
+      add(LoadDaysSinceTrainingEvent());
+    });
+
+    on<LoadDaysSinceTrainingEvent>((event, emit) async {
+      if (state is TrainingManagementLoaded) {
+        final currentState = state as TrainingManagementLoaded;
+        final days = <int, int?>{};
+        for (Training training in currentState.trainings) {
+          final result = await getDaysSinceTraining(get_d.Params(training.id!));
+          result.fold(
+            (failure) => messageBloc.add(AddMessageEvent(
+                message: _mapFailureToMessage(failure), isError: true)),
+            (res) {
+              days[training.id!] = res;
+            },
+          );
+        }
+        emit(currentState.copyWith(daysSinceLastTraining: days));
+      }
     });
 
     on<DeleteTrainingEvent>((event, emit) async {

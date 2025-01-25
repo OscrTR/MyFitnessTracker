@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import '../bloc/training_history_bloc.dart';
 
 class HistoryPage extends StatelessWidget {

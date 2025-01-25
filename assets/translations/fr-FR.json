@@ -19,6 +19,7 @@
   "global_no": "Non",
   "global_select": "Sélectionner",
   "global_everyday": "Quotidien",
+  "global_never": "Jamais",
 
   "nav_home": "Accueil",
   "nav_trainings": "Entraînements",
@@ -80,6 +81,8 @@
   "training_page_see_details": "Voir les détails",
   "training_page_no_training": "Aucun entraînement trouvé.",
   "training_page_no_exercise": "Aucun exercice trouvé.",
+  "training_page_days_since_training": "Il y a {} jour(s)",
+  "training_page_exercises_count": "{} exercice(s)",
 
   "training_detail_page_title_create": "Créer un entraînement",
   "training_detail_page_title_edit": "Modifier un entraînement",

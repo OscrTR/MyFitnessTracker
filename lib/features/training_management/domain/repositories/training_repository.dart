@@ -13,4 +13,6 @@ abstract class TrainingRepository {
   Future<Either<Failure, void>> updateTraining(Training training);
 
   Future<Either<Failure, void>> deleteTraining(int id);
+
+  Future<Either<Failure, int?>> getDaysSinceTraining(int id);
 }

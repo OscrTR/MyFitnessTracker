@@ -19,6 +19,7 @@
   "global_no": "No",
   "global_select": "Select",
   "global_everyday": "Everyday",
+  "global_never": "Never",
 
   "nav_home": "Home",
   "nav_trainings": "Trainings",
@@ -80,6 +81,8 @@
   "training_page_see_details": "See details",
   "training_page_no_training": "No training found.",
   "training_page_no_exercise": "No exercise found.",
+  "training_page_days_since_training": "{} day(s) ago",
+  "training_page_exercises_count": "{} exercise(s)",
 
   "training_detail_page_title_create": "Create training",
   "training_detail_page_title_edit": "Edit training",

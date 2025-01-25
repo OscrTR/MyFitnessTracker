@@ -1,6 +1,7 @@
 import 'package:get_it/get_it.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:my_fitness_tracker/features/settings/presentation/bloc/settings_bloc.dart';
+import 'features/settings/presentation/bloc/settings_bloc.dart';
+import 'features/training_management/domain/usecases/get_days_since_training.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -91,6 +92,7 @@ Future<void> init() async {
         getTraining: sl(),
         updateTraining: sl(),
         deleteTraining: sl(),
+        getDaysSinceTraining: sl(),
         messageBloc: sl(),
       ));
 
@@ -100,6 +102,7 @@ Future<void> init() async {
   sl.registerLazySingleton(() => GetTraining(sl()));
   sl.registerLazySingleton(() => UpdateTraining(sl()));
   sl.registerLazySingleton(() => DeleteTraining(sl()));
+  sl.registerLazySingleton(() => GetDaysSinceTraining(sl()));
 
   // Repository
   sl.registerLazySingleton<TrainingRepository>(

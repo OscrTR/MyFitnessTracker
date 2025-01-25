@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_advanced_switch/flutter_advanced_switch.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:my_fitness_tracker/features/settings/presentation/bloc/settings_bloc.dart';
+import '../bloc/settings_bloc.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../../../app_colors.dart';

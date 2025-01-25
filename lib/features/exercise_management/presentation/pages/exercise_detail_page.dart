@@ -10,10 +10,10 @@ import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 
 import '../../../../app_colors.dart';
+import '../../../../core/widgets/custom_text_field_widget.dart';
 import '../../../../injection_container.dart';
 import '../../domain/entities/exercise.dart';
 import '../bloc/exercise_management_bloc.dart';
-import '../../../../core/widgets/custom_text_field_widget.dart';
 import '../widgets/exercise_detail_image_picker_widget.dart';
 
 class ExerciseDetailPage extends StatefulWidget {
