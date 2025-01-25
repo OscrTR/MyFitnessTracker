@@ -189,14 +189,14 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
       _controllers['distance']?.text = (exercise.targetDistance != null
           ? (exercise.targetDistance! ~/ 1000).toString()
           : '');
-      _controllers['durationHours']?.text = (exercise.targetDuration != null
-          ? (exercise.targetDuration! ~/ 3600).toString()
+      _controllers['durationHours']?.text = (exercise.duration != null
+          ? (exercise.duration! ~/ 3600).toString()
           : '');
-      _controllers['durationMinutes']?.text = (exercise.targetDuration != null
-          ? (exercise.targetDuration! % 3600 ~/ 60).toString()
+      _controllers['durationMinutes']?.text = (exercise.duration != null
+          ? (exercise.duration! % 3600 ~/ 60).toString()
           : '');
-      _controllers['durationSeconds']?.text = (exercise.targetDuration != null
-          ? (exercise.targetDuration! % 60).toString()
+      _controllers['durationSeconds']?.text = (exercise.duration != null
+          ? (exercise.duration! % 60).toString()
           : '');
       _controllers['intervals']?.text = exercise.intervals?.toString() ?? '';
       _controllers['paceMinutes']?.text = (exercise.targetPace != null
@@ -284,7 +284,9 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
       'exercise': TextEditingController(),
       'sets': TextEditingController(),
       'distance': TextEditingController(),
-      'durationHours': TextEditingController(),
+      'targetDurationHours': TextEditingController(),
+      'targetDurationMinutes': TextEditingController(),
+      'targetDurationSeconds': TextEditingController(),
       'durationMinutes': TextEditingController(),
       'durationSeconds': TextEditingController(),
       'minReps': TextEditingController(),
@@ -327,15 +329,24 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
 
     if (key == 'trainingName') {
       _trainingToCreateOrEdit = _trainingToCreateOrEdit.copyWith(
-          name: _controllers['trainingName']!.text.trim());
+        name: _controllers['trainingName']!.text.trim(),
+      );
     } else if (key == 'trainingObjectives') {
       _trainingToCreateOrEdit = _trainingToCreateOrEdit.copyWith(
-          objectives: _controllers['trainingObjectives']!.text.trim());
+        objectives: _controllers['trainingObjectives']!.text.trim(),
+      );
     } else if (key.contains('multiset')) {
+      // Pour multiset, on ne met à jour que le champ concerné
+      final currentSets = _multisetToCreateOrEdit.sets;
+      final currentSetRest = _multisetToCreateOrEdit.setRest;
+      final currentMultisetRest = _multisetToCreateOrEdit.multisetRest;
+      final currentInstructions = _multisetToCreateOrEdit.specialInstructions;
+      final currentObjectives = _multisetToCreateOrEdit.objectives;
+
       _multisetToCreateOrEdit = _multisetToCreateOrEdit.copyWith(
         sets: key == 'multisetSets'
             ? int.tryParse(_controllers['multisetSets']?.text ?? '1')
-            : 1,
+            : currentSets,
         setRest: key == 'multisetSetRestMinutes' ||
                 key == 'multisetSetRestSeconds'
             ? ((int.tryParse(_controllers['multisetSetRestMinutes']?.text ??
@@ -345,7 +356,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                 ((int.tryParse(
                         _controllers['multisetSetRestSeconds']?.text ?? '0') ??
                     0))
-            : 0,
+            : currentSetRest,
         multisetRest: key == 'multisetRestMinutes' ||
                 key == 'multisetRestSeconds'
             ? ((int.tryParse(
@@ -355,38 +366,58 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                 ((int.tryParse(
                         _controllers['multisetRestSeconds']?.text ?? '0') ??
                     0))
-            : 0,
+            : currentMultisetRest,
         specialInstructions: key == 'multisetInstructions'
             ? _controllers['multisetInstructions']?.text ?? ''
-            : null,
+            : currentInstructions,
         objectives: key == 'multisetObjectives'
             ? _controllers['multisetObjectives']?.text ?? ''
-            : null,
+            : currentObjectives,
       );
     } else {
+      // Pour exercise, on garde les valeurs existantes sauf pour le champ modifié
+      final currentValues = {
+        'sets': _tExerciseToCreateOrEdit.sets,
+        'minReps': _tExerciseToCreateOrEdit.minReps,
+        'maxReps': _tExerciseToCreateOrEdit.maxReps,
+        'duration': _tExerciseToCreateOrEdit.duration,
+        'setRest': _tExerciseToCreateOrEdit.setRest,
+        'exerciseRest': _tExerciseToCreateOrEdit.exerciseRest,
+        'specialInstructions': _tExerciseToCreateOrEdit.specialInstructions,
+        'objectives': _tExerciseToCreateOrEdit.objectives,
+        'distance': _tExerciseToCreateOrEdit.targetDistance,
+        'targetDuration': _tExerciseToCreateOrEdit.targetDuration,
+        'intervals': _tExerciseToCreateOrEdit.intervals,
+        'targetPace': _tExerciseToCreateOrEdit.targetPace,
+        'intervalDistance': _tExerciseToCreateOrEdit.intervalDistance,
+        'intervalDuration': _tExerciseToCreateOrEdit.intervalDuration,
+        'intervalRest': _tExerciseToCreateOrEdit.intervalRest,
+      };
+
       _tExerciseToCreateOrEdit = _tExerciseToCreateOrEdit.copyWith(
-        sets:
-            key == 'sets' ? int.tryParse(_controllers['sets']?.text ?? '1') : 1,
+        sets: key == 'sets'
+            ? int.tryParse(_controllers['sets']?.text ?? '1')
+            : currentValues['sets'] as int?,
         minReps: key == 'minReps'
             ? int.tryParse(_controllers['minReps']?.text ?? '')
-            : null,
+            : currentValues['minReps'] as int?,
         maxReps: key == 'maxReps'
             ? int.tryParse(_controllers['maxReps']?.text ?? '')
-            : null,
+            : currentValues['maxReps'] as int?,
         duration: key == 'durationMinutes' || key == 'durationSeconds'
             ? ((int.tryParse(_controllers['durationMinutes']?.text ?? '0') ??
                         0) *
                     60) +
                 ((int.tryParse(_controllers['durationSeconds']?.text ?? '0') ??
                     0))
-            : 0,
+            : currentValues['duration'] as int?,
         setRest: key == 'setRestMinutes' || key == 'setRestSeconds'
             ? ((int.tryParse(_controllers['setRestMinutes']?.text ?? '0') ??
                         0) *
                     60) +
                 ((int.tryParse(_controllers['setRestSeconds']?.text ?? '0') ??
                     0))
-            : 0,
+            : currentValues['setRest'] as int?,
         exerciseRest: key == 'exerciseRestMinutes' ||
                 key == 'exerciseRestSeconds'
             ? ((int.tryParse(
@@ -396,52 +427,56 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                 ((int.tryParse(
                         _controllers['exerciseRestSeconds']?.text ?? '0') ??
                     0))
-            : 0,
+            : currentValues['exerciseRest'] as int?,
         specialInstructions: key == 'specialInstructions'
             ? _controllers['specialInstructions']?.text ?? ''
-            : null,
-        objectives:
-            key == 'objectives' ? _controllers['objectives']?.text ?? '' : null,
+            : currentValues['specialInstructions'] as String?,
+        objectives: key == 'objectives'
+            ? _controllers['objectives']?.text ?? ''
+            : currentValues['objectives'] as String?,
         targetDistance: key == 'distance'
             ? ((double.tryParse((_controllers['distance']?.text ?? '')
                             .replaceAll(',', '.')) ??
                         0) *
                     1000)
                 .toInt()
-            : null,
-        targetDuration: key == 'durationHours' ||
-                key == 'durationMinutes' ||
-                key == 'durationSeconds'
-            ? ((int.tryParse(_controllers['durationHours']?.text ?? '') ?? 0) *
+            : currentValues['distance'] as int?,
+        targetDuration: key == 'targetDurationHours' ||
+                key == 'targetDurationMinutes' ||
+                key == 'targetDurationSeconds'
+            ? ((int.tryParse(_controllers['targetDurationHours']?.text ?? '') ??
+                        0) *
                     3600) +
-                ((int.tryParse(_controllers['durationMinutes']?.text ?? '') ??
+                ((int.tryParse(_controllers['targetDurationMinutes']?.text ??
+                            '') ??
                         0) *
                     60) +
-                ((int.tryParse(_controllers['durationSeconds']?.text ?? '') ??
+                ((int.tryParse(
+                        _controllers['targetDurationSeconds']?.text ?? '') ??
                     0))
-            : null,
+            : currentValues['targetDuration'] as int?,
         intervals: key == 'intervals'
             ? int.tryParse(_controllers['intervals']?.text ?? '1')
-            : 1,
+            : currentValues['intervals'] as int?,
         targetPace: key == 'paceMinutes' || key == 'paceSeconds'
             ? ((int.tryParse(_controllers['paceMinutes']?.text ?? '') ?? 0) *
                     60) +
                 ((int.tryParse(_controllers['paceSeconds']?.text ?? '') ?? 0))
-            : null,
+            : currentValues['targetPace'] as int?,
         intervalDistance: key == 'intervalDistance'
             ? ((double.tryParse((_controllers['intervalDistance']?.text ?? '')
                             .replaceAll(',', '.')) ??
                         0) *
                     1000)
                 .toInt()
-            : null,
+            : currentValues['intervalDistance'] as int?,
         intervalDuration: key == 'intervalMinutes' || key == 'intervalSeconds'
             ? ((int.tryParse(_controllers['intervalMinutes']?.text ?? '0') ??
                         0) *
                     60) +
                 ((int.tryParse(_controllers['intervalSeconds']?.text ?? '0') ??
                     0))
-            : 0,
+            : currentValues['intervalDuration'] as int?,
         intervalRest: key == 'intervalRestMinutes' ||
                 key == 'intervalRestSeconds'
             ? ((int.tryParse(
@@ -451,7 +486,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                 ((int.tryParse(
                         _controllers['intervalRestSeconds']?.text ?? '0') ??
                     0))
-            : 0,
+            : currentValues['intervalRest'] as int?,
       );
     }
   }
@@ -1266,6 +1301,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
       builder: (dialogContext) => StatefulBuilder(
         builder: (context, setDialogState) => Builder(builder: (context) {
           final bool isEdit = _tExerciseToCreateOrEdit.key != null;
+          print(_tExerciseToCreateOrEdit);
           return AlertDialog(
             insetPadding: const EdgeInsets.symmetric(horizontal: 20),
             shape: RoundedRectangleBorder(
@@ -1485,9 +1521,9 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                   _tExerciseToCreateOrEdit.copyWith(runExerciseTarget: value);
             });
           },
-          controller1: _controllers['durationHours'],
-          controller2: _controllers['durationMinutes'],
-          controller3: _controllers['durationSeconds'],
+          controller1: _controllers['targetDurationHours'],
+          controller2: _controllers['targetDurationMinutes'],
+          controller3: _controllers['targetDurationSeconds'],
         ),
         _buildTargetChoiceOption(
           choice: tr('exercise_intervals'),
