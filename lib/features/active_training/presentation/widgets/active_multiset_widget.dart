@@ -1,4 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../app_colors.dart';
@@ -26,71 +27,81 @@ class ActiveMultisetWidget extends StatefulWidget {
 class _ActiveMultisetWidgetState extends State<ActiveMultisetWidget> {
   @override
   Widget build(BuildContext context) {
-    final hasSpecialInstructions =
-        widget.multiset.specialInstructions != null &&
-            widget.multiset.specialInstructions!.isNotEmpty;
-    final hasObjectives = widget.multiset.objectives != null &&
-        widget.multiset.objectives!.isNotEmpty;
-
     return Column(
       children: [
         Container(
-          margin: const EdgeInsets.only(top: 10, bottom: 10),
+          margin: const EdgeInsets.only(top: 20),
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
             color: AppColors.white,
-            border: Border.all(color: AppColors.frenchGray),
+            border: Border.all(color: AppColors.timberwolf),
             borderRadius: BorderRadius.circular(15),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(tr('global_multiset')),
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons.snooze,
-                        size: 20,
-                      ),
-                      const SizedBox(width: 5),
-                      Text(
-                        widget.multiset.setRest != null
-                            ? formatDurationToMinutesSeconds(
-                                widget.multiset.setRest)
-                            : '0:00',
-                      ),
-                    ],
-                  ),
-                ],
+              ExpandablePanel(
+                header: _buildExpandableDurationHeader(context),
+                collapsed: const SizedBox(),
+                expanded: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      tr('global_objectives'),
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    Text('${widget.multiset.objectives}'),
+                  ],
+                ),
+                theme: const ExpandableThemeData(
+                  hasIcon: false,
+                  tapHeaderToExpand: true,
+                ),
               ),
-              const SizedBox(height: 10),
-              if (hasSpecialInstructions)
-                _buildOptionalInfo(
-                  title: 'global_special_instructions',
-                  content: widget.multiset.specialInstructions,
-                  context: context,
-                ),
-              if (hasObjectives)
-                _buildOptionalInfo(
-                  title: 'global_objectives',
-                  content: widget.multiset.objectives,
-                  context: context,
-                ),
-              if (hasSpecialInstructions || hasObjectives) ...[
-                const Divider(),
-                const SizedBox(height: 10),
-              ],
               if (widget.multiset.trainingExercises != null)
                 _buildWidgetExercisesList(widget.multiset.trainingExercises!),
             ],
           ),
         ),
-        _buildExerciseRest()
+        if (!widget.isLast && widget.multiset.multisetRest != null)
+          _buildExerciseRest()
       ],
     );
+  }
+
+  Widget _buildExpandableDurationHeader(BuildContext context) {
+    return Builder(builder: (context) {
+      final multisetController = ExpandableController.of(context);
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  tr('global_multiset'),
+                  style: Theme.of(context).textTheme.titleMedium,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              Icon(
+                multisetController?.expanded == true
+                    ? Icons.keyboard_arrow_up
+                    : Icons.keyboard_arrow_down,
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Text('${widget.multiset.sets} sets'),
+          Text(
+              '${widget.multiset.setRest != null ? formatDurationToMinutesSeconds(widget.multiset.setRest) : '0:00'} set rest'),
+          if (widget.multiset.specialInstructions != null)
+            Text('${widget.multiset.specialInstructions}'),
+        ],
+      );
+    });
   }
 
   Widget _buildWidgetExercisesList(List<TrainingExercise> items) {
@@ -123,47 +134,26 @@ class _ActiveMultisetWidgetState extends State<ActiveMultisetWidget> {
     );
   }
 
-  Row _buildExerciseRest() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        if (!widget.isLast)
-          const Icon(
-            Icons.snooze,
-            size: 20,
-          ),
-        if (!widget.isLast) const SizedBox(width: 5),
-        if (!widget.isLast)
-          Text(
-            widget.multiset.multisetRest != null
-                ? formatDurationToMinutesSeconds(widget.multiset.multisetRest)
-                : '0:00',
-          ),
-      ],
+  Widget _buildExerciseRest() {
+    return Container(
+      margin: const EdgeInsets.only(top: 20),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          if (!widget.isLast)
+            const Icon(
+              Icons.snooze,
+              size: 20,
+            ),
+          if (!widget.isLast) const SizedBox(width: 5),
+          if (!widget.isLast)
+            Text(
+              widget.multiset.multisetRest != null
+                  ? formatDurationToMinutesSeconds(widget.multiset.multisetRest)
+                  : '0:00',
+            ),
+        ],
+      ),
     );
   }
-}
-
-Widget _buildOptionalInfo({
-  required String title,
-  required String? content,
-  required BuildContext context,
-}) {
-  if (content == null || content.isEmpty) return const SizedBox.shrink();
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Text(
-        tr(title),
-        style: const TextStyle(color: AppColors.frenchGray),
-      ),
-      Text(
-        content,
-        style: Theme.of(context).textTheme.bodySmall!.copyWith(
-              color: AppColors.frenchGray,
-            ),
-      ),
-      const SizedBox(height: 10),
-    ],
-  );
 }

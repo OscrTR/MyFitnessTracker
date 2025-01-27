@@ -125,7 +125,8 @@ class _ActiveExerciseWidgetState extends State<ActiveExerciseWidget> {
                   highlightColor: Colors.transparent,
                 ),
                 child: ExpandablePanel(
-                  header: _buildExpandable(exercise, context, isSetsInReps),
+                  header:
+                      _buildExpandableHeader(exercise, context, isSetsInReps),
                   collapsed: const SizedBox(),
                   expanded: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -244,7 +245,7 @@ class _ActiveExerciseWidgetState extends State<ActiveExerciseWidget> {
     });
   }
 
-  Widget _buildExpandable(
+  Widget _buildExpandableHeader(
       Exercise exercise, BuildContext context, bool isSetsInReps) {
     return Builder(builder: (context) {
       final controller = ExpandableController.of(context);
@@ -313,7 +314,7 @@ class _ActiveExerciseWidgetState extends State<ActiveExerciseWidget> {
 
   Widget _buildExerciseRest() {
     return Container(
-      margin: const EdgeInsets.only(top: 20, bottom: 20),
+      margin: const EdgeInsets.only(top: 20),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [

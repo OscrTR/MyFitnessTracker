@@ -61,7 +61,10 @@ class _ActiveMultisetExerciseWidgetState
   void _initializeControllers() {
     final sets = widget.multiset.sets ?? 0;
     _controllers = {
-      for (int i = 1; i <= sets; i++) 'set$i': TextEditingController(),
+      for (int i = 1; i <= sets; i++) ...{
+        'weightSet$i': TextEditingController(),
+        'repsSet$i': TextEditingController(),
+      },
     };
   }
 
@@ -81,15 +84,9 @@ class _ActiveMultisetExerciseWidgetState
 
   @override
   Widget build(BuildContext context) {
-    final hasSpecialInstructions =
-        widget.tExercise.specialInstructions != null &&
-            widget.tExercise.specialInstructions!.isNotEmpty;
-    final hasObjectives = widget.tExercise.objectives != null &&
-        widget.tExercise.objectives!.isNotEmpty;
     return BlocBuilder<ActiveTrainingBloc, ActiveTrainingState>(
         builder: (context, state) {
       if (state is ActiveTrainingLoaded) {
-        Color exerciseActiveColor = AppColors.whiteSmoke;
         bool isActiveExercise = false;
         final lastStartedTimerId = state.lastStartedTimerId;
 
@@ -105,134 +102,214 @@ class _ActiveMultisetExerciseWidgetState
           }
         }
 
-        return Container(
-          margin: const EdgeInsets.only(top: 10, bottom: 10),
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: isActiveExercise ? exerciseActiveColor : AppColors.white,
-            border: Border.all(color: AppColors.frenchGray),
-            borderRadius: BorderRadius.circular(15),
-          ),
-          child: BlocBuilder<ExerciseManagementBloc, ExerciseManagementState>(
-              builder: (context, exerciseBlocState) {
-            final matchingExercise =
-                exerciseBlocState is ExerciseManagementLoaded
-                    ? exerciseBlocState.exercises.firstWhereOrNull(
-                        (e) => e.id == widget.tExercise.exerciseId)
-                    : null;
+        final isSetsInReps = widget.tExercise.isSetsInReps ?? true;
 
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 10),
-                ExpandablePanel(
-                  header: _buildExpandableHeader(matchingExercise),
-                  collapsed: const SizedBox(),
-                  expanded: _buildExpandedContent(matchingExercise, context),
-                  theme: const ExpandableThemeData(
-                    hasIcon: false,
-                    tapHeaderToExpand: true,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                if (hasSpecialInstructions)
-                  _buildOptionalInfo(
-                    title: 'global_special_instructions',
-                    content: widget.tExercise.specialInstructions,
-                    context: context,
-                  ),
-                if (hasObjectives)
-                  _buildOptionalInfo(
-                    title: 'global_objectives',
-                    content: widget.tExercise.objectives,
-                    context: context,
-                  ),
-                if (hasSpecialInstructions || hasObjectives) ...[
-                  const Divider(),
-                  const SizedBox(height: 10),
-                ],
-                const SizedBox(height: 10),
-                _buildSets(),
-              ],
-            );
-          }),
+        return Column(
+          children: [
+            Container(
+              margin: const EdgeInsets.only(top: 20),
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color:
+                    isActiveExercise ? AppColors.floralWhite : AppColors.white,
+                border: Border.all(
+                    color: isActiveExercise
+                        ? AppColors.parchment
+                        : AppColors.timberwolf),
+                borderRadius: BorderRadius.circular(15),
+              ),
+              child:
+                  BlocBuilder<ExerciseManagementBloc, ExerciseManagementState>(
+                      builder: (context, exerciseBlocState) {
+                final matchingExercise =
+                    exerciseBlocState is ExerciseManagementLoaded
+                        ? exerciseBlocState.exercises.firstWhereOrNull(
+                            (e) => e.id == widget.tExercise.exerciseId)
+                        : null;
+
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 10),
+                    ExpandablePanel(
+                      header: _buildExpandableHeader(
+                          matchingExercise!, context, isSetsInReps),
+                      collapsed: const SizedBox(),
+                      expanded: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (matchingExercise.description != null &&
+                              matchingExercise.description!.isNotEmpty)
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  tr('exercise_detail_page_description'),
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                Text(
+                                  matchingExercise.description!,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodySmall!
+                                      .copyWith(color: AppColors.frenchGray),
+                                ),
+                              ],
+                            ),
+                          if (widget.tExercise.objectives != null)
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  tr('global_objectives'),
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                Text('${widget.tExercise.objectives}'),
+                              ],
+                            ),
+                        ],
+                      ),
+                      theme: const ExpandableThemeData(
+                        hasIcon: false,
+                        tapHeaderToExpand: true,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    const Divider(
+                      color: AppColors.timberwolf,
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text('Sets',
+                            style: TextStyle(color: AppColors.taupeGray)),
+                        Row(
+                          children: [
+                            SizedBox(
+                                width: 50,
+                                child: Center(
+                                  child: Text(isSetsInReps ? 'Kg' : '',
+                                      style: const TextStyle(
+                                          color: AppColors.taupeGray)),
+                                )),
+                            const SizedBox(width: 10),
+                            SizedBox(
+                                width: 50,
+                                child: Center(
+                                    child: Text(isSetsInReps ? 'Reps' : '',
+                                        style: const TextStyle(
+                                            color: AppColors.taupeGray)))),
+                            const SizedBox(width: 46)
+                          ],
+                        )
+                      ],
+                    ),
+                    _buildSets(),
+                  ],
+                );
+              }),
+            ),
+            if (!widget.isLast && widget.tExercise.exerciseRest != null)
+              _buildExerciseRest(),
+          ],
         );
       }
       return const SizedBox();
     });
   }
 
-  Container _buildExpandedContent(
-      Exercise? matchingExercise, BuildContext context) {
+  Widget _buildExerciseRest() {
     return Container(
-      padding: const EdgeInsets.only(top: 20),
-      alignment: Alignment.centerLeft,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      margin: const EdgeInsets.only(top: 20),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Container(
-            decoration: BoxDecoration(
-              border: Border.all(color: AppColors.frenchGray, width: 1),
-              borderRadius: BorderRadius.circular(15),
+          if (!widget.isLast)
+            const Icon(
+              Icons.snooze,
+              size: 20,
             ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(15),
-              child: matchingExercise != null &&
-                      matchingExercise.imagePath != null &&
-                      matchingExercise.imagePath!.isNotEmpty
-                  ? Image.file(File(matchingExercise.imagePath!),
-                      width: MediaQuery.of(context).size.width - 40,
-                      fit: BoxFit.cover)
-                  : const SizedBox(),
-            ),
-          ),
-          const SizedBox(height: 20),
-          if (matchingExercise != null &&
-              matchingExercise.description != null &&
-              matchingExercise.description!.isNotEmpty)
+          if (!widget.isLast) const SizedBox(width: 5),
+          if (!widget.isLast)
             Text(
-              matchingExercise.description!,
-              style: Theme.of(context)
-                  .textTheme
-                  .bodySmall!
-                  .copyWith(color: AppColors.frenchGray),
+              widget.tExercise.exerciseRest != null
+                  ? formatDurationToMinutesSeconds(
+                      widget.tExercise.exerciseRest)
+                  : '0:00',
             ),
-          if (matchingExercise != null &&
-              matchingExercise.description != null &&
-              matchingExercise.description!.isNotEmpty)
-            const SizedBox(height: 10),
         ],
       ),
     );
   }
 
-  Builder _buildExpandableHeader(Exercise? matchingExercise) {
-    final minRep = widget.tExercise.minReps ?? 0;
-    final maxRep = widget.tExercise.maxReps ?? 0;
-
-    return Builder(
-      builder: (context) {
-        final controller = ExpandableController.of(context);
-        return Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            SizedBox(
-              width: 250,
-              child: Text(
-                '${matchingExercise != null ? matchingExercise.name : tr('exercise_unknown')}${minRep != 0 && maxRep != 0 && matchingExercise != null ? (minRep != maxRep ? ' ($minRep-$maxRep reps)' : ' ($minRep reps)') : ''}',
-                softWrap: true,
-                overflow: TextOverflow.visible,
-              ),
+  Widget _buildExpandableHeader(
+      Exercise exercise, BuildContext context, bool isSetsInReps) {
+    return Builder(builder: (context) {
+      final controller = ExpandableController.of(context);
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (exercise.imagePath != null && exercise.imagePath!.isNotEmpty)
+            Column(
+              children: [
+                SizedBox(
+                  width: 130,
+                  height: 100,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(15),
+                    child: Image.file(
+                      File(exercise.imagePath!),
+                      width: MediaQuery.of(context).size.width - 40,
+                      fit: BoxFit.cover,
+                      alignment: Alignment.bottomCenter,
+                    ),
+                  ),
+                ),
+              ],
             ),
-            Icon(
-              controller?.expanded == true
-                  ? Icons.keyboard_arrow_up
-                  : Icons.keyboard_arrow_down,
+          if (exercise.imagePath != null && exercise.imagePath!.isNotEmpty)
+            const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        exercise.name,
+                        style: Theme.of(context).textTheme.titleMedium,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    Icon(
+                      controller?.expanded == true
+                          ? Icons.keyboard_arrow_up
+                          : Icons.keyboard_arrow_down,
+                    ),
+                  ],
+                ),
+                if (isSetsInReps)
+                  Text(
+                      '${widget.tExercise.minReps ?? 0}-${widget.tExercise.maxReps ?? 0} reps')
+                else
+                  Text('${widget.tExercise.duration} seconds'),
+                Text(
+                  '${widget.tExercise.setRest != null ? formatDurationToMinutesSeconds(widget.tExercise.setRest) : '0:00'} exercise rest',
+                ),
+                if (widget.tExercise.specialInstructions != null)
+                  Text('${widget.tExercise.specialInstructions}'),
+              ],
             ),
-          ],
-        );
-      },
-    );
+          )
+        ],
+      );
+    });
   }
 
   ListView _buildSets() {
@@ -243,18 +320,19 @@ class _ActiveMultisetExerciseWidgetState
       physics: const NeverScrollableScrollPhysics(),
       itemCount: widget.multiset.sets ?? 0,
       itemBuilder: (context, index) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(vertical: 5),
+        return Container(
+          margin: const EdgeInsets.only(top: 10),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Set ${index + 1}',
-                style: const TextStyle(color: AppColors.frenchGray),
+                '${index + 1}',
+                style: const TextStyle(color: AppColors.taupeGray),
               ),
               isSetsInReps
                   ? ActiveExerciseRow(
-                      controller: _controllers!['set${index + 1}']!,
+                      weightController: _controllers!['weightSet${index + 1}']!,
+                      repsController: _controllers['repsSet${index + 1}']!,
                       multiset: widget.multiset,
                       tExercise: widget.tExercise,
                       isLastSet: widget.multiset.sets == index + 1,
@@ -286,36 +364,13 @@ class _ActiveMultisetExerciseWidgetState
   }
 }
 
-Widget _buildOptionalInfo({
-  required String title,
-  required String? content,
-  required BuildContext context,
-}) {
-  if (content == null || content.isEmpty) return const SizedBox.shrink();
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Text(
-        tr(title),
-        style: const TextStyle(color: AppColors.frenchGray),
-      ),
-      Text(
-        content,
-        style: Theme.of(context).textTheme.bodySmall!.copyWith(
-              color: AppColors.frenchGray,
-            ),
-      ),
-      const SizedBox(height: 10),
-    ],
-  );
-}
-
 class ActiveExerciseRow extends StatefulWidget {
   final Multiset multiset;
   final TrainingExercise tExercise;
   final bool isLastSet;
   final bool isLastMultisetExercise;
-  final TextEditingController controller;
+  final TextEditingController weightController;
+  final TextEditingController repsController;
   final int multisetIndex;
   final int multisetExerciseIndex;
   final int setIndex;
@@ -325,7 +380,8 @@ class ActiveExerciseRow extends StatefulWidget {
     super.key,
     required this.multiset,
     required this.tExercise,
-    required this.controller,
+    required this.weightController,
+    required this.repsController,
     required this.isLastSet,
     required this.isLastMultisetExercise,
     required this.multisetIndex,
@@ -395,8 +451,12 @@ class _ActiveExerciseRowState extends State<ActiveExerciseRow> {
               : null;
 
           registeredId = latestEntry?.id;
-          if (registeredId != null && widget.controller.text == '') {
-            widget.controller.text = latestEntry?.reps.toString() ?? '';
+          if (registeredId != null &&
+              widget.weightController.text == '' &&
+              widget.repsController.text == '') {
+            widget.weightController.text =
+                latestEntry?.weight?.toString() ?? '';
+            widget.repsController.text = latestEntry?.reps?.toString() ?? '';
             isInitialized = true;
           }
         }
@@ -404,30 +464,48 @@ class _ActiveExerciseRowState extends State<ActiveExerciseRow> {
         return Row(
           children: [
             SmallTextFieldWidget(
-              controller: widget.controller,
-              backgroungColor:
-                  isStarted ? AppColors.whiteSmoke : AppColors.white,
+              controller: widget.weightController,
+              backgroungColor: isStarted ? AppColors.platinum : AppColors.white,
+            ),
+            const SizedBox(width: 10),
+            SmallTextFieldWidget(
+              controller: widget.repsController,
+              backgroungColor: isStarted ? AppColors.platinum : AppColors.white,
             ),
             const SizedBox(width: 10),
             GestureDetector(
               onTap: () {
                 context.read<TrainingHistoryBloc>().add(
-                    CreateOrUpdateHistoryEntry(
+                      CreateOrUpdateHistoryEntry(
                         historyEntry: HistoryEntry(
-                            id: registeredId,
-                            trainingId: widget.tExercise.trainingId,
-                            trainingExerciseId: widget.tExercise.id,
-                            setNumber: widget.setIndex,
-                            date: DateTime.now(),
-                            reps: int.tryParse(widget.controller.text))));
+                          id: registeredId,
+                          trainingId: widget.tExercise.trainingId,
+                          trainingExerciseId: widget.tExercise.id,
+                          setNumber: widget.setIndex,
+                          date: DateTime.now(),
+                          reps: int.tryParse(widget.repsController.text),
+                          weight: int.tryParse(widget.weightController.text),
+                        ),
+                      ),
+                    );
                 context
                     .read<ActiveTrainingBloc>()
                     .add(StartTimer(timerId: restTimerId));
                 FocusScope.of(context).unfocus();
               },
-              child: Text(
-                isStarted ? 'OK' : tr('global_validate'),
-                style: const TextStyle(color: AppColors.frenchGray),
+              child: Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: isStarted ? AppColors.platinum : AppColors.licorice),
+                child: Center(
+                  child: Icon(
+                    Icons.check,
+                    size: 20,
+                    color: isStarted ? AppColors.frenchGray : AppColors.white,
+                  ),
+                ),
               ),
             ),
           ],
@@ -529,11 +607,11 @@ class ActiveExerciseDurationRow extends StatelessWidget {
             alignment: Alignment.center,
             padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
             decoration: BoxDecoration(
-                color: isStarted ? AppColors.whiteSmoke : AppColors.licorice,
+                color: isStarted ? AppColors.platinum : AppColors.licorice,
                 borderRadius: const BorderRadius.all(Radius.circular(10))),
             child: Text(
               isStarted
-                  ? 'OK'
+                  ? 'Done ${formatDurationToMinutesSeconds(tExercise.duration ?? 0)}'
                   : '${tr('global_start')} ${formatDurationToHoursMinutesSeconds(tExercise.duration ?? 0)}',
               style: TextStyle(
                   color: isStarted ? AppColors.frenchGray : AppColors.white),
