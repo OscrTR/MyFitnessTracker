@@ -189,15 +189,18 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
       _controllers['distance']?.text = (exercise.targetDistance != null
           ? (exercise.targetDistance! ~/ 1000).toString()
           : '');
-      _controllers['durationHours']?.text = (exercise.duration != null
-          ? (exercise.duration! ~/ 3600).toString()
-          : '');
-      _controllers['durationMinutes']?.text = (exercise.duration != null
-          ? (exercise.duration! % 3600 ~/ 60).toString()
-          : '');
-      _controllers['durationSeconds']?.text = (exercise.duration != null
-          ? (exercise.duration! % 60).toString()
-          : '');
+      _controllers['targetDurationHours']?.text =
+          (exercise.targetDuration != null
+              ? (exercise.targetDuration! ~/ 3600).toString()
+              : '');
+      _controllers['targetDurationMinutes']?.text =
+          (exercise.targetDuration != null
+              ? (exercise.targetDuration! % 3600 ~/ 60).toString()
+              : '');
+      _controllers['targetDurationSeconds']?.text =
+          (exercise.targetDuration != null
+              ? (exercise.targetDuration! % 60).toString()
+              : '');
       _controllers['intervals']?.text = exercise.intervals?.toString() ?? '';
       _controllers['paceMinutes']?.text = (exercise.targetPace != null
           ? (exercise.targetPace! % 3600 ~/ 60).toString()
@@ -340,17 +343,18 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
       sl<TrainingManagementBloc>()
           .add(AddOrUpdateSelectedTrainingEvent(_trainingToCreateOrEdit));
     } else if (key.contains('multiset')) {
-      // Pour multiset, on ne met à jour que le champ concerné
-      final currentSets = _multisetToCreateOrEdit.sets;
-      final currentSetRest = _multisetToCreateOrEdit.setRest;
-      final currentMultisetRest = _multisetToCreateOrEdit.multisetRest;
-      final currentInstructions = _multisetToCreateOrEdit.specialInstructions;
-      final currentObjectives = _multisetToCreateOrEdit.objectives;
+      final currentValues = {
+        'sets': _multisetToCreateOrEdit.sets,
+        'setRest': _multisetToCreateOrEdit.setRest,
+        'multisetRest': _multisetToCreateOrEdit.multisetRest,
+        'specialInstructions': _multisetToCreateOrEdit.specialInstructions,
+        'objectives': _multisetToCreateOrEdit.objectives,
+      };
 
       _multisetToCreateOrEdit = _multisetToCreateOrEdit.copyWith(
         sets: key == 'multisetSets'
             ? int.tryParse(_controllers['multisetSets']?.text ?? '1')
-            : currentSets,
+            : currentValues['sets'] as int?,
         setRest: key == 'multisetSetRestMinutes' ||
                 key == 'multisetSetRestSeconds'
             ? ((int.tryParse(_controllers['multisetSetRestMinutes']?.text ??
@@ -360,7 +364,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                 ((int.tryParse(
                         _controllers['multisetSetRestSeconds']?.text ?? '0') ??
                     0))
-            : currentSetRest,
+            : currentValues['setRest'] as int?,
         multisetRest: key == 'multisetRestMinutes' ||
                 key == 'multisetRestSeconds'
             ? ((int.tryParse(
@@ -370,13 +374,13 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                 ((int.tryParse(
                         _controllers['multisetRestSeconds']?.text ?? '0') ??
                     0))
-            : currentMultisetRest,
+            : currentValues['multisetRest'] as int?,
         specialInstructions: key == 'multisetInstructions'
             ? _controllers['multisetInstructions']?.text ?? ''
-            : currentInstructions,
+            : currentValues['specialInstructions'] as String?,
         objectives: key == 'multisetObjectives'
             ? _controllers['multisetObjectives']?.text ?? ''
-            : currentObjectives,
+            : currentValues['objectives'] as String?,
       );
     } else {
       // Pour exercise, on garde les valeurs existantes sauf pour le champ modifié
@@ -1039,11 +1043,11 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              '${intervals}x $targetDistance$targetPace',
+              '${intervals}x$targetDistance$targetPace',
               style: const TextStyle(color: AppColors.taupeGray),
             ),
             Text(
-              '${tExercise.setRest ?? 0} seconds rest',
+              '${tExercise.intervalRest ?? 0} seconds rest',
               style: const TextStyle(color: AppColors.taupeGray),
             ),
           ],
@@ -1053,11 +1057,11 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              '${intervals}x $targetDuration$targetPace',
+              '${intervals}x$targetDuration$targetPace',
               style: const TextStyle(color: AppColors.taupeGray),
             ),
             Text(
-              '${tExercise.setRest ?? 0} seconds rest',
+              '${tExercise.intervalRest ?? 0} seconds rest',
               style: const TextStyle(color: AppColors.taupeGray),
             ),
           ],
