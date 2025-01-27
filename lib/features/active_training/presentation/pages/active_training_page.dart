@@ -319,7 +319,6 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage> {
                           child: Column(
                             children: [
                               _buildHeader(state, context),
-                              const SizedBox(height: 30),
                               _buildTrainingItemList(sortedItems, context,
                                   exercisesAndMultisetsList),
                               const SizedBox(height: 30),

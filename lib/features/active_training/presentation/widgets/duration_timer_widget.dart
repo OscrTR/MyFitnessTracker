@@ -4,8 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../helper_functions.dart';
 import '../bloc/active_training_bloc.dart';
 
-import '../../../../app_colors.dart';
-
 class DurationTimerWidget extends StatelessWidget {
   final String timerId;
   const DurationTimerWidget({super.key, required this.timerId});
@@ -26,7 +24,6 @@ class DurationTimerWidget extends StatelessWidget {
                   0;
               return Text(
                 formatDurationToHoursMinutesSeconds(timerValue),
-                style: const TextStyle(color: AppColors.frenchGray),
               );
             }
             return const SizedBox();

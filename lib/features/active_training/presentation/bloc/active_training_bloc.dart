@@ -624,15 +624,15 @@ class RunTracker {
         .firstWhereOrNull((el) => el.isActive && el.timerId != 'primaryTimer')
         ?.trainingId;
 
-    final exerciseId = (sl<ActiveTrainingBloc>().state as ActiveTrainingLoaded)
+    final tExerciseId = (sl<ActiveTrainingBloc>().state as ActiveTrainingLoaded)
         .timersStateList
         .firstWhereOrNull((el) => el.isActive && el.timerId != 'primaryTimer')
         ?.tExerciseId;
 
-    if (trainingId != null && exerciseId != null) {
+    if (trainingId != null && tExerciseId != null) {
       await sl<Database>().insert('run_locations', {
         'training_id': trainingId,
-        'exercise_id': exerciseId,
+        'training_exercise_id': tExerciseId,
         'latitude': currentLocation.latitude,
         'longitude': currentLocation.longitude,
         'altitude': currentLocation.altitude,

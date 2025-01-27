@@ -29,18 +29,11 @@ class ActiveRunWidget extends StatefulWidget {
 class _ActiveRunWidgetState extends State<ActiveRunWidget> {
   @override
   Widget build(BuildContext context) {
-    final hasSpecialInstructions =
-        widget.tExercise.specialInstructions != null &&
-            widget.tExercise.specialInstructions!.isNotEmpty;
-    final hasObjectives = widget.tExercise.objectives != null &&
-        widget.tExercise.objectives!.isNotEmpty;
-
     return Column(
       children: [
         BlocBuilder<ActiveTrainingBloc, ActiveTrainingState>(
             builder: (context, state) {
           if (state is ActiveTrainingLoaded) {
-            Color exerciseActiveColor = AppColors.whiteSmoke;
             bool isActiveExercise = false;
             final lastStartedTimerId = state.lastStartedTimerId;
             final exerciseIndex = widget.exerciseIndex;
@@ -50,11 +43,15 @@ class _ActiveRunWidgetState extends State<ActiveRunWidget> {
               isActiveExercise = true;
             }
             return Container(
-              margin: const EdgeInsets.only(top: 10, bottom: 10),
+              margin: const EdgeInsets.only(top: 20),
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: isActiveExercise ? exerciseActiveColor : AppColors.white,
-                border: Border.all(color: AppColors.frenchGray),
+                color:
+                    isActiveExercise ? AppColors.floralWhite : AppColors.white,
+                border: Border.all(
+                    color: isActiveExercise
+                        ? AppColors.parchment
+                        : AppColors.timberwolf),
                 borderRadius: BorderRadius.circular(15),
               ),
               child: Column(
@@ -66,22 +63,22 @@ class _ActiveRunWidgetState extends State<ActiveRunWidget> {
                       ? buildIntervalText()
                       : buildRunExerciseText(),
                   const SizedBox(height: 10),
-                  if (hasSpecialInstructions)
-                    _buildOptionalInfo(
-                      title: 'global_special_instructions',
-                      content: widget.tExercise.specialInstructions,
-                      context: context,
+                  if (widget.tExercise.specialInstructions != null &&
+                      widget.tExercise.specialInstructions != '')
+                    Text('${widget.tExercise.specialInstructions}'),
+                  if (widget.tExercise.objectives != null)
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '${tr('global_objectives')}: ',
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        Text('${widget.tExercise.objectives}'),
+                      ],
                     ),
-                  if (hasObjectives)
-                    _buildOptionalInfo(
-                      title: 'global_objectives',
-                      content: widget.tExercise.objectives,
-                      context: context,
-                    ),
-                  if (hasSpecialInstructions || hasObjectives) ...[
-                    const Divider(),
-                    const SizedBox(height: 10),
-                  ],
+                  const SizedBox(height: 10),
+                  const Divider(color: AppColors.timberwolf),
                   if (widget.tExercise.runExerciseTarget ==
                           RunExerciseTarget.distance ||
                       widget.tExercise.runExerciseTarget ==
@@ -112,48 +109,27 @@ class _ActiveRunWidgetState extends State<ActiveRunWidget> {
     );
   }
 
-  Row _buildExerciseRest() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        if (!widget.isLast)
-          const Icon(
-            Icons.snooze,
-            size: 20,
-          ),
-        if (!widget.isLast) const SizedBox(width: 5),
-        if (!widget.isLast)
-          Text(
-            widget.tExercise.exerciseRest != null
-                ? formatDurationToHoursMinutesSeconds(
-                    widget.tExercise.exerciseRest!)
-                : '0:00',
-          ),
-      ],
-    );
-  }
-
-  Widget _buildOptionalInfo({
-    required String title,
-    required String? content,
-    required BuildContext context,
-  }) {
-    if (content == null || content.isEmpty) return const SizedBox.shrink();
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          tr(title),
-          style: const TextStyle(color: AppColors.frenchGray),
-        ),
-        Text(
-          content,
-          style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                color: AppColors.frenchGray,
-              ),
-        ),
-        const SizedBox(height: 10),
-      ],
+  Widget _buildExerciseRest() {
+    return Container(
+      margin: const EdgeInsets.only(top: 20),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          if (!widget.isLast)
+            const Icon(
+              Icons.snooze,
+              size: 20,
+            ),
+          if (!widget.isLast) const SizedBox(width: 5),
+          if (!widget.isLast)
+            Text(
+              widget.tExercise.exerciseRest != null
+                  ? formatDurationToHoursMinutesSeconds(
+                      widget.tExercise.exerciseRest!)
+                  : '0:00',
+            ),
+        ],
+      ),
     );
   }
 
@@ -170,12 +146,27 @@ class _ActiveRunWidgetState extends State<ActiveRunWidget> {
         : '';
 
     if (widget.tExercise.runExerciseTarget == RunExerciseTarget.distance) {
-      return Text('Running $targetDistance$targetPace');
+      return Text(
+        'Running $targetDistance$targetPace',
+        style: Theme.of(context).textTheme.titleMedium,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      );
     } else if (widget.tExercise.runExerciseTarget ==
         RunExerciseTarget.duration) {
-      return Text('Running $targetDuration$targetPace');
+      return Text(
+        'Running $targetDuration$targetPace',
+        style: Theme.of(context).textTheme.titleMedium,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      );
     } else {
-      return const Text('Running');
+      return Text(
+        'Running',
+        style: Theme.of(context).textTheme.titleMedium,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      );
     }
   }
 
@@ -194,11 +185,26 @@ class _ActiveRunWidgetState extends State<ActiveRunWidget> {
     final intervals = tExercise.intervals ?? 1;
 
     if (tExercise.isIntervalInDistance == true) {
-      return Text('Running interval $targetDistance$targetPace x$intervals');
+      return Text(
+        'Running interval ${'$intervals'}x$targetDistance$targetPace',
+        style: Theme.of(context).textTheme.titleMedium,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      );
     } else if (tExercise.isIntervalInDistance == false) {
-      return Text('Running interval $targetDuration$targetPace x$intervals');
+      return Text(
+        'Running interval ${'$intervals'}x$targetDuration$targetPace',
+        style: Theme.of(context).textTheme.titleMedium,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      );
     } else {
-      return const Text('Running');
+      return Text(
+        'Running',
+        style: Theme.of(context).textTheme.titleMedium,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      );
     }
   }
 }
@@ -280,74 +286,59 @@ class DistanceOrDurationRun extends StatelessWidget {
         if (currentIsStarted != null && currentIsStarted) {
           isStarted = true;
         }
-        return Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'Duration',
-                  style: TextStyle(color: AppColors.frenchGray),
-                ),
-                DurationTimerWidget(
-                  timerId: timerId,
-                ),
-              ],
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'Distance (km)',
-                  style: TextStyle(color: AppColors.frenchGray),
-                ),
-                DistanceWidget(timerId: timerId)
-              ],
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'Pace (min/km)',
-                  style: TextStyle(color: AppColors.frenchGray),
-                ),
-                PaceWidget(timerId: timerId),
-              ],
-            ),
-            const SizedBox(height: 10),
-            const Divider(),
-            const SizedBox(height: 10),
-            GestureDetector(
-              onTap: () async {
-                context
-                    .read<ActiveTrainingBloc>()
-                    .add(StartTimer(timerId: timerId));
-              },
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+        return Container(
+          margin: const EdgeInsets.only(top: 10),
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Container(
-                    width: 160,
-                    alignment: Alignment.center,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 10),
-                    decoration: BoxDecoration(
-                        color: isStarted
-                            ? AppColors.whiteSmoke
-                            : AppColors.licorice,
-                        borderRadius: BorderRadius.circular(10)),
-                    child: Text(
-                      isStarted ? 'Started' : tr('global_start'),
-                      style: TextStyle(
-                          color: isStarted
-                              ? AppColors.frenchGray
-                              : AppColors.white),
-                    ),
+                  const Text('Duration'),
+                  DurationTimerWidget(
+                    timerId: timerId,
                   ),
                 ],
               ),
-            ),
-          ],
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text('Distance (km)'),
+                  DistanceWidget(timerId: timerId)
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text('Pace (min/km)'),
+                  PaceWidget(timerId: timerId),
+                ],
+              ),
+              const SizedBox(height: 20),
+              GestureDetector(
+                onTap: () async {
+                  context
+                      .read<ActiveTrainingBloc>()
+                      .add(StartTimer(timerId: timerId));
+                },
+                child: Container(
+                  width: double.infinity,
+                  alignment: Alignment.center,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  decoration: BoxDecoration(
+                      color:
+                          isStarted ? AppColors.platinum : AppColors.licorice,
+                      borderRadius: BorderRadius.circular(5)),
+                  child: Text(
+                    isStarted ? 'Started' : tr('global_start'),
+                    style: TextStyle(
+                        color:
+                            isStarted ? AppColors.frenchGray : AppColors.white),
+                  ),
+                ),
+              ),
+            ],
+          ),
         );
       }
       return const SizedBox();
@@ -408,28 +399,21 @@ class IntervalWidget extends StatelessWidget {
                     timerId:
                         '${exerciseIndex < 10 ? 0 : ''}$exerciseIndex-00'));
               },
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    width: 160,
-                    alignment: Alignment.center,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 10),
-                    decoration: BoxDecoration(
-                        color: isStarted
-                            ? AppColors.whiteSmoke
-                            : AppColors.licorice,
-                        borderRadius: BorderRadius.circular(10)),
-                    child: Text(
-                      isStarted ? 'Started' : tr('global_start'),
-                      style: TextStyle(
-                          color: isStarted
-                              ? AppColors.frenchGray
-                              : AppColors.white),
-                    ),
-                  ),
-                ],
+              child: Container(
+                margin: const EdgeInsets.only(top: 20),
+                width: double.infinity,
+                alignment: Alignment.center,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                decoration: BoxDecoration(
+                    color: isStarted ? AppColors.platinum : AppColors.licorice,
+                    borderRadius: BorderRadius.circular(5)),
+                child: Text(
+                  isStarted ? 'Started' : tr('global_start'),
+                  style: TextStyle(
+                      color:
+                          isStarted ? AppColors.frenchGray : AppColors.white),
+                ),
               ),
             );
           }
@@ -512,64 +496,65 @@ class IntervalRun extends StatelessWidget {
     return BlocBuilder<ActiveTrainingBloc, ActiveTrainingState>(
         builder: (context, state) {
       if (state is ActiveTrainingLoaded) {
-        return Column(children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'Duration',
-                style: TextStyle(color: AppColors.frenchGray),
-              ),
-              DurationTimerWidget(
-                timerId: timerId,
-              ),
-            ],
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'Distance (km)',
-                style: TextStyle(color: AppColors.frenchGray),
-              ),
-              DistanceWidget(timerId: timerId)
-            ],
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'Pace (min/km)',
-                style: TextStyle(color: AppColors.frenchGray),
-              ),
-              PaceWidget(timerId: timerId),
-            ],
-          ),
-          if (!isLastInterval)
+        return Container(
+          margin: const EdgeInsets.only(top: 10),
+          child: Column(children: [
             Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Expanded(child: Divider()),
-                const SizedBox(width: 5),
-                const Icon(
-                  Icons.snooze,
-                  size: 20,
-                  color: AppColors.frenchGray,
+                const Text('Duration'),
+                DurationTimerWidget(
+                  timerId: timerId,
                 ),
-                const SizedBox(width: 5),
-                Text(
-                  tExercise.intervalRest != null
-                      ? formatDurationToHoursMinutesSeconds(
-                          tExercise.intervalRest!)
-                      : '0:00',
-                  style: const TextStyle(color: AppColors.frenchGray),
-                ),
-                const SizedBox(width: 5),
-                const Expanded(child: Divider()),
               ],
             ),
-          if (isLastInterval) const SizedBox(height: 10)
-        ]);
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text('Distance (km)'),
+                DistanceWidget(timerId: timerId)
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text('Pace (min/km)'),
+                PaceWidget(timerId: timerId),
+              ],
+            ),
+            if (!isLastInterval)
+              Container(
+                margin: const EdgeInsets.only(top: 10),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Expanded(
+                      child: Divider(color: AppColors.timberwolf),
+                    ),
+                    const SizedBox(width: 5),
+                    const Icon(
+                      Icons.snooze,
+                      size: 20,
+                      color: AppColors.frenchGray,
+                    ),
+                    const SizedBox(width: 5),
+                    Text(
+                      tExercise.intervalRest != null
+                          ? formatDurationToHoursMinutesSeconds(
+                              tExercise.intervalRest!)
+                          : '0:00',
+                      style: const TextStyle(color: AppColors.frenchGray),
+                    ),
+                    const SizedBox(width: 5),
+                    const Expanded(
+                      child: Divider(color: AppColors.timberwolf),
+                    ),
+                  ],
+                ),
+              ),
+            if (isLastInterval) const SizedBox(height: 10)
+          ]),
+        );
       }
       return const SizedBox();
     });

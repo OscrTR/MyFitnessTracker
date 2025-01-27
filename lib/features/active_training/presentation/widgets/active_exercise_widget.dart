@@ -108,6 +108,7 @@ class _ActiveExerciseWidgetState extends State<ActiveExerciseWidget> {
         }
 
         return Container(
+          margin: const EdgeInsets.only(top: 20),
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
               border: Border.all(
