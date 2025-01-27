@@ -28,6 +28,7 @@ class HistoryPage extends StatelessWidget {
                               Text(
                                   'Id:${historyEntries[index].id}, trainingId:${historyEntries[index].trainingId}, tExerciseId:${historyEntries[index].trainingExerciseId}'),
                               Text('${historyEntries[index].date}'),
+                              Text('Weight ${historyEntries[index].weight}'),
                               Text('Reps ${historyEntries[index].reps}'),
                               Text(
                                   'Duration ${historyEntries[index].duration}'),

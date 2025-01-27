@@ -331,16 +331,17 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage> {
                                       .add(ClearTimers());
                                 },
                                 child: Container(
+                                    width: double.infinity,
                                     padding: const EdgeInsets.symmetric(
                                         vertical: 10, horizontal: 20),
                                     decoration: BoxDecoration(
                                         color: AppColors.licorice,
-                                        borderRadius:
-                                            BorderRadius.circular(10)),
+                                        borderRadius: BorderRadius.circular(5)),
                                     child: Text(
                                       context.tr('active_training_end'),
                                       style: const TextStyle(
                                           color: AppColors.white),
+                                      textAlign: TextAlign.center,
                                     )),
                               ),
                               const SizedBox(height: 90),
@@ -393,9 +394,48 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage> {
   }
 
   Widget _buildHeader(TrainingManagementLoaded state, BuildContext context) {
-    return Text(
-      state.activeTraining!.name,
-      style: Theme.of(context).textTheme.titleLarge,
+    return Stack(
+      children: [
+        Positioned(
+          top: 0,
+          bottom: 0,
+          child: GestureDetector(
+            onTap: () {
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: Text(tr('active_training_back_title')),
+                  content: Text(tr('active_training_back_content')),
+                  actions: <Widget>[
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(false),
+                      child: Text(tr('global_no')),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        context.read<ActiveTrainingBloc>().add(ClearTimers());
+                        Navigator.of(context).pop(true);
+                        GoRouter.of(context).go('/home');
+                      },
+                      child: Text(tr('global_yes')),
+                    ),
+                  ],
+                ),
+              );
+            },
+            child: const Icon(
+              Icons.arrow_back_ios,
+              color: AppColors.licorice,
+            ),
+          ),
+        ),
+        Center(
+          child: Text(
+            state.activeTraining!.name,
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
+        ),
+      ],
     );
   }
 

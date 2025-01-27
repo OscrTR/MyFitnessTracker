@@ -59,85 +59,72 @@ class TimerWidgetState extends State<TimerWidget> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(30),
-      child: Container(
-        height: 70,
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        decoration: BoxDecoration(
-          color: AppColors.white,
-          borderRadius: BorderRadius.circular(15),
-          boxShadow: [
-            BoxShadow(
-                color: Colors.black.withOpacity(0.08),
-                spreadRadius: 0,
-                blurRadius: 20,
-                offset: const Offset(0, 8)),
-          ],
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            BlocBuilder<ActiveTrainingBloc, ActiveTrainingState>(
-                builder: (context, state) {
-              if (state is ActiveTrainingLoaded) {
-                final primaryTimerValue = state.timersStateList
-                        .firstWhereOrNull((e) => e.timerId == 'primaryTimer')
-                        ?.timerValue ??
-                    0;
-                final secondaryTimerValue = state.timersStateList
-                        .firstWhereOrNull((e) =>
-                            e.timerId != 'primaryTimer' &&
-                            e.timerId == state.lastStartedTimerId)
-                        ?.timerValue ??
-                    0;
-                return Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.only(top: 3),
-                      width: 70,
-                      child: Text(_formatTime(primaryTimerValue),
-                          style: Theme.of(context).textTheme.bodySmall),
-                    ),
-                    const SizedBox(width: 10),
-                    Text(
-                      _formatTime(secondaryTimerValue),
-                      style: Theme.of(context).textTheme.displayLarge,
-                    ),
-                  ],
-                );
-              }
-              return const SizedBox();
-            }),
-            GestureDetector(
-              onTap: () {
-                context.read<ActiveTrainingBloc>().add(PauseTimer());
-              },
-              child: Container(
-                height: 40,
-                width: 40,
-                decoration: BoxDecoration(
-                    color: AppColors.licorice,
-                    borderRadius: BorderRadius.circular(999)),
-                child: BlocBuilder<ActiveTrainingBloc, ActiveTrainingState>(
-                    builder: (context, state) {
-                  if (state is ActiveTrainingLoaded) {
-                    return Icon(
-                      state.timersStateList.any((el) => el.isActive)
-                          ? Icons.pause
-                          : Icons.play_arrow,
-                      color: AppColors.white,
-                    );
-                  } else {
-                    return const Icon(
-                      Icons.pause,
-                      color: AppColors.white,
-                    );
-                  }
-                }),
-              ),
-            )
-          ],
-        ),
+      height: 70,
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      decoration: const BoxDecoration(color: AppColors.floralWhite),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          BlocBuilder<ActiveTrainingBloc, ActiveTrainingState>(
+              builder: (context, state) {
+            if (state is ActiveTrainingLoaded) {
+              final primaryTimerValue = state.timersStateList
+                      .firstWhereOrNull((e) => e.timerId == 'primaryTimer')
+                      ?.timerValue ??
+                  0;
+              final secondaryTimerValue = state.timersStateList
+                      .firstWhereOrNull((e) =>
+                          e.timerId != 'primaryTimer' &&
+                          e.timerId == state.lastStartedTimerId)
+                      ?.timerValue ??
+                  0;
+              return Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.only(top: 3),
+                    width: 70,
+                    child: Text(_formatTime(primaryTimerValue),
+                        style: Theme.of(context).textTheme.bodySmall),
+                  ),
+                  const SizedBox(width: 10),
+                  Text(
+                    _formatTime(secondaryTimerValue),
+                    style: Theme.of(context).textTheme.displayLarge,
+                  ),
+                ],
+              );
+            }
+            return const SizedBox();
+          }),
+          GestureDetector(
+            onTap: () {
+              context.read<ActiveTrainingBloc>().add(PauseTimer());
+            },
+            child: Container(
+              height: 40,
+              width: 40,
+              decoration: BoxDecoration(
+                  color: AppColors.licorice,
+                  borderRadius: BorderRadius.circular(999)),
+              child: BlocBuilder<ActiveTrainingBloc, ActiveTrainingState>(
+                  builder: (context, state) {
+                if (state is ActiveTrainingLoaded) {
+                  return Icon(
+                    state.timersStateList.any((el) => el.isActive)
+                        ? Icons.pause
+                        : Icons.play_arrow,
+                    color: AppColors.white,
+                  );
+                } else {
+                  return const Icon(
+                    Icons.pause,
+                    color: AppColors.white,
+                  );
+                }
+              }),
+            ),
+          )
+        ],
       ),
     );
   }
