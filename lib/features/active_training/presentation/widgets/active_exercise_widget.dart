@@ -135,7 +135,11 @@ class _ActiveExerciseWidgetState extends State<ActiveExerciseWidget> {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(tr('exercise_detail_page_description')),
+                            Text(
+                              tr('exercise_detail_page_description'),
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.bold),
+                            ),
                             Text(
                               exercise.description!,
                               style: Theme.of(context)
@@ -149,7 +153,11 @@ class _ActiveExerciseWidgetState extends State<ActiveExerciseWidget> {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(tr('global_objectives')),
+                            Text(
+                              tr('global_objectives'),
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.bold),
+                            ),
                             Text('${tExercise.objectives}'),
                           ],
                         ),
@@ -166,26 +174,28 @@ class _ActiveExerciseWidgetState extends State<ActiveExerciseWidget> {
                 color: AppColors.timberwolf,
               ),
               const SizedBox(height: 10),
-              const Row(
+              Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Sets', style: TextStyle(color: AppColors.taupeGray)),
+                  const Text('Sets',
+                      style: TextStyle(color: AppColors.taupeGray)),
                   Row(
                     children: [
                       SizedBox(
                           width: 50,
                           child: Center(
-                            child: Text('Kg',
-                                style: TextStyle(color: AppColors.taupeGray)),
+                            child: Text(isSetsInReps ? 'Kg' : '',
+                                style: const TextStyle(
+                                    color: AppColors.taupeGray)),
                           )),
-                      SizedBox(width: 10),
+                      const SizedBox(width: 10),
                       SizedBox(
                           width: 50,
                           child: Center(
-                              child: Text('Reps',
-                                  style:
-                                      TextStyle(color: AppColors.taupeGray)))),
-                      SizedBox(width: 46)
+                              child: Text(isSetsInReps ? 'Reps' : '',
+                                  style: const TextStyle(
+                                      color: AppColors.taupeGray)))),
+                      const SizedBox(width: 46)
                     ],
                   )
                 ],
@@ -301,23 +311,27 @@ class _ActiveExerciseWidgetState extends State<ActiveExerciseWidget> {
     });
   }
 
-  Row _buildExerciseRest() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        if (!widget.isLast)
-          const Icon(
-            Icons.snooze,
-            size: 20,
-          ),
-        if (!widget.isLast) const SizedBox(width: 5),
-        if (!widget.isLast)
-          Text(
-            widget.tExercise.exerciseRest != null
-                ? formatDurationToMinutesSeconds(widget.tExercise.exerciseRest)
-                : '0:00',
-          ),
-      ],
+  Widget _buildExerciseRest() {
+    return Container(
+      margin: const EdgeInsets.only(top: 20, bottom: 20),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          if (!widget.isLast)
+            const Icon(
+              Icons.snooze,
+              size: 20,
+            ),
+          if (!widget.isLast) const SizedBox(width: 5),
+          if (!widget.isLast)
+            Text(
+              widget.tExercise.exerciseRest != null
+                  ? formatDurationToMinutesSeconds(
+                      widget.tExercise.exerciseRest)
+                  : '0:00',
+            ),
+        ],
+      ),
     );
   }
 }
@@ -543,13 +557,13 @@ class ActiveExerciseDurationRow extends StatelessWidget {
           },
           child: Container(
             alignment: Alignment.center,
-            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             decoration: BoxDecoration(
-                color: isStarted ? AppColors.whiteSmoke : AppColors.licorice,
+                color: isStarted ? AppColors.platinum : AppColors.licorice,
                 borderRadius: const BorderRadius.all(Radius.circular(10))),
             child: Text(
               isStarted
-                  ? 'OK'
+                  ? 'Done ${formatDurationToMinutesSeconds(tExercise.duration ?? 0)}'
                   : '${tr('global_start')} ${formatDurationToMinutesSeconds(tExercise.duration ?? 0)}',
               style: TextStyle(
                   color: isStarted ? AppColors.frenchGray : AppColors.white),
