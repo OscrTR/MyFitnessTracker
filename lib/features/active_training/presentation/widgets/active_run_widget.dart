@@ -147,7 +147,7 @@ class _ActiveRunWidgetState extends State<ActiveRunWidget> {
 
     if (widget.tExercise.runExerciseTarget == RunExerciseTarget.distance) {
       return Text(
-        'Running $targetDistance$targetPace',
+        '${tr('active_training_running')} $targetDistance$targetPace',
         style: Theme.of(context).textTheme.titleMedium,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
@@ -155,14 +155,14 @@ class _ActiveRunWidgetState extends State<ActiveRunWidget> {
     } else if (widget.tExercise.runExerciseTarget ==
         RunExerciseTarget.duration) {
       return Text(
-        'Running $targetDuration$targetPace',
+        '${tr('active_training_running')} $targetDuration$targetPace',
         style: Theme.of(context).textTheme.titleMedium,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
       );
     } else {
       return Text(
-        'Running',
+        tr('active_training_running'),
         style: Theme.of(context).textTheme.titleMedium,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
@@ -186,21 +186,21 @@ class _ActiveRunWidgetState extends State<ActiveRunWidget> {
 
     if (tExercise.isIntervalInDistance == true) {
       return Text(
-        'Running interval ${'$intervals'}x$targetDistance$targetPace',
+        '${tr('active_training_running_interval')} ${'$intervals'}x$targetDistance$targetPace',
         style: Theme.of(context).textTheme.titleMedium,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
       );
     } else if (tExercise.isIntervalInDistance == false) {
       return Text(
-        'Running interval ${'$intervals'}x$targetDuration$targetPace',
+        '${tr('active_training_running_interval')} ${'$intervals'}x$targetDuration$targetPace',
         style: Theme.of(context).textTheme.titleMedium,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
       );
     } else {
       return Text(
-        'Running',
+        tr('active_training_running'),
         style: Theme.of(context).textTheme.titleMedium,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
@@ -293,7 +293,7 @@ class DistanceOrDurationRun extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('Duration'),
+                  Text(tr('active_training_duration')),
                   DurationTimerWidget(
                     timerId: timerId,
                   ),
@@ -302,14 +302,14 @@ class DistanceOrDurationRun extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('Distance (km)'),
+                  Text(tr('active_training_distance')),
                   DistanceWidget(timerId: timerId)
                 ],
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('Pace (min/km)'),
+                  Text(tr('active_training_pace_short')),
                   PaceWidget(timerId: timerId),
                 ],
               ),
@@ -330,7 +330,9 @@ class DistanceOrDurationRun extends StatelessWidget {
                           isStarted ? AppColors.platinum : AppColors.licorice,
                       borderRadius: BorderRadius.circular(5)),
                   child: Text(
-                    isStarted ? 'Started' : tr('global_start'),
+                    isStarted
+                        ? tr('active_training_started')
+                        : tr('global_start'),
                     style: TextStyle(
                         color:
                             isStarted ? AppColors.frenchGray : AppColors.white),
@@ -409,7 +411,9 @@ class IntervalWidget extends StatelessWidget {
                     color: isStarted ? AppColors.platinum : AppColors.licorice,
                     borderRadius: BorderRadius.circular(5)),
                 child: Text(
-                  isStarted ? 'Started' : tr('global_start'),
+                  isStarted
+                      ? tr('active_training_started')
+                      : tr('global_start'),
                   style: TextStyle(
                       color:
                           isStarted ? AppColors.frenchGray : AppColors.white),
@@ -502,7 +506,7 @@ class IntervalRun extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Duration'),
+                Text(tr('active_training_duration')),
                 DurationTimerWidget(
                   timerId: timerId,
                 ),
@@ -511,14 +515,14 @@ class IntervalRun extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Distance (km)'),
+                Text(tr('active_training_distance')),
                 DistanceWidget(timerId: timerId)
               ],
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Pace (min/km)'),
+                Text(tr('active_training_pace_short')),
                 PaceWidget(timerId: timerId),
               ],
             ),

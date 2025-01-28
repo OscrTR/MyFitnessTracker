@@ -175,7 +175,7 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage> {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const Text('Notifications authorized : '),
+                              Text(tr('active_training_notifications')),
                               const SizedBox(height: 10),
                               GestureDetector(
                                 onTap: () {
@@ -192,8 +192,8 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage> {
                                             BorderRadius.circular(10)),
                                     child: Text(
                                       isNotificationAuthorized
-                                          ? 'Granted'
-                                          : 'Ask',
+                                          ? tr('active_training_granted')
+                                          : tr('active_training_ask'),
                                       style: TextStyle(
                                           color: isNotificationAuthorized
                                               ? AppColors.frenchGray
@@ -201,8 +201,7 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage> {
                                     )),
                               ),
                               const SizedBox(height: 30),
-                              const Text(
-                                  'Location access always authorized : '),
+                              Text(tr('active_training_location')),
                               const SizedBox(height: 10),
                               GestureDetector(
                                 onTap: () {
@@ -221,8 +220,8 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage> {
                                     child: Text(
                                       isLocationPermissionGranted ==
                                               PermissionStatus.granted
-                                          ? 'Granted'
-                                          : 'Ask',
+                                          ? tr('active_training_granted')
+                                          : tr('active_training_ask'),
                                       style: TextStyle(
                                           color: isLocationPermissionGranted ==
                                                   PermissionStatus.granted
@@ -231,7 +230,7 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage> {
                                     )),
                               ),
                               const SizedBox(height: 30),
-                              const Text('Location enabled : '),
+                              Text(tr('active_training_location_enabled')),
                               const SizedBox(height: 10),
                               GestureDetector(
                                 onTap: () {
@@ -247,7 +246,9 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage> {
                                         borderRadius:
                                             BorderRadius.circular(10)),
                                     child: Text(
-                                      isLocationEnabled ? 'Granted' : 'Ask',
+                                      isLocationEnabled
+                                          ? tr('active_training_granted')
+                                          : tr('active_training_ask'),
                                       style: TextStyle(
                                           color: isLocationEnabled
                                               ? AppColors.frenchGray
@@ -266,7 +267,7 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Text('Notifications authorized : '),
+                            Text(tr('active_training_notifications')),
                             const SizedBox(height: 10),
                             GestureDetector(
                               onTap: () {
@@ -282,8 +283,8 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage> {
                                       borderRadius: BorderRadius.circular(10)),
                                   child: Text(
                                     isNotificationAuthorized
-                                        ? 'Granted'
-                                        : 'Ask',
+                                        ? tr('active_training_granted')
+                                        : tr('active_training_ask'),
                                     style: TextStyle(
                                         color: isNotificationAuthorized
                                             ? AppColors.frenchGray

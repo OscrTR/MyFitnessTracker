@@ -299,9 +299,10 @@ class _ActiveExerciseWidgetState extends State<ActiveExerciseWidget> {
                   Text(
                       '${widget.tExercise.minReps ?? 0}-${widget.tExercise.maxReps ?? 0} reps')
                 else
-                  Text('${widget.tExercise.duration} seconds'),
+                  Text(
+                      '${widget.tExercise.duration} ${tr('active_training_seconds')}'),
                 Text(
-                  '${widget.tExercise.setRest != null ? formatDurationToMinutesSeconds(widget.tExercise.setRest) : '0:00'} set rest',
+                  '${widget.tExercise.setRest != null ? formatDurationToMinutesSeconds(widget.tExercise.setRest) : '0:00'} ${tr('active_training_rest')}',
                 ),
                 if (widget.tExercise.specialInstructions != null)
                   Text('${widget.tExercise.specialInstructions}'),
@@ -565,7 +566,7 @@ class ActiveExerciseDurationRow extends StatelessWidget {
                 borderRadius: const BorderRadius.all(Radius.circular(10))),
             child: Text(
               isStarted
-                  ? 'Done ${formatDurationToMinutesSeconds(tExercise.duration ?? 0)}'
+                  ? '${tr('global_done')} ${formatDurationToMinutesSeconds(tExercise.duration ?? 0)}'
                   : '${tr('global_start')} ${formatDurationToMinutesSeconds(tExercise.duration ?? 0)}',
               style: TextStyle(
                   color: isStarted ? AppColors.frenchGray : AppColors.white),

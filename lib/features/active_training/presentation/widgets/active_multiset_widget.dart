@@ -96,7 +96,7 @@ class _ActiveMultisetWidgetState extends State<ActiveMultisetWidget> {
           const SizedBox(height: 10),
           Text('${widget.multiset.sets} sets'),
           Text(
-              '${widget.multiset.setRest != null ? formatDurationToMinutesSeconds(widget.multiset.setRest) : '0:00'} set rest'),
+              '${widget.multiset.setRest != null ? formatDurationToMinutesSeconds(widget.multiset.setRest) : '0:00'} ${tr('active_training_rest')}'),
           if (widget.multiset.specialInstructions != null)
             Text('${widget.multiset.specialInstructions}'),
         ],
