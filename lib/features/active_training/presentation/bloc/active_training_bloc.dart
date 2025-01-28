@@ -10,6 +10,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:location/location.dart';
+import 'package:my_fitness_tracker/features/training_management/presentation/bloc/training_management_bloc.dart';
 import 'package:pausable_timer/pausable_timer.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:uuid/uuid.dart';
@@ -32,6 +33,7 @@ class ActiveTrainingBloc
     final RunTracker runTracker = RunTracker();
     int? notificationId;
     late StreamController<int> timerStreamController;
+    // ignore: unused_local_variable
     late Stream<int> timerStream;
     int? lastTimerValue;
 
@@ -112,15 +114,41 @@ class ActiveTrainingBloc
                       el.multisetSetNumber ==
                           currentTimerState.multisetSetNumber)
                   ?.id;
-              sl<TrainingHistoryBloc>().add(CreateOrUpdateHistoryEntry(
+
+              int cals = 0;
+
+              final trainingManagementState = (sl<TrainingManagementBloc>()
+                  .state as TrainingManagementLoaded);
+
+              final listOfTExercises = [
+                ...trainingManagementState.activeTraining!.trainingExercises
+              ];
+              for (var multiset
+                  in trainingManagementState.activeTraining!.multisets) {
+                listOfTExercises.addAll([...multiset.trainingExercises!]);
+              }
+
+              final matchingTExercise = listOfTExercises.firstWhere(
+                  (tExercise) => tExercise.id == currentTimerState.tExerciseId);
+
+              cals = getCalories(
+                  intensity: matchingTExercise.intensity!,
+                  duration: matchingTExercise.duration);
+
+              sl<TrainingHistoryBloc>().add(
+                CreateOrUpdateHistoryEntry(
                   historyEntry: HistoryEntry(
-                      id: registeredId,
-                      trainingId: currentTimerState.trainingId,
-                      trainingExerciseId: currentTimerState.tExerciseId,
-                      setNumber: currentTimerState.setNumber,
-                      multisetSetNumber: currentTimerState.multisetSetNumber,
-                      date: DateTime.now(),
-                      duration: currentTimerState.countDownValue)));
+                    id: registeredId,
+                    trainingId: currentTimerState.trainingId,
+                    trainingExerciseId: currentTimerState.tExerciseId,
+                    setNumber: currentTimerState.setNumber,
+                    multisetSetNumber: currentTimerState.multisetSetNumber,
+                    date: DateTime.now(),
+                    duration: currentTimerState.countDownValue,
+                    calories: cals,
+                  ),
+                ),
+              );
             }
             runTracker.stopTracking();
             timers[timerId]?.cancel();

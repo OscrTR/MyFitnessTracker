@@ -9,7 +9,6 @@ class ExerciseModel extends Exercise {
     super.imagePath,
     super.description,
     required super.exerciseType,
-    required super.intensity,
     super.muscleGroups,
   });
 
@@ -21,7 +20,6 @@ class ExerciseModel extends Exercise {
       description: json['description'] as String? ?? '',
       exerciseType: ExerciseType.values
           .firstWhere((el) => el.name == (json['exercise_type'] as String)),
-      intensity: json['intensity'],
       muscleGroups: (jsonDecode(json['muscle_groups']) as List)
           .map((i) => MuscleGroup.values[i])
           .toList(),
@@ -35,7 +33,6 @@ class ExerciseModel extends Exercise {
       'image_path': imagePath,
       'description': description,
       'exercise_type': exerciseType.name,
-      'intensity': intensity,
       'muscle_groups': jsonEncode(muscleGroups?.map((e) => e.index).toList()),
     };
   }

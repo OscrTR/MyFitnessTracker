@@ -332,6 +332,7 @@ class TrainingManagementBloc
             position: trainingExercises.length + trainingMultisets.length,
             key: uuid.v4(),
             runExerciseTarget: event.trainingExercise.runExerciseTarget,
+            intensity: event.trainingExercise.intensity,
           );
 
           trainingExercises.add(tExerciseToAdd);

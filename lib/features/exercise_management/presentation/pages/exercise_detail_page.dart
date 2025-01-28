@@ -32,7 +32,6 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
   File? _imageToDelete;
   late ExerciseType _selectedExerciseType;
   Map<MuscleGroup, bool> _selectedMuscleGroups = {};
-  late ExerciseDifficulty _selectedDifficulty;
 
   @override
   void initState() {
@@ -69,8 +68,6 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
         (sl<ExerciseManagementBloc>().state as ExerciseManagementLoaded)
             .selectedExercise;
     _selectedExerciseType = exercise?.exerciseType ?? ExerciseType.workout;
-    _selectedDifficulty =
-        difficultyMap[exercise?.intensity] ?? ExerciseDifficulty.moderate;
 
     // Réinitialiser la map avant de la remplir
     _selectedMuscleGroups = {}; // Ou créez une nouvelle map
@@ -182,42 +179,6 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
                     style: const TextStyle(color: AppColors.taupeGray),
                   ),
                   const SizedBox(height: 10),
-                  CustomDropdown<ExerciseDifficulty>(
-                    items: ExerciseDifficulty.values,
-                    initialItem: _selectedDifficulty,
-                    decoration: CustomDropdownDecoration(
-                      listItemStyle: Theme.of(context)
-                          .textTheme
-                          .bodyMedium!
-                          .copyWith(color: AppColors.timberwolf),
-                      headerStyle: Theme.of(context)
-                          .textTheme
-                          .bodyMedium!
-                          .copyWith(color: AppColors.licorice),
-                      closedSuffixIcon: const Icon(
-                        Icons.keyboard_arrow_down_rounded,
-                        size: 20,
-                        color: AppColors.timberwolf,
-                      ),
-                      expandedSuffixIcon: const Icon(
-                        Icons.keyboard_arrow_up_rounded,
-                        size: 20,
-                        color: AppColors.timberwolf,
-                      ),
-                      closedBorder: Border.all(color: AppColors.timberwolf),
-                      expandedBorder: Border.all(color: AppColors.timberwolf),
-                    ),
-                    headerBuilder: (context, selectedItem, enabled) {
-                      return Text(
-                          selectedItem.translate(context.locale.languageCode));
-                    },
-                    listItemBuilder: (context, item, isSelected, onItemSelect) {
-                      return Text(item.translate(context.locale.languageCode));
-                    },
-                    onChanged: (value) {
-                      _selectedDifficulty = value!;
-                    },
-                  ),
                   const SizedBox(height: 20),
                   _buildMuscleGroups(context),
                   const SizedBox(height: 20),
@@ -290,7 +251,6 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
                           description: _descriptionController.text,
                           imagePath: _image?.path ?? '',
                           exerciseType: _selectedExerciseType,
-                          intensity: difficultyLevelMap[_selectedDifficulty]!,
                           muscleGroups: _selectedMuscleGroups.entries
                               .where((el) => el.value == true)
                               .map((el) => el.key)
@@ -488,36 +448,3 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
     );
   }
 }
-
-enum ExerciseDifficulty {
-  veryEasy,
-  easy,
-  moderate,
-  hard,
-  veryHard;
-
-  String translate(String locale) {
-    switch (this) {
-      case ExerciseDifficulty.veryEasy:
-        return locale == 'fr' ? 'Très facile' : 'Very easy';
-      case ExerciseDifficulty.easy:
-        return locale == 'fr' ? 'Facile' : 'Easy';
-      case ExerciseDifficulty.moderate:
-        return locale == 'fr' ? 'Modéré' : 'Moderate';
-      case ExerciseDifficulty.hard:
-        return locale == 'fr' ? 'Difficile' : 'Hard';
-      case ExerciseDifficulty.veryHard:
-        return locale == 'fr' ? 'Très difficile' : 'Very hard';
-    }
-  }
-}
-
-final Map<int, ExerciseDifficulty> difficultyMap = Map.fromIterables(
-  List.generate(ExerciseDifficulty.values.length, (index) => index + 1),
-  ExerciseDifficulty.values,
-);
-
-final Map<ExerciseDifficulty, int> difficultyLevelMap = Map.fromIterables(
-  ExerciseDifficulty.values,
-  List.generate(ExerciseDifficulty.values.length, (index) => index + 1),
-);

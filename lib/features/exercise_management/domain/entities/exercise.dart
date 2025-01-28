@@ -6,7 +6,7 @@ class Exercise extends Equatable {
   final String? imagePath;
   final String? description;
   final ExerciseType exerciseType;
-  final int intensity;
+
   final List<MuscleGroup>? muscleGroups;
 
   const Exercise({
@@ -15,7 +15,6 @@ class Exercise extends Equatable {
     this.imagePath,
     this.description,
     required this.exerciseType,
-    required this.intensity,
     this.muscleGroups,
   });
 
@@ -34,7 +33,6 @@ class Exercise extends Equatable {
       imagePath: imagePath ?? this.imagePath,
       description: description ?? this.description,
       exerciseType: exerciseType ?? this.exerciseType,
-      intensity: intensity ?? this.intensity,
       muscleGroups: muscleGroups ?? this.muscleGroups,
     );
   }
@@ -46,7 +44,6 @@ class Exercise extends Equatable {
         imagePath,
         description,
         exerciseType,
-        intensity,
         muscleGroups,
       ];
 }

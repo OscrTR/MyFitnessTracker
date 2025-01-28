@@ -27,6 +27,7 @@ class TrainingExercise extends Equatable {
   final int? exerciseRest;
   final bool? autoStart;
   final int? position;
+  final int? intensity;
   final String? key;
 
   const TrainingExercise({
@@ -56,6 +57,7 @@ class TrainingExercise extends Equatable {
     this.exerciseRest,
     this.autoStart,
     this.position,
+    this.intensity,
     this.key,
   });
 
@@ -86,6 +88,7 @@ class TrainingExercise extends Equatable {
     int? exerciseRest,
     bool? autoStart,
     int? position,
+    int? intensity,
     String? key,
   }) {
     return TrainingExercise(
@@ -115,6 +118,7 @@ class TrainingExercise extends Equatable {
       exerciseRest: exerciseRest ?? this.exerciseRest,
       autoStart: autoStart ?? this.autoStart,
       position: position ?? this.position,
+      intensity: intensity ?? this.intensity,
       key: key ?? this.key,
     );
   }
@@ -147,6 +151,7 @@ class TrainingExercise extends Equatable {
       exerciseRest: exerciseRest,
       autoStart: autoStart,
       position: position,
+      intensity: intensity,
       key: key,
     );
   }
@@ -179,6 +184,7 @@ class TrainingExercise extends Equatable {
         exerciseRest,
         autoStart,
         position,
+        intensity,
         key,
       ];
 }

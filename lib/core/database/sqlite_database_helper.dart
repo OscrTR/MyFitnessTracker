@@ -20,7 +20,6 @@ class SQLiteDatabaseHelper {
             id INTEGER PRIMARY KEY AUTOINCREMENT, 
             name TEXT,
             exercise_type TEXT,
-            intensity INTEGER,
             description TEXT, 
             image_path TEXT,
             muscle_groups TEXT
@@ -80,6 +79,7 @@ class SQLiteDatabaseHelper {
             special_instructions TEXT,
             objectives TEXT,
             position INTEGER,
+            intensity INTEGER,
             key TEXT,
             FOREIGN KEY(training_id) REFERENCES trainings(id) ON DELETE CASCADE,
             FOREIGN KEY(multiset_id) REFERENCES multisets(id) ON DELETE CASCADE,

@@ -60,6 +60,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
     runExerciseTarget: RunExerciseTarget.distance,
     isIntervalInDistance: true,
     isTargetPaceSelected: false,
+    intensity: 2,
   );
 
   TrainingExercise _tExerciseToCreateOrEdit = const TrainingExercise(
@@ -70,6 +71,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
     runExerciseTarget: RunExerciseTarget.distance,
     isIntervalInDistance: true,
     isTargetPaceSelected: false,
+    intensity: 2,
   );
 
   final Multiset _defaultMultiset = const Multiset(
@@ -167,6 +169,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
         intervalRest: exercise.intervalRest,
         exerciseRest: exercise.exerciseRest,
         position: exercise.position,
+        intensity: exercise.intensity,
       );
 
       _controllers['sets']?.text = exercise.sets?.toString() ?? '';
@@ -1393,6 +1396,46 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                     },
                   ),
                   const SizedBox(height: 20),
+                  CustomDropdown<ExerciseDifficulty>(
+                    items: ExerciseDifficulty.values,
+                    initialItem:
+                        difficultyMap[_tExerciseToCreateOrEdit.intensity] ??
+                            ExerciseDifficulty.moderate,
+                    decoration: CustomDropdownDecoration(
+                      listItemStyle: Theme.of(context)
+                          .textTheme
+                          .bodyMedium!
+                          .copyWith(color: AppColors.timberwolf),
+                      headerStyle: Theme.of(context)
+                          .textTheme
+                          .bodyMedium!
+                          .copyWith(color: AppColors.licorice),
+                      closedSuffixIcon: const Icon(
+                        Icons.keyboard_arrow_down_rounded,
+                        size: 20,
+                        color: AppColors.timberwolf,
+                      ),
+                      expandedSuffixIcon: const Icon(
+                        Icons.keyboard_arrow_up_rounded,
+                        size: 20,
+                        color: AppColors.timberwolf,
+                      ),
+                      closedBorder: Border.all(color: AppColors.timberwolf),
+                      expandedBorder: Border.all(color: AppColors.timberwolf),
+                    ),
+                    headerBuilder: (context, selectedItem, enabled) {
+                      return Text(
+                          selectedItem.translate(context.locale.languageCode));
+                    },
+                    listItemBuilder: (context, item, isSelected, onItemSelect) {
+                      return Text(item.translate(context.locale.languageCode));
+                    },
+                    onChanged: (value) {
+                      _tExerciseToCreateOrEdit = _tExerciseToCreateOrEdit
+                          .copyWith(intensity: difficultyLevelMap[value!]);
+                    },
+                  ),
+                  const SizedBox(height: 20),
                   _tExerciseToCreateOrEdit.trainingExerciseType !=
                           TrainingExerciseType.run
                       ? _buildYogaOrWorkoutFields(context, setDialogState,
@@ -2277,3 +2320,36 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
     );
   }
 }
+
+enum ExerciseDifficulty {
+  veryEasy,
+  easy,
+  moderate,
+  hard,
+  veryHard;
+
+  String translate(String locale) {
+    switch (this) {
+      case ExerciseDifficulty.veryEasy:
+        return locale == 'fr' ? 'Très facile' : 'Very easy';
+      case ExerciseDifficulty.easy:
+        return locale == 'fr' ? 'Facile' : 'Easy';
+      case ExerciseDifficulty.moderate:
+        return locale == 'fr' ? 'Modéré' : 'Moderate';
+      case ExerciseDifficulty.hard:
+        return locale == 'fr' ? 'Difficile' : 'Hard';
+      case ExerciseDifficulty.veryHard:
+        return locale == 'fr' ? 'Très difficile' : 'Very hard';
+    }
+  }
+}
+
+final Map<int, ExerciseDifficulty> difficultyMap = Map.fromIterables(
+  List.generate(ExerciseDifficulty.values.length, (index) => index + 1),
+  ExerciseDifficulty.values,
+);
+
+final Map<ExerciseDifficulty, int> difficultyLevelMap = Map.fromIterables(
+  ExerciseDifficulty.values,
+  List.generate(ExerciseDifficulty.values.length, (index) => index + 1),
+);

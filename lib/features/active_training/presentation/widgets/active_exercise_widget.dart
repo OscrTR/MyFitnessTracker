@@ -442,6 +442,18 @@ class _ActiveExerciseRowState extends State<ActiveExerciseRow> {
             const SizedBox(width: 10),
             GestureDetector(
               onTap: () {
+                int cals = 0;
+
+                if (widget.tExercise.isSetsInReps!) {
+                  cals = getCalories(
+                      intensity: widget.tExercise.intensity!,
+                      reps: int.tryParse(widget.repsController.text));
+                } else {
+                  cals = getCalories(
+                      intensity: widget.tExercise.intensity!,
+                      duration: widget.tExercise.duration);
+                }
+
                 context.read<TrainingHistoryBloc>().add(
                       CreateOrUpdateHistoryEntry(
                         historyEntry: HistoryEntry(
@@ -452,6 +464,7 @@ class _ActiveExerciseRowState extends State<ActiveExerciseRow> {
                           date: DateTime.now(),
                           reps: int.tryParse(widget.repsController.text),
                           weight: int.tryParse(widget.weightController.text),
+                          calories: cals,
                         ),
                       ),
                     );
