@@ -83,6 +83,9 @@
   "home_page_select_training": "Sélectionne un entraînement",
   "home_page_see_all": "Voir tous",
   "home_page_unselect": "Désélectionner",
+  "home_page_first_training_title": "Mon premier entraînement",
+  "home_page_first_training_description": "Découvre comment se passe la création et la planification.",
+  "home_page_planned_today": "Planifié aujourd'hui",
 
   "trainings_page_title": "Entraînements",
   "trainings_page_new": "Nouveau",

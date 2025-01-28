@@ -83,6 +83,9 @@
   "home_page_select_training": "Select a training",
   "home_page_see_all": "See all",
   "home_page_unselect": "Unselect",
+  "home_page_first_training_title": "My first training",
+  "home_page_first_training_description": "Discover how to create and plan a training.",
+  "home_page_planned_today": "Planned today",
 
   "trainings_page_title": "Trainings",
   "trainings_page_new": "New",
