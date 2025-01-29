@@ -512,6 +512,13 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
     });
   }
 
+  void _sortTrainingDays() {
+    _trainingToCreateOrEdit = _trainingToCreateOrEdit.copyWith(
+      trainingDays: List<WeekDay>.from(_trainingToCreateOrEdit.trainingDays!)
+        ..sort((a, b) => a.index.compareTo(b.index)),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<TrainingManagementBloc, TrainingManagementState>(
@@ -2221,6 +2228,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                       setState(() {
                         _trainingToCreateOrEdit = _trainingToCreateOrEdit
                             .copyWith(trainingDays: newSelection);
+                        _sortTrainingDays();
                         sl<TrainingManagementBloc>().add(
                             AddOrUpdateSelectedTrainingEvent(
                                 _trainingToCreateOrEdit));

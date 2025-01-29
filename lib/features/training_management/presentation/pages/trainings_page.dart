@@ -41,15 +41,17 @@ class _TrainingsPageState extends State<TrainingsPage> {
           children: [
             _buildPageHeader(context),
             const SizedBox(height: 20),
-            SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 10),
-                  _buildFilters(context),
-                  _buildFilteredItems(),
-                  const SizedBox(height: 70),
-                ],
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 10),
+                    _buildFilters(context),
+                    _buildFilteredItems(),
+                    const SizedBox(height: 70),
+                  ],
+                ),
               ),
             ),
           ],
