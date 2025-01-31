@@ -173,11 +173,6 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
                       _selectedExerciseType = value!;
                     },
                   ),
-                  const SizedBox(height: 20),
-                  Text(
-                    tr('exercise_detail_page_intensity'),
-                    style: const TextStyle(color: AppColors.taupeGray),
-                  ),
                   const SizedBox(height: 10),
                   const SizedBox(height: 20),
                   _buildMuscleGroups(context),

@@ -91,7 +91,9 @@ class SQLiteDatabaseHelper {
           CREATE TABLE history(
             id INTEGER PRIMARY KEY AUTOINCREMENT, 
             training_id INTEGER,
+            training_type TEXT,
             training_exercise_id INTEGER,
+            training_exercise_type TEXT,
             set_number INTEGER,
             multiset_set_number INTEGER,
             date INTEGER,
@@ -114,7 +116,7 @@ class SQLiteDatabaseHelper {
             latitude REAL,
             longitude REAL,
             altitude REAL,
-            timestamp TEXT,
+            timestamp INTEGER,
             accuracy REAL,
             speed REAL,
             FOREIGN KEY(training_exercise_id) REFERENCES training_exercises(id),

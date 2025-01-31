@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:go_router/go_router.dart';
 import 'package:location/location.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../app_colors.dart';
 import '../bloc/active_training_bloc.dart';
 import '../widgets/error_state_widget.dart';
@@ -424,7 +425,7 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage> {
               );
             },
             child: const Icon(
-              Icons.arrow_back_ios,
+              LucideIcons.chevronLeft,
               color: AppColors.licorice,
             ),
           ),

@@ -4,7 +4,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:material_symbols_icons/symbols.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../domain/entities/training_exercise.dart';
 import '../../../../app_colors.dart';
 import '../../../../helper_functions.dart';
@@ -158,19 +158,6 @@ class _TrainingsPageState extends State<TrainingsPage> {
                         overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 5),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 5, vertical: 3),
-                        decoration: BoxDecoration(
-                            color: AppColors.parchment,
-                            borderRadius: BorderRadius.circular(5)),
-                        child: Text(
-                          exercise.exerciseType
-                              .translate(context.locale.languageCode),
-                          style: Theme.of(context).textTheme.bodySmall,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
                       GestureDetector(
                         onTap: () {
                           context
@@ -239,7 +226,7 @@ class _TrainingsPageState extends State<TrainingsPage> {
               const SizedBox(height: 10),
               Row(children: [
                 const Icon(
-                  Symbols.timer,
+                  LucideIcons.timer,
                   color: AppColors.licorice,
                   size: 16,
                 ),
@@ -249,7 +236,7 @@ class _TrainingsPageState extends State<TrainingsPage> {
               ]),
               Row(children: [
                 const Icon(
-                  Symbols.target,
+                  LucideIcons.target,
                   color: AppColors.licorice,
                   size: 16,
                 ),
@@ -259,7 +246,7 @@ class _TrainingsPageState extends State<TrainingsPage> {
               ]),
               Row(children: [
                 const Icon(
-                  Symbols.calendar_today,
+                  LucideIcons.calendar,
                   color: AppColors.licorice,
                   size: 16,
                 ),

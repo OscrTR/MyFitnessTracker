@@ -1,9 +1,14 @@
 import 'package:equatable/equatable.dart';
+import 'package:my_fitness_tracker/features/training_management/domain/entities/training.dart';
+
+import '../../../training_management/domain/entities/training_exercise.dart';
 
 class HistoryEntry extends Equatable {
   final int? id;
-  final int? trainingId;
-  final int? trainingExerciseId;
+  final int trainingId;
+  final TrainingType trainingType;
+  final int trainingExerciseId;
+  final TrainingExerciseType trainingExerciseType;
   final int? setNumber;
   final int? multisetSetNumber;
   final DateTime date;
@@ -16,8 +21,10 @@ class HistoryEntry extends Equatable {
 
   const HistoryEntry({
     this.id,
-    this.trainingId,
-    this.trainingExerciseId,
+    required this.trainingId,
+    required this.trainingType,
+    required this.trainingExerciseId,
+    required this.trainingExerciseType,
     this.setNumber,
     this.multisetSetNumber,
     required this.date,
@@ -40,7 +47,9 @@ class HistoryEntry extends Equatable {
     return HistoryEntry(
       id: id,
       trainingId: trainingId,
+      trainingType: trainingType,
       trainingExerciseId: trainingExerciseId,
+      trainingExerciseType: trainingExerciseType,
       setNumber: setNumber,
       multisetSetNumber: multisetSetNumber,
       date: date,
@@ -57,7 +66,9 @@ class HistoryEntry extends Equatable {
   List<Object?> get props => [
         id,
         trainingId,
+        trainingType,
         trainingExerciseId,
+        trainingExerciseType,
         setNumber,
         multisetSetNumber,
         date,

@@ -1,10 +1,15 @@
+import 'package:my_fitness_tracker/features/training_management/domain/entities/training.dart';
+
+import '../../../training_management/domain/entities/training_exercise.dart';
 import '../../domain/entities/history_entry.dart';
 
 class HistoryEntryModel extends HistoryEntry {
   const HistoryEntryModel({
     super.id,
     required super.trainingId,
+    required super.trainingType,
     required super.trainingExerciseId,
+    required super.trainingExerciseType,
     super.setNumber,
     super.multisetSetNumber,
     required super.date,
@@ -20,7 +25,11 @@ class HistoryEntryModel extends HistoryEntry {
     return HistoryEntryModel(
       id: json['id'],
       trainingId: json['training_id'],
+      trainingType: TrainingType.values
+          .firstWhere((el) => el.name == (json['training_type'] as String)),
       trainingExerciseId: json['training_exercise_id'],
+      trainingExerciseType: TrainingExerciseType.values.firstWhere(
+          (el) => el.name == (json['training_exercise_type'] as String)),
       setNumber: json['set_number'],
       multisetSetNumber: json['multiset_set_number'],
       date: DateTime.fromMillisecondsSinceEpoch(json['date']),
@@ -37,7 +46,9 @@ class HistoryEntryModel extends HistoryEntry {
     return {
       'id': id,
       'training_id': trainingId,
+      'training_type': trainingType.name,
       'training_exercise_id': trainingExerciseId,
+      'training_exercise_type': trainingExerciseType.name,
       'set_number': setNumber,
       'multiset_set_number': multisetSetNumber,
       'date': date.millisecondsSinceEpoch,

@@ -13,16 +13,25 @@ class TrainingHistoryLoading extends TrainingHistoryState {}
 
 class TrainingHistoryLoaded extends TrainingHistoryState {
   final List<HistoryEntry> historyEntries;
+  final List<HistoryTraining> historyTrainings;
 
-  const TrainingHistoryLoaded({required this.historyEntries});
+  const TrainingHistoryLoaded({
+    required this.historyEntries,
+    required this.historyTrainings,
+  });
 
-  TrainingHistoryLoaded copyWith({List<HistoryEntry>? historyEntries}) {
+  TrainingHistoryLoaded copyWith({
+    List<HistoryEntry>? historyEntries,
+    List<HistoryTraining>? historyTrainings,
+  }) {
     return TrainingHistoryLoaded(
-        historyEntries: historyEntries ?? this.historyEntries);
+      historyEntries: historyEntries ?? this.historyEntries,
+      historyTrainings: historyTrainings ?? this.historyTrainings,
+    );
   }
 
   @override
-  List<Object> get props => [historyEntries];
+  List<Object> get props => [historyEntries, historyTrainings];
 }
 
 class TrainingHistoryFailure extends TrainingHistoryState {}

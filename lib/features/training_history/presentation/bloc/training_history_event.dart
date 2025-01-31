@@ -9,6 +9,8 @@ abstract class TrainingHistoryEvent extends Equatable {
 
 class FetchHistoryEntriesEvent extends TrainingHistoryEvent {}
 
+class FetchHistoryTrainingsEvent extends TrainingHistoryEvent {}
+
 class CreateOrUpdateHistoryEntry extends TrainingHistoryEvent {
   final HistoryEntry historyEntry;
 

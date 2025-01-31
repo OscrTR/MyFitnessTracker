@@ -5,6 +5,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:my_fitness_tracker/features/training_management/presentation/bloc/training_management_bloc.dart';
 import '../../../training_history/domain/entities/history_entry.dart';
 import '../../../training_history/presentation/bloc/training_history_bloc.dart';
 import '../../../../helper_functions.dart';
@@ -454,17 +455,26 @@ class _ActiveExerciseRowState extends State<ActiveExerciseRow> {
                       duration: widget.tExercise.duration);
                 }
 
+                final trainingType = (context
+                        .read<TrainingManagementBloc>()
+                        .state as TrainingManagementLoaded)
+                    .activeTraining!
+                    .type;
+
                 context.read<TrainingHistoryBloc>().add(
                       CreateOrUpdateHistoryEntry(
                         historyEntry: HistoryEntry(
                           id: registeredId,
-                          trainingId: widget.tExercise.trainingId,
-                          trainingExerciseId: widget.tExercise.id,
+                          trainingId: widget.tExercise.trainingId!,
+                          trainingExerciseId: widget.tExercise.id!,
                           setNumber: widget.setIndex,
                           date: DateTime.now(),
                           reps: int.tryParse(widget.repsController.text),
                           weight: int.tryParse(widget.weightController.text),
                           calories: cals,
+                          trainingExerciseType:
+                              widget.tExercise.trainingExerciseType!,
+                          trainingType: trainingType,
                         ),
                       ),
                     );

@@ -7,7 +7,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:material_symbols_icons/symbols.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../exercise_management/presentation/bloc/exercise_management_bloc.dart';
 import '../../domain/entities/training.dart';
 
@@ -1820,8 +1820,9 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                 children: [
                   Text(tr('trainings_page_new'),
                       style: const TextStyle(color: AppColors.timberwolf)),
+                  const SizedBox(width: 5),
                   const Icon(
-                    Symbols.arrow_right_alt,
+                    LucideIcons.moveRight,
                     color: AppColors.timberwolf,
                   ),
                 ],

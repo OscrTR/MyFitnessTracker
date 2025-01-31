@@ -1,4 +1,5 @@
 import 'package:dartz/dartz.dart';
+import 'package:my_fitness_tracker/features/training_history/domain/entities/history_run_location.dart';
 import '../../domain/entities/history_entry.dart';
 
 import '../../../../core/error/exceptions.dart';
@@ -67,6 +68,15 @@ class HistoryRepositoryImpl implements HistoryRepository {
   Future<Either<Failure, bool>> checkIfRecentEntry(int id) async {
     try {
       return Right(await localDataSource.checkIfRecentEntry(id));
+    } on LocalDatabaseException {
+      return const Left(DatabaseFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<RunLocation>>> fetchHistoryRunLocations() async {
+    try {
+      return Right(await localDataSource.fetchHistoryRunLocations());
     } on LocalDatabaseException {
       return const Left(DatabaseFailure());
     }

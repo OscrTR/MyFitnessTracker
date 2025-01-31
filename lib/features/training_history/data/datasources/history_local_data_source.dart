@@ -1,3 +1,5 @@
+import 'package:my_fitness_tracker/features/training_history/domain/entities/history_run_location.dart';
+
 import '../models/history_entry_model.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -36,6 +38,11 @@ abstract class HistoryLocalDataSource {
   ///
   /// Throws a [LocalDatabaseException] for all error codes.
   Future<bool> checkIfRecentEntry(int id);
+
+  /// Query the local database and return the list of run locations.
+  ///
+  /// Throws a [LocalDatabaseException] for all error codes.
+  Future<List<RunLocation>> fetchHistoryRunLocations();
 }
 
 class SQLiteHistoryLocalDataSource implements HistoryLocalDataSource {
@@ -47,24 +54,31 @@ class SQLiteHistoryLocalDataSource implements HistoryLocalDataSource {
   Future<HistoryEntryModel> createHistoryEntry(
       HistoryEntry historyEntryToCreate) async {
     try {
-      final id = await database.insert('history', {
-        'training_id': historyEntryToCreate.trainingId,
-        'training_exercise_id': historyEntryToCreate.trainingExerciseId,
-        'set_number': historyEntryToCreate.setNumber,
-        'multiset_set_number': historyEntryToCreate.multisetSetNumber,
-        'date': historyEntryToCreate.date.millisecondsSinceEpoch,
-        'weight': historyEntryToCreate.weight,
-        'reps': historyEntryToCreate.reps,
-        'duration': historyEntryToCreate.duration,
-        'distance': historyEntryToCreate.distance,
-        'pace': historyEntryToCreate.pace,
-        'calories': historyEntryToCreate.calories
-      });
+      final model = HistoryEntryModel(
+          trainingId: historyEntryToCreate.trainingId,
+          trainingType: historyEntryToCreate.trainingType,
+          trainingExerciseId: historyEntryToCreate.trainingExerciseId,
+          trainingExerciseType: historyEntryToCreate.trainingExerciseType,
+          setNumber: historyEntryToCreate.setNumber,
+          multisetSetNumber: historyEntryToCreate.multisetSetNumber,
+          date: historyEntryToCreate.date,
+          weight: historyEntryToCreate.weight,
+          reps: historyEntryToCreate.reps,
+          duration: historyEntryToCreate.duration,
+          distance: historyEntryToCreate.distance,
+          pace: historyEntryToCreate.pace,
+          calories: historyEntryToCreate.calories);
+
+      final values = model.toJson();
+
+      final id = await database.insert('history', values);
 
       return HistoryEntryModel(
           id: id,
           trainingId: historyEntryToCreate.trainingId,
+          trainingType: historyEntryToCreate.trainingType,
           trainingExerciseId: historyEntryToCreate.trainingExerciseId,
+          trainingExerciseType: historyEntryToCreate.trainingExerciseType,
           setNumber: historyEntryToCreate.setNumber,
           multisetSetNumber: historyEntryToCreate.multisetSetNumber,
           date: historyEntryToCreate.date,
@@ -141,7 +155,9 @@ class SQLiteHistoryLocalDataSource implements HistoryLocalDataSource {
       final historyEntryToUpdateModel = HistoryEntryModel(
           id: historyEntryToUpdate.id,
           trainingId: historyEntryToUpdate.trainingId,
+          trainingType: historyEntryToUpdate.trainingType,
           trainingExerciseId: historyEntryToUpdate.trainingExerciseId,
+          trainingExerciseType: historyEntryToUpdate.trainingExerciseType,
           setNumber: historyEntryToUpdate.setNumber,
           multisetSetNumber: historyEntryToUpdate.multisetSetNumber,
           date: historyEntryToUpdate.date,
@@ -171,6 +187,21 @@ class SQLiteHistoryLocalDataSource implements HistoryLocalDataSource {
         where: 'id = ?',
         whereArgs: [id],
       );
+    } catch (e) {
+      throw LocalDatabaseException(e.toString());
+    }
+  }
+
+  @override
+  Future<List<RunLocation>> fetchHistoryRunLocations() async {
+    try {
+      final List<Map<String, dynamic>> locations =
+          await database.query('run_locations');
+
+      final runLocations =
+          locations.map((map) => RunLocation.fromMap(map)).toList();
+
+      return runLocations;
     } catch (e) {
       throw LocalDatabaseException(e.toString());
     }
