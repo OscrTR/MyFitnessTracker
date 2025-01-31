@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:my_fitness_tracker/features/training_history/domain/entities/history_period_stats.dart';
 import 'package:my_fitness_tracker/features/training_history/domain/entities/history_training.dart';
 import 'package:my_fitness_tracker/features/training_history/presentation/bloc/training_history_bloc.dart';
 import 'package:my_fitness_tracker/features/training_management/domain/entities/training.dart';
@@ -25,9 +26,11 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _selectedStatType = 0;
   StatPeriod _selectedStatPeriod = StatPeriod.week;
-  double _trainingProgress = 0.2;
-  List<HistoryTraining>? _filteredHistoryTrainings;
+  double _weeklyTrainingProgress = 0;
+  PeriodStats? _periodStats;
   List<HistoryTraining>? _historyTrainings;
+  PeriodStats? _weeklyStats;
+  int _plannedWeeklyTrainings = 0;
 
   @override
   void initState() {
@@ -45,155 +48,192 @@ class _HomePageState extends State<HomePage> {
     return true;
   }
 
-  List<HistoryTraining> _fetchHistoryTrainings(StatPeriod startPeriod) {
+  PeriodStats _fetchPeriodStats(StatPeriod startPeriod) {
     final historyTrainings =
         (sl<TrainingHistoryBloc>().state as TrainingHistoryLoaded)
             .historyTrainings;
     switch (startPeriod) {
       case StatPeriod.week:
-        return HistoryTraining.getCurrentWeek(historyTrainings);
+        return PeriodStats.getCurrentWeek(historyTrainings);
       case StatPeriod.month:
-        return HistoryTraining.getCurrentMonth(historyTrainings);
+        return PeriodStats.getCurrentMonth(historyTrainings);
       case StatPeriod.year:
-        return HistoryTraining.getCurrentYear(historyTrainings);
+        return PeriodStats.getCurrentYear(historyTrainings);
     }
+  }
+
+  int _calculateTotalTrainings(TrainingType? trainingType) {
+    int sum = 0;
+    for (var training
+        in (sl<TrainingManagementBloc>().state as TrainingManagementLoaded)
+            .trainings) {
+      if (trainingType != null && training.type == trainingType) {
+        sum += training.trainingDays?.length ?? 0;
+      } else if (trainingType == null) {
+        sum += training.trainingDays?.length ?? 0;
+      }
+    }
+    return sum;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SingleChildScrollView(
-        child: Column(
-          children: [
-            const SizedBox(height: 30),
-            _buildTrainingsList(context),
-            const SizedBox(height: 30),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'General stats',
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  SizedBox(
-                    width: 180,
-                    child: CustomDropdown<String>(
-                      items: StatPeriod.values
-                          .map((period) =>
-                              period.translate(context.locale.languageCode))
-                          .toList(),
-                      initialItem: _selectedStatPeriod
-                          .translate(context.locale.languageCode),
-                      decoration: CustomDropdownDecoration(
-                        listItemStyle: Theme.of(context)
-                            .textTheme
-                            .bodyMedium!
-                            .copyWith(color: AppColors.taupeGray, fontSize: 14),
-                        headerStyle: Theme.of(context)
-                            .textTheme
-                            .bodyMedium!
-                            .copyWith(color: AppColors.taupeGray, fontSize: 14),
-                        closedSuffixIcon: const Icon(
-                          Icons.keyboard_arrow_down_rounded,
-                          size: 20,
-                          color: AppColors.frenchGray,
-                        ),
-                        expandedSuffixIcon: const Icon(
-                          Icons.keyboard_arrow_up_rounded,
-                          size: 20,
-                          color: AppColors.frenchGray,
-                        ),
-                        closedBorder: Border.all(color: AppColors.timberwolf),
-                        expandedBorder: Border.all(color: AppColors.timberwolf),
+        child: BlocBuilder<TrainingManagementBloc, TrainingManagementState>(
+            builder: (context, state) {
+          if (state is TrainingManagementLoaded) {
+            return Column(
+              children: [
+                const SizedBox(height: 30),
+                _buildTrainingsList(context),
+                const SizedBox(height: 30),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        tr('home_page_global_stats'),
+                        style: Theme.of(context).textTheme.titleLarge,
                       ),
-                      onChanged: (value) {
-                        setState(() {
-                          _selectedStatPeriod = StatPeriod.values.firstWhere(
-                              (period) =>
-                                  period
-                                      .translate(context.locale.languageCode) ==
-                                  value);
-                          _filteredHistoryTrainings =
-                              _fetchHistoryTrainings(_selectedStatPeriod);
-                        });
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 10),
-            Container(
-              width: double.infinity,
-              margin: const EdgeInsets.symmetric(horizontal: 20),
-              padding: const EdgeInsets.only(
-                  bottom: 15, left: 10, right: 10, top: 15),
-              decoration: BoxDecoration(
-                  color: AppColors.white,
-                  border: Border.all(color: AppColors.timberwolf),
-                  borderRadius: BorderRadius.circular(10)),
-              child: Column(
-                children: [
-                  Container(
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                        color: AppColors.floralWhite,
-                        borderRadius: BorderRadius.circular(5)),
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: ToggleSwitch(
-                        customWidths: StatType.values.map((statType) {
-                          // Calculer la largeur nécessaire pour chaque texte
-                          final textPainter = TextPainter(
-                            text: TextSpan(
-                              text: statType
-                                  .translate(context.locale.languageCode),
-                              style: const TextStyle(fontSize: 14),
+                      SizedBox(
+                        width: 180,
+                        child: CustomDropdown<String>(
+                          items: StatPeriod.values
+                              .map((period) =>
+                                  period.translate(context.locale.languageCode))
+                              .toList(),
+                          initialItem: _selectedStatPeriod
+                              .translate(context.locale.languageCode),
+                          decoration: CustomDropdownDecoration(
+                            listItemStyle: Theme.of(context)
+                                .textTheme
+                                .bodyMedium!
+                                .copyWith(
+                                    color: AppColors.taupeGray, fontSize: 14),
+                            headerStyle: Theme.of(context)
+                                .textTheme
+                                .bodyMedium!
+                                .copyWith(
+                                    color: AppColors.taupeGray, fontSize: 14),
+                            closedSuffixIcon: const Icon(
+                              Icons.keyboard_arrow_down_rounded,
+                              size: 20,
+                              color: AppColors.frenchGray,
                             ),
-                            textDirection: ui.TextDirection.ltr,
-                          )..layout();
-
-                          return textPainter.width + 32;
-                        }).toList(),
-                        inactiveBgColor: AppColors.floralWhite,
-                        activeBgColor: const [AppColors.white],
-                        activeFgColor: AppColors.licorice,
-                        inactiveFgColor: AppColors.taupeGray,
-                        cornerRadius: 5,
-                        radiusStyle: true,
-                        initialLabelIndex: _selectedStatType,
-                        totalSwitches: StatType.values.length,
-                        labels: StatType.values
-                            .map((statType) =>
-                                statType.translate(context.locale.languageCode))
-                            .toList(),
-                        onToggle: (index) {
-                          setState(() {
-                            _selectedStatType = index!;
-                          });
-                        },
+                            expandedSuffixIcon: const Icon(
+                              Icons.keyboard_arrow_up_rounded,
+                              size: 20,
+                              color: AppColors.frenchGray,
+                            ),
+                            closedBorder:
+                                Border.all(color: AppColors.timberwolf),
+                            expandedBorder:
+                                Border.all(color: AppColors.timberwolf),
+                          ),
+                          onChanged: (value) {
+                            setState(() {
+                              _selectedStatPeriod = StatPeriod.values
+                                  .firstWhere((period) =>
+                                      period.translate(
+                                          context.locale.languageCode) ==
+                                      value);
+                              _periodStats =
+                                  _fetchPeriodStats(_selectedStatPeriod);
+                            });
+                          },
+                        ),
                       ),
-                    ),
+                    ],
                   ),
-                  const SizedBox(height: 15),
-                  if (_selectedStatType == 0) _buildGeneralStats(context),
-                  if (_selectedStatType == 1) _buildRunStats(context),
-                  if (_selectedStatType == 2) _buildWorkoutStats(context),
-                  if (_selectedStatType == 3) _buildYogaStats(context),
-                ],
-              ),
-            ),
-            const SizedBox(height: 10),
-            _buildHistoryList(),
-            const SizedBox(height: 90)
-          ],
-        ),
+                ),
+                const SizedBox(height: 10),
+                Container(
+                  width: double.infinity,
+                  margin: const EdgeInsets.symmetric(horizontal: 20),
+                  padding: const EdgeInsets.only(
+                      bottom: 15, left: 10, right: 10, top: 15),
+                  decoration: BoxDecoration(
+                      color: AppColors.white,
+                      border: Border.all(color: AppColors.timberwolf),
+                      borderRadius: BorderRadius.circular(10)),
+                  child: Column(
+                    children: [
+                      Container(
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                            color: AppColors.floralWhite,
+                            borderRadius: BorderRadius.circular(5)),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 5),
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: ToggleSwitch(
+                            customWidths: StatType.values.map((statType) {
+                              // Calculer la largeur nécessaire pour chaque texte
+                              final textPainter = TextPainter(
+                                text: TextSpan(
+                                  text: statType
+                                      .translate(context.locale.languageCode),
+                                  style: const TextStyle(fontSize: 14),
+                                ),
+                                textDirection: ui.TextDirection.ltr,
+                              )..layout();
+
+                              return textPainter.width + 32;
+                            }).toList(),
+                            inactiveBgColor: AppColors.floralWhite,
+                            activeBgColor: const [AppColors.white],
+                            activeFgColor: AppColors.licorice,
+                            inactiveFgColor: AppColors.taupeGray,
+                            cornerRadius: 5,
+                            radiusStyle: true,
+                            initialLabelIndex: _selectedStatType,
+                            totalSwitches: StatType.values.length,
+                            labels: StatType.values
+                                .map((statType) => statType
+                                    .translate(context.locale.languageCode))
+                                .toList(),
+                            onToggle: (index) {
+                              setState(() {
+                                _selectedStatType = index!;
+                              });
+                            },
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 15),
+                      _buildPeriodStats(),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 10),
+                _buildHistoryList(),
+                const SizedBox(height: 90)
+              ],
+            );
+          }
+          return const SizedBox();
+        }),
       ),
     );
+  }
+
+  Widget _buildPeriodStats() {
+    return BlocBuilder<TrainingHistoryBloc, TrainingHistoryState>(
+        builder: (context, state) {
+      if (state is TrainingHistoryLoaded) {
+        _periodStats = _fetchPeriodStats(_selectedStatPeriod);
+        _weeklyStats = _fetchPeriodStats(StatPeriod.week);
+
+        if (_selectedStatType == 0) return _buildGeneralStats(context);
+        if (_selectedStatType == 1) return _buildRunStats(context);
+        if (_selectedStatType == 2) return _buildWorkoutStats(context);
+        if (_selectedStatType == 3) return _buildYogaStats(context);
+      }
+      return const SizedBox();
+    });
   }
 
   Widget _buildHistoryList() {
@@ -201,7 +241,6 @@ class _HomePageState extends State<HomePage> {
         builder: (context, state) {
       if (state is TrainingHistoryLoaded) {
         _historyTrainings = HistoryTraining.getLastTen(state.historyTrainings);
-        _filteredHistoryTrainings = _fetchHistoryTrainings(_selectedStatPeriod);
 
         return ListView.builder(
             shrinkWrap: true,
@@ -298,6 +337,10 @@ class _HomePageState extends State<HomePage> {
   }
 
   Column _buildRunStats(BuildContext context) {
+    _plannedWeeklyTrainings = _calculateTotalTrainings(TrainingType.run);
+    _weeklyTrainingProgress = _plannedWeeklyTrainings != 0
+        ? _weeklyStats!.runTrainingsCount / _plannedWeeklyTrainings
+        : 0;
     return Column(
       children: [
         Row(
@@ -307,39 +350,42 @@ class _HomePageState extends State<HomePage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Distance totale',
+                  tr('home_page_distance'),
                   style: Theme.of(context)
                       .textTheme
                       .bodySmall!
                       .copyWith(color: AppColors.taupeGray),
                 ),
-                Text('24.4 km', style: Theme.of(context).textTheme.titleLarge)
+                Text('${_periodStats!.runTotalDistance} km',
+                    style: Theme.of(context).textTheme.titleLarge)
               ],
             ),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Allure moyenne',
+                  tr('home_page_pace'),
                   style: Theme.of(context)
                       .textTheme
                       .bodySmall!
                       .copyWith(color: AppColors.taupeGray),
                 ),
-                Text('6:30 /km', style: Theme.of(context).textTheme.titleLarge)
+                Text(formatPace(_periodStats!.runAveragePace),
+                    style: Theme.of(context).textTheme.titleLarge)
               ],
             ),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Dénivelé',
+                  tr('home_page_drop'),
                   style: Theme.of(context)
                       .textTheme
                       .bodySmall!
                       .copyWith(color: AppColors.taupeGray),
                 ),
-                Text('245 m', style: Theme.of(context).textTheme.titleLarge)
+                Text('${_periodStats!.runTotalDrop} m',
+                    style: Theme.of(context).textTheme.titleLarge)
               ],
             )
           ],
@@ -349,36 +395,44 @@ class _HomePageState extends State<HomePage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Séances réalisées',
+              '${tr('home_page_trainings')} ${_selectedStatPeriod == StatPeriod.week ? tr('home_page_week') : _selectedStatPeriod == StatPeriod.month ? tr('home_page_month') : tr('home_page_year')}',
               style: Theme.of(context)
                   .textTheme
                   .bodySmall!
                   .copyWith(color: AppColors.taupeGray),
             ),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('0', style: Theme.of(context).textTheme.titleLarge),
-                Text(
-                  '0%',
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodySmall!
-                      .copyWith(color: AppColors.taupeGray),
-                ),
-              ],
-            ),
-            const SizedBox(height: 5),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(99),
-              child: LinearProgressIndicator(
-                value: _trainingProgress,
-                minHeight: 8,
-                backgroundColor: AppColors.timberwolf,
-                color: AppColors.licorice,
+            if (_selectedStatPeriod != StatPeriod.week)
+              Text('${_periodStats!.runTrainingsCount}',
+                  style: Theme.of(context).textTheme.titleLarge)
+            else
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                      '${_periodStats!.runTrainingsCount}/$_plannedWeeklyTrainings',
+                      style: Theme.of(context).textTheme.titleLarge),
+                  Text(
+                    '${_weeklyTrainingProgress.round()} %',
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodySmall!
+                        .copyWith(color: AppColors.taupeGray),
+                  ),
+                ],
               ),
-            )
+            if (_selectedStatPeriod == StatPeriod.week)
+              const SizedBox(height: 5),
+            if (_selectedStatPeriod == StatPeriod.week)
+              ClipRRect(
+                borderRadius: BorderRadius.circular(99),
+                child: LinearProgressIndicator(
+                  value: _weeklyTrainingProgress,
+                  minHeight: 8,
+                  backgroundColor: AppColors.timberwolf,
+                  color: AppColors.licorice,
+                ),
+              )
           ],
         ),
       ],
@@ -386,7 +440,12 @@ class _HomePageState extends State<HomePage> {
   }
 
   Column _buildWorkoutStats(BuildContext context) {
+    _plannedWeeklyTrainings = _calculateTotalTrainings(TrainingType.workout);
+    _weeklyTrainingProgress = _plannedWeeklyTrainings != 0
+        ? _weeklyStats!.workoutTrainingsCount / _plannedWeeklyTrainings
+        : 0;
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -395,39 +454,44 @@ class _HomePageState extends State<HomePage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Charge totale',
+                  tr('home_page_load'),
                   style: Theme.of(context)
                       .textTheme
                       .bodySmall!
                       .copyWith(color: AppColors.taupeGray),
                 ),
-                Text('2850 kg', style: Theme.of(context).textTheme.titleLarge)
+                Text('${_periodStats!.workoutTotalLoad} kg',
+                    style: Theme.of(context).textTheme.titleLarge)
               ],
             ),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Séries totales',
+                  tr('home_page_sets'),
                   style: Theme.of(context)
                       .textTheme
                       .bodySmall!
                       .copyWith(color: AppColors.taupeGray),
                 ),
-                Text('48', style: Theme.of(context).textTheme.titleLarge)
+                Text('${_periodStats!.workoutTotalSets}',
+                    style: Theme.of(context).textTheme.titleLarge)
               ],
             ),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Repos total',
+                  tr('home_page_rest'),
                   style: Theme.of(context)
                       .textTheme
                       .bodySmall!
                       .copyWith(color: AppColors.taupeGray),
                 ),
-                Text('45 min', style: Theme.of(context).textTheme.titleLarge)
+                Text(
+                    formatDurationToHoursMinutesSeconds(
+                        _periodStats!.workoutTotalRest),
+                    style: Theme.of(context).textTheme.titleLarge)
               ],
             )
           ],
@@ -437,36 +501,44 @@ class _HomePageState extends State<HomePage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Séances réalisées',
+              '${tr('home_page_trainings')} ${_selectedStatPeriod == StatPeriod.week ? tr('home_page_week') : _selectedStatPeriod == StatPeriod.month ? tr('home_page_month') : tr('home_page_year')}',
               style: Theme.of(context)
                   .textTheme
                   .bodySmall!
                   .copyWith(color: AppColors.taupeGray),
             ),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('0', style: Theme.of(context).textTheme.titleLarge),
-                Text(
-                  '0%',
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodySmall!
-                      .copyWith(color: AppColors.taupeGray),
-                ),
-              ],
-            ),
-            const SizedBox(height: 5),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(99),
-              child: LinearProgressIndicator(
-                value: _trainingProgress,
-                minHeight: 8,
-                backgroundColor: AppColors.timberwolf,
-                color: AppColors.licorice,
+            if (_selectedStatPeriod != StatPeriod.week)
+              Text('${_periodStats!.workoutTrainingsCount}',
+                  style: Theme.of(context).textTheme.titleLarge)
+            else
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                      '${_periodStats!.workoutTrainingsCount}/$_plannedWeeklyTrainings',
+                      style: Theme.of(context).textTheme.titleLarge),
+                  Text(
+                    '${_weeklyTrainingProgress.round()}%',
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodySmall!
+                        .copyWith(color: AppColors.taupeGray),
+                  ),
+                ],
               ),
-            )
+            if (_selectedStatPeriod == StatPeriod.week)
+              const SizedBox(height: 5),
+            if (_selectedStatPeriod == StatPeriod.week)
+              ClipRRect(
+                borderRadius: BorderRadius.circular(99),
+                child: LinearProgressIndicator(
+                  value: _weeklyTrainingProgress,
+                  minHeight: 8,
+                  backgroundColor: AppColors.timberwolf,
+                  color: AppColors.licorice,
+                ),
+              )
           ],
         ),
       ],
@@ -474,7 +546,13 @@ class _HomePageState extends State<HomePage> {
   }
 
   Column _buildYogaStats(BuildContext context) {
+    _plannedWeeklyTrainings = _calculateTotalTrainings(TrainingType.yoga);
+    _weeklyTrainingProgress = _plannedWeeklyTrainings != 0
+        ? _weeklyStats!.yogaTrainingsCount / _plannedWeeklyTrainings
+        : 0;
+
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -483,39 +561,46 @@ class _HomePageState extends State<HomePage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Durée totale',
+                  tr('home_page_duration'),
                   style: Theme.of(context)
                       .textTheme
                       .bodySmall!
                       .copyWith(color: AppColors.taupeGray),
                 ),
-                Text('0h 00min', style: Theme.of(context).textTheme.titleLarge)
+                Text(
+                    formatDurationToHoursMinutesSeconds(
+                        _periodStats!.yogaTotalDuration),
+                    style: Theme.of(context).textTheme.titleLarge)
               ],
             ),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Postures',
+                  tr('home_page_postures'),
                   style: Theme.of(context)
                       .textTheme
                       .bodySmall!
                       .copyWith(color: AppColors.taupeGray),
                 ),
-                Text('12', style: Theme.of(context).textTheme.titleLarge)
+                Text('${_periodStats!.yogaUniqueExercises}',
+                    style: Theme.of(context).textTheme.titleLarge)
               ],
             ),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Méditation',
+                  tr('home_page_meditation'),
                   style: Theme.of(context)
                       .textTheme
                       .bodySmall!
                       .copyWith(color: AppColors.taupeGray),
                 ),
-                Text('10 min', style: Theme.of(context).textTheme.titleLarge)
+                Text(
+                    formatDurationToHoursMinutesSeconds(
+                        _periodStats!.yogaTotalMeditationDuration),
+                    style: Theme.of(context).textTheme.titleLarge)
               ],
             )
           ],
@@ -525,36 +610,44 @@ class _HomePageState extends State<HomePage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Séances réalisées',
+              '${tr('home_page_trainings')} ${_selectedStatPeriod == StatPeriod.week ? tr('home_page_week') : _selectedStatPeriod == StatPeriod.month ? tr('home_page_month') : tr('home_page_year')}',
               style: Theme.of(context)
                   .textTheme
                   .bodySmall!
                   .copyWith(color: AppColors.taupeGray),
             ),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('0', style: Theme.of(context).textTheme.titleLarge),
-                Text(
-                  '0%',
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodySmall!
-                      .copyWith(color: AppColors.taupeGray),
-                ),
-              ],
-            ),
-            const SizedBox(height: 5),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(99),
-              child: LinearProgressIndicator(
-                value: _trainingProgress,
-                minHeight: 8,
-                backgroundColor: AppColors.timberwolf,
-                color: AppColors.licorice,
+            if (_selectedStatPeriod != StatPeriod.week)
+              Text('${_periodStats!.yogaTrainingsCount}',
+                  style: Theme.of(context).textTheme.titleLarge)
+            else
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                      '${_weeklyStats!.yogaTrainingsCount}/$_plannedWeeklyTrainings',
+                      style: Theme.of(context).textTheme.titleLarge),
+                  Text(
+                    '${_weeklyTrainingProgress.round()}%',
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodySmall!
+                        .copyWith(color: AppColors.taupeGray),
+                  ),
+                ],
               ),
-            )
+            if (_selectedStatPeriod == StatPeriod.week)
+              const SizedBox(height: 5),
+            if (_selectedStatPeriod == StatPeriod.week)
+              ClipRRect(
+                borderRadius: BorderRadius.circular(99),
+                child: LinearProgressIndicator(
+                  value: _weeklyTrainingProgress,
+                  minHeight: 8,
+                  backgroundColor: AppColors.timberwolf,
+                  color: AppColors.licorice,
+                ),
+              )
           ],
         ),
       ],
@@ -562,7 +655,13 @@ class _HomePageState extends State<HomePage> {
   }
 
   Column _buildGeneralStats(BuildContext context) {
+    _plannedWeeklyTrainings = _calculateTotalTrainings(null);
+    _weeklyTrainingProgress = _plannedWeeklyTrainings != 0
+        ? _weeklyStats!.totalTrainingsCount / _plannedWeeklyTrainings
+        : 0;
+
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -571,39 +670,44 @@ class _HomePageState extends State<HomePage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Durée totale',
+                  tr('home_page_total_duration'),
                   style: Theme.of(context)
                       .textTheme
                       .bodySmall!
                       .copyWith(color: AppColors.taupeGray),
                 ),
-                Text('0h 00min', style: Theme.of(context).textTheme.titleLarge)
+                Text(
+                    formatDurationToHoursMinutesSeconds(
+                        _periodStats!.totalDuration),
+                    style: Theme.of(context).textTheme.titleLarge)
               ],
             ),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Distance',
+                  tr('home_page_distance'),
                   style: Theme.of(context)
                       .textTheme
                       .bodySmall!
                       .copyWith(color: AppColors.taupeGray),
                 ),
-                Text('0 km', style: Theme.of(context).textTheme.titleLarge)
+                Text('${_periodStats!.runTotalDistance / 1000} km',
+                    style: Theme.of(context).textTheme.titleLarge)
               ],
             ),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Calories',
+                  tr('home_page_calories'),
                   style: Theme.of(context)
                       .textTheme
                       .bodySmall!
                       .copyWith(color: AppColors.taupeGray),
                 ),
-                Text('0 kcal', style: Theme.of(context).textTheme.titleLarge)
+                Text('${_periodStats!.totalCalories} cal',
+                    style: Theme.of(context).textTheme.titleLarge)
               ],
             )
           ],
@@ -613,36 +717,44 @@ class _HomePageState extends State<HomePage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Séances réalisées',
+              '${tr('home_page_trainings')} ${_selectedStatPeriod == StatPeriod.week ? tr('home_page_week') : _selectedStatPeriod == StatPeriod.month ? tr('home_page_month') : tr('home_page_year')}',
               style: Theme.of(context)
                   .textTheme
                   .bodySmall!
                   .copyWith(color: AppColors.taupeGray),
             ),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('0', style: Theme.of(context).textTheme.titleLarge),
-                Text(
-                  '0%',
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodySmall!
-                      .copyWith(color: AppColors.taupeGray),
-                ),
-              ],
-            ),
-            const SizedBox(height: 5),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(99),
-              child: LinearProgressIndicator(
-                value: _trainingProgress,
-                minHeight: 8,
-                backgroundColor: AppColors.timberwolf,
-                color: AppColors.licorice,
+            if (_selectedStatPeriod != StatPeriod.week)
+              Text('${_periodStats!.totalTrainingsCount}',
+                  style: Theme.of(context).textTheme.titleLarge)
+            else
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                      '${_weeklyStats!.totalTrainingsCount}/$_plannedWeeklyTrainings',
+                      style: Theme.of(context).textTheme.titleLarge),
+                  Text(
+                    '${_weeklyTrainingProgress.round()}%',
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodySmall!
+                        .copyWith(color: AppColors.taupeGray),
+                  ),
+                ],
               ),
-            )
+            if (_selectedStatPeriod == StatPeriod.week)
+              const SizedBox(height: 5),
+            if (_selectedStatPeriod == StatPeriod.week)
+              ClipRRect(
+                borderRadius: BorderRadius.circular(99),
+                child: LinearProgressIndicator(
+                  value: _weeklyTrainingProgress,
+                  minHeight: 8,
+                  backgroundColor: AppColors.timberwolf,
+                  color: AppColors.licorice,
+                ),
+              )
           ],
         ),
       ],

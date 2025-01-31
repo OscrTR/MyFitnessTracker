@@ -241,12 +241,6 @@ class _ActiveMultisetRunWidgetState extends State<ActiveMultisetRunWidget> {
   }
 }
 
-String formatPace(int seconds) {
-  final minutes = seconds ~/ 60;
-  final secs = seconds % 60;
-  return '$minutes:${secs.toString().padLeft(2, '0')}/km';
-}
-
 class DistanceOrDurationRun extends StatelessWidget {
   final Multiset multiset;
   final TrainingExercise tExercise;
