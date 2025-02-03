@@ -7,6 +7,7 @@ import 'history_run_location.dart';
 
 class HistoryTraining extends Equatable {
   final int trainingId;
+  final String trainingName;
   final TrainingType trainingType;
   final int duration;
   final int distance;
@@ -16,12 +17,13 @@ class HistoryTraining extends Equatable {
   final int load;
   final int sets;
   final int rest;
-  final int exercisesNumber;
+  final int exercisesCount;
   final int meditationDuration;
   final DateTime date;
 
   const HistoryTraining({
     required this.trainingId,
+    required this.trainingName,
     required this.trainingType,
     required this.duration,
     required this.distance,
@@ -31,7 +33,7 @@ class HistoryTraining extends Equatable {
     required this.load,
     required this.sets,
     required this.rest,
-    required this.exercisesNumber,
+    required this.exercisesCount,
     required this.meditationDuration,
     required this.date,
   });
@@ -40,6 +42,7 @@ class HistoryTraining extends Equatable {
   List<Object> get props {
     return [
       trainingId,
+      trainingName,
       trainingType,
       duration,
       distance,
@@ -49,7 +52,7 @@ class HistoryTraining extends Equatable {
       load,
       sets,
       rest,
-      exercisesNumber,
+      exercisesCount,
       meditationDuration,
       date,
     ];
@@ -107,8 +110,7 @@ class HistoryTraining extends Equatable {
     final firstEntry = group.first;
 
     // Calculer les statistiques agrégées
-    final totalDuration =
-        group.fold<int>(0, (sum, entry) => sum + (entry.duration ?? 0));
+    final totalDuration = _calculateDuration(group);
     final totalDistance =
         group.fold<int>(0, (sum, entry) => sum + (entry.distance ?? 0));
     final totalCalories =
@@ -136,6 +138,7 @@ class HistoryTraining extends Equatable {
 
     return HistoryTraining(
       trainingId: firstEntry.trainingId,
+      trainingName: firstEntry.trainingNameAtTime,
       trainingType: firstEntry.trainingType,
       duration: totalDuration,
       distance: totalDistance,
@@ -145,7 +148,7 @@ class HistoryTraining extends Equatable {
       load: totalLoad,
       sets: totalSets,
       rest: totalRest,
-      exercisesNumber: uniqueExercises,
+      exercisesCount: uniqueExercises,
       meditationDuration: meditationDuration,
       date: firstEntry.date,
     );
@@ -156,6 +159,25 @@ class HistoryTraining extends Equatable {
         .where((entry) =>
             entry.trainingExerciseType == TrainingExerciseType.meditation)
         .fold<int>(0, (sum, entry) => sum + (entry.duration ?? 0));
+  }
+
+  static int _calculateDuration(List<HistoryEntry> group) {
+    if (group.length <= 1) return 0;
+
+    int totalTrainingTime = 0;
+
+    // Calculer le temps total d'entraînement effectif
+    for (var entry in group) {
+      if (entry.duration != null && entry.duration! > 0) {
+        totalTrainingTime += entry.duration!;
+      } else if (entry.reps != null) {
+        // Si pas de durée mais des répétitions, on compte 3 secondes par répétition
+        totalTrainingTime += entry.reps! * 3;
+      }
+    }
+
+    // Le temps de repos est la différence entre le temps total écoulé et le temps d'entraînement
+    return totalTrainingTime;
   }
 
   static int _calculateTotalRest(List<HistoryEntry> group) {
@@ -179,6 +201,10 @@ class HistoryTraining extends Equatable {
       final timeDifference =
           group[i].date.difference(group[i - 1].date).inSeconds;
       totalElapsedTime += timeDifference;
+    }
+
+    if ((totalElapsedTime - totalTrainingTime) < 0) {
+      return 0;
     }
 
     // Le temps de repos est la différence entre le temps total écoulé et le temps d'entraînement

@@ -85,7 +85,7 @@ class _ActiveExerciseWidgetState extends State<ActiveExerciseWidget> {
 
         return Column(
           children: [
-            _buildExercise(matchingExercise!, widget.tExercise, context),
+            _buildExercise(matchingExercise, widget.tExercise, context),
             _buildExerciseRest(),
           ],
         );
@@ -94,7 +94,7 @@ class _ActiveExerciseWidgetState extends State<ActiveExerciseWidget> {
   }
 
   Widget _buildExercise(
-      Exercise exercise, TrainingExercise tExercise, BuildContext context) {
+      Exercise? exercise, TrainingExercise tExercise, BuildContext context) {
     return BlocBuilder<ActiveTrainingBloc, ActiveTrainingState>(
         builder: (context, state) {
       if (state is ActiveTrainingLoaded) {
@@ -133,7 +133,8 @@ class _ActiveExerciseWidgetState extends State<ActiveExerciseWidget> {
                   expanded: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      if (exercise.description != null &&
+                      if (exercise != null &&
+                          exercise.description != null &&
                           exercise.description!.isNotEmpty)
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -248,13 +249,15 @@ class _ActiveExerciseWidgetState extends State<ActiveExerciseWidget> {
   }
 
   Widget _buildExpandableHeader(
-      Exercise exercise, BuildContext context, bool isSetsInReps) {
+      Exercise? exercise, BuildContext context, bool isSetsInReps) {
     return Builder(builder: (context) {
       final controller = ExpandableController.of(context);
       return Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (exercise.imagePath != null && exercise.imagePath!.isNotEmpty)
+          if (exercise != null &&
+              exercise.imagePath != null &&
+              exercise.imagePath!.isNotEmpty)
             Column(
               children: [
                 SizedBox(
@@ -272,7 +275,9 @@ class _ActiveExerciseWidgetState extends State<ActiveExerciseWidget> {
                 ),
               ],
             ),
-          if (exercise.imagePath != null && exercise.imagePath!.isNotEmpty)
+          if (exercise != null &&
+              exercise.imagePath != null &&
+              exercise.imagePath!.isNotEmpty)
             const SizedBox(width: 10),
           Expanded(
             child: Column(
@@ -283,7 +288,9 @@ class _ActiveExerciseWidgetState extends State<ActiveExerciseWidget> {
                   children: [
                     Expanded(
                       child: Text(
-                        exercise.name,
+                        exercise != null
+                            ? exercise.name
+                            : tr('global_exercise_unknown'),
                         style: Theme.of(context).textTheme.titleMedium,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -455,11 +462,9 @@ class _ActiveExerciseRowState extends State<ActiveExerciseRow> {
                       duration: widget.tExercise.duration);
                 }
 
-                final trainingType = (context
-                        .read<TrainingManagementBloc>()
-                        .state as TrainingManagementLoaded)
-                    .activeTraining!
-                    .type;
+                final training = (context.read<TrainingManagementBloc>().state
+                        as TrainingManagementLoaded)
+                    .activeTraining!;
 
                 context.read<TrainingHistoryBloc>().add(
                       CreateOrUpdateHistoryEntry(
@@ -474,7 +479,10 @@ class _ActiveExerciseRowState extends State<ActiveExerciseRow> {
                           calories: cals,
                           trainingExerciseType:
                               widget.tExercise.trainingExerciseType!,
-                          trainingType: trainingType,
+                          trainingType: training.type,
+                          trainingNameAtTime: training.name,
+                          exerciseNameAtTime:
+                              findExerciseName(widget.tExercise),
                         ),
                       ),
                     );

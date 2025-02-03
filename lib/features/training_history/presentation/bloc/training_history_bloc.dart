@@ -76,7 +76,6 @@ class TrainingHistoryBloc
               historyEntries,
               locationsByTrainingId: locationsByTrainingId,
             );
-            print(trainings);
             emit(currentState.copyWith(historyTrainings: trainings));
           },
         );

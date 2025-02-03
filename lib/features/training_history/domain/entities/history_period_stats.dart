@@ -99,7 +99,7 @@ class PeriodStats extends Equatable {
         yogaTrainings.fold<int>(0, (sum, t) => sum + t.meditationDuration);
     final yogaUniqueExercises = yogaTrainings.fold<Set<int>>(
       {},
-      (exerciseSet, t) => exerciseSet..addAll([t.exercisesNumber]),
+      (exerciseSet, t) => exerciseSet..addAll([t.exercisesCount]),
     ).length;
 
     return PeriodStats(

@@ -29,7 +29,7 @@ class SQLiteDatabaseHelper {
         await db.execute('''
           CREATE TABLE trainings(
             id INTEGER PRIMARY KEY AUTOINCREMENT, 
-            name TEXT, 
+            name TEXT,
             type INTEGER, 
             objectives TEXT,
             training_days TEXT
@@ -91,9 +91,11 @@ class SQLiteDatabaseHelper {
           CREATE TABLE history(
             id INTEGER PRIMARY KEY AUTOINCREMENT, 
             training_id INTEGER,
+            training_name_at_time TEXT,
             training_type TEXT,
             training_exercise_id INTEGER,
             training_exercise_type TEXT,
+            exercise_name_at_time TEXT,
             set_number INTEGER,
             multiset_set_number INTEGER,
             date INTEGER,

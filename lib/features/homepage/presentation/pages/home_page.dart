@@ -1,5 +1,6 @@
 import 'package:animated_custom_dropdown/custom_dropdown.dart';
 import 'package:back_button_interceptor/back_button_interceptor.dart';
+import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -253,13 +254,13 @@ class _HomePageState extends State<HomePage> {
               dateFormatee =
                   dateFormatee[0].toUpperCase() + dateFormatee.substring(1);
 
-// TODO : rendre indépendant d'un training dans le cas d'une suppression
               final trainingName = (sl<TrainingManagementBloc>().state
-                      as TrainingManagementLoaded)
-                  .trainings
-                  .firstWhere((trainning) =>
-                      trainning.id == _historyTrainings![index].trainingId)
-                  .name;
+                          as TrainingManagementLoaded)
+                      .trainings
+                      .firstWhereOrNull((trainning) =>
+                          trainning.id == _historyTrainings![index].trainingId)
+                      ?.name ??
+                  '${_historyTrainings![index].trainingName} (${tr('global_deleted')})';
 
               return Container(
                   padding: const EdgeInsets.all(10),
@@ -413,7 +414,7 @@ class _HomePageState extends State<HomePage> {
                       '${_periodStats!.runTrainingsCount}/$_plannedWeeklyTrainings',
                       style: Theme.of(context).textTheme.titleLarge),
                   Text(
-                    '${_weeklyTrainingProgress.round()} %',
+                    '${(_weeklyTrainingProgress * 100).round()}%',
                     style: Theme.of(context)
                         .textTheme
                         .bodySmall!
@@ -519,7 +520,7 @@ class _HomePageState extends State<HomePage> {
                       '${_periodStats!.workoutTrainingsCount}/$_plannedWeeklyTrainings',
                       style: Theme.of(context).textTheme.titleLarge),
                   Text(
-                    '${_weeklyTrainingProgress.round()}%',
+                    '${(_weeklyTrainingProgress * 100).round()}%',
                     style: Theme.of(context)
                         .textTheme
                         .bodySmall!
@@ -628,7 +629,7 @@ class _HomePageState extends State<HomePage> {
                       '${_weeklyStats!.yogaTrainingsCount}/$_plannedWeeklyTrainings',
                       style: Theme.of(context).textTheme.titleLarge),
                   Text(
-                    '${_weeklyTrainingProgress.round()}%',
+                    '${(_weeklyTrainingProgress * 100).round()}%',
                     style: Theme.of(context)
                         .textTheme
                         .bodySmall!
@@ -735,7 +736,7 @@ class _HomePageState extends State<HomePage> {
                       '${_weeklyStats!.totalTrainingsCount}/$_plannedWeeklyTrainings',
                       style: Theme.of(context).textTheme.titleLarge),
                   Text(
-                    '${_weeklyTrainingProgress.round()}%',
+                    '${(_weeklyTrainingProgress * 100).round()}%',
                     style: Theme.of(context)
                         .textTheme
                         .bodySmall!

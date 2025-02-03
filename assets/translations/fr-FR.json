@@ -22,6 +22,8 @@
   "global_everyday": "Quotidien",
   "global_never": "Jamais",
   "global_done": "Fait",
+  "global_exercise_unknown": "Exercice inconnu",
+  "global_deleted": "Supprimé",
 
   "nav_home": "Accueil",
   "nav_trainings": "Entraînements",

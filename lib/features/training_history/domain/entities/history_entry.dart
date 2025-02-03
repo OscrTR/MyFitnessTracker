@@ -1,4 +1,6 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:equatable/equatable.dart';
+
 import 'package:my_fitness_tracker/features/training_management/domain/entities/training.dart';
 
 import '../../../training_management/domain/entities/training_exercise.dart';
@@ -18,6 +20,8 @@ class HistoryEntry extends Equatable {
   final int? distance;
   final int? pace;
   final int? calories;
+  final String trainingNameAtTime;
+  final String exerciseNameAtTime;
 
   const HistoryEntry({
     this.id,
@@ -34,6 +38,8 @@ class HistoryEntry extends Equatable {
     this.distance,
     this.pace,
     this.calories,
+    required this.trainingNameAtTime,
+    required this.exerciseNameAtTime,
   });
 
   HistoryEntry copyWith({
@@ -43,6 +49,8 @@ class HistoryEntry extends Equatable {
     int? distance,
     int? pace,
     int? calories,
+    String? trainingNameAtTime,
+    String? exerciseNameAtTime,
   }) {
     return HistoryEntry(
       id: id,
@@ -59,24 +67,30 @@ class HistoryEntry extends Equatable {
       distance: distance ?? this.distance,
       pace: pace ?? this.pace,
       calories: calories ?? this.calories,
+      trainingNameAtTime: trainingNameAtTime ?? this.trainingNameAtTime,
+      exerciseNameAtTime: exerciseNameAtTime ?? this.exerciseNameAtTime,
     );
   }
 
   @override
-  List<Object?> get props => [
-        id,
-        trainingId,
-        trainingType,
-        trainingExerciseId,
-        trainingExerciseType,
-        setNumber,
-        multisetSetNumber,
-        date,
-        reps,
-        weight,
-        duration,
-        distance,
-        pace,
-        calories
-      ];
+  List<Object?> get props {
+    return [
+      id,
+      trainingId,
+      trainingType,
+      trainingExerciseId,
+      trainingExerciseType,
+      setNumber,
+      multisetSetNumber,
+      date,
+      reps,
+      weight,
+      duration,
+      distance,
+      pace,
+      calories,
+      trainingNameAtTime,
+      exerciseNameAtTime,
+    ];
+  }
 }

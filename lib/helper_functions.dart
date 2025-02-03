@@ -1,3 +1,10 @@
+import 'package:collection/collection.dart';
+import 'package:easy_localization/easy_localization.dart';
+
+import 'features/exercise_management/presentation/bloc/exercise_management_bloc.dart';
+import 'features/training_management/domain/entities/training_exercise.dart';
+import 'injection_container.dart';
+
 String formatDurationToMinutesSeconds(int? seconds) {
   final minutes = (seconds ?? 0) ~/ 60;
   final remainingSeconds = (seconds ?? 0) % 60;
@@ -56,4 +63,52 @@ class _IntensityData {
     required this.met,
     required this.epocFactor,
   });
+}
+
+String findExerciseName(TrainingExercise tExercise) {
+  String exerciseName = '';
+  if (tExercise.trainingExerciseType == TrainingExerciseType.run) {
+    final targetIntervalDistance =
+        tExercise.intervalDistance != null && tExercise.intervalDistance! > 0
+            ? '${(tExercise.intervalDistance! / 1000).toStringAsFixed(1)}km'
+            : '';
+    final targetIntervalDuration = tExercise.intervalDuration != null
+        ? formatDurationToHoursMinutesSeconds(tExercise.intervalDuration!)
+        : '';
+    final targetPace = tExercise.isTargetPaceSelected == true
+        ? ' at ${formatPace(tExercise.targetPace ?? 0)}'
+        : '';
+    final intervals = tExercise.intervals ?? 1;
+    final targetDistance =
+        tExercise.targetDistance != null && tExercise.targetDistance! > 0
+            ? '${(tExercise.targetDistance! / 1000).toStringAsFixed(1)}km'
+            : '';
+    final targetDuration = tExercise.targetDuration != null
+        ? formatDurationToHoursMinutesSeconds(tExercise.targetDuration!)
+        : '';
+
+    if (tExercise.runExerciseTarget == RunExerciseTarget.intervals) {
+      if (tExercise.isIntervalInDistance == true) {
+        exerciseName =
+            '${tr('active_training_running_interval')} ${'$intervals'}x$targetIntervalDistance$targetPace';
+      } else {
+        exerciseName =
+            '${tr('active_training_running_interval')} ${'$intervals'}x$targetIntervalDuration$targetPace';
+      }
+    } else if (tExercise.runExerciseTarget == RunExerciseTarget.distance) {
+      exerciseName =
+          '${tr('active_training_running')} $targetDistance$targetPace';
+    } else if (tExercise.runExerciseTarget == RunExerciseTarget.duration) {
+      exerciseName =
+          '${tr('active_training_running')} $targetDuration$targetPace';
+    }
+  } else {
+    exerciseName = (sl<ExerciseManagementBloc>().state
+                as ExerciseManagementLoaded)
+            .exercises
+            .firstWhereOrNull((exercise) => exercise.id == tExercise.exerciseId)
+            ?.name ??
+        'Deleted exercise';
+  }
+  return exerciseName;
 }

@@ -55,39 +55,45 @@ class SQLiteHistoryLocalDataSource implements HistoryLocalDataSource {
       HistoryEntry historyEntryToCreate) async {
     try {
       final model = HistoryEntryModel(
-          trainingId: historyEntryToCreate.trainingId,
-          trainingType: historyEntryToCreate.trainingType,
-          trainingExerciseId: historyEntryToCreate.trainingExerciseId,
-          trainingExerciseType: historyEntryToCreate.trainingExerciseType,
-          setNumber: historyEntryToCreate.setNumber,
-          multisetSetNumber: historyEntryToCreate.multisetSetNumber,
-          date: historyEntryToCreate.date,
-          weight: historyEntryToCreate.weight,
-          reps: historyEntryToCreate.reps,
-          duration: historyEntryToCreate.duration,
-          distance: historyEntryToCreate.distance,
-          pace: historyEntryToCreate.pace,
-          calories: historyEntryToCreate.calories);
+        trainingId: historyEntryToCreate.trainingId,
+        trainingType: historyEntryToCreate.trainingType,
+        trainingExerciseId: historyEntryToCreate.trainingExerciseId,
+        trainingExerciseType: historyEntryToCreate.trainingExerciseType,
+        setNumber: historyEntryToCreate.setNumber,
+        multisetSetNumber: historyEntryToCreate.multisetSetNumber,
+        date: historyEntryToCreate.date,
+        weight: historyEntryToCreate.weight,
+        reps: historyEntryToCreate.reps,
+        duration: historyEntryToCreate.duration,
+        distance: historyEntryToCreate.distance,
+        pace: historyEntryToCreate.pace,
+        calories: historyEntryToCreate.calories,
+        trainingNameAtTime: historyEntryToCreate.trainingNameAtTime,
+        exerciseNameAtTime: historyEntryToCreate.exerciseNameAtTime,
+      );
 
       final values = model.toJson();
 
       final id = await database.insert('history', values);
 
       return HistoryEntryModel(
-          id: id,
-          trainingId: historyEntryToCreate.trainingId,
-          trainingType: historyEntryToCreate.trainingType,
-          trainingExerciseId: historyEntryToCreate.trainingExerciseId,
-          trainingExerciseType: historyEntryToCreate.trainingExerciseType,
-          setNumber: historyEntryToCreate.setNumber,
-          multisetSetNumber: historyEntryToCreate.multisetSetNumber,
-          date: historyEntryToCreate.date,
-          weight: historyEntryToCreate.weight,
-          reps: historyEntryToCreate.reps,
-          duration: historyEntryToCreate.duration,
-          distance: historyEntryToCreate.distance,
-          pace: historyEntryToCreate.pace,
-          calories: historyEntryToCreate.calories);
+        id: id,
+        trainingId: historyEntryToCreate.trainingId,
+        trainingType: historyEntryToCreate.trainingType,
+        trainingExerciseId: historyEntryToCreate.trainingExerciseId,
+        trainingExerciseType: historyEntryToCreate.trainingExerciseType,
+        setNumber: historyEntryToCreate.setNumber,
+        multisetSetNumber: historyEntryToCreate.multisetSetNumber,
+        date: historyEntryToCreate.date,
+        weight: historyEntryToCreate.weight,
+        reps: historyEntryToCreate.reps,
+        duration: historyEntryToCreate.duration,
+        distance: historyEntryToCreate.distance,
+        pace: historyEntryToCreate.pace,
+        calories: historyEntryToCreate.calories,
+        trainingNameAtTime: historyEntryToCreate.trainingNameAtTime,
+        exerciseNameAtTime: historyEntryToCreate.exerciseNameAtTime,
+      );
     } catch (e) {
       throw LocalDatabaseException(e.toString());
     }
@@ -153,20 +159,23 @@ class SQLiteHistoryLocalDataSource implements HistoryLocalDataSource {
       HistoryEntry historyEntryToUpdate) async {
     try {
       final historyEntryToUpdateModel = HistoryEntryModel(
-          id: historyEntryToUpdate.id,
-          trainingId: historyEntryToUpdate.trainingId,
-          trainingType: historyEntryToUpdate.trainingType,
-          trainingExerciseId: historyEntryToUpdate.trainingExerciseId,
-          trainingExerciseType: historyEntryToUpdate.trainingExerciseType,
-          setNumber: historyEntryToUpdate.setNumber,
-          multisetSetNumber: historyEntryToUpdate.multisetSetNumber,
-          date: historyEntryToUpdate.date,
-          weight: historyEntryToUpdate.weight,
-          reps: historyEntryToUpdate.reps,
-          duration: historyEntryToUpdate.duration,
-          distance: historyEntryToUpdate.distance,
-          pace: historyEntryToUpdate.pace,
-          calories: historyEntryToUpdate.calories);
+        id: historyEntryToUpdate.id,
+        trainingId: historyEntryToUpdate.trainingId,
+        trainingType: historyEntryToUpdate.trainingType,
+        trainingExerciseId: historyEntryToUpdate.trainingExerciseId,
+        trainingExerciseType: historyEntryToUpdate.trainingExerciseType,
+        setNumber: historyEntryToUpdate.setNumber,
+        multisetSetNumber: historyEntryToUpdate.multisetSetNumber,
+        date: historyEntryToUpdate.date,
+        weight: historyEntryToUpdate.weight,
+        reps: historyEntryToUpdate.reps,
+        duration: historyEntryToUpdate.duration,
+        distance: historyEntryToUpdate.distance,
+        pace: historyEntryToUpdate.pace,
+        calories: historyEntryToUpdate.calories,
+        trainingNameAtTime: historyEntryToUpdate.trainingNameAtTime,
+        exerciseNameAtTime: historyEntryToUpdate.exerciseNameAtTime,
+      );
       await database.update(
         'history',
         historyEntryToUpdateModel.toJson(),

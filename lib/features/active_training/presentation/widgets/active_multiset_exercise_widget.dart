@@ -489,11 +489,9 @@ class _ActiveExerciseRowState extends State<ActiveExerciseRow> {
                       duration: widget.tExercise.duration);
                 }
 
-                final trainingType = (context
-                        .read<TrainingManagementBloc>()
-                        .state as TrainingManagementLoaded)
-                    .activeTraining!
-                    .type;
+                final training = (context.read<TrainingManagementBloc>().state
+                        as TrainingManagementLoaded)
+                    .activeTraining!;
 
                 context.read<TrainingHistoryBloc>().add(
                       CreateOrUpdateHistoryEntry(
@@ -508,7 +506,10 @@ class _ActiveExerciseRowState extends State<ActiveExerciseRow> {
                           calories: cals,
                           trainingExerciseType:
                               widget.tExercise.trainingExerciseType!,
-                          trainingType: trainingType,
+                          trainingType: training.type,
+                          trainingNameAtTime: training.name,
+                          exerciseNameAtTime:
+                              findExerciseName(widget.tExercise),
                         ),
                       ),
                     );

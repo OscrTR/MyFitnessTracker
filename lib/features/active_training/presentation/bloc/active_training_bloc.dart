@@ -149,6 +149,9 @@ class ActiveTrainingBloc
                     trainingType: trainingManagementState.activeTraining!.type,
                     trainingExerciseType:
                         matchingTExercise.trainingExerciseType!,
+                    trainingNameAtTime:
+                        trainingManagementState.activeTraining!.name,
+                    exerciseNameAtTime: findExerciseName(matchingTExercise),
                   ),
                 ),
               );
@@ -271,6 +274,9 @@ class ActiveTrainingBloc
                     trainingType: trainingManagementState.activeTraining!.type,
                     trainingExerciseType:
                         matchingTExercise.trainingExerciseType!,
+                    trainingNameAtTime:
+                        trainingManagementState.activeTraining!.name,
+                    exerciseNameAtTime: findExerciseName(matchingTExercise),
                   )));
                 }
                 runTracker.stopTracking();
@@ -337,6 +343,7 @@ class ActiveTrainingBloc
                 cals = getCalories(
                     intensity: matchingTExercise.intensity!,
                     duration: currentTimerState.timerValue);
+
                 sl<TrainingHistoryBloc>().add(CreateOrUpdateHistoryEntry(
                     historyEntry: HistoryEntry(
                   id: registeredId,
@@ -351,6 +358,9 @@ class ActiveTrainingBloc
                   calories: cals,
                   trainingType: trainingManagementState.activeTraining!.type,
                   trainingExerciseType: matchingTExercise.trainingExerciseType!,
+                  trainingNameAtTime:
+                      trainingManagementState.activeTraining!.name,
+                  exerciseNameAtTime: findExerciseName(matchingTExercise),
                 )));
               }
               runTracker.stopTracking();
