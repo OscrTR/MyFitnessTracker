@@ -76,10 +76,7 @@ class _TrainingsPageState extends State<TrainingsPage> {
           return SizedBox(
             height: MediaQuery.of(context).size.height - 250,
             child: Center(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Text(tr('training_page_no_training')),
-              ),
+              child: Text(tr('training_page_no_training')),
             ),
           );
         }

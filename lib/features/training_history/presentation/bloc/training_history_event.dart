@@ -28,3 +28,16 @@ class DeleteHistoryEntryEvent extends TrainingHistoryEvent {
   @override
   List<Object> get props => [id];
 }
+
+class SetDefaultHistoryDateEvent extends TrainingHistoryEvent {}
+
+class SetNewDateHistoryDateEvent extends TrainingHistoryEvent {
+  final DateTime startDate;
+  final bool isWeekSelected;
+
+  const SetNewDateHistoryDateEvent(
+      {required this.startDate, required this.isWeekSelected});
+
+  @override
+  List<Object> get props => [startDate, isWeekSelected];
+}

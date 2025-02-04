@@ -24,6 +24,8 @@
   "global_done": "Done",
   "global_exercise_unknown": "Exercise unknown",
   "global_deleted": "Deleted",
+  "global_week": "Week",
+  "global_month": "Month",
 
   "nav_home": "Home",
   "nav_trainings": "Trainings",
@@ -153,5 +155,8 @@
   "settings_page_language_description": "Select the app language",
   "settings_page_notifications": "Notifications",
   "settings_page_reminder": "Training reminders",
-  "settings_page_reminder_description": "Receive a reminder for your planned trainings"
+  "settings_page_reminder_description": "Receive a reminder for your planned trainings",
+
+  "history_page_no_training": "No training found.",
+  "history_page_title": "History"
 }

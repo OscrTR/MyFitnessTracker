@@ -24,6 +24,8 @@
   "global_done": "Fait",
   "global_exercise_unknown": "Exercice inconnu",
   "global_deleted": "Supprimé",
+  "global_week": "Semaine",
+  "global_month": "Mois",
 
   "nav_home": "Accueil",
   "nav_trainings": "Entraînements",
@@ -106,6 +108,7 @@
   "home_page_month": "ce mois",
   "home_page_year": "cette année",
 
+
   "trainings_page_title": "Entraînements",
   "trainings_page_new": "Nouveau",
   "trainings_page_add_new": "Ajouter",
@@ -152,5 +155,8 @@
   "settings_page_language_description": "Sélectionnez la langue de l'application",
   "settings_page_notifications": "Notifications",
   "settings_page_reminder": "Rappels d'entraînement",
-  "settings_page_reminder_description": "Recevez un rappel de vos séances prévues"
+  "settings_page_reminder_description": "Recevez un rappel de vos séances prévues",
+
+  "history_page_no_training": "Aucun entraînement trouvé.",
+  "history_page_title": "Historique"
 }

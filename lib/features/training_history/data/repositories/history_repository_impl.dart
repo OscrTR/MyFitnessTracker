@@ -34,9 +34,11 @@ class HistoryRepositoryImpl implements HistoryRepository {
   }
 
   @override
-  Future<Either<Failure, List<HistoryEntry>>> fetchHistoryEntries() async {
+  Future<Either<Failure, List<HistoryEntry>>> fetchHistoryEntries(
+      DateTime startDate, DateTime endDate) async {
     try {
-      return Right(await localDataSource.fetchHistoryEntries());
+      return Right(
+          await localDataSource.fetchHistoryEntries(startDate, endDate));
     } on LocalDatabaseException {
       return const Left(DatabaseFailure());
     }

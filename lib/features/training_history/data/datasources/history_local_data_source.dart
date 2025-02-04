@@ -21,7 +21,8 @@ abstract class HistoryLocalDataSource {
   /// Query the local database and return the list of history entries.
   ///
   /// Throws a [LocalDatabaseException] for all error codes.
-  Future<List<HistoryEntryModel>> fetchHistoryEntries();
+  Future<List<HistoryEntryModel>> fetchHistoryEntries(
+      DateTime startDate, DateTime endDate);
 
   /// Query the local database and update the history entry. Return the updated entry.
   ///
@@ -119,9 +120,17 @@ class SQLiteHistoryLocalDataSource implements HistoryLocalDataSource {
   }
 
   @override
-  Future<List<HistoryEntryModel>> fetchHistoryEntries() async {
+  Future<List<HistoryEntryModel>> fetchHistoryEntries(
+      DateTime startDate, DateTime endDate) async {
     try {
-      final List<Map<String, dynamic>> maps = await database.query('history');
+      final List<Map<String, dynamic>> maps = await database.query(
+        'history',
+        where: 'date BETWEEN ? AND ?',
+        whereArgs: [
+          startDate.millisecondsSinceEpoch,
+          endDate.millisecondsSinceEpoch,
+        ],
+      );
 
       final result = List.generate(maps.length, (i) {
         return HistoryEntryModel.fromJson(maps[i]);

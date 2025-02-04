@@ -7,7 +7,8 @@ import '../../../../core/error/failures.dart';
 abstract class HistoryRepository {
   Future<Either<Failure, HistoryEntry>> getHistoryEntry(int id);
 
-  Future<Either<Failure, List<HistoryEntry>>> fetchHistoryEntries();
+  Future<Either<Failure, List<HistoryEntry>>> fetchHistoryEntries(
+      DateTime startDate, DateTime endDate);
 
   Future<Either<Failure, HistoryEntry>> createHistoryEntry(
       HistoryEntry historyEntry);
