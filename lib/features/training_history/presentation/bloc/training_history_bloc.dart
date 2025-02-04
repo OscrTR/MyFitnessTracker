@@ -41,8 +41,11 @@ class TrainingHistoryBloc
     required this.messageBloc,
   }) : super(TrainingHistoryInitial()) {
     on<FetchHistoryEntriesEvent>((event, emit) async {
-      final startDate =
-          DateTime.now().subtract(Duration(days: DateTime.now().weekday - 1));
+      final startDate = DateTime(
+        DateTime.now().year,
+        DateTime.now().month,
+        DateTime.now().day - DateTime.now().weekday + 1,
+      );
       final endDate = DateTime.now()
           .subtract(Duration(days: DateTime.now().weekday - 1))
           .add(const Duration(days: 6));
@@ -54,12 +57,21 @@ class TrainingHistoryBloc
         (failure) => messageBloc.add(AddMessageEvent(
             message: _mapFailureToMessage(failure), isError: true)),
         (historyEntries) {
-          emit(TrainingHistoryLoaded(
-            historyEntries: historyEntries,
-            historyTrainings: const [],
-            startDate: startDate,
-            endDate: endDate,
-          ));
+          if (state is TrainingHistoryLoaded) {
+            final currentState = state as TrainingHistoryLoaded;
+            emit(currentState.copyWith(
+              historyEntries: historyEntries,
+              startDate: startDate,
+              endDate: endDate,
+            ));
+          } else {
+            emit(TrainingHistoryLoaded(
+              historyEntries: historyEntries,
+              historyTrainings: const [],
+              startDate: startDate,
+              endDate: endDate,
+            ));
+          }
         },
       );
 
@@ -159,6 +171,34 @@ class TrainingHistoryBloc
       }
     });
 
+    on<DeleteHistoryTrainingEvent>((event, emit) async {
+      if (state is TrainingHistoryLoaded) {
+        final currentState = state as TrainingHistoryLoaded;
+
+        final updatedHistoryEntries =
+            List<HistoryEntry>.from(currentState.historyEntries);
+
+        for (var entry in event.historyTraining.historyEntries) {
+          final result = await deleteHistoryEntry(
+            delete.Params(entry.id!),
+          );
+
+          result.fold(
+            (failure) {
+              messageBloc.add(AddMessageEvent(
+                  message: _mapFailureToMessage(failure), isError: true));
+            },
+            (result) {
+              updatedHistoryEntries.removeWhere((el) => el.id == entry.id!);
+            },
+          );
+        }
+
+        emit(currentState.copyWith(historyEntries: updatedHistoryEntries));
+        add(FetchHistoryEntriesEvent());
+      }
+    });
+
     //! History filters
     on<SetNewDateHistoryDateEvent>((event, emit) async {
       if (state is TrainingHistoryLoaded) {
@@ -196,8 +236,11 @@ class TrainingHistoryBloc
       if (state is TrainingHistoryLoaded) {
         final currentState = state as TrainingHistoryLoaded;
 
-        final startDate =
-            DateTime.now().subtract(Duration(days: DateTime.now().weekday - 1));
+        final startDate = DateTime(
+          DateTime.now().year,
+          DateTime.now().month,
+          DateTime.now().day - DateTime.now().weekday + 1,
+        );
         final endDate = DateTime.now()
             .subtract(Duration(days: DateTime.now().weekday - 1))
             .add(const Duration(days: 6));
@@ -220,6 +263,15 @@ class TrainingHistoryBloc
         );
 
         add(FetchHistoryTrainingsEvent());
+      }
+    });
+
+    on<SelectHistoryTrainingEntryEvent>((event, emit) async {
+      if (state is TrainingHistoryLoaded) {
+        final currentState = state as TrainingHistoryLoaded;
+
+        emit(currentState.copyWith(
+            selectedTrainingEntry: event.historyTraining));
       }
     });
   }

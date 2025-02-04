@@ -262,75 +262,85 @@ class _HomePageState extends State<HomePage> {
                       ?.name ??
                   '${_historyTrainings![index].trainingName} (${tr('global_deleted')})';
 
-              return Container(
-                  padding: const EdgeInsets.all(10),
-                  margin: const EdgeInsets.only(top: 20, left: 20, right: 20),
-                  decoration: BoxDecoration(
-                      border: Border.all(color: AppColors.timberwolf),
-                      borderRadius: BorderRadius.circular(10)),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Wrap(
-                        spacing: 8,
-                        children: [
-                          Text(
-                            dateFormatee,
-                            style: const TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 5, vertical: 3),
-                            decoration: BoxDecoration(
-                                color: AppColors.parchment,
-                                borderRadius: BorderRadius.circular(5)),
-                            child: Text(
-                              _historyTrainings![index]
-                                  .trainingType
-                                  .translate(context.locale.languageCode),
-                              style: Theme.of(context).textTheme.bodySmall,
+              return GestureDetector(
+                onTap: () {
+                  context.read<TrainingHistoryBloc>().add(
+                      SelectHistoryTrainingEntryEvent(
+                          _historyTrainings![index]));
+                  GoRouter.of(context).push('/history_details');
+                },
+                child: Container(
+                    padding: const EdgeInsets.all(10),
+                    margin: const EdgeInsets.only(top: 20, left: 20, right: 20),
+                    decoration: BoxDecoration(
+                        border: Border.all(color: AppColors.timberwolf),
+                        borderRadius: BorderRadius.circular(10)),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Wrap(
+                          spacing: 8,
+                          children: [
+                            Text(
+                              dateFormatee,
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.bold),
                             ),
-                          )
-                        ],
-                      ),
-                      const SizedBox(height: 10),
-                      Wrap(
-                        spacing: 20,
-                        children: [
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Icon(LucideIcons.clock, size: 16),
-                              const SizedBox(width: 5),
-                              Text(formatDurationToHoursMinutesSeconds(
-                                  _historyTrainings![index].duration)),
-                            ],
-                          ),
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Icon(LucideIcons.activity, size: 16),
-                              const SizedBox(width: 5),
-                              Text('${_historyTrainings![index].distance}km'),
-                            ],
-                          ),
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Icon(LucideIcons.flame, size: 16),
-                              const SizedBox(width: 5),
-                              Text('${_historyTrainings![index].calories} cal'),
-                            ],
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 10),
-                      Text(
-                        trainingName,
-                        style: const TextStyle(color: AppColors.taupeGray),
-                      ),
-                    ],
-                  ));
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 5, vertical: 3),
+                              decoration: BoxDecoration(
+                                  color: AppColors.parchment,
+                                  borderRadius: BorderRadius.circular(5)),
+                              child: Text(
+                                _historyTrainings![index]
+                                    .trainingType
+                                    .translate(context.locale.languageCode),
+                                style: Theme.of(context).textTheme.bodySmall,
+                              ),
+                            )
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        Wrap(
+                          spacing: 20,
+                          children: [
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(LucideIcons.clock, size: 16),
+                                const SizedBox(width: 5),
+                                Text(formatDurationToHoursMinutesSeconds(
+                                    _historyTrainings![index].duration)),
+                              ],
+                            ),
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(LucideIcons.activity, size: 16),
+                                const SizedBox(width: 5),
+                                Text('${_historyTrainings![index].distance}km'),
+                              ],
+                            ),
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(LucideIcons.flame, size: 16),
+                                const SizedBox(width: 5),
+                                Text(
+                                    '${_historyTrainings![index].calories} cal'),
+                              ],
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          trainingName,
+                          style: const TextStyle(color: AppColors.taupeGray),
+                        ),
+                      ],
+                    )),
+              );
             });
       }
       return const SizedBox();

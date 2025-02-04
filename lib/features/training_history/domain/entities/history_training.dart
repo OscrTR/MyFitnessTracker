@@ -6,6 +6,7 @@ import 'history_entry.dart';
 import 'history_run_location.dart';
 
 class HistoryTraining extends Equatable {
+  final List<HistoryEntry> historyEntries;
   final int trainingId;
   final String trainingName;
   final TrainingType trainingType;
@@ -22,6 +23,7 @@ class HistoryTraining extends Equatable {
   final DateTime date;
 
   const HistoryTraining({
+    required this.historyEntries,
     required this.trainingId,
     required this.trainingName,
     required this.trainingType,
@@ -41,6 +43,7 @@ class HistoryTraining extends Equatable {
   @override
   List<Object> get props {
     return [
+      historyEntries,
       trainingId,
       trainingName,
       trainingType,
@@ -137,6 +140,7 @@ class HistoryTraining extends Equatable {
     final meditationDuration = _calculateMeditationDuration(group);
 
     return HistoryTraining(
+      historyEntries: group,
       trainingId: firstEntry.trainingId,
       trainingName: firstEntry.trainingNameAtTime,
       trainingType: firstEntry.trainingType,

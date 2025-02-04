@@ -2,6 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 
@@ -158,194 +159,11 @@ class _HistoryPageState extends State<HistoryPage> {
                     style: Theme.of(context).textTheme.displayLarge,
                   ),
                   const SizedBox(height: 20),
-                  ToggleSwitch(
-                    minWidth: (MediaQuery.of(context).size.width - 40) / 2,
-                    inactiveBgColor: AppColors.whiteSmoke,
-                    activeBgColor: const [AppColors.licorice],
-                    activeFgColor: AppColors.white,
-                    inactiveFgColor: AppColors.licorice,
-                    borderColor: const [AppColors.timberwolf],
-                    borderWidth: 1,
-                    cornerRadius: 10,
-                    radiusStyle: true,
-                    initialLabelIndex: _isWeekSelected ? 0 : 1,
-                    totalSwitches: 2,
-                    labels: [tr('global_week'), tr('global_month')],
-                    onToggle: (index) {
-                      setState(() {
-                        _isWeekSelected = index == 0 ? true : false;
-                        context
-                            .read<TrainingHistoryBloc>()
-                            .add(SetDefaultHistoryDateEvent());
-                        _scrollToMostRecentDate();
-                      });
-                    },
-                  ),
+                  _buildDateTypeSelection(context),
                   const SizedBox(height: 10),
-                  SizedBox(
-                    height: 40,
-                    child: ListView.builder(
-                      controller: _scrollController,
-                      scrollDirection: Axis.horizontal,
-                      itemCount: _isWeekSelected
-                          ? _weeksList.length
-                          : _monthsList.length,
-                      itemBuilder: (context, index) {
-                        final date = _isWeekSelected
-                            ? _weeksList[index]
-                            : _monthsList[index];
-
-                        final label =
-                            _formatDateLabel(context, date, _isWeekSelected);
-
-                        final isSelected = _isWeekSelected
-                            ? date.year == state.startDate.year &&
-                                date.month == state.startDate.month &&
-                                date.day == state.startDate.day
-                            : date.year == state.startDate.year &&
-                                date.month == state.startDate.month;
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                          child: GestureDetector(
-                            onTap: () {
-                              context.read<TrainingHistoryBloc>().add(
-                                  SetNewDateHistoryDateEvent(
-                                      startDate: date,
-                                      isWeekSelected: _isWeekSelected));
-                            },
-                            child: Container(
-                              alignment: Alignment.center,
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 10),
-                              decoration: BoxDecoration(
-                                  border: Border.all(
-                                      color: isSelected
-                                          ? AppColors.licorice
-                                          : AppColors.timberwolf),
-                                  borderRadius: BorderRadius.circular(10),
-                                  color: isSelected
-                                      ? AppColors.licorice
-                                      : AppColors.white),
-                              child: Text(
-                                label,
-                                style: TextStyle(
-                                    fontSize: 14,
-                                    color: isSelected
-                                        ? AppColors.white
-                                        : AppColors.licorice),
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
+                  _buildDatesList(state),
                   if (historyEntries.isNotEmpty)
-                    ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: _historyTrainings?.length ?? 0,
-                        itemBuilder: (context, index) {
-                          String dateFormatee = DateFormat(
-                                  'EEEE d MMMM y', context.locale.languageCode)
-                              .format(_historyTrainings![index].date);
-                          dateFormatee = dateFormatee[0].toUpperCase() +
-                              dateFormatee.substring(1);
-
-                          final trainingName = (sl<TrainingManagementBloc>()
-                                      .state as TrainingManagementLoaded)
-                                  .trainings
-                                  .firstWhereOrNull((trainning) =>
-                                      trainning.id ==
-                                      _historyTrainings![index].trainingId)
-                                  ?.name ??
-                              '${_historyTrainings![index].trainingName} (${tr('global_deleted')})';
-
-                          return Container(
-                              padding: const EdgeInsets.all(10),
-                              margin: const EdgeInsets.only(top: 20),
-                              decoration: BoxDecoration(
-                                  border:
-                                      Border.all(color: AppColors.timberwolf),
-                                  borderRadius: BorderRadius.circular(10)),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Wrap(
-                                    spacing: 8,
-                                    children: [
-                                      Text(
-                                        dateFormatee,
-                                        style: const TextStyle(
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 5, vertical: 3),
-                                        decoration: BoxDecoration(
-                                            color: AppColors.parchment,
-                                            borderRadius:
-                                                BorderRadius.circular(5)),
-                                        child: Text(
-                                          _historyTrainings![index]
-                                              .trainingType
-                                              .translate(
-                                                  context.locale.languageCode),
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodySmall,
-                                        ),
-                                      )
-                                    ],
-                                  ),
-                                  const SizedBox(height: 10),
-                                  Wrap(
-                                    spacing: 20,
-                                    children: [
-                                      Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          const Icon(LucideIcons.clock,
-                                              size: 16),
-                                          const SizedBox(width: 5),
-                                          Text(
-                                              formatDurationToHoursMinutesSeconds(
-                                                  _historyTrainings![index]
-                                                      .duration)),
-                                        ],
-                                      ),
-                                      Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          const Icon(LucideIcons.activity,
-                                              size: 16),
-                                          const SizedBox(width: 5),
-                                          Text(
-                                              '${_historyTrainings![index].distance}km'),
-                                        ],
-                                      ),
-                                      Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          const Icon(LucideIcons.flame,
-                                              size: 16),
-                                          const SizedBox(width: 5),
-                                          Text(
-                                              '${_historyTrainings![index].calories} cal'),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 10),
-                                  Text(
-                                    trainingName,
-                                    style: const TextStyle(
-                                        color: AppColors.taupeGray),
-                                  ),
-                                ],
-                              ));
-                        })
+                    _buildEntriesList()
                   else
                     SizedBox(
                       height: MediaQuery.of(context).size.height - 250,
@@ -358,5 +176,179 @@ class _HistoryPageState extends State<HistoryPage> {
             return const SizedBox();
           })),
     );
+  }
+
+  ToggleSwitch _buildDateTypeSelection(BuildContext context) {
+    return ToggleSwitch(
+      minWidth: (MediaQuery.of(context).size.width - 40) / 2,
+      inactiveBgColor: AppColors.whiteSmoke,
+      activeBgColor: const [AppColors.licorice],
+      activeFgColor: AppColors.white,
+      inactiveFgColor: AppColors.licorice,
+      borderColor: const [AppColors.timberwolf],
+      borderWidth: 1,
+      cornerRadius: 10,
+      radiusStyle: true,
+      initialLabelIndex: _isWeekSelected ? 0 : 1,
+      totalSwitches: 2,
+      labels: [tr('global_week'), tr('global_month')],
+      onToggle: (index) {
+        setState(() {
+          _isWeekSelected = index == 0 ? true : false;
+          context.read<TrainingHistoryBloc>().add(SetDefaultHistoryDateEvent());
+          _scrollToMostRecentDate();
+        });
+      },
+    );
+  }
+
+  SizedBox _buildDatesList(TrainingHistoryLoaded state) {
+    return SizedBox(
+      height: 40,
+      child: ListView.builder(
+        controller: _scrollController,
+        scrollDirection: Axis.horizontal,
+        itemCount: _isWeekSelected ? _weeksList.length : _monthsList.length,
+        itemBuilder: (context, index) {
+          final date = _isWeekSelected ? _weeksList[index] : _monthsList[index];
+
+          final label = _formatDateLabel(context, date, _isWeekSelected);
+
+          final isSelected = _isWeekSelected
+              ? date.year == state.startDate.year &&
+                  date.month == state.startDate.month &&
+                  date.day == state.startDate.day
+              : date.year == state.startDate.year &&
+                  date.month == state.startDate.month;
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4.0),
+            child: GestureDetector(
+              onTap: () {
+                context.read<TrainingHistoryBloc>().add(
+                    SetNewDateHistoryDateEvent(
+                        startDate: date, isWeekSelected: _isWeekSelected));
+              },
+              child: Container(
+                alignment: Alignment.center,
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                decoration: BoxDecoration(
+                    border: Border.all(
+                        color: isSelected
+                            ? AppColors.licorice
+                            : AppColors.timberwolf),
+                    borderRadius: BorderRadius.circular(10),
+                    color: isSelected ? AppColors.licorice : AppColors.white),
+                child: Text(
+                  label,
+                  style: TextStyle(
+                      fontSize: 14,
+                      color: isSelected ? AppColors.white : AppColors.licorice),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  ListView _buildEntriesList() {
+    return ListView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: _historyTrainings?.length ?? 0,
+        itemBuilder: (context, index) {
+          String dateFormatee =
+              DateFormat('EEEE d MMMM y', context.locale.languageCode)
+                  .format(_historyTrainings![index].date);
+          dateFormatee =
+              dateFormatee[0].toUpperCase() + dateFormatee.substring(1);
+
+          final trainingName = (sl<TrainingManagementBloc>().state
+                      as TrainingManagementLoaded)
+                  .trainings
+                  .firstWhereOrNull((trainning) =>
+                      trainning.id == _historyTrainings![index].trainingId)
+                  ?.name ??
+              '${_historyTrainings![index].trainingName} (${tr('global_deleted')})';
+
+          return GestureDetector(
+            onTap: () {
+              context.read<TrainingHistoryBloc>().add(
+                  SelectHistoryTrainingEntryEvent(_historyTrainings![index]));
+              GoRouter.of(context).push('/history_details');
+            },
+            child: Container(
+                padding: const EdgeInsets.all(10),
+                margin: const EdgeInsets.only(top: 20),
+                decoration: BoxDecoration(
+                    border: Border.all(color: AppColors.timberwolf),
+                    borderRadius: BorderRadius.circular(10)),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Wrap(
+                      spacing: 8,
+                      children: [
+                        Text(
+                          dateFormatee,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 5, vertical: 3),
+                          decoration: BoxDecoration(
+                              color: AppColors.parchment,
+                              borderRadius: BorderRadius.circular(5)),
+                          child: Text(
+                            _historyTrainings![index]
+                                .trainingType
+                                .translate(context.locale.languageCode),
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                        )
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    Wrap(
+                      spacing: 20,
+                      children: [
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(LucideIcons.clock, size: 16),
+                            const SizedBox(width: 5),
+                            Text(formatDurationToHoursMinutesSeconds(
+                                _historyTrainings![index].duration)),
+                          ],
+                        ),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(LucideIcons.activity, size: 16),
+                            const SizedBox(width: 5),
+                            Text('${_historyTrainings![index].distance}km'),
+                          ],
+                        ),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(LucideIcons.flame, size: 16),
+                            const SizedBox(width: 5),
+                            Text('${_historyTrainings![index].calories} cal'),
+                          ],
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      trainingName,
+                      style: const TextStyle(color: AppColors.taupeGray),
+                    ),
+                  ],
+                )),
+          );
+        });
   }
 }

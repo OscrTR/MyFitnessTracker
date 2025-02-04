@@ -152,6 +152,7 @@ class ActiveTrainingBloc
                     trainingNameAtTime:
                         trainingManagementState.activeTraining!.name,
                     exerciseNameAtTime: findExerciseName(matchingTExercise),
+                    intensity: matchingTExercise.intensity!,
                   ),
                 ),
               );
@@ -277,6 +278,7 @@ class ActiveTrainingBloc
                     trainingNameAtTime:
                         trainingManagementState.activeTraining!.name,
                     exerciseNameAtTime: findExerciseName(matchingTExercise),
+                    intensity: matchingTExercise.intensity!,
                   )));
                 }
                 runTracker.stopTracking();
@@ -361,6 +363,7 @@ class ActiveTrainingBloc
                   trainingNameAtTime:
                       trainingManagementState.activeTraining!.name,
                   exerciseNameAtTime: findExerciseName(matchingTExercise),
+                  intensity: matchingTExercise.intensity!,
                 )));
               }
               runTracker.stopTracking();

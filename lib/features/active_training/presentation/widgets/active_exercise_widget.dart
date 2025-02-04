@@ -483,6 +483,7 @@ class _ActiveExerciseRowState extends State<ActiveExerciseRow> {
                           trainingNameAtTime: training.name,
                           exerciseNameAtTime:
                               findExerciseName(widget.tExercise),
+                          intensity: widget.tExercise.intensity!,
                         ),
                       ),
                     );

@@ -1,8 +1,5 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:equatable/equatable.dart';
-
 import 'package:my_fitness_tracker/features/training_management/domain/entities/training.dart';
-
 import '../../../training_management/domain/entities/training_exercise.dart';
 
 class HistoryEntry extends Equatable {
@@ -22,6 +19,7 @@ class HistoryEntry extends Equatable {
   final int? calories;
   final String trainingNameAtTime;
   final String exerciseNameAtTime;
+  final int intensity;
 
   const HistoryEntry({
     this.id,
@@ -40,6 +38,7 @@ class HistoryEntry extends Equatable {
     this.calories,
     required this.trainingNameAtTime,
     required this.exerciseNameAtTime,
+    required this.intensity,
   });
 
   HistoryEntry copyWith({
@@ -51,6 +50,7 @@ class HistoryEntry extends Equatable {
     int? calories,
     String? trainingNameAtTime,
     String? exerciseNameAtTime,
+    int? intensity,
   }) {
     return HistoryEntry(
       id: id,
@@ -69,6 +69,7 @@ class HistoryEntry extends Equatable {
       calories: calories ?? this.calories,
       trainingNameAtTime: trainingNameAtTime ?? this.trainingNameAtTime,
       exerciseNameAtTime: exerciseNameAtTime ?? this.exerciseNameAtTime,
+      intensity: intensity ?? this.intensity,
     );
   }
 
@@ -91,6 +92,7 @@ class HistoryEntry extends Equatable {
       calories,
       trainingNameAtTime,
       exerciseNameAtTime,
+      intensity,
     ];
   }
 }

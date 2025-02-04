@@ -105,6 +105,7 @@ class SQLiteDatabaseHelper {
             distance INTEGER,
             pace INTEGER,
             calories INTEGER,
+            intensity INTEGER,
             FOREIGN KEY(training_exercise_id) REFERENCES training_exercises(id),
             FOREIGN KEY(training_id) REFERENCES trainings(id)
           )
