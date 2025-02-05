@@ -1,8 +1,11 @@
+import 'dart:io';
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:my_fitness_tracker/features/exercise_management/presentation/bloc/exercise_management_bloc.dart';
 import 'package:my_fitness_tracker/features/training_history/presentation/bloc/training_history_bloc.dart';
 import 'package:my_fitness_tracker/features/training_management/domain/entities/training.dart';
 import 'package:my_fitness_tracker/features/training_management/domain/entities/training_exercise.dart';
@@ -12,6 +15,8 @@ import 'package:collection/collection.dart';
 import '../../../../app_colors.dart';
 import '../../../../helper_functions.dart';
 import '../../../../injection_container.dart';
+import '../../../exercise_management/domain/entities/exercise.dart';
+import '../../../training_management/domain/entities/multiset.dart';
 import '../../domain/entities/history_entry.dart';
 
 class HistoryDetailsPage extends StatefulWidget {
@@ -41,7 +46,7 @@ class _HistoryDetailsPageState extends State<HistoryDetailsPage> {
               _buildHeader(context, state, matchingTraining),
               const SizedBox(height: 10),
               if (matchingTraining != null)
-                _buildMatchingTraining()
+                _buildMatchingTraining(matchingTraining, state)
               else
                 _buildNoMatchTraining(context, state)
             ],
@@ -52,8 +57,262 @@ class _HistoryDetailsPageState extends State<HistoryDetailsPage> {
     });
   }
 
-  Widget _buildMatchingTraining() {
-    return Text('Matching training');
+  Widget _buildMatchingTraining(
+      Training training, TrainingHistoryLoaded state) {
+    final sortedItems = [
+      ...training.trainingExercises.map((e) => {'type': 'exercise', 'data': e}),
+      ...training.multisets.map((m) => {'type': 'multiset', 'data': m}),
+    ];
+    sortedItems.sort((a, b) {
+      final aPos = (a['data'] as dynamic).position ?? 0;
+      final bPos = (b['data'] as dynamic).position ?? 0;
+      return aPos.compareTo(bPos);
+    });
+
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: sortedItems.length,
+      itemBuilder: (context, index) {
+        final item = sortedItems[index];
+        if (item['type'] == 'exercise') {
+          final tExercise = item['data'] as TrainingExercise;
+          final isSetsInReps = tExercise.isSetsInReps ?? true;
+          final matchingExercise =
+              (sl<ExerciseManagementBloc>().state as ExerciseManagementLoaded)
+                  .exercises
+                  .firstWhereOrNull((e) => e.id == tExercise.exerciseId);
+
+          return tExercise.trainingExerciseType == TrainingExerciseType.run
+              ? Text('RUN')
+              : Stack(
+                  children: [
+                    Container(
+                      margin: const EdgeInsets.only(top: 20),
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                          border: Border.all(color: AppColors.timberwolf),
+                          borderRadius: BorderRadius.circular(10),
+                          color: AppColors.white),
+                      child: Column(
+                        children: [
+                          _buildExerciseHeader(matchingExercise, tExercise,
+                              context, isSetsInReps),
+                          const SizedBox(height: 10),
+                          const Divider(
+                            color: AppColors.timberwolf,
+                          ),
+                          const SizedBox(height: 10),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text('Sets',
+                                  style: TextStyle(color: AppColors.taupeGray)),
+                              Row(
+                                children: [
+                                  SizedBox(
+                                    width: 50,
+                                    child: Center(
+                                      child: Text(
+                                        isSetsInReps ? 'Kg' : '',
+                                        style: const TextStyle(
+                                            color: AppColors.taupeGray),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  if (isSetsInReps)
+                                    const SizedBox(
+                                      width: 50,
+                                      child: Center(
+                                        child: Text(
+                                          'Reps',
+                                          style: TextStyle(
+                                              color: AppColors.taupeGray),
+                                        ),
+                                      ),
+                                    )
+                                  else
+                                    const SizedBox(
+                                      width: 70,
+                                      child: Center(
+                                        child: Text(
+                                          'Duration',
+                                          style: TextStyle(
+                                              color: AppColors.taupeGray),
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              )
+                            ],
+                          ),
+                          ListView.builder(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: tExercise.sets ?? 0,
+                              itemBuilder: (context, index) {
+                                final matchingEntry = state
+                                    .selectedTrainingEntry!.historyEntries
+                                    .firstWhereOrNull((entry) =>
+                                        entry.trainingExerciseId ==
+                                            tExercise.id &&
+                                        entry.setNumber == index);
+
+                                final setWeight = matchingEntry?.weight ?? 0;
+                                final setReps = matchingEntry?.reps ?? 0;
+                                final setDuration =
+                                    matchingEntry?.duration ?? 0;
+
+                                return Container(
+                                  margin: const EdgeInsets.only(top: 10),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text('${index + 1}',
+                                          style: const TextStyle(
+                                              color: AppColors.taupeGray)),
+                                      Row(
+                                        children: [
+                                          SizedBox(
+                                            width: 50,
+                                            child: Text(
+                                              '$setWeight',
+                                              textAlign: TextAlign.center,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 10),
+                                          if (isSetsInReps)
+                                            SizedBox(
+                                              width: 50,
+                                              child: Text(
+                                                '$setReps',
+                                                textAlign: TextAlign.center,
+                                              ),
+                                            )
+                                          else
+                                            SizedBox(
+                                              width: 70,
+                                              child: Text(
+                                                formatDurationToHoursMinutesSeconds(
+                                                    setDuration),
+                                                textAlign: TextAlign.center,
+                                              ),
+                                            ),
+                                        ],
+                                      )
+                                    ],
+                                  ),
+                                );
+                              })
+                        ],
+                      ),
+                    ),
+                    Positioned(
+                      right: 0,
+                      top: 20,
+                      child: PopupMenuButton(
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            side:
+                                const BorderSide(color: AppColors.timberwolf)),
+                        color: AppColors.white,
+                        onSelected: (value) {
+                          if (value == 'edit') {
+                            // onChangeImage();
+                          } else if (value == 'delete') {
+                            // onDeleteImage();
+                          }
+                        },
+                        itemBuilder: (BuildContext context) => [
+                          PopupMenuItem(
+                            value: 'edit',
+                            child: Text(
+                              tr('global_edit'),
+                              style:
+                                  const TextStyle(color: AppColors.taupeGray),
+                            ),
+                          ),
+                          PopupMenuItem(
+                            value: 'delete',
+                            child: Text(
+                              tr('global_delete'),
+                              style:
+                                  const TextStyle(color: AppColors.taupeGray),
+                            ),
+                          ),
+                        ],
+                        icon: const Icon(
+                          Icons.more_horiz,
+                          color: AppColors.frenchGray,
+                        ),
+                      ),
+                    )
+                  ],
+                );
+        } else if (item['type'] == 'multiset') {
+          final multiset = item['data'] as Multiset;
+          return Text('MULTISET');
+        }
+        return const SizedBox.shrink();
+      },
+    );
+  }
+
+  Widget _buildExerciseHeader(Exercise? exercise, TrainingExercise tExercise,
+      BuildContext context, bool isSetsInReps) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (exercise != null &&
+            exercise.imagePath != null &&
+            exercise.imagePath!.isNotEmpty)
+          Column(
+            children: [
+              SizedBox(
+                width: 130,
+                height: 100,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(15),
+                  child: Image.file(
+                    File(exercise.imagePath!),
+                    width: MediaQuery.of(context).size.width - 40,
+                    fit: BoxFit.cover,
+                    alignment: Alignment.bottomCenter,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        if (exercise != null &&
+            exercise.imagePath != null &&
+            exercise.imagePath!.isNotEmpty)
+          const SizedBox(width: 10),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                exercise != null
+                    ? exercise.name
+                    : tr('global_exercise_unknown'),
+                style: Theme.of(context).textTheme.titleMedium,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              if (isSetsInReps)
+                Text('${tExercise.minReps ?? 0}-${tExercise.maxReps ?? 0} reps')
+              else
+                Text('${tExercise.duration} ${tr('active_training_seconds')}'),
+              if (tExercise.specialInstructions != null)
+                Text('${tExercise.specialInstructions}'),
+            ],
+          ),
+        )
+      ],
+    );
   }
 
   Widget _buildNoMatchTraining(
