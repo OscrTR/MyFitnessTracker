@@ -1013,7 +1013,7 @@ Widget _buildTrainingsList(BuildContext context) {
                   ),
                   Positioned(
                     top: 10,
-                    right: 30,
+                    right: 10,
                     child: PopupMenuButton(
                       constraints: const BoxConstraints(maxWidth: 100),
                       elevation: 0,

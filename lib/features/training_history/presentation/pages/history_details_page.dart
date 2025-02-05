@@ -336,7 +336,8 @@ class ExerciseSetForm extends StatefulWidget {
 class _ExerciseSetFormState extends State<ExerciseSetForm> {
   late List<TextEditingController> weightControllers;
   late List<TextEditingController> repsControllers;
-  late List<TextEditingController> durationControllers;
+  late List<TextEditingController> durationMinutesControllers;
+  late List<TextEditingController> durationSecondsControllers;
 
   @override
   void initState() {
@@ -373,7 +374,7 @@ class _ExerciseSetFormState extends State<ExerciseSetForm> {
       },
     );
 
-    durationControllers = List.generate(
+    durationMinutesControllers = List.generate(
       setsCount,
       (index) {
         final matchingEntry = widget
@@ -382,8 +383,25 @@ class _ExerciseSetFormState extends State<ExerciseSetForm> {
                 entry.trainingExerciseId == widget.trainingExercise.id &&
                 entry.setNumber == index);
         return TextEditingController(
-          text:
-              formatDurationToHoursMinutesSeconds(matchingEntry?.duration ?? 0),
+          text: (matchingEntry?.duration != null
+              ? (matchingEntry!.duration! % 3600 ~/ 60).toString()
+              : '0'),
+        );
+      },
+    );
+
+    durationSecondsControllers = List.generate(
+      setsCount,
+      (index) {
+        final matchingEntry = widget
+            .historyState.selectedTrainingEntry!.historyEntries
+            .firstWhereOrNull((entry) =>
+                entry.trainingExerciseId == widget.trainingExercise.id &&
+                entry.setNumber == index);
+        return TextEditingController(
+          text: (matchingEntry?.duration != null
+              ? (matchingEntry!.duration! % 60).toString()
+              : '0'),
         );
       },
     );
@@ -397,7 +415,10 @@ class _ExerciseSetFormState extends State<ExerciseSetForm> {
     for (var controller in repsControllers) {
       controller.dispose();
     }
-    for (var controller in durationControllers) {
+    for (var controller in durationMinutesControllers) {
+      controller.dispose();
+    }
+    for (var controller in durationSecondsControllers) {
       controller.dispose();
     }
     super.dispose();
@@ -569,18 +590,40 @@ class _ExerciseSetFormState extends State<ExerciseSetForm> {
                       SmallTextFieldWidget(controller: repsControllers[index]),
                 )
               else
-                SizedBox(
-                  width: 70,
-                  child: SmallTextFieldWidget(
-                      controller: durationControllers[index]),
+                Row(
+                  children: [
+                    SizedBox(
+                      width: 50,
+                      child: SmallTextFieldWidget(
+                          controller: durationMinutesControllers[index]),
+                    ),
+                    const SizedBox(
+                      width: 10,
+                      child: Text(
+                        ':',
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    SizedBox(
+                      width: 50,
+                      child: SmallTextFieldWidget(
+                          controller: durationSecondsControllers[index]),
+                    ),
+                  ],
                 ),
               const SizedBox(width: 10),
               GestureDetector(
                 onTap: () {
+                  final duration = ((int.tryParse(
+                                  durationMinutesControllers[index].text) ??
+                              0) *
+                          60) +
+                      ((int.tryParse(durationSecondsControllers[index].text) ??
+                          0));
                   _updateHistoryEntry(
                     index,
                     weight: int.tryParse(weightControllers[index].text),
-                    duration: int.tryParse(durationControllers[index].text),
+                    duration: duration,
                     reps: int.tryParse(repsControllers[index].text),
                   );
                 },
@@ -613,12 +656,12 @@ class _ExerciseSetFormState extends State<ExerciseSetForm> {
         const Text('Sets', style: TextStyle(color: AppColors.taupeGray)),
         Row(
           children: [
-            SizedBox(
+            const SizedBox(
               width: 50,
               child: Center(
                 child: Text(
-                  widget.trainingExercise.isSetsInReps! ? 'Kg' : '',
-                  style: const TextStyle(color: AppColors.taupeGray),
+                  'Kg',
+                  style: TextStyle(color: AppColors.taupeGray),
                 ),
               ),
             ),
@@ -635,7 +678,7 @@ class _ExerciseSetFormState extends State<ExerciseSetForm> {
               )
             else
               const SizedBox(
-                width: 70,
+                width: 110,
                 child: Center(
                   child: Text(
                     'Duration',
