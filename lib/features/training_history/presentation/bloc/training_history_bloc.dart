@@ -119,7 +119,7 @@ class TrainingHistoryBloc
           });
         }
 
-        final result = event.historyEntry.id != null && hasRecentEntry
+        final result = event.historyEntry.id != null || hasRecentEntry
             ? await updateHistoryEntry(update.Params(event.historyEntry))
             : await createHistoryEntry(create.Params(event.historyEntry));
 

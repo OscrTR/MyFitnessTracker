@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:my_fitness_tracker/core/widgets/small_text_field_widget.dart';
 import 'package:my_fitness_tracker/features/exercise_management/presentation/bloc/exercise_management_bloc.dart';
 import 'package:my_fitness_tracker/features/training_history/presentation/bloc/training_history_bloc.dart';
 import 'package:my_fitness_tracker/features/training_management/domain/entities/training.dart';
@@ -78,7 +79,6 @@ class HistoryDetailsPage extends StatelessWidget {
         final item = sortedItems[index];
         if (item['type'] == 'exercise') {
           final tExercise = item['data'] as TrainingExercise;
-          final isSetsInReps = tExercise.isSetsInReps ?? true;
           final matchingExercise =
               (sl<ExerciseManagementBloc>().state as ExerciseManagementLoaded)
                   .exercises
@@ -86,199 +86,11 @@ class HistoryDetailsPage extends StatelessWidget {
 
           return tExercise.trainingExerciseType == TrainingExerciseType.run
               ? Text('RUN')
-              : Stack(
-                  children: [
-                    Container(
-                      margin: const EdgeInsets.only(top: 20),
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                          border: Border.all(color: AppColors.timberwolf),
-                          borderRadius: BorderRadius.circular(10),
-                          color: AppColors.white),
-                      child: Column(
-                        children: [
-                          _buildExerciseHeader(matchingExercise, tExercise,
-                              context, isSetsInReps),
-                          const SizedBox(height: 10),
-                          const Divider(
-                            color: AppColors.timberwolf,
-                          ),
-                          const SizedBox(height: 10),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Text('Sets',
-                                  style: TextStyle(color: AppColors.taupeGray)),
-                              Row(
-                                children: [
-                                  SizedBox(
-                                    width: 50,
-                                    child: Center(
-                                      child: Text(
-                                        isSetsInReps ? 'Kg' : '',
-                                        style: const TextStyle(
-                                            color: AppColors.taupeGray),
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 10),
-                                  if (isSetsInReps)
-                                    const SizedBox(
-                                      width: 50,
-                                      child: Center(
-                                        child: Text(
-                                          'Reps',
-                                          style: TextStyle(
-                                              color: AppColors.taupeGray),
-                                        ),
-                                      ),
-                                    )
-                                  else
-                                    const SizedBox(
-                                      width: 70,
-                                      child: Center(
-                                        child: Text(
-                                          'Duration',
-                                          style: TextStyle(
-                                              color: AppColors.taupeGray),
-                                        ),
-                                      ),
-                                    ),
-                                ],
-                              )
-                            ],
-                          ),
-                          ListView.builder(
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
-                              itemCount: tExercise.sets ?? 0,
-                              itemBuilder: (context, index) {
-                                final matchingEntry = state
-                                    .selectedTrainingEntry!.historyEntries
-                                    .firstWhereOrNull((entry) =>
-                                        entry.trainingExerciseId ==
-                                            tExercise.id &&
-                                        entry.setNumber == index);
-
-                                final setWeight = matchingEntry?.weight ?? 0;
-                                final setReps = matchingEntry?.reps ?? 0;
-                                final setDuration =
-                                    matchingEntry?.duration ?? 0;
-
-                                return Container(
-                                  margin: const EdgeInsets.only(top: 10),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text('${index + 1}',
-                                          style: const TextStyle(
-                                              color: AppColors.taupeGray)),
-                                      Row(
-                                        children: [
-                                          SizedBox(
-                                            width: 50,
-                                            child: Text(
-                                              '$setWeight',
-                                              textAlign: TextAlign.center,
-                                            ),
-                                          ),
-                                          const SizedBox(width: 10),
-                                          if (isSetsInReps)
-                                            SizedBox(
-                                              width: 50,
-                                              child: Text(
-                                                '$setReps',
-                                                textAlign: TextAlign.center,
-                                              ),
-                                            )
-                                          else
-                                            SizedBox(
-                                              width: 70,
-                                              child: Text(
-                                                formatDurationToHoursMinutesSeconds(
-                                                    setDuration),
-                                                textAlign: TextAlign.center,
-                                              ),
-                                            ),
-                                        ],
-                                      )
-                                    ],
-                                  ),
-                                );
-                              })
-                        ],
-                      ),
-                    ),
-                    Positioned(
-                      right: 0,
-                      top: 20,
-                      child: PopupMenuButton(
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            side:
-                                const BorderSide(color: AppColors.timberwolf)),
-                        color: AppColors.white,
-                        onSelected: (value) {
-                          if (value == 'edit') {
-                            showDialog(
-                              context: context,
-                              builder: (context) => AlertDialog(
-                                insetPadding:
-                                    const EdgeInsets.symmetric(horizontal: 20),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                backgroundColor: AppColors.white,
-                                title: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(tr('history_page_edit')),
-                                    GestureDetector(
-                                      onTap: () =>
-                                          Navigator.pop(context, 'Close'),
-                                      child: Container(
-                                        height: 30,
-                                        width: 30,
-                                        alignment: Alignment.centerRight,
-                                        child: const ClipRect(
-                                          child: Align(
-                                            alignment: Alignment.centerRight,
-                                            widthFactor: 0.85,
-                                            child: Icon(
-                                              Icons.close,
-                                              color: AppColors.licorice,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    )
-                                  ],
-                                ),
-                                content: Text('data'),
-                              ),
-                            );
-                          }
-                        },
-                        itemBuilder: (BuildContext context) => [
-                          PopupMenuItem(
-                            value: 'edit',
-                            child: Text(
-                              tr('global_edit'),
-                              style:
-                                  const TextStyle(color: AppColors.taupeGray),
-                            ),
-                          ),
-                        ],
-                        icon: const Icon(
-                          Icons.more_horiz,
-                          color: AppColors.frenchGray,
-                        ),
-                      ),
-                    )
-                  ],
+              : ExerciseSetForm(
+                  trainingExercise: tExercise,
+                  matchingExercise: matchingExercise,
+                  historyState: state,
+                  training: training,
                 );
         } else if (item['type'] == 'multiset') {
           final multiset = item['data'] as Multiset;
@@ -286,60 +98,6 @@ class HistoryDetailsPage extends StatelessWidget {
         }
         return const SizedBox.shrink();
       },
-    );
-  }
-
-  Widget _buildExerciseHeader(Exercise? exercise, TrainingExercise tExercise,
-      BuildContext context, bool isSetsInReps) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (exercise != null &&
-            exercise.imagePath != null &&
-            exercise.imagePath!.isNotEmpty)
-          Column(
-            children: [
-              SizedBox(
-                width: 130,
-                height: 100,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(15),
-                  child: Image.file(
-                    File(exercise.imagePath!),
-                    width: MediaQuery.of(context).size.width - 40,
-                    fit: BoxFit.cover,
-                    alignment: Alignment.bottomCenter,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        if (exercise != null &&
-            exercise.imagePath != null &&
-            exercise.imagePath!.isNotEmpty)
-          const SizedBox(width: 10),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                exercise != null
-                    ? exercise.name
-                    : tr('global_exercise_unknown'),
-                style: Theme.of(context).textTheme.titleMedium,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              if (isSetsInReps)
-                Text('${tExercise.minReps ?? 0}-${tExercise.maxReps ?? 0} reps')
-              else
-                Text('${tExercise.duration} ${tr('active_training_seconds')}'),
-              if (tExercise.specialInstructions != null)
-                Text('${tExercise.specialInstructions}'),
-            ],
-          ),
-        )
-      ],
     );
   }
 
@@ -551,6 +309,342 @@ class HistoryDetailsPage extends StatelessWidget {
               size: 18,
             ),
           ),
+        ),
+      ],
+    );
+  }
+}
+
+class ExerciseSetForm extends StatefulWidget {
+  final TrainingExercise trainingExercise;
+  final Exercise? matchingExercise;
+  final TrainingHistoryLoaded historyState;
+  final Training training;
+
+  const ExerciseSetForm({
+    required this.trainingExercise,
+    required this.matchingExercise,
+    required this.historyState,
+    required this.training,
+    super.key,
+  });
+
+  @override
+  State<ExerciseSetForm> createState() => _ExerciseSetFormState();
+}
+
+class _ExerciseSetFormState extends State<ExerciseSetForm> {
+  late List<TextEditingController> weightControllers;
+  late List<TextEditingController> repsControllers;
+  late List<TextEditingController> durationControllers;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeControllers();
+  }
+
+  void _initializeControllers() {
+    final setsCount = widget.trainingExercise.sets ?? 0;
+
+    weightControllers = List.generate(
+      setsCount,
+      (index) {
+        final matchingEntry = widget
+            .historyState.selectedTrainingEntry!.historyEntries
+            .firstWhereOrNull((entry) =>
+                entry.trainingExerciseId == widget.trainingExercise.id &&
+                entry.setNumber == index);
+        return TextEditingController(
+            text: (matchingEntry?.weight ?? 0).toString());
+      },
+    );
+
+    repsControllers = List.generate(
+      setsCount,
+      (index) {
+        final matchingEntry = widget
+            .historyState.selectedTrainingEntry!.historyEntries
+            .firstWhereOrNull((entry) =>
+                entry.trainingExerciseId == widget.trainingExercise.id &&
+                entry.setNumber == index);
+        return TextEditingController(
+            text: (matchingEntry?.reps ?? 0).toString());
+      },
+    );
+
+    durationControllers = List.generate(
+      setsCount,
+      (index) {
+        final matchingEntry = widget
+            .historyState.selectedTrainingEntry!.historyEntries
+            .firstWhereOrNull((entry) =>
+                entry.trainingExerciseId == widget.trainingExercise.id &&
+                entry.setNumber == index);
+        return TextEditingController(
+          text:
+              formatDurationToHoursMinutesSeconds(matchingEntry?.duration ?? 0),
+        );
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    for (var controller in weightControllers) {
+      controller.dispose();
+    }
+    for (var controller in repsControllers) {
+      controller.dispose();
+    }
+    for (var controller in durationControllers) {
+      controller.dispose();
+    }
+    super.dispose();
+  }
+
+  void _updateHistoryEntry(int index, {int? weight, int? reps, int? duration}) {
+    final historyEntry = widget
+        .historyState.selectedTrainingEntry!.historyEntries
+        .firstWhereOrNull((entry) =>
+            entry.trainingExerciseId == widget.trainingExercise.id &&
+            entry.setNumber == index);
+
+    DateTime entryDate = DateTime.now();
+
+    if (widget.historyState.selectedTrainingEntry!.historyEntries.isNotEmpty) {
+      entryDate = widget.historyState.selectedTrainingEntry!.historyEntries
+          .map((e) => e.date)
+          .reduce((value, element) => value.isAfter(element) ? value : element);
+    }
+    int? cals = historyEntry?.calories;
+    cals = widget.trainingExercise.isSetsInReps!
+        ? getCalories(
+            intensity: widget.trainingExercise.intensity!,
+            reps: reps ?? historyEntry?.reps)
+        : getCalories(
+            intensity: widget.trainingExercise.intensity!,
+            duration: duration ?? historyEntry?.duration);
+
+    context.read<TrainingHistoryBloc>().add(
+          CreateOrUpdateHistoryEntry(
+            historyEntry: HistoryEntry(
+              id: historyEntry?.id,
+              trainingId: historyEntry?.trainingId ??
+                  widget.trainingExercise.trainingId!,
+              trainingType: historyEntry?.trainingType ?? widget.training.type,
+              trainingExerciseId: historyEntry?.trainingExerciseId ??
+                  widget.trainingExercise.id!,
+              trainingExerciseType: historyEntry?.trainingExerciseType ??
+                  widget.trainingExercise.trainingExerciseType!,
+              date: historyEntry?.date ?? entryDate,
+              trainingNameAtTime:
+                  historyEntry?.trainingNameAtTime ?? widget.training.name,
+              exerciseNameAtTime: historyEntry?.exerciseNameAtTime ??
+                  findExerciseName(widget.trainingExercise),
+              intensity:
+                  historyEntry?.intensity ?? widget.trainingExercise.intensity!,
+              weight: weight ?? historyEntry?.weight,
+              reps: reps ?? historyEntry?.reps,
+              duration: duration ?? historyEntry?.duration,
+              setNumber: historyEntry?.setNumber ?? index,
+              multisetSetNumber: null,
+              distance: null,
+              pace: null,
+              calories: cals,
+            ),
+          ),
+        );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(top: 20),
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        border: Border.all(color: AppColors.timberwolf),
+        borderRadius: BorderRadius.circular(10),
+        color: AppColors.white,
+      ),
+      child: Column(
+        children: [
+          _buildExerciseHeader(
+            widget.matchingExercise,
+            widget.trainingExercise,
+            context,
+            widget.trainingExercise.isSetsInReps!,
+          ),
+          const SizedBox(height: 10),
+          const Divider(color: AppColors.timberwolf),
+          const SizedBox(height: 10),
+          _buildHeaderRow(),
+          ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: widget.trainingExercise.sets ?? 0,
+            itemBuilder: (context, index) => _buildSetRow(index),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildExerciseHeader(Exercise? exercise, TrainingExercise tExercise,
+      BuildContext context, bool isSetsInReps) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (exercise != null &&
+            exercise.imagePath != null &&
+            exercise.imagePath!.isNotEmpty)
+          Column(
+            children: [
+              SizedBox(
+                width: 130,
+                height: 100,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(15),
+                  child: Image.file(
+                    File(exercise.imagePath!),
+                    width: MediaQuery.of(context).size.width - 40,
+                    fit: BoxFit.cover,
+                    alignment: Alignment.bottomCenter,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        if (exercise != null &&
+            exercise.imagePath != null &&
+            exercise.imagePath!.isNotEmpty)
+          const SizedBox(width: 10),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                exercise != null
+                    ? exercise.name
+                    : tr('global_exercise_unknown'),
+                style: Theme.of(context).textTheme.titleMedium,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              if (isSetsInReps)
+                Text('${tExercise.minReps ?? 0}-${tExercise.maxReps ?? 0} reps')
+              else
+                Text('${tExercise.duration} ${tr('active_training_seconds')}'),
+              if (tExercise.specialInstructions != null)
+                Text('${tExercise.specialInstructions}'),
+            ],
+          ),
+        )
+      ],
+    );
+  }
+
+  Widget _buildSetRow(int index) {
+    return Container(
+      margin: const EdgeInsets.only(top: 10),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            '${index + 1}',
+            style: const TextStyle(color: AppColors.taupeGray),
+          ),
+          Row(
+            children: [
+              SizedBox(
+                width: 50,
+                child:
+                    SmallTextFieldWidget(controller: weightControllers[index]),
+              ),
+              const SizedBox(width: 10),
+              if (widget.trainingExercise.isSetsInReps!)
+                SizedBox(
+                  width: 50,
+                  child:
+                      SmallTextFieldWidget(controller: repsControllers[index]),
+                )
+              else
+                SizedBox(
+                  width: 70,
+                  child: SmallTextFieldWidget(
+                      controller: durationControllers[index]),
+                ),
+              const SizedBox(width: 10),
+              GestureDetector(
+                onTap: () {
+                  _updateHistoryEntry(
+                    index,
+                    weight: int.tryParse(weightControllers[index].text),
+                    duration: int.tryParse(durationControllers[index].text),
+                    reps: int.tryParse(repsControllers[index].text),
+                  );
+                },
+                child: Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      color: AppColors.platinum),
+                  child: const Center(
+                    child: Icon(
+                      LucideIcons.save,
+                      size: 20,
+                      color: AppColors.frenchGray,
+                    ),
+                  ),
+                ),
+              )
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeaderRow() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        const Text('Sets', style: TextStyle(color: AppColors.taupeGray)),
+        Row(
+          children: [
+            SizedBox(
+              width: 50,
+              child: Center(
+                child: Text(
+                  widget.trainingExercise.isSetsInReps! ? 'Kg' : '',
+                  style: const TextStyle(color: AppColors.taupeGray),
+                ),
+              ),
+            ),
+            const SizedBox(width: 10),
+            if (widget.trainingExercise.isSetsInReps!)
+              const SizedBox(
+                width: 50,
+                child: Center(
+                  child: Text(
+                    'Reps',
+                    style: TextStyle(color: AppColors.taupeGray),
+                  ),
+                ),
+              )
+            else
+              const SizedBox(
+                width: 70,
+                child: Center(
+                  child: Text(
+                    'Duration',
+                    style: TextStyle(color: AppColors.taupeGray),
+                  ),
+                ),
+              ),
+            const SizedBox(width: 46)
+          ],
         ),
       ],
     );
