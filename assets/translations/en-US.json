@@ -158,5 +158,6 @@
   "settings_page_reminder_description": "Receive a reminder for your planned trainings",
 
   "history_page_no_training": "No training found.",
-  "history_page_title": "History"
+  "history_page_title": "History",
+  "history_page_edit": "Edit entry"
 }

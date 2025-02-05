@@ -149,6 +149,8 @@ final router = GoRouter(
             GoRouterState.of(context).uri.toString() == '/training_detail';
         bool isActiveTrainingPage =
             GoRouterState.of(context).uri.toString() == '/active_training';
+        bool isHistoryDetailPage =
+            GoRouterState.of(context).uri.toString() == '/history_details';
 
         return Scaffold(
           body: Stack(
@@ -192,7 +194,8 @@ final router = GoRouter(
               ),
               if (!isExerciseDetailPage &&
                   !isTrainingDetailPage &&
-                  !isActiveTrainingPage)
+                  !isActiveTrainingPage &&
+                  !isHistoryDetailPage)
                 const Positioned(
                   left: 0,
                   right: 0,

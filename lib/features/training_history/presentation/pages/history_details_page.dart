@@ -19,42 +19,43 @@ import '../../../exercise_management/domain/entities/exercise.dart';
 import '../../../training_management/domain/entities/multiset.dart';
 import '../../domain/entities/history_entry.dart';
 
-class HistoryDetailsPage extends StatefulWidget {
-  const HistoryDetailsPage({super.key});
+class HistoryDetailsPage extends StatelessWidget {
+  const HistoryDetailsPage({
+    super.key,
+  });
 
-  @override
-  State<HistoryDetailsPage> createState() => _HistoryDetailsPageState();
-}
-
-class _HistoryDetailsPageState extends State<HistoryDetailsPage> {
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<TrainingHistoryBloc, TrainingHistoryState>(
-        builder: (context, state) {
-      if (state is TrainingHistoryLoaded &&
-          state.selectedTrainingEntry != null) {
-        final matchingTraining =
-            (sl<TrainingManagementBloc>().state as TrainingManagementLoaded)
-                .trainings
-                .firstWhereOrNull((training) =>
-                    training.id == state.selectedTrainingEntry!.trainingId);
+    return Scaffold(
+      body: BlocBuilder<TrainingHistoryBloc, TrainingHistoryState>(
+          builder: (context, state) {
+        if (state is TrainingHistoryLoaded &&
+            state.selectedTrainingEntry != null) {
+          final matchingTraining =
+              (sl<TrainingManagementBloc>().state as TrainingManagementLoaded)
+                  .trainings
+                  .firstWhereOrNull((training) =>
+                      training.id == state.selectedTrainingEntry!.trainingId);
 
-        return Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            children: [
-              _buildHeader(context, state, matchingTraining),
-              const SizedBox(height: 10),
-              if (matchingTraining != null)
-                _buildMatchingTraining(matchingTraining, state)
-              else
-                _buildNoMatchTraining(context, state)
-            ],
-          ),
-        );
-      }
-      return const SizedBox();
-    });
+          return SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                children: [
+                  _buildHeader(context, state, matchingTraining),
+                  const SizedBox(height: 10),
+                  if (matchingTraining != null)
+                    _buildMatchingTraining(matchingTraining, state)
+                  else
+                    _buildNoMatchTraining(context, state)
+                ],
+              ),
+            ),
+          );
+        }
+        return const SizedBox();
+      }),
+    );
   }
 
   Widget _buildMatchingTraining(
@@ -221,9 +222,44 @@ class _HistoryDetailsPageState extends State<HistoryDetailsPage> {
                         color: AppColors.white,
                         onSelected: (value) {
                           if (value == 'edit') {
-                            // onChangeImage();
-                          } else if (value == 'delete') {
-                            // onDeleteImage();
+                            showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                insetPadding:
+                                    const EdgeInsets.symmetric(horizontal: 20),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                backgroundColor: AppColors.white,
+                                title: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(tr('history_page_edit')),
+                                    GestureDetector(
+                                      onTap: () =>
+                                          Navigator.pop(context, 'Close'),
+                                      child: Container(
+                                        height: 30,
+                                        width: 30,
+                                        alignment: Alignment.centerRight,
+                                        child: const ClipRect(
+                                          child: Align(
+                                            alignment: Alignment.centerRight,
+                                            widthFactor: 0.85,
+                                            child: Icon(
+                                              Icons.close,
+                                              color: AppColors.licorice,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    )
+                                  ],
+                                ),
+                                content: Text('data'),
+                              ),
+                            );
                           }
                         },
                         itemBuilder: (BuildContext context) => [
@@ -231,14 +267,6 @@ class _HistoryDetailsPageState extends State<HistoryDetailsPage> {
                             value: 'edit',
                             child: Text(
                               tr('global_edit'),
-                              style:
-                                  const TextStyle(color: AppColors.taupeGray),
-                            ),
-                          ),
-                          PopupMenuItem(
-                            value: 'delete',
-                            child: Text(
-                              tr('global_delete'),
                               style:
                                   const TextStyle(color: AppColors.taupeGray),
                             ),
