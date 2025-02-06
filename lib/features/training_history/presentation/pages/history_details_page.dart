@@ -23,6 +23,7 @@ import '../../../../injection_container.dart';
 import '../../../exercise_management/domain/entities/exercise.dart';
 import '../../../training_management/domain/entities/multiset.dart';
 import '../../domain/entities/history_entry.dart';
+import '../../domain/entities/history_run_location.dart';
 
 class HistoryDetailsPage extends StatelessWidget {
   const HistoryDetailsPage({
@@ -351,6 +352,8 @@ class _RunExerciseState extends State<RunExercise> {
     final locations = widget.historyState.selectedTrainingEntry!
         .locationsByExerciseId[widget.trainingExercise.id]!;
 
+    final drop = RunLocation.calculateTotalDrop(locations);
+
     return Container(
       margin: const EdgeInsets.only(top: 20),
       padding: const EdgeInsets.all(10),
@@ -397,6 +400,11 @@ class _RunExerciseState extends State<RunExercise> {
               Text(tr('history_page_pace')),
               Text(formatDurationToHoursMinutesSeconds(historyEntry.pace ?? 0))
             ],
+          ),
+          const SizedBox(height: 10),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [Text(tr('history_page_drop')), Text('${drop}m')],
           ),
           const SizedBox(height: 20),
           ToggleSwitch(
