@@ -85,7 +85,11 @@ class HistoryDetailsPage extends StatelessWidget {
                   .firstWhereOrNull((e) => e.id == tExercise.exerciseId);
 
           return tExercise.trainingExerciseType == TrainingExerciseType.run
-              ? Text('RUN')
+              ? RunExercise(
+                  historyState: state,
+                  trainingExercise: tExercise,
+                  training: training,
+                )
               : ExerciseSetForm(
                   trainingExercise: tExercise,
                   matchingExercise: matchingExercise,
@@ -311,6 +315,82 @@ class HistoryDetailsPage extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class RunExercise extends StatefulWidget {
+  final TrainingExercise trainingExercise;
+  final TrainingHistoryLoaded historyState;
+  final Training training;
+  const RunExercise({
+    super.key,
+    required this.trainingExercise,
+    required this.historyState,
+    required this.training,
+  });
+
+  @override
+  State<RunExercise> createState() => _RunExerciseState();
+}
+
+class _RunExerciseState extends State<RunExercise> {
+  @override
+  Widget build(BuildContext context) {
+    final historyEntry = widget
+        .historyState.selectedTrainingEntry!.historyEntries
+        .firstWhereOrNull(
+            (entry) => entry.trainingExerciseId == widget.trainingExercise.id);
+
+    return Container(
+      margin: const EdgeInsets.only(top: 20),
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        border: Border.all(color: AppColors.timberwolf),
+        borderRadius: BorderRadius.circular(10),
+        color: AppColors.white,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            historyEntry?.exerciseNameAtTime ??
+                findExerciseName(widget.trainingExercise),
+            style: Theme.of(context).textTheme.titleMedium,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          if (widget.trainingExercise.specialInstructions != null)
+            Text('${widget.trainingExercise.specialInstructions}'),
+          const SizedBox(height: 10),
+          const Divider(color: AppColors.timberwolf),
+          const SizedBox(height: 10),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(tr('history_page_distance')),
+              Text('${historyEntry!.distance}m')
+            ],
+          ),
+          const SizedBox(height: 10),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(tr('history_page_duration')),
+              Text(formatDurationToHoursMinutesSeconds(
+                  historyEntry.duration ?? 0))
+            ],
+          ),
+          const SizedBox(height: 10),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(tr('history_page_pace')),
+              Text(formatDurationToHoursMinutesSeconds(historyEntry.pace ?? 0))
+            ],
+          )
+        ],
+      ),
     );
   }
 }

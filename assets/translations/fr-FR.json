@@ -159,5 +159,8 @@
 
   "history_page_no_training": "Aucun entraînement trouvé.",
   "history_page_title": "Historique",
-  "history_page_edit": "Modifier l'enregistrement"
+  "history_page_edit": "Modifier l'enregistrement",
+  "history_page_distance": "Distance",
+  "history_page_duration": "Durée",
+  "history_page_pace": "Rythme"
 }

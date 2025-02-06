@@ -159,5 +159,8 @@
 
   "history_page_no_training": "No training found.",
   "history_page_title": "History",
-  "history_page_edit": "Edit entry"
+  "history_page_edit": "Edit entry",
+  "history_page_distance": "Distance",
+  "history_page_duration": "Duration",
+  "history_page_pace": "Pace"
 }
