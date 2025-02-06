@@ -8,6 +8,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:my_fitness_tracker/core/widgets/small_text_field_widget.dart';
 import 'package:my_fitness_tracker/features/exercise_management/presentation/bloc/exercise_management_bloc.dart';
 import 'package:my_fitness_tracker/features/training_history/presentation/bloc/training_history_bloc.dart';
+import 'package:my_fitness_tracker/features/training_history/presentation/widgets/run_map_widget.dart';
 import 'package:my_fitness_tracker/features/training_management/domain/entities/training.dart';
 import 'package:my_fitness_tracker/features/training_management/domain/entities/training_exercise.dart';
 import 'package:my_fitness_tracker/features/training_management/presentation/bloc/training_management_bloc.dart';
@@ -342,6 +343,9 @@ class _RunExerciseState extends State<RunExercise> {
         .firstWhereOrNull(
             (entry) => entry.trainingExerciseId == widget.trainingExercise.id);
 
+    final locations = widget.historyState.selectedTrainingEntry!
+        .locationsByExerciseId[widget.trainingExercise.id]!;
+
     return Container(
       margin: const EdgeInsets.only(top: 20),
       padding: const EdgeInsets.all(10),
@@ -388,7 +392,9 @@ class _RunExerciseState extends State<RunExercise> {
               Text(tr('history_page_pace')),
               Text(formatDurationToHoursMinutesSeconds(historyEntry.pace ?? 0))
             ],
-          )
+          ),
+          const SizedBox(height: 20),
+          RunMapView(locations: locations)
         ],
       ),
     );

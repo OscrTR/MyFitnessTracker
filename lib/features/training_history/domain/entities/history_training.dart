@@ -7,6 +7,7 @@ import 'history_run_location.dart';
 
 class HistoryTraining extends Equatable {
   final List<HistoryEntry> historyEntries;
+  final Map<int, List<RunLocation>> locationsByExerciseId;
   final int trainingId;
   final String trainingName;
   final TrainingType trainingType;
@@ -24,6 +25,7 @@ class HistoryTraining extends Equatable {
 
   const HistoryTraining({
     required this.historyEntries,
+    required this.locationsByExerciseId,
     required this.trainingId,
     required this.trainingName,
     required this.trainingType,
@@ -70,7 +72,25 @@ class HistoryTraining extends Equatable {
     return groupedEntries.map((group) {
       final trainingId = group.first.trainingId;
       final locations = locationsByTrainingId?[trainingId];
-      return _convertGroupToHistoryTraining(group, locations: locations);
+
+      final locationsByExerciseId = <int, List<RunLocation>>{};
+      if (locations != null) {
+        for (var entry in group) {
+          final exerciseLocations = locations
+              .where(
+                  (loc) => loc.trainingExerciseId == entry.trainingExerciseId)
+              .toList();
+          if (exerciseLocations.isNotEmpty) {
+            locationsByExerciseId[entry.trainingExerciseId] = exerciseLocations;
+          }
+        }
+      }
+
+      return _convertGroupToHistoryTraining(
+        group,
+        locations: locations,
+        locationsByExerciseId: locationsByExerciseId,
+      );
     }).toList();
   }
 
@@ -108,8 +128,10 @@ class HistoryTraining extends Equatable {
   }
 
   static HistoryTraining _convertGroupToHistoryTraining(
-      List<HistoryEntry> group,
-      {List<RunLocation>? locations}) {
+    List<HistoryEntry> group, {
+    List<RunLocation>? locations,
+    Map<int, List<RunLocation>>? locationsByExerciseId,
+  }) {
     final firstEntry = group.first;
 
     // Calculer les statistiques agrégées
@@ -129,11 +151,11 @@ class HistoryTraining extends Equatable {
     final totalLoad = group.fold<int>(
         0, (sum, entry) => sum + ((entry.weight ?? 0) * (entry.reps ?? 1)));
 
-    final totalSets = group.map((e) => e.setNumber).whereNotNull().length;
+    final totalSets = group.map((e) => e.setNumber).nonNulls.length;
 
-    final averagePace = group.map((e) => e.pace).whereNotNull().isEmpty
+    final averagePace = group.map((e) => e.pace).nonNulls.isEmpty
         ? 0
-        : group.map((e) => e.pace).whereNotNull().average.round();
+        : group.map((e) => e.pace).nonNulls.average.round();
 
     final totalRest = _calculateTotalRest(group);
 
@@ -141,6 +163,7 @@ class HistoryTraining extends Equatable {
 
     return HistoryTraining(
       historyEntries: group,
+      locationsByExerciseId: locationsByExerciseId ?? {},
       trainingId: firstEntry.trainingId,
       trainingName: firstEntry.trainingNameAtTime,
       trainingType: firstEntry.trainingType,
