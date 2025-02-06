@@ -319,7 +319,8 @@ class _HomePageState extends State<HomePage> {
                               children: [
                                 const Icon(LucideIcons.activity, size: 16),
                                 const SizedBox(width: 5),
-                                Text('${_historyTrainings![index].distance}km'),
+                                Text(
+                                    '${(_historyTrainings![index].distance / 1000).toStringAsFixed(2)}km'),
                               ],
                             ),
                             Row(
