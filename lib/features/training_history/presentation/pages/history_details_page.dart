@@ -8,6 +8,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:my_fitness_tracker/core/widgets/small_text_field_widget.dart';
 import 'package:my_fitness_tracker/features/exercise_management/presentation/bloc/exercise_management_bloc.dart';
 import 'package:my_fitness_tracker/features/training_history/presentation/bloc/training_history_bloc.dart';
+import 'package:my_fitness_tracker/features/training_history/presentation/widgets/altitude_chart_widget.dart';
 import 'package:my_fitness_tracker/features/training_history/presentation/widgets/pace_chart_widget.dart';
 import 'package:my_fitness_tracker/features/training_history/presentation/widgets/run_map_widget.dart';
 import 'package:my_fitness_tracker/features/training_management/domain/entities/training.dart';
@@ -421,7 +422,8 @@ class _RunExerciseState extends State<RunExercise> {
           ),
           const SizedBox(height: 10),
           if (selectedOption == 0) RunMapView(locations: locations),
-          if (selectedOption == 1) PaceChart(locations: locations)
+          if (selectedOption == 1) PaceChart(locations: locations),
+          if (selectedOption == 2) AltitudeChart(locations: locations),
         ],
       ),
     );
