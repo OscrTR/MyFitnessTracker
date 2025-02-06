@@ -162,5 +162,7 @@
   "history_page_edit": "Edit entry",
   "history_page_distance": "Distance",
   "history_page_duration": "Duration",
-  "history_page_pace": "Pace"
+  "history_page_pace": "Pace",
+  "history_page_trace": "Trace",
+  "history_page_drop": "Drop"
 }

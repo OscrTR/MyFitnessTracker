@@ -8,11 +8,13 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:my_fitness_tracker/core/widgets/small_text_field_widget.dart';
 import 'package:my_fitness_tracker/features/exercise_management/presentation/bloc/exercise_management_bloc.dart';
 import 'package:my_fitness_tracker/features/training_history/presentation/bloc/training_history_bloc.dart';
+import 'package:my_fitness_tracker/features/training_history/presentation/widgets/pace_chart_widget.dart';
 import 'package:my_fitness_tracker/features/training_history/presentation/widgets/run_map_widget.dart';
 import 'package:my_fitness_tracker/features/training_management/domain/entities/training.dart';
 import 'package:my_fitness_tracker/features/training_management/domain/entities/training_exercise.dart';
 import 'package:my_fitness_tracker/features/training_management/presentation/bloc/training_management_bloc.dart';
 import 'package:collection/collection.dart';
+import 'package:toggle_switch/toggle_switch.dart';
 
 import '../../../../app_colors.dart';
 import '../../../../helper_functions.dart';
@@ -336,6 +338,8 @@ class RunExercise extends StatefulWidget {
 }
 
 class _RunExerciseState extends State<RunExercise> {
+  int selectedOption = 0;
+
   @override
   Widget build(BuildContext context) {
     final historyEntry = widget
@@ -394,7 +398,30 @@ class _RunExerciseState extends State<RunExercise> {
             ],
           ),
           const SizedBox(height: 20),
-          RunMapView(locations: locations)
+          ToggleSwitch(
+            minWidth: (MediaQuery.of(context).size.width - 60) / 3,
+            inactiveBgColor: AppColors.whiteSmoke,
+            activeBgColor: const [AppColors.licorice],
+            activeFgColor: AppColors.white,
+            inactiveFgColor: AppColors.licorice,
+            cornerRadius: 10,
+            radiusStyle: true,
+            initialLabelIndex: selectedOption,
+            totalSwitches: 3,
+            labels: [
+              tr('history_page_trace'),
+              tr('history_page_pace'),
+              tr('history_page_drop')
+            ],
+            onToggle: (index) {
+              setState(() {
+                selectedOption = index!;
+              });
+            },
+          ),
+          const SizedBox(height: 10),
+          if (selectedOption == 0) RunMapView(locations: locations),
+          if (selectedOption == 1) PaceChart(locations: locations)
         ],
       ),
     );

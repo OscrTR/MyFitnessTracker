@@ -162,5 +162,7 @@
   "history_page_edit": "Modifier l'enregistrement",
   "history_page_distance": "Distance",
   "history_page_duration": "Durée",
-  "history_page_pace": "Rythme"
+  "history_page_pace": "Rythme",
+  "history_page_trace": "Parcours",
+  "history_page_drop": "Dénivelé"
 }

@@ -45,10 +45,11 @@ class RunMapView extends StatelessWidget {
     return ClipRRect(
       borderRadius: BorderRadius.circular(10),
       child: SizedBox(
-        height: 200,
+        height: 250,
         width: MediaQuery.of(context).size.width - 60,
         child: FlutterMap(
           options: MapOptions(
+            backgroundColor: AppColors.floralWhite,
             initialCenter: center,
             initialZoom: 13.0,
             initialCameraFit: CameraFit.bounds(
