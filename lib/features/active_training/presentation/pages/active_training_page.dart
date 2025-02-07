@@ -9,6 +9,9 @@ import 'package:location/location.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../../../../app_colors.dart';
+import '../../../../helper_functions.dart';
+import '../../../training_history/domain/entities/history_entry.dart';
+import '../../../training_history/presentation/bloc/training_history_bloc.dart';
 import '../bloc/active_training_bloc.dart';
 import '../widgets/error_state_widget.dart';
 import 'package:uuid/uuid.dart';
@@ -197,132 +200,10 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage>
                             isLocationEnabled) {
                           isVerified = true;
                         } else {
-                          return SizedBox(
-                            height: MediaQuery.of(context).size.height,
-                            child: Center(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(tr('active_training_notifications')),
-                                  const SizedBox(height: 10),
-                                  GestureDetector(
-                                    onTap: () {
-                                      _requestNotificationPermission();
-                                    },
-                                    child: Container(
-                                        padding: const EdgeInsets.symmetric(
-                                            vertical: 10, horizontal: 20),
-                                        decoration: BoxDecoration(
-                                            color: isNotificationAuthorized
-                                                ? AppColors.whiteSmoke
-                                                : AppColors.licorice,
-                                            borderRadius:
-                                                BorderRadius.circular(10)),
-                                        child: Text(
-                                          isNotificationAuthorized
-                                              ? tr('active_training_granted')
-                                              : tr('active_training_ask'),
-                                          style: TextStyle(
-                                              color: isNotificationAuthorized
-                                                  ? AppColors.frenchGray
-                                                  : AppColors.white),
-                                        )),
-                                  ),
-                                  const SizedBox(height: 30),
-                                  Text(tr('active_training_location')),
-                                  const SizedBox(height: 10),
-                                  GestureDetector(
-                                    onTap: () {
-                                      _requestLocationPermission();
-                                    },
-                                    child: Container(
-                                        padding: const EdgeInsets.symmetric(
-                                            vertical: 10, horizontal: 20),
-                                        decoration: BoxDecoration(
-                                            color:
-                                                isLocationPermissionGrantedAlways
-                                                    ? AppColors.whiteSmoke
-                                                    : AppColors.licorice,
-                                            borderRadius:
-                                                BorderRadius.circular(10)),
-                                        child: Text(
-                                          isLocationPermissionGrantedAlways
-                                              ? tr('active_training_granted')
-                                              : tr('active_training_ask'),
-                                          style: TextStyle(
-                                              color:
-                                                  isLocationPermissionGrantedAlways
-                                                      ? AppColors.frenchGray
-                                                      : AppColors.white),
-                                        )),
-                                  ),
-                                  const SizedBox(height: 30),
-                                  Text(tr('active_training_location_enabled')),
-                                  const SizedBox(height: 10),
-                                  GestureDetector(
-                                    onTap: () {
-                                      _requestLocationEnabled();
-                                    },
-                                    child: Container(
-                                        padding: const EdgeInsets.symmetric(
-                                            vertical: 10, horizontal: 20),
-                                        decoration: BoxDecoration(
-                                            color: isLocationEnabled
-                                                ? AppColors.whiteSmoke
-                                                : AppColors.licorice,
-                                            borderRadius:
-                                                BorderRadius.circular(10)),
-                                        child: Text(
-                                          isLocationEnabled
-                                              ? tr('active_training_granted')
-                                              : tr('active_training_ask'),
-                                          style: TextStyle(
-                                              color: isLocationEnabled
-                                                  ? AppColors.frenchGray
-                                                  : AppColors.white),
-                                        )),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
+                          return _buildRunPermissions(context);
                         }
                       } else if (!isNotificationAuthorized) {
-                        return SizedBox(
-                          height: MediaQuery.of(context).size.height,
-                          child: Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(tr('active_training_notifications')),
-                                const SizedBox(height: 10),
-                                GestureDetector(
-                                  onTap: () {
-                                    _requestNotificationPermission();
-                                  },
-                                  child: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 10, horizontal: 20),
-                                      decoration: BoxDecoration(
-                                          color: isNotificationAuthorized
-                                              ? AppColors.whiteSmoke
-                                              : AppColors.licorice,
-                                          borderRadius:
-                                              BorderRadius.circular(10)),
-                                      child: Text(
-                                        isNotificationAuthorized
-                                            ? tr('active_training_granted')
-                                            : tr('active_training_ask'),
-                                        style: TextStyle(
-                                            color: isNotificationAuthorized
-                                                ? AppColors.frenchGray
-                                                : AppColors.white),
-                                      )),
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
+                        return _buildNotificationPermission(context);
                       } else {
                         isVerified = true;
                       }
@@ -343,44 +224,8 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage>
                               (b['data'] as dynamic).position ?? 0;
                           return aPosition.compareTo(bPosition);
                         });
-                        return Column(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.all(20),
-                              child: Column(
-                                children: [
-                                  _buildHeader(state, context),
-                                  _buildTrainingItemList(sortedItems, context,
-                                      exercisesAndMultisetsList),
-                                  const SizedBox(height: 30),
-                                  GestureDetector(
-                                    onTap: () {
-                                      GoRouter.of(context).go('/home');
-                                      context
-                                          .read<ActiveTrainingBloc>()
-                                          .add(ClearTimers());
-                                    },
-                                    child: Container(
-                                        width: double.infinity,
-                                        padding: const EdgeInsets.symmetric(
-                                            vertical: 10, horizontal: 20),
-                                        decoration: BoxDecoration(
-                                            color: AppColors.licorice,
-                                            borderRadius:
-                                                BorderRadius.circular(5)),
-                                        child: Text(
-                                          context.tr('active_training_end'),
-                                          style: const TextStyle(
-                                              color: AppColors.white),
-                                          textAlign: TextAlign.center,
-                                        )),
-                                  ),
-                                  const SizedBox(height: 90),
-                                ],
-                              ),
-                            ),
-                          ],
-                        );
+                        return _buildPageContent(state, context, sortedItems,
+                            exercisesAndMultisetsList);
                       } else {
                         return SizedBox(
                             height: MediaQuery.of(context).size.height,
@@ -421,6 +266,244 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage>
                 return const SizedBox();
               }),
             )
+          ],
+        ),
+      ),
+    );
+  }
+
+  Column _buildPageContent(
+      TrainingManagementLoaded state,
+      BuildContext context,
+      List<Map<String, dynamic>> sortedItems,
+      List<Map<String, Object>> exercisesAndMultisetsList) {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            children: [
+              _buildHeader(state, context),
+              _buildTrainingItemList(
+                  sortedItems, context, exercisesAndMultisetsList),
+              const SizedBox(height: 30),
+              GestureDetector(
+                onTap: () {
+                  final activeState =
+                      sl<ActiveTrainingBloc>().state as ActiveTrainingLoaded;
+                  final currentTimerState = activeState.timersStateList
+                      .firstWhere((timer) =>
+                          timer.timerId == activeState.lastStartedTimerId);
+
+                  final registeredId =
+                      (sl<TrainingHistoryBloc>().state as TrainingHistoryLoaded)
+                          .historyEntries
+                          .firstWhereOrNull((el) =>
+                              el.trainingExerciseId ==
+                                  currentTimerState.tExerciseId &&
+                              el.setNumber == currentTimerState.setNumber &&
+                              el.trainingId == currentTimerState.trainingId &&
+                              el.multisetSetNumber ==
+                                  currentTimerState.multisetSetNumber)
+                          ?.id;
+
+                  int cals = 0;
+
+                  final trainingManagementState = (sl<TrainingManagementBloc>()
+                      .state as TrainingManagementLoaded);
+
+                  final listOfTExercises = [
+                    ...trainingManagementState.activeTraining!.trainingExercises
+                  ];
+                  for (var multiset
+                      in trainingManagementState.activeTraining!.multisets) {
+                    listOfTExercises.addAll([...multiset.trainingExercises!]);
+                  }
+
+                  final matchingTExercise = listOfTExercises.firstWhere(
+                      (tExercise) =>
+                          tExercise.id == currentTimerState.tExerciseId);
+
+                  final duration = currentTimerState.isCountDown
+                      ? currentTimerState.countDownValue -
+                          currentTimerState.timerValue
+                      : currentTimerState.timerValue;
+
+                  cals = getCalories(
+                      intensity: matchingTExercise.intensity!,
+                      duration: duration);
+
+                  if (currentTimerState.timerId != 'primaryTimer' &&
+                      currentTimerState.isActive) {
+                    sl<TrainingHistoryBloc>().add(
+                      CreateOrUpdateHistoryEntry(
+                        historyEntry: HistoryEntry(
+                          id: registeredId,
+                          trainingId: currentTimerState.trainingId!,
+                          trainingExerciseId: currentTimerState.tExerciseId!,
+                          setNumber: currentTimerState.setNumber,
+                          multisetSetNumber:
+                              currentTimerState.multisetSetNumber,
+                          date: DateTime.now(),
+                          duration: duration,
+                          distance: currentTimerState.distance.toInt(),
+                          pace: currentTimerState.pace.toInt(),
+                          calories: cals,
+                          trainingType:
+                              trainingManagementState.activeTraining!.type,
+                          trainingExerciseType:
+                              matchingTExercise.trainingExerciseType!,
+                          trainingNameAtTime:
+                              trainingManagementState.activeTraining!.name,
+                          exerciseNameAtTime:
+                              findExerciseName(matchingTExercise),
+                          intensity: matchingTExercise.intensity!,
+                        ),
+                      ),
+                    );
+                  }
+                  GoRouter.of(context).go('/home');
+                  context.read<ActiveTrainingBloc>().add(ClearTimers());
+                },
+                child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 10, horizontal: 20),
+                    decoration: BoxDecoration(
+                        color: AppColors.licorice,
+                        borderRadius: BorderRadius.circular(5)),
+                    child: Text(
+                      context.tr('active_training_end'),
+                      style: const TextStyle(color: AppColors.white),
+                      textAlign: TextAlign.center,
+                    )),
+              ),
+              const SizedBox(height: 90),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  SizedBox _buildNotificationPermission(BuildContext context) {
+    return SizedBox(
+      height: MediaQuery.of(context).size.height,
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(tr('active_training_notifications')),
+            const SizedBox(height: 10),
+            GestureDetector(
+              onTap: () {
+                _requestNotificationPermission();
+              },
+              child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                  decoration: BoxDecoration(
+                      color: isNotificationAuthorized
+                          ? AppColors.whiteSmoke
+                          : AppColors.licorice,
+                      borderRadius: BorderRadius.circular(10)),
+                  child: Text(
+                    isNotificationAuthorized
+                        ? tr('active_training_granted')
+                        : tr('active_training_ask'),
+                    style: TextStyle(
+                        color: isNotificationAuthorized
+                            ? AppColors.frenchGray
+                            : AppColors.white),
+                  )),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  SizedBox _buildRunPermissions(BuildContext context) {
+    return SizedBox(
+      height: MediaQuery.of(context).size.height,
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(tr('active_training_notifications')),
+            const SizedBox(height: 10),
+            GestureDetector(
+              onTap: () {
+                _requestNotificationPermission();
+              },
+              child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                  decoration: BoxDecoration(
+                      color: isNotificationAuthorized
+                          ? AppColors.whiteSmoke
+                          : AppColors.licorice,
+                      borderRadius: BorderRadius.circular(10)),
+                  child: Text(
+                    isNotificationAuthorized
+                        ? tr('active_training_granted')
+                        : tr('active_training_ask'),
+                    style: TextStyle(
+                        color: isNotificationAuthorized
+                            ? AppColors.frenchGray
+                            : AppColors.white),
+                  )),
+            ),
+            const SizedBox(height: 30),
+            Text(tr('active_training_location')),
+            const SizedBox(height: 10),
+            GestureDetector(
+              onTap: () {
+                _requestLocationPermission();
+              },
+              child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                  decoration: BoxDecoration(
+                      color: isLocationPermissionGrantedAlways
+                          ? AppColors.whiteSmoke
+                          : AppColors.licorice,
+                      borderRadius: BorderRadius.circular(10)),
+                  child: Text(
+                    isLocationPermissionGrantedAlways
+                        ? tr('active_training_granted')
+                        : tr('active_training_ask'),
+                    style: TextStyle(
+                        color: isLocationPermissionGrantedAlways
+                            ? AppColors.frenchGray
+                            : AppColors.white),
+                  )),
+            ),
+            const SizedBox(height: 30),
+            Text(tr('active_training_location_enabled')),
+            const SizedBox(height: 10),
+            GestureDetector(
+              onTap: () {
+                _requestLocationEnabled();
+              },
+              child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                  decoration: BoxDecoration(
+                      color: isLocationEnabled
+                          ? AppColors.whiteSmoke
+                          : AppColors.licorice,
+                      borderRadius: BorderRadius.circular(10)),
+                  child: Text(
+                    isLocationEnabled
+                        ? tr('active_training_granted')
+                        : tr('active_training_ask'),
+                    style: TextStyle(
+                        color: isLocationEnabled
+                            ? AppColors.frenchGray
+                            : AppColors.white),
+                  )),
+            ),
           ],
         ),
       ),
