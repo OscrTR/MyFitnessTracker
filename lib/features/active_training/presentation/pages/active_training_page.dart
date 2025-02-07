@@ -168,10 +168,13 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: [
-          Positioned.fill(
-            child: SingleChildScrollView(
+      body: ConstrainedBox(
+        constraints: BoxConstraints(
+          minHeight: MediaQuery.of(context).size.height,
+        ),
+        child: Stack(
+          children: [
+            SingleChildScrollView(
               child: Column(
                 children: [
                   BlocBuilder<TrainingManagementBloc, TrainingManagementState>(
@@ -390,34 +393,36 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage>
                 ],
               ),
             ),
-          ),
-          BlocBuilder<TrainingManagementBloc, TrainingManagementState>(
-              builder: (context, state) {
-            if (state is TrainingManagementLoaded &&
-                state.activeTraining != null) {
-              bool isVerified = false;
+            Positioned(
+              bottom: 0,
+              right: 0,
+              left: 0,
+              child:
+                  BlocBuilder<TrainingManagementBloc, TrainingManagementState>(
+                      builder: (context, state) {
+                if (state is TrainingManagementLoaded &&
+                    state.activeTraining != null) {
+                  bool isVerified = false;
 
-              if (state.activeTraining!.trainingExercises.any((el) =>
-                  el.trainingExerciseType == TrainingExerciseType.run)) {
-                if (isLocationPermissionGrantedAlways && isLocationEnabled) {
-                  isVerified = true;
+                  if (state.activeTraining!.trainingExercises.any((el) =>
+                      el.trainingExerciseType == TrainingExerciseType.run)) {
+                    if (isLocationPermissionGrantedAlways &&
+                        isLocationEnabled) {
+                      isVerified = true;
+                    }
+                  } else {
+                    isVerified = true;
+                  }
+
+                  if (isVerified) {
+                    return const TimerWidget();
+                  }
                 }
-              } else {
-                isVerified = true;
-              }
-
-              if (isVerified) {
-                return const Positioned(
-                  bottom: 0,
-                  right: 0,
-                  left: 0,
-                  child: TimerWidget(),
-                );
-              }
-            }
-            return const SizedBox();
-          })
-        ],
+                return const SizedBox();
+              }),
+            )
+          ],
+        ),
       ),
     );
   }

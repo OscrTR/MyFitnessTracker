@@ -190,7 +190,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
           exercise.specialInstructions?.toString() ?? '';
       _controllers['objectives']?.text = exercise.objectives?.toString() ?? '';
       _controllers['distance']?.text = (exercise.targetDistance != null
-          ? (exercise.targetDistance! ~/ 1000).toString()
+          ? (exercise.targetDistance! / 1000).toString()
           : '');
       _controllers['targetDurationHours']?.text =
           (exercise.targetDuration != null
@@ -213,7 +213,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
           : '');
       _controllers['intervalDistance']?.text =
           (exercise.intervalDistance != null
-              ? (exercise.intervalDistance! ~/ 1000).toString()
+              ? (exercise.intervalDistance! / 1000).toString()
               : '');
       _controllers['intervalMinutes']?.text = (exercise.intervalDuration != null
           ? (exercise.intervalDuration! % 3600 ~/ 60).toString()

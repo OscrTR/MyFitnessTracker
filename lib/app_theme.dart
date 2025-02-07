@@ -55,4 +55,10 @@ final ThemeData appTheme = ThemeData(
   ),
   checkboxTheme: const CheckboxThemeData(
       side: BorderSide(color: AppColors.frenchGray, width: 2)),
+  dialogTheme: DialogTheme(
+    backgroundColor: AppColors.white,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(10),
+    ),
+  ),
 );
