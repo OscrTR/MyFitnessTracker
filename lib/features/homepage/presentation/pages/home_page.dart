@@ -37,6 +37,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     BackButtonInterceptor.add(myInterceptor);
+    sl<TrainingHistoryBloc>().add(FetchHistoryEntriesEvent());
   }
 
   @override

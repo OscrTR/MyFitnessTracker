@@ -189,53 +189,58 @@ class HistoryTraining extends Equatable {
   }
 
   static int _calculateDuration(List<HistoryEntry> group) {
-    if (group.length <= 1) return 0;
-
     int totalTrainingTime = 0;
 
-    // Calculer le temps total d'entraînement effectif
-    for (var entry in group) {
-      if (entry.duration != null && entry.duration! > 0) {
-        totalTrainingTime += entry.duration!;
-      } else if (entry.reps != null) {
-        // Si pas de durée mais des répétitions, on compte 3 secondes par répétition
-        totalTrainingTime += entry.reps! * 3;
-      }
+    final firstEntry = group[0];
+    final lastEntry = group[group.length - 1];
+    final initialTime = firstEntry.date;
+    DateTime correctedInitialTime = initialTime;
+
+    if (firstEntry.reps != null) {
+      correctedInitialTime =
+          initialTime.subtract(Duration(seconds: firstEntry.reps! * 3));
+    } else if (firstEntry.duration != null) {
+      correctedInitialTime =
+          initialTime.subtract(Duration(seconds: firstEntry.duration!));
     }
 
-    // Le temps de repos est la différence entre le temps total écoulé et le temps d'entraînement
+    totalTrainingTime =
+        lastEntry.date.difference(correctedInitialTime).inSeconds;
+
     return totalTrainingTime;
   }
 
   static int _calculateTotalRest(List<HistoryEntry> group) {
-    if (group.length <= 1) return 0;
-
     int totalTrainingTime = 0;
-    int totalElapsedTime = 0;
+    int totalEffectiveTime = 0;
+
+    final firstEntry = group[0];
+    final lastEntry = group[group.length - 1];
+    final initialTime = firstEntry.date;
+    DateTime correctedInitialTime = initialTime;
+
+    if (firstEntry.reps != null) {
+      correctedInitialTime =
+          initialTime.subtract(Duration(seconds: firstEntry.reps! * 3));
+    } else if (firstEntry.duration != null) {
+      correctedInitialTime =
+          initialTime.subtract(Duration(seconds: firstEntry.duration!));
+    }
+
+    totalTrainingTime =
+        lastEntry.date.difference(correctedInitialTime).inSeconds;
 
     // Calculer le temps total d'entraînement effectif
     for (var entry in group) {
       if (entry.duration != null && entry.duration! > 0) {
-        totalTrainingTime += entry.duration!;
+        totalEffectiveTime += entry.duration!;
       } else if (entry.reps != null) {
-        // Si pas de durée mais des répétitions, on compte 3 secondes par répétition
-        totalTrainingTime += entry.reps! * 3;
+        totalEffectiveTime += entry.reps! * 3;
       }
     }
 
-    // Calculer le temps total écoulé entre la première et la dernière entrée
-    for (int i = 1; i < group.length; i++) {
-      final timeDifference =
-          group[i].date.difference(group[i - 1].date).inSeconds;
-      totalElapsedTime += timeDifference;
-    }
-
-    if ((totalElapsedTime - totalTrainingTime) < 0) {
-      return 0;
-    }
-
     // Le temps de repos est la différence entre le temps total écoulé et le temps d'entraînement
-    return totalElapsedTime - totalTrainingTime;
+    return totalTrainingTime - totalEffectiveTime;
   }
 
   static List<HistoryTraining> getCurrentWeek(List<HistoryTraining> trainings) {
