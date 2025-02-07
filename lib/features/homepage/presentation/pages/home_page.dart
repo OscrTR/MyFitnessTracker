@@ -928,9 +928,7 @@ Widget _buildTrainingsList(BuildContext context) {
                     margin: EdgeInsets.only(
                         left: 20,
                         right: index + 1 == plannedTrainings.length ? 20 : 0),
-                    width: plannedTrainings.length > 1
-                        ? MediaQuery.of(context).size.width * 0.8
-                        : MediaQuery.of(context).size.width - 40,
+                    width: MediaQuery.of(context).size.width - 40,
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
                         color: AppColors.floralWhite,
@@ -1015,7 +1013,7 @@ Widget _buildTrainingsList(BuildContext context) {
                   ),
                   Positioned(
                     top: 10,
-                    right: 10,
+                    right: 20,
                     child: PopupMenuButton(
                       constraints: const BoxConstraints(maxWidth: 100),
                       elevation: 0,
