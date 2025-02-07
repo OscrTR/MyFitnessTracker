@@ -1,31 +1,42 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map_tile_caching/flutter_map_tile_caching.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:my_fitness_tracker/app_colors.dart';
 
 import '../../domain/entities/history_run_location.dart';
 
-class RunMapView extends StatelessWidget {
+class RunMapView extends StatefulWidget {
   final List<RunLocation> locations;
 
   const RunMapView({super.key, required this.locations});
 
   @override
+  State<RunMapView> createState() => _RunMapViewState();
+}
+
+class _RunMapViewState extends State<RunMapView> {
+  final _tileProvider = FMTCTileProvider(
+    stores: const {'mapStore': BrowseStoreStrategy.readUpdateCreate},
+  );
+
+  @override
   Widget build(BuildContext context) {
-    if (locations.isEmpty) {
+    if (widget.locations.isEmpty) {
       return const Center(child: Text('Aucune donnée de localisation'));
     }
 
-    final points =
-        locations.map((loc) => LatLng(loc.latitude, loc.longitude)).toList();
+    final points = widget.locations
+        .map((loc) => LatLng(loc.latitude, loc.longitude))
+        .toList();
 
     // Calcul des limites
-    double minLat = locations.first.latitude;
-    double maxLat = locations.first.latitude;
-    double minLng = locations.first.longitude;
-    double maxLng = locations.first.longitude;
+    double minLat = widget.locations.first.latitude;
+    double maxLat = widget.locations.first.latitude;
+    double minLng = widget.locations.first.longitude;
+    double maxLng = widget.locations.first.longitude;
 
-    for (var location in locations) {
+    for (var location in widget.locations) {
       if (location.latitude < minLat) minLat = location.latitude;
       if (location.latitude > maxLat) maxLat = location.latitude;
       if (location.longitude < minLng) minLng = location.longitude;
@@ -64,7 +75,8 @@ class RunMapView extends StatelessWidget {
             TileLayer(
               urlTemplate:
                   'https://cartodb-basemaps-a.global.ssl.fastly.net/rastertiles/voyager/{z}/{x}/{y}.png',
-              userAgentPackageName: 'com.my_fitness_tracker.app',
+              userAgentPackageName: 'dev.oscarthiebaut.my_fitness_tracker',
+              tileProvider: _tileProvider,
             ),
             PolylineLayer(
               polylines: [
