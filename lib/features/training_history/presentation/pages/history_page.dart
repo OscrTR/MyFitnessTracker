@@ -9,6 +9,7 @@ import 'package:toggle_switch/toggle_switch.dart';
 import '../../../../app_colors.dart';
 import '../../../../helper_functions.dart';
 import '../../../../injection_container.dart';
+import '../../../training_management/domain/entities/training.dart';
 import '../../../training_management/presentation/bloc/training_management_bloc.dart';
 import '../../domain/entities/history_training.dart';
 import '../bloc/training_history_bloc.dart';
@@ -26,6 +27,7 @@ class _HistoryPageState extends State<HistoryPage> {
   List<DateTime> _monthsList = [];
   List<HistoryTraining>? _historyTrainings;
   final ScrollController _scrollController = ScrollController();
+  Map<TrainingType, bool> _selectedTrainingTypes = {};
 
   String _formatDateLabel(
       BuildContext context, DateTime date, bool isWeekSelected) {
@@ -136,6 +138,9 @@ class _HistoryPageState extends State<HistoryPage> {
     _weeksList = _generateWeeklyRanges();
     _monthsList = _generateMonthlyRanges();
     _scrollToMostRecentDate();
+    _selectedTrainingTypes = {};
+    _selectedTrainingTypes = Map.fromEntries(
+        TrainingType.values.map((type) => MapEntry(type, false)));
   }
 
   @override
@@ -162,6 +167,38 @@ class _HistoryPageState extends State<HistoryPage> {
                   _buildDateTypeSelection(context),
                   const SizedBox(height: 10),
                   _buildDatesList(state),
+                  const SizedBox(height: 20),
+                  Wrap(
+                    spacing: 10,
+                    children: [
+                      ..._selectedTrainingTypes.keys.map(
+                        (e) => FilterChip(
+                          side: BorderSide(
+                              color: _selectedTrainingTypes[e]!
+                                  ? AppColors.white
+                                  : AppColors.timberwolf),
+                          label: Text(
+                            e.translate(context.locale.languageCode),
+                          ),
+                          labelStyle: TextStyle(
+                            color: _selectedTrainingTypes[e]!
+                                ? AppColors.white
+                                : AppColors.licorice,
+                          ),
+                          showCheckmark: true,
+                          selectedColor: AppColors.licorice,
+                          checkmarkColor: AppColors.white,
+                          backgroundColor: AppColors.white,
+                          selected: _selectedTrainingTypes[e]!,
+                          onSelected: (bool value) {
+                            setState(() {
+                              _selectedTrainingTypes[e] = value;
+                            });
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
                   if (historyEntries.isNotEmpty)
                     _buildEntriesList()
                   else
@@ -254,14 +291,24 @@ class _HistoryPageState extends State<HistoryPage> {
   }
 
   ListView _buildEntriesList() {
+    final hasSelectedTypes =
+        _selectedTrainingTypes.values.any((isSelected) => isSelected);
+
+    final displayedEntries = hasSelectedTypes
+        ? _historyTrainings!
+            .where(
+                (entry) => _selectedTrainingTypes[entry.trainingType] ?? false)
+            .toList()
+        : _historyTrainings!;
+
     return ListView.builder(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
-        itemCount: _historyTrainings?.length ?? 0,
+        itemCount: displayedEntries.length,
         itemBuilder: (context, index) {
           String dateFormatee =
               DateFormat('EEEE d MMMM y', context.locale.languageCode)
-                  .format(_historyTrainings![index].date);
+                  .format(displayedEntries[index].date);
           dateFormatee =
               dateFormatee[0].toUpperCase() + dateFormatee.substring(1);
 
@@ -269,14 +316,14 @@ class _HistoryPageState extends State<HistoryPage> {
                       as TrainingManagementLoaded)
                   .trainings
                   .firstWhereOrNull((trainning) =>
-                      trainning.id == _historyTrainings![index].trainingId)
+                      trainning.id == displayedEntries[index].trainingId)
                   ?.name ??
-              '${_historyTrainings![index].trainingName} (${tr('global_deleted')})';
+              '${displayedEntries[index].trainingName} (${tr('global_deleted')})';
 
           return GestureDetector(
             onTap: () {
               context.read<TrainingHistoryBloc>().add(
-                  SelectHistoryTrainingEntryEvent(_historyTrainings![index]));
+                  SelectHistoryTrainingEntryEvent(displayedEntries[index]));
               GoRouter.of(context).push('/history_details');
             },
             child: Container(
@@ -302,7 +349,7 @@ class _HistoryPageState extends State<HistoryPage> {
                               color: AppColors.parchment,
                               borderRadius: BorderRadius.circular(5)),
                           child: Text(
-                            _historyTrainings![index]
+                            displayedEntries[index]
                                 .trainingType
                                 .translate(context.locale.languageCode),
                             style: Theme.of(context).textTheme.bodySmall,
@@ -320,7 +367,7 @@ class _HistoryPageState extends State<HistoryPage> {
                             const Icon(LucideIcons.clock, size: 16),
                             const SizedBox(width: 5),
                             Text(formatDurationToHoursMinutesSeconds(
-                                _historyTrainings![index].duration)),
+                                displayedEntries[index].duration)),
                           ],
                         ),
                         Row(
@@ -329,7 +376,7 @@ class _HistoryPageState extends State<HistoryPage> {
                             const Icon(LucideIcons.activity, size: 16),
                             const SizedBox(width: 5),
                             Text(
-                                '${(_historyTrainings![index].distance / 1000).toStringAsFixed(2)}km'),
+                                '${(displayedEntries[index].distance / 1000).toStringAsFixed(2)}km'),
                           ],
                         ),
                         Row(
@@ -337,7 +384,7 @@ class _HistoryPageState extends State<HistoryPage> {
                           children: [
                             const Icon(LucideIcons.flame, size: 16),
                             const SizedBox(width: 5),
-                            Text('${_historyTrainings![index].calories} cal'),
+                            Text('${displayedEntries[index].calories} cal'),
                           ],
                         ),
                       ],
