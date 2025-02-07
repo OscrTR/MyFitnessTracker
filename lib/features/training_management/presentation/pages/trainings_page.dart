@@ -30,6 +30,7 @@ class _TrainingsPageState extends State<TrainingsPage> {
     _selectedTrainingTypes = {};
     _selectedTrainingTypes = Map.fromEntries(
         TrainingType.values.map((type) => MapEntry(type, false)));
+    sl<TrainingManagementBloc>().add(FetchTrainingsEvent());
   }
 
   @override
