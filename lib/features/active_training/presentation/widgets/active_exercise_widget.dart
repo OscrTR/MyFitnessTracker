@@ -473,6 +473,7 @@ class _ActiveExerciseRowState extends State<ActiveExerciseRow> {
                           trainingId: widget.tExercise.trainingId!,
                           trainingExerciseId: widget.tExercise.id!,
                           setNumber: widget.setIndex,
+                          multisetSetNumber: null,
                           date: DateTime.now(),
                           reps: int.tryParse(widget.repsController.text),
                           weight: int.tryParse(widget.weightController.text),

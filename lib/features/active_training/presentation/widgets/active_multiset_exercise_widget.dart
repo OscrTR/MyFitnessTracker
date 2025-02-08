@@ -404,25 +404,29 @@ class _ActiveExerciseRowState extends State<ActiveExerciseRow> {
     final restTimerId =
         '${widget.multisetIndex < 10 ? 0 : ''}${widget.multisetIndex}-${widget.setIndex < 10 ? 0 : ''}${widget.setIndex}-${widget.multisetExerciseIndex < 10 ? 0 : ''}${widget.multisetExerciseIndex}';
 
-    context.read<ActiveTrainingBloc>().add(CreateTimer(
-        timerState: TimerState(
-            timerId: restTimerId,
-            isActive: false,
-            isStarted: false,
-            isRunTimer: false,
-            timerValue: 0,
-            countDownValue: widget.isLastMultisetExercise
-                ? widget.isLastSet
-                    ? widget.multiset.multisetRest ?? 0
-                    : widget.multiset.setRest ?? 0
-                : widget.tExercise.exerciseRest ?? 0,
-            isCountDown: true,
-            isAutostart: false,
-            exerciseGlobalKey: widget.exerciseGlobalKey,
-            trainingId: null,
-            tExerciseId: null,
-            setNumber: null,
-            multisetSetNumber: null)));
+    context.read<ActiveTrainingBloc>().add(
+          CreateTimer(
+            timerState: TimerState(
+              timerId: restTimerId,
+              isActive: false,
+              isStarted: false,
+              isRunTimer: false,
+              timerValue: 0,
+              countDownValue: widget.isLastMultisetExercise
+                  ? widget.isLastSet
+                      ? widget.multiset.multisetRest ?? 0
+                      : widget.multiset.setRest ?? 0
+                  : widget.tExercise.exerciseRest ?? 0,
+              isCountDown: true,
+              isAutostart: false,
+              exerciseGlobalKey: widget.exerciseGlobalKey,
+              trainingId: null,
+              tExerciseId: null,
+              setNumber: null,
+              multisetSetNumber: null,
+            ),
+          ),
+        );
 
     return BlocBuilder<ActiveTrainingBloc, ActiveTrainingState>(
         builder: (context, state) {
@@ -500,6 +504,7 @@ class _ActiveExerciseRowState extends State<ActiveExerciseRow> {
                           trainingId: widget.tExercise.trainingId!,
                           trainingExerciseId: widget.tExercise.id!,
                           setNumber: widget.setIndex,
+                          multisetSetNumber: widget.multisetExerciseIndex,
                           date: DateTime.now(),
                           reps: int.tryParse(widget.repsController.text),
                           weight: int.tryParse(widget.weightController.text),

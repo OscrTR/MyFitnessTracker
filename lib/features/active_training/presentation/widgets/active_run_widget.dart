@@ -42,6 +42,10 @@ class _ActiveRunWidgetState extends State<ActiveRunWidget> {
                     '${exerciseIndex < 10 ? 0 : ''}$exerciseIndex')) {
               isActiveExercise = true;
             }
+
+            final bool isInterval =
+                widget.tExercise.sets != null && widget.tExercise.sets! > 1;
+
             return Container(
               margin: const EdgeInsets.only(top: 20),
               padding: const EdgeInsets.all(10),
@@ -58,10 +62,7 @@ class _ActiveRunWidgetState extends State<ActiveRunWidget> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 10),
-                  widget.tExercise.runExerciseTarget ==
-                          RunExerciseTarget.intervals
-                      ? buildIntervalText()
-                      : buildRunExerciseText(),
+                  isInterval ? buildIntervalText() : buildRunExerciseText(),
                   const SizedBox(height: 10),
                   if (widget.tExercise.specialInstructions != null &&
                       widget.tExercise.specialInstructions != '')
@@ -79,18 +80,14 @@ class _ActiveRunWidgetState extends State<ActiveRunWidget> {
                     ),
                   const SizedBox(height: 10),
                   const Divider(color: AppColors.timberwolf),
-                  if (widget.tExercise.runExerciseTarget ==
-                          RunExerciseTarget.distance ||
-                      widget.tExercise.runExerciseTarget ==
-                          RunExerciseTarget.duration)
+                  if (!isInterval)
                     DistanceOrDurationRun(
                       tExercise: widget.tExercise,
                       isLast: widget.isLast,
                       exerciseIndex: widget.exerciseIndex,
                       exerciseGlobalKey: widget.key! as GlobalKey,
                     ),
-                  if (widget.tExercise.runExerciseTarget ==
-                      RunExerciseTarget.intervals)
+                  if (isInterval)
                     IntervalWidget(
                       tExercise: widget.tExercise,
                       isLast: widget.isLast,
@@ -173,34 +170,27 @@ class _ActiveRunWidgetState extends State<ActiveRunWidget> {
   Text buildIntervalText() {
     final tExercise = widget.tExercise;
     final targetDistance =
-        tExercise.intervalDistance != null && tExercise.intervalDistance! > 0
-            ? '${(tExercise.intervalDistance! / 1000).toStringAsFixed(1)}km'
+        tExercise.targetDistance != null && tExercise.targetDistance! > 0
+            ? '${(tExercise.targetDistance! / 1000).toStringAsFixed(1)}km'
             : '';
-    final targetDuration = tExercise.intervalDuration != null
-        ? formatDurationToHoursMinutesSeconds(tExercise.intervalDuration!)
+    final targetDuration = tExercise.targetDuration != null
+        ? formatDurationToHoursMinutesSeconds(tExercise.targetDuration!)
         : '';
     final targetPace = tExercise.isTargetPaceSelected == true
         ? ' at ${formatPace(tExercise.targetPace ?? 0)}'
         : '';
-    final intervals = tExercise.intervals ?? 1;
+    final intervals = tExercise.sets ?? 1;
 
-    if (tExercise.isIntervalInDistance == true) {
+    if (tExercise.runExerciseTarget == RunExerciseTarget.distance) {
       return Text(
         '${tr('active_training_running_interval')} ${'$intervals'}x$targetDistance$targetPace',
         style: Theme.of(context).textTheme.titleMedium,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
       );
-    } else if (tExercise.isIntervalInDistance == false) {
-      return Text(
-        '${tr('active_training_running_interval')} ${'$intervals'}x$targetDuration$targetPace',
-        style: Theme.of(context).textTheme.titleMedium,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-      );
     } else {
       return Text(
-        tr('active_training_running'),
+        '${tr('active_training_running_interval')} ${'$intervals'}x$targetDuration$targetPace',
         style: Theme.of(context).textTheme.titleMedium,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
@@ -364,7 +354,7 @@ class IntervalWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final intervals = tExercise.intervals ?? 1;
+    final intervals = tExercise.sets ?? 1;
 
     return Column(
       children: [
@@ -459,12 +449,14 @@ class IntervalRun extends StatelessWidget {
           isRunTimer: true,
           timerValue: 0,
           isCountDown: false,
-          targetDistance: tExercise.isIntervalInDistance!
-              ? tExercise.intervalDistance ?? 0
-              : 0,
-          targetDuration: tExercise.isIntervalInDistance!
-              ? 0
-              : tExercise.intervalDuration ?? 0,
+          targetDistance:
+              tExercise.runExerciseTarget == RunExerciseTarget.distance
+                  ? tExercise.targetDistance ?? 0
+                  : 0,
+          targetDuration:
+              tExercise.runExerciseTarget == RunExerciseTarget.duration
+                  ? 0
+                  : tExercise.targetDuration ?? 0,
           targetPace: tExercise.isTargetPaceSelected != null &&
                   tExercise.isTargetPaceSelected!
               ? tExercise.targetPace ?? 0
@@ -488,7 +480,7 @@ class IntervalRun extends StatelessWidget {
           isCountDown: true,
           countDownValue: isLastInterval
               ? tExercise.exerciseRest ?? 0
-              : tExercise.intervalRest ?? 0,
+              : tExercise.setRest ?? 0,
           isAutostart: true,
           exerciseGlobalKey: exerciseGlobalKey,
           trainingId: null,
@@ -543,9 +535,9 @@ class IntervalRun extends StatelessWidget {
                     ),
                     const SizedBox(width: 5),
                     Text(
-                      tExercise.intervalRest != null
+                      tExercise.setRest != null
                           ? formatDurationToHoursMinutesSeconds(
-                              tExercise.intervalRest!)
+                              tExercise.setRest!)
                           : '0:00',
                       style: const TextStyle(color: AppColors.frenchGray),
                     ),

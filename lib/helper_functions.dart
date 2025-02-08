@@ -68,17 +68,10 @@ class _IntensityData {
 String findExerciseName(TrainingExercise tExercise) {
   String exerciseName = '';
   if (tExercise.trainingExerciseType == TrainingExerciseType.run) {
-    final targetIntervalDistance =
-        tExercise.intervalDistance != null && tExercise.intervalDistance! > 0
-            ? '${(tExercise.intervalDistance! / 1000).toStringAsFixed(1)}km'
-            : '';
-    final targetIntervalDuration = tExercise.intervalDuration != null
-        ? formatDurationToHoursMinutesSeconds(tExercise.intervalDuration!)
-        : '';
     final targetPace = tExercise.isTargetPaceSelected == true
         ? ' at ${formatPace(tExercise.targetPace ?? 0)}'
         : '';
-    final intervals = tExercise.intervals ?? 1;
+    final intervals = tExercise.sets ?? 1;
     final targetDistance =
         tExercise.targetDistance != null && tExercise.targetDistance! > 0
             ? '${(tExercise.targetDistance! / 1000).toStringAsFixed(1)}km'
@@ -87,13 +80,13 @@ String findExerciseName(TrainingExercise tExercise) {
         ? formatDurationToHoursMinutesSeconds(tExercise.targetDuration!)
         : '';
 
-    if (tExercise.runExerciseTarget == RunExerciseTarget.intervals) {
-      if (tExercise.isIntervalInDistance == true) {
+    if (intervals > 1) {
+      if (tExercise.runExerciseTarget == RunExerciseTarget.distance) {
         exerciseName =
-            '${tr('active_training_running_interval')} ${'$intervals'}x$targetIntervalDistance$targetPace';
+            '${tr('active_training_running_interval')} ${'$intervals'}x$targetDistance$targetPace';
       } else {
         exerciseName =
-            '${tr('active_training_running_interval')} ${'$intervals'}x$targetIntervalDuration$targetPace';
+            '${tr('active_training_running_interval')} ${'$intervals'}x$targetDuration$targetPace';
       }
     } else if (tExercise.runExerciseTarget == RunExerciseTarget.distance) {
       exerciseName =

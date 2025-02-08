@@ -592,7 +592,8 @@ class _ExerciseSetFormState extends State<ExerciseSetForm> {
               reps: reps ?? historyEntry?.reps,
               duration: duration ?? historyEntry?.duration,
               setNumber: historyEntry?.setNumber ?? index,
-              multisetSetNumber: null,
+              // TODO : vérifier le multiset
+              multisetSetNumber: historyEntry?.multisetSetNumber,
               distance: null,
               pace: null,
               calories: cals,

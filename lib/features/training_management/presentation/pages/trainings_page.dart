@@ -574,10 +574,10 @@ int calculateTrainingDuration(Training training) {
     totalSeconds += (exercise.exerciseRest ?? 0);
 
     // Gestion des intervalles
-    if (exercise.intervals != null) {
-      totalSeconds += (exercise.intervalRest ?? 0) * (exercise.intervals! - 1);
-      if (exercise.intervalDuration != null) {
-        totalSeconds += exercise.intervalDuration! * exercise.intervals!;
+    if (exercise.sets != null && exercise.sets! > 1) {
+      totalSeconds += (exercise.setRest ?? 0) * (exercise.sets! - 1);
+      if (exercise.targetDuration != null) {
+        totalSeconds += exercise.targetDuration! * exercise.sets!;
       }
     }
   }

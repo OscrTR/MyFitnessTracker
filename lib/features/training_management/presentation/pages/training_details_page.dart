@@ -58,7 +58,6 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
     trainingExerciseType: TrainingExerciseType.workout,
     autoStart: false,
     runExerciseTarget: RunExerciseTarget.distance,
-    isIntervalInDistance: true,
     isTargetPaceSelected: false,
     intensity: 2,
   );
@@ -69,7 +68,6 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
     trainingExerciseType: TrainingExerciseType.workout,
     autoStart: false,
     runExerciseTarget: RunExerciseTarget.distance,
-    isIntervalInDistance: true,
     isTargetPaceSelected: false,
     intensity: 2,
   );
@@ -145,7 +143,6 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
         key: key,
         trainingExerciseType: exercise.trainingExerciseType,
         runExerciseTarget: exercise.runExerciseTarget,
-        isIntervalInDistance: exercise.isIntervalInDistance,
         isTargetPaceSelected: exercise.isTargetPaceSelected,
         autoStart: exercise.autoStart,
         isSetsInReps: exercise.isSetsInReps,
@@ -159,14 +156,10 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
         objectives: exercise.objectives,
         targetDistance: exercise.targetDistance,
         targetDuration: exercise.targetDuration,
-        intervals: exercise.intervals,
         id: exercise.id,
         trainingId: exercise.trainingId,
         multisetId: exercise.multisetId,
         targetPace: exercise.targetPace,
-        intervalDistance: exercise.intervalDistance,
-        intervalDuration: exercise.intervalDuration,
-        intervalRest: exercise.intervalRest,
         exerciseRest: exercise.exerciseRest,
         position: exercise.position,
         intensity: exercise.intensity,
@@ -204,28 +197,11 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
           (exercise.targetDuration != null
               ? (exercise.targetDuration! % 60).toString()
               : '');
-      _controllers['intervals']?.text = exercise.intervals?.toString() ?? '';
       _controllers['paceMinutes']?.text = (exercise.targetPace != null
           ? (exercise.targetPace! % 3600 ~/ 60).toString()
           : '');
       _controllers['paceSeconds']?.text = (exercise.targetPace != null
           ? (exercise.targetPace! % 60).toString()
-          : '');
-      _controllers['intervalDistance']?.text =
-          (exercise.intervalDistance != null
-              ? (exercise.intervalDistance! / 1000).toString()
-              : '');
-      _controllers['intervalMinutes']?.text = (exercise.intervalDuration != null
-          ? (exercise.intervalDuration! % 3600 ~/ 60).toString()
-          : '');
-      _controllers['intervalSeconds']?.text = (exercise.intervalDuration != null
-          ? (exercise.intervalDuration! % 60).toString()
-          : '');
-      _controllers['intervalRestMinutes']?.text = (exercise.intervalRest != null
-          ? (exercise.intervalRest! % 3600 ~/ 60).toString()
-          : '');
-      _controllers['intervalRestSeconds']?.text = (exercise.intervalRest != null
-          ? (exercise.intervalRest! % 60).toString()
           : '');
       _controllers['exerciseRestMinutes']?.text = (exercise.exerciseRest != null
           ? (exercise.exerciseRest! % 3600 ~/ 60).toString()
@@ -303,14 +279,8 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
       'exerciseRestSeconds': TextEditingController(),
       'specialInstructions': TextEditingController(),
       'objectives': TextEditingController(),
-      'intervals': TextEditingController(),
       'paceMinutes': TextEditingController(),
       'paceSeconds': TextEditingController(),
-      'intervalDistance': TextEditingController(),
-      'intervalMinutes': TextEditingController(),
-      'intervalSeconds': TextEditingController(),
-      'intervalRestMinutes': TextEditingController(),
-      'intervalRestSeconds': TextEditingController(),
     };
   }
 
@@ -398,11 +368,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
         'objectives': _tExerciseToCreateOrEdit.objectives,
         'distance': _tExerciseToCreateOrEdit.targetDistance,
         'targetDuration': _tExerciseToCreateOrEdit.targetDuration,
-        'intervals': _tExerciseToCreateOrEdit.intervals,
         'targetPace': _tExerciseToCreateOrEdit.targetPace,
-        'intervalDistance': _tExerciseToCreateOrEdit.intervalDistance,
-        'intervalDuration': _tExerciseToCreateOrEdit.intervalDuration,
-        'intervalRest': _tExerciseToCreateOrEdit.intervalRest,
       };
 
       _tExerciseToCreateOrEdit = _tExerciseToCreateOrEdit.copyWith(
@@ -466,38 +432,11 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                         _controllers['targetDurationSeconds']?.text ?? '') ??
                     0))
             : currentValues['targetDuration'] as int?,
-        intervals: key == 'intervals'
-            ? int.tryParse(_controllers['intervals']?.text ?? '1')
-            : currentValues['intervals'] as int?,
         targetPace: key == 'paceMinutes' || key == 'paceSeconds'
             ? ((int.tryParse(_controllers['paceMinutes']?.text ?? '') ?? 0) *
                     60) +
                 ((int.tryParse(_controllers['paceSeconds']?.text ?? '') ?? 0))
             : currentValues['targetPace'] as int?,
-        intervalDistance: key == 'intervalDistance'
-            ? ((double.tryParse((_controllers['intervalDistance']?.text ?? '')
-                            .replaceAll(',', '.')) ??
-                        0) *
-                    1000)
-                .toInt()
-            : currentValues['intervalDistance'] as int?,
-        intervalDuration: key == 'intervalMinutes' || key == 'intervalSeconds'
-            ? ((int.tryParse(_controllers['intervalMinutes']?.text ?? '0') ??
-                        0) *
-                    60) +
-                ((int.tryParse(_controllers['intervalSeconds']?.text ?? '0') ??
-                    0))
-            : currentValues['intervalDuration'] as int?,
-        intervalRest: key == 'intervalRestMinutes' ||
-                key == 'intervalRestSeconds'
-            ? ((int.tryParse(
-                            _controllers['intervalRestMinutes']?.text ?? '0') ??
-                        0) *
-                    60) +
-                ((int.tryParse(
-                        _controllers['intervalRestSeconds']?.text ?? '0') ??
-                    0))
-            : currentValues['intervalRest'] as int?,
       );
     }
   }
@@ -1038,19 +977,19 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
   }
 
   Column _buildRunText(TrainingExercise tExercise) {
-    if (tExercise.runExerciseTarget == RunExerciseTarget.intervals) {
+    if (tExercise.sets != null && tExercise.sets! > 1) {
       final targetDistance =
-          tExercise.intervalDistance != null && tExercise.intervalDistance! > 0
-              ? '${(tExercise.intervalDistance! / 1000).toStringAsFixed(1)}km'
+          tExercise.targetDistance != null && tExercise.targetDistance! > 0
+              ? '${(tExercise.targetDistance! / 1000).toStringAsFixed(1)}km'
               : '';
-      final targetDuration = tExercise.intervalDuration != null
-          ? formatDurationToHoursMinutesSeconds(tExercise.intervalDuration!)
+      final targetDuration = tExercise.targetDuration != null
+          ? formatDurationToHoursMinutesSeconds(tExercise.targetDuration!)
           : '';
       final targetPace = tExercise.isTargetPaceSelected == true
           ? ' at ${formatPace(tExercise.targetPace ?? 0)}'
           : '';
-      final intervals = tExercise.intervals ?? 1;
-      if (tExercise.isIntervalInDistance == true) {
+      final intervals = tExercise.sets ?? 1;
+      if (tExercise.runExerciseTarget == RunExerciseTarget.distance) {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -1059,7 +998,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
               style: const TextStyle(color: AppColors.taupeGray),
             ),
             Text(
-              '${tExercise.intervalRest ?? 0} seconds rest',
+              '${tExercise.setRest ?? 0} seconds rest',
               style: const TextStyle(color: AppColors.taupeGray),
             ),
           ],
@@ -1073,7 +1012,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
               style: const TextStyle(color: AppColors.taupeGray),
             ),
             Text(
-              '${tExercise.intervalRest ?? 0} seconds rest',
+              '${tExercise.setRest ?? 0} seconds rest',
               style: const TextStyle(color: AppColors.taupeGray),
             ),
           ],
@@ -1558,6 +1497,17 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
   Column _buildRunFields(StateSetter setDialogState) {
     return Column(
       children: [
+        SizedBox(
+          height: 48,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(tr('exercise_sets'),
+                  style: const TextStyle(color: AppColors.frenchGray)),
+              SmallTextFieldWidget(controller: _controllers['sets']!),
+            ],
+          ),
+        ),
         _buildTargetChoiceOption(
           choice: tr('exercise_distance'),
           choiceValue: RunExerciseTarget.distance,
@@ -1584,54 +1534,17 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
           controller2: _controllers['targetDurationMinutes'],
           controller3: _controllers['targetDurationSeconds'],
         ),
-        _buildTargetChoiceOption(
-          choice: tr('exercise_intervals'),
-          choiceValue: RunExerciseTarget.intervals,
-          currentSelection: _tExerciseToCreateOrEdit.runExerciseTarget!,
-          onSelectionChanged: (RunExerciseTarget value) {
-            setDialogState(() {
-              _tExerciseToCreateOrEdit =
-                  _tExerciseToCreateOrEdit.copyWith(runExerciseTarget: value);
-            });
-          },
-          controller1: _controllers['intervals'],
-        ),
-        _buildIntervalsChoiceOption(
-          choice: tr('exercise_interval_distance'),
-          choiceValue: true,
-          currentSelection: _tExerciseToCreateOrEdit.isIntervalInDistance!,
-          controller1: _controllers['intervalDistance'],
-          onSelectionChanged: (bool value) {
-            setDialogState(() {
-              _tExerciseToCreateOrEdit = _tExerciseToCreateOrEdit.copyWith(
-                  isIntervalInDistance: value);
-            });
-          },
-        ),
-        _buildIntervalsChoiceOption(
-          choice: tr('exercise_interval_duration'),
-          choiceValue: false,
-          currentSelection: _tExerciseToCreateOrEdit.isIntervalInDistance!,
-          controller1: _controllers['intervalMinutes'],
-          controller2: _controllers['intervalSeconds'],
-          onSelectionChanged: (bool value) {
-            setDialogState(() {
-              _tExerciseToCreateOrEdit = _tExerciseToCreateOrEdit.copyWith(
-                  isIntervalInDistance: value);
-            });
-          },
-        ),
         SizedBox(
           height: 48,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(tr('exercise_interval_rest'),
+              Text(tr('exercise_set_rest'),
                   style: const TextStyle(color: AppColors.frenchGray)),
               Row(
                 children: [
                   SmallTextFieldWidget(
-                      controller: _controllers['intervalRestMinutes']!),
+                      controller: _controllers['setRestMinutes']!),
                   const SizedBox(
                     width: 20,
                     child: Center(
@@ -1639,7 +1552,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                     ),
                   ),
                   SmallTextFieldWidget(
-                      controller: _controllers['intervalRestSeconds']!),
+                      controller: _controllers['setRestSeconds']!),
                 ],
               ),
             ],
@@ -1706,98 +1619,6 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
           ],
         )
       ],
-    );
-  }
-
-  Widget _buildIntervalsChoiceOption({
-    required String choice,
-    required bool choiceValue,
-    required bool currentSelection,
-    required ValueChanged<bool> onSelectionChanged,
-    TextEditingController? controller1,
-    TextEditingController? controller2,
-  }) {
-    return GestureDetector(
-      onTap: () => onSelectionChanged(choiceValue),
-      child: Row(
-        children: [
-          const SizedBox(width: 30),
-          SizedBox(
-            width: 20,
-            child: Radio<bool>(
-              value: choiceValue,
-              groupValue: currentSelection,
-              onChanged: (value) {
-                if (value != null) {
-                  onSelectionChanged(value);
-                }
-              },
-              activeColor: AppColors.licorice,
-              fillColor: WidgetStateProperty.resolveWith<Color>((states) {
-                return _tExerciseToCreateOrEdit.runExerciseTarget ==
-                        RunExerciseTarget.intervals
-                    ? currentSelection == choiceValue
-                        ? AppColors.licorice
-                        : AppColors.frenchGray
-                    : AppColors.frenchGray;
-              }),
-            ),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  choice,
-                  style: const TextStyle(color: AppColors.frenchGray),
-                ),
-                Row(
-                  children: [
-                    if (controller1 != null)
-                      SmallTextFieldWidget(
-                        controller: controller1,
-                        textColor: _tExerciseToCreateOrEdit.runExerciseTarget ==
-                                RunExerciseTarget.intervals
-                            ? currentSelection == choiceValue
-                                ? AppColors.licorice
-                                : AppColors.frenchGray
-                            : AppColors.frenchGray,
-                      ),
-                    if (controller2 != null)
-                      SizedBox(
-                        width: 20,
-                        child: Center(
-                          child: Text(':',
-                              style: TextStyle(
-                                fontSize: 20,
-                                color: _tExerciseToCreateOrEdit
-                                            .runExerciseTarget ==
-                                        RunExerciseTarget.intervals
-                                    ? currentSelection == choiceValue
-                                        ? AppColors.licorice
-                                        : AppColors.frenchGray
-                                    : AppColors.frenchGray,
-                              )),
-                        ),
-                      ),
-                    if (controller2 != null)
-                      SmallTextFieldWidget(
-                        controller: controller2,
-                        textColor: _tExerciseToCreateOrEdit.runExerciseTarget ==
-                                RunExerciseTarget.intervals
-                            ? currentSelection == choiceValue
-                                ? AppColors.licorice
-                                : AppColors.frenchGray
-                            : AppColors.frenchGray,
-                      ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
     );
   }
 

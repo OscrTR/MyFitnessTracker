@@ -13,11 +13,6 @@ class TrainingExercise extends Equatable {
   final int? targetDuration;
   final bool? isTargetPaceSelected;
   final int? targetPace;
-  final int? intervals;
-  final bool? isIntervalInDistance;
-  final int? intervalDistance;
-  final int? intervalDuration;
-  final int? intervalRest;
   final int? sets;
   final bool? isSetsInReps;
   final int? minReps;
@@ -43,11 +38,6 @@ class TrainingExercise extends Equatable {
     this.targetDuration,
     this.isTargetPaceSelected,
     this.targetPace,
-    this.intervals,
-    this.isIntervalInDistance,
-    this.intervalDistance,
-    this.intervalDuration,
-    this.intervalRest,
     this.sets,
     this.isSetsInReps,
     this.minReps,
@@ -74,11 +64,6 @@ class TrainingExercise extends Equatable {
     int? targetDuration,
     bool? isTargetPaceSelected,
     int? targetPace,
-    int? intervals,
-    bool? isIntervalInDistance,
-    int? intervalDistance,
-    int? intervalDuration,
-    int? intervalRest,
     int? sets,
     bool? isSetsInReps,
     int? minReps,
@@ -104,11 +89,6 @@ class TrainingExercise extends Equatable {
       targetDuration: targetDuration ?? this.targetDuration,
       isTargetPaceSelected: isTargetPaceSelected ?? this.isTargetPaceSelected,
       targetPace: targetPace ?? this.targetPace,
-      intervals: intervals ?? this.intervals,
-      isIntervalInDistance: isIntervalInDistance ?? this.isIntervalInDistance,
-      intervalDistance: intervalDistance ?? this.intervalDistance,
-      intervalDuration: intervalDuration ?? this.intervalDuration,
-      intervalRest: intervalRest ?? this.intervalRest,
       sets: sets ?? this.sets,
       isSetsInReps: isSetsInReps ?? this.isSetsInReps,
       minReps: minReps ?? this.minReps,
@@ -137,11 +117,6 @@ class TrainingExercise extends Equatable {
       targetDuration: targetDuration,
       isTargetPaceSelected: isTargetPaceSelected,
       targetPace: targetPace,
-      intervals: intervals,
-      isIntervalInDistance: isIntervalInDistance,
-      intervalDistance: intervalDistance,
-      intervalDuration: intervalDuration,
-      intervalRest: intervalRest,
       sets: sets,
       isSetsInReps: isSetsInReps,
       minReps: minReps,
@@ -170,11 +145,6 @@ class TrainingExercise extends Equatable {
         targetDuration,
         isTargetPaceSelected,
         targetPace,
-        intervals,
-        isIntervalInDistance,
-        intervalDistance,
-        intervalDuration,
-        intervalRest,
         sets,
         isSetsInReps,
         minReps,
@@ -214,8 +184,7 @@ enum TrainingExerciseType {
 
 enum RunExerciseTarget {
   distance,
-  duration,
-  intervals;
+  duration;
 
   String translate(String locale) {
     switch (this) {
@@ -224,9 +193,6 @@ enum RunExerciseTarget {
 
       case RunExerciseTarget.duration:
         return locale == 'fr' ? 'Durée' : 'Duration';
-
-      case RunExerciseTarget.intervals:
-        return locale == 'fr' ? 'Intervalles' : 'Intervals';
     }
   }
 }

@@ -320,6 +320,8 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage>
                     listOfTExercises.addAll([...multiset.trainingExercises!]);
                   }
 
+                  // TODO : vérifier
+
                   final matchingTExercise = listOfTExercises.firstWhere(
                       (tExercise) =>
                           tExercise.id == currentTimerState.tExerciseId);
