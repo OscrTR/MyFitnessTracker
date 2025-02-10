@@ -709,10 +709,23 @@ class RunTracker {
         .firstWhereOrNull((el) => el.isActive && el.timerId != 'primaryTimer')
         ?.tExerciseId;
 
+    final setNumber = (sl<ActiveTrainingBloc>().state as ActiveTrainingLoaded)
+        .timersStateList
+        .firstWhereOrNull((el) => el.isActive && el.timerId != 'primaryTimer')
+        ?.setNumber;
+
+    final multisetSetNumber = (sl<ActiveTrainingBloc>().state
+            as ActiveTrainingLoaded)
+        .timersStateList
+        .firstWhereOrNull((el) => el.isActive && el.timerId != 'primaryTimer')
+        ?.multisetSetNumber;
+
     if (trainingId != null && tExerciseId != null) {
       await sl<Database>().insert('run_locations', {
         'training_id': trainingId,
         'training_exercise_id': tExerciseId,
+        'set_number': setNumber,
+        'multiset_set_number': multisetSetNumber,
         'latitude': currentLocation.latitude,
         'longitude': currentLocation.longitude,
         'altitude': currentLocation.altitude,

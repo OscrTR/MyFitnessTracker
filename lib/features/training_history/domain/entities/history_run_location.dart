@@ -2,8 +2,10 @@ import 'package:equatable/equatable.dart';
 
 class RunLocation extends Equatable {
   final int? id;
-  final int? trainingId;
-  final int? trainingExerciseId;
+  final int trainingId;
+  final int trainingExerciseId;
+  final int setNumber;
+  final int? multisetSetNumber;
   final double latitude;
   final double longitude;
   final double altitude;
@@ -13,8 +15,10 @@ class RunLocation extends Equatable {
 
   const RunLocation({
     this.id,
-    this.trainingId,
-    this.trainingExerciseId,
+    required this.trainingId,
+    required this.trainingExerciseId,
+    required this.setNumber,
+    required this.multisetSetNumber,
     required this.latitude,
     required this.longitude,
     required this.altitude,
@@ -26,8 +30,10 @@ class RunLocation extends Equatable {
   factory RunLocation.fromMap(Map<String, dynamic> map) {
     return RunLocation(
       id: map['id'] as int?,
-      trainingId: map['training_id'] as int?,
-      trainingExerciseId: map['training_exercise_id'] as int?,
+      trainingId: map['training_id'] as int,
+      trainingExerciseId: map['training_exercise_id'] as int,
+      setNumber: map['set_number'] as int,
+      multisetSetNumber: map['multiset_set_number'] as int?,
       latitude: map['latitude'] as double,
       longitude: map['longitude'] as double,
       altitude: map['altitude'] as double,
@@ -42,6 +48,8 @@ class RunLocation extends Equatable {
       'id': id,
       'training_id': trainingId,
       'training_exercise_id': trainingExerciseId,
+      'set_number': setNumber,
+      'multiset_set_number': multisetSetNumber,
       'latitude': latitude,
       'longitude': longitude,
       'altitude': altitude,
@@ -56,6 +64,8 @@ class RunLocation extends Equatable {
         id,
         trainingId,
         trainingExerciseId,
+        setNumber,
+        multisetSetNumber,
         latitude,
         longitude,
         altitude,

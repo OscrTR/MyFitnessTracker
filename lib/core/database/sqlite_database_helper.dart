@@ -111,6 +111,8 @@ class SQLiteDatabaseHelper {
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             training_id INTEGER,
             training_exercise_id INTEGER,
+            set_number INTEGER,
+            multiset_set_number INTEGER,
             latitude REAL,
             longitude REAL,
             altitude REAL,

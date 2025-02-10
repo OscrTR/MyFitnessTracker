@@ -88,13 +88,28 @@ class HistoryDetailsPage extends StatelessWidget {
               (sl<ExerciseManagementBloc>().state as ExerciseManagementLoaded)
                   .exercises
                   .firstWhereOrNull((e) => e.id == tExercise.exerciseId);
+          final entry = state.selectedTrainingEntry!.historyEntries.firstWhere(
+              (entry) =>
+                  entry.trainingExerciseId == tExercise.id &&
+                  entry.setNumber == index);
+          final locations = state.selectedTrainingEntry!.locations
+              .where((location) =>
+                  location.trainingExerciseId == tExercise.id &&
+                  location.setNumber == index)
+              .toList();
 
           return tExercise.trainingExerciseType == TrainingExerciseType.run
-              ? RunExercise(
-                  historyState: state,
-                  trainingExercise: tExercise,
-                  training: training,
-                )
+              ? tExercise.sets! > 1
+                  ? IntervalExercise(
+                      historyState: state,
+                      trainingExercise: tExercise,
+                      training: training,
+                    )
+                  : RunExercise(
+                      historyEntry: entry,
+                      runLocations: locations,
+                      trainingExercise: tExercise,
+                    )
               : ExerciseSetForm(
                   trainingExercise: tExercise,
                   matchingExercise: matchingExercise,
@@ -324,15 +339,53 @@ class HistoryDetailsPage extends StatelessWidget {
   }
 }
 
-class RunExercise extends StatefulWidget {
+class IntervalExercise extends StatelessWidget {
   final TrainingExercise trainingExercise;
   final TrainingHistoryLoaded historyState;
   final Training training;
+  const IntervalExercise(
+      {super.key,
+      required this.trainingExercise,
+      required this.historyState,
+      required this.training});
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: NeverScrollableScrollPhysics(),
+      itemCount: trainingExercise.sets,
+      itemBuilder: (context, index) {
+        // Find matching history entry
+        final entry = historyState.selectedTrainingEntry!.historyEntries
+            .firstWhere((entry) =>
+                entry.trainingExerciseId == trainingExercise.id &&
+                entry.setNumber == index);
+        final locations = historyState.selectedTrainingEntry!.locations
+            .where((location) =>
+                location.trainingExerciseId == trainingExercise.id &&
+                location.setNumber == index)
+            .toList();
+        return RunExercise(
+          historyEntry: entry,
+          runLocations: locations,
+          trainingExercise: trainingExercise,
+        );
+      },
+    );
+  }
+}
+
+class RunExercise extends StatefulWidget {
+  final HistoryEntry historyEntry;
+  final List<RunLocation> runLocations;
+  final TrainingExercise trainingExercise;
+
   const RunExercise({
     super.key,
+    required this.historyEntry,
+    required this.runLocations,
     required this.trainingExercise,
-    required this.historyState,
-    required this.training,
   });
 
   @override
@@ -344,15 +397,10 @@ class _RunExerciseState extends State<RunExercise> {
 
   @override
   Widget build(BuildContext context) {
-    final historyEntry = widget
-        .historyState.selectedTrainingEntry!.historyEntries
-        .firstWhereOrNull(
-            (entry) => entry.trainingExerciseId == widget.trainingExercise.id);
-
-    final locations = widget.historyState.selectedTrainingEntry!
-        .locationsByExerciseId[widget.trainingExercise.id]!;
-
-    final drop = RunLocation.calculateTotalDrop(locations);
+    final drop = RunLocation.calculateTotalDrop(widget.runLocations);
+    final name = widget.trainingExercise.sets! > 1
+        ? '${widget.historyEntry.exerciseNameAtTime} (${widget.historyEntry.setNumber! + 1})'
+        : widget.historyEntry.exerciseNameAtTime;
 
     return Container(
       margin: const EdgeInsets.only(top: 20),
@@ -366,8 +414,7 @@ class _RunExerciseState extends State<RunExercise> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            historyEntry?.exerciseNameAtTime ??
-                findExerciseName(widget.trainingExercise),
+            name,
             style: Theme.of(context).textTheme.titleMedium,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -381,7 +428,7 @@ class _RunExerciseState extends State<RunExercise> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(tr('history_page_distance')),
-              Text('${historyEntry!.distance}m')
+              Text('${widget.historyEntry.distance}m')
             ],
           ),
           const SizedBox(height: 10),
@@ -390,7 +437,7 @@ class _RunExerciseState extends State<RunExercise> {
             children: [
               Text(tr('history_page_duration')),
               Text(formatDurationToHoursMinutesSeconds(
-                  historyEntry.duration ?? 0))
+                  widget.historyEntry.duration ?? 0))
             ],
           ),
           const SizedBox(height: 10),
@@ -398,7 +445,8 @@ class _RunExerciseState extends State<RunExercise> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(tr('history_page_pace')),
-              Text(formatDurationToHoursMinutesSeconds(historyEntry.pace ?? 0))
+              Text(formatDurationToHoursMinutesSeconds(
+                  widget.historyEntry.pace ?? 0))
             ],
           ),
           const SizedBox(height: 10),
@@ -429,9 +477,10 @@ class _RunExerciseState extends State<RunExercise> {
             },
           ),
           const SizedBox(height: 10),
-          if (selectedOption == 0) RunMapView(locations: locations),
-          if (selectedOption == 1) PaceChart(locations: locations),
-          if (selectedOption == 2) AltitudeChart(locations: locations),
+          if (selectedOption == 0) RunMapView(locations: widget.runLocations),
+          if (selectedOption == 1) PaceChart(locations: widget.runLocations),
+          if (selectedOption == 2)
+            AltitudeChart(locations: widget.runLocations),
         ],
       ),
     );

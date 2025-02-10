@@ -7,7 +7,7 @@ import 'history_run_location.dart';
 
 class HistoryTraining extends Equatable {
   final List<HistoryEntry> historyEntries;
-  final Map<int, List<RunLocation>> locationsByExerciseId;
+  final List<RunLocation> locations;
   final int trainingId;
   final String trainingName;
   final TrainingType trainingType;
@@ -25,7 +25,7 @@ class HistoryTraining extends Equatable {
 
   const HistoryTraining({
     required this.historyEntries,
-    required this.locationsByExerciseId,
+    required this.locations,
     required this.trainingId,
     required this.trainingName,
     required this.trainingType,
@@ -73,24 +73,7 @@ class HistoryTraining extends Equatable {
       final trainingId = group.first.trainingId;
       final locations = locationsByTrainingId?[trainingId];
 
-      final locationsByExerciseId = <int, List<RunLocation>>{};
-      if (locations != null) {
-        for (var entry in group) {
-          final exerciseLocations = locations
-              .where(
-                  (loc) => loc.trainingExerciseId == entry.trainingExerciseId)
-              .toList();
-          if (exerciseLocations.isNotEmpty) {
-            locationsByExerciseId[entry.trainingExerciseId] = exerciseLocations;
-          }
-        }
-      }
-
-      return _convertGroupToHistoryTraining(
-        group,
-        locations: locations,
-        locationsByExerciseId: locationsByExerciseId,
-      );
+      return _convertGroupToHistoryTraining(group, locations: locations);
     }).toList();
   }
 
@@ -130,7 +113,6 @@ class HistoryTraining extends Equatable {
   static HistoryTraining _convertGroupToHistoryTraining(
     List<HistoryEntry> group, {
     List<RunLocation>? locations,
-    Map<int, List<RunLocation>>? locationsByExerciseId,
   }) {
     final firstEntry = group.first;
 
@@ -163,7 +145,7 @@ class HistoryTraining extends Equatable {
 
     return HistoryTraining(
       historyEntries: group,
-      locationsByExerciseId: locationsByExerciseId ?? {},
+      locations: locations ?? [],
       trainingId: firstEntry.trainingId,
       trainingName: firstEntry.trainingNameAtTime,
       trainingType: firstEntry.trainingType,
