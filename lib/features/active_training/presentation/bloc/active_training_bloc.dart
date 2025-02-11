@@ -47,6 +47,63 @@ class ActiveTrainingBloc
       await flutterTts.speak(string);
     }
 
+    void saveTrainingHistory(TimerState currentTimerState) {
+      final registeredId =
+          (sl<TrainingHistoryBloc>().state as TrainingHistoryLoaded)
+              .historyEntries
+              .firstWhereOrNull((el) =>
+                  el.trainingExerciseId == currentTimerState.tExerciseId &&
+                  el.setNumber == currentTimerState.setNumber &&
+                  el.trainingId == currentTimerState.trainingId &&
+                  el.multisetSetNumber == currentTimerState.multisetSetNumber)
+              ?.id;
+
+      int cals = 0;
+
+      final trainingManagementState =
+          (sl<TrainingManagementBloc>().state as TrainingManagementLoaded);
+
+      final listOfTExercises = [
+        ...trainingManagementState.activeTraining!.trainingExercises
+      ];
+      for (var multiset in trainingManagementState.activeTraining!.multisets) {
+        listOfTExercises.addAll([...multiset.trainingExercises!]);
+      }
+
+      final matchingTExercise = listOfTExercises.firstWhere(
+          (tExercise) => tExercise.id == currentTimerState.tExerciseId);
+
+      cals = getCalories(
+          intensity: matchingTExercise.intensity!,
+          duration: currentTimerState.isCountDown
+              ? matchingTExercise.duration
+              : currentTimerState.timerValue);
+
+      sl<TrainingHistoryBloc>().add(
+        CreateOrUpdateHistoryEntry(
+          historyEntry: HistoryEntry(
+            id: registeredId,
+            trainingId: currentTimerState.trainingId!,
+            trainingExerciseId: currentTimerState.tExerciseId!,
+            setNumber: currentTimerState.setNumber,
+            multisetSetNumber: currentTimerState.multisetSetNumber,
+            date: DateTime.now(),
+            duration: currentTimerState.isCountDown
+                ? currentTimerState.countDownValue
+                : currentTimerState.timerValue,
+            distance: currentTimerState.distance.toInt(),
+            pace: currentTimerState.pace.toInt(),
+            calories: cals,
+            trainingType: trainingManagementState.activeTraining!.type,
+            trainingExerciseType: matchingTExercise.trainingExerciseType!,
+            trainingNameAtTime: trainingManagementState.activeTraining!.name,
+            exerciseNameAtTime: findExerciseName(matchingTExercise),
+            intensity: matchingTExercise.intensity!,
+          ),
+        ),
+      );
+    }
+
     on<LoadDefaultActiveTraining>((event, emit) async {
       emit(const ActiveTrainingLoaded(timersStateList: []));
     });
@@ -103,59 +160,7 @@ class ActiveTrainingBloc
             // Register history entry
             if (!timerId.contains('rest') &&
                 currentTimerState.tExerciseId != null) {
-              // Récupérer l'id de l'entrée existante
-              final registeredId = (sl<TrainingHistoryBloc>().state
-                      as TrainingHistoryLoaded)
-                  .historyEntries
-                  .firstWhereOrNull((el) =>
-                      el.trainingExerciseId == currentTimerState.tExerciseId &&
-                      el.setNumber == currentTimerState.setNumber &&
-                      el.trainingId == currentTimerState.trainingId &&
-                      el.multisetSetNumber ==
-                          currentTimerState.multisetSetNumber)
-                  ?.id;
-
-              int cals = 0;
-
-              final trainingManagementState = (sl<TrainingManagementBloc>()
-                  .state as TrainingManagementLoaded);
-
-              final listOfTExercises = [
-                ...trainingManagementState.activeTraining!.trainingExercises
-              ];
-              for (var multiset
-                  in trainingManagementState.activeTraining!.multisets) {
-                listOfTExercises.addAll([...multiset.trainingExercises!]);
-              }
-
-              final matchingTExercise = listOfTExercises.firstWhere(
-                  (tExercise) => tExercise.id == currentTimerState.tExerciseId);
-
-              cals = getCalories(
-                  intensity: matchingTExercise.intensity!,
-                  duration: matchingTExercise.duration);
-
-              sl<TrainingHistoryBloc>().add(
-                CreateOrUpdateHistoryEntry(
-                  historyEntry: HistoryEntry(
-                    id: registeredId,
-                    trainingId: currentTimerState.trainingId!,
-                    trainingExerciseId: currentTimerState.tExerciseId!,
-                    setNumber: currentTimerState.setNumber,
-                    multisetSetNumber: currentTimerState.multisetSetNumber,
-                    date: DateTime.now(),
-                    duration: currentTimerState.countDownValue,
-                    calories: cals,
-                    trainingType: trainingManagementState.activeTraining!.type,
-                    trainingExerciseType:
-                        matchingTExercise.trainingExerciseType!,
-                    trainingNameAtTime:
-                        trainingManagementState.activeTraining!.name,
-                    exerciseNameAtTime: findExerciseName(matchingTExercise),
-                    intensity: matchingTExercise.intensity!,
-                  ),
-                ),
-              );
+              saveTrainingHistory(currentTimerState);
             }
             runTracker.stopTracking();
             timers[timerId]?.cancel();
@@ -226,60 +231,7 @@ class ActiveTrainingBloc
                 add(UpdateDistance(
                     timerId: timerId, distance: currentDistance));
                 if (!timerId.contains('rest')) {
-                  // Récupérer l'id de l'entrée existante
-                  final registeredId =
-                      (sl<TrainingHistoryBloc>().state as TrainingHistoryLoaded)
-                          .historyEntries
-                          .firstWhereOrNull((el) =>
-                              el.trainingExerciseId ==
-                                  currentTimerState.tExerciseId &&
-                              el.setNumber == currentTimerState.setNumber &&
-                              el.trainingId == currentTimerState.trainingId &&
-                              el.multisetSetNumber ==
-                                  currentTimerState.multisetSetNumber)
-                          ?.id;
-
-                  int cals = 0;
-
-                  final trainingManagementState = (sl<TrainingManagementBloc>()
-                      .state as TrainingManagementLoaded);
-
-                  final listOfTExercises = [
-                    ...trainingManagementState.activeTraining!.trainingExercises
-                  ];
-                  for (var multiset
-                      in trainingManagementState.activeTraining!.multisets) {
-                    listOfTExercises.addAll([...multiset.trainingExercises!]);
-                  }
-
-                  final matchingTExercise = listOfTExercises.firstWhere(
-                      (tExercise) =>
-                          tExercise.id == currentTimerState.tExerciseId);
-
-                  cals = getCalories(
-                      intensity: matchingTExercise.intensity!,
-                      duration: currentTimerState.timerValue);
-
-                  sl<TrainingHistoryBloc>().add(CreateOrUpdateHistoryEntry(
-                      historyEntry: HistoryEntry(
-                    id: registeredId,
-                    trainingId: currentTimerState.trainingId!,
-                    trainingExerciseId: currentTimerState.tExerciseId!,
-                    setNumber: currentTimerState.setNumber,
-                    multisetSetNumber: currentTimerState.multisetSetNumber,
-                    date: DateTime.now(),
-                    duration: currentTimerState.timerValue,
-                    distance: currentTimerState.distance.toInt(),
-                    pace: currentTimerState.pace.toInt(),
-                    calories: cals,
-                    trainingType: trainingManagementState.activeTraining!.type,
-                    trainingExerciseType:
-                        matchingTExercise.trainingExerciseType!,
-                    trainingNameAtTime:
-                        trainingManagementState.activeTraining!.name,
-                    exerciseNameAtTime: findExerciseName(matchingTExercise),
-                    intensity: matchingTExercise.intensity!,
-                  )));
+                  saveTrainingHistory(currentTimerState);
                 }
                 runTracker.stopTracking();
               }
@@ -313,58 +265,7 @@ class ActiveTrainingBloc
                 currentTimerValue >= currentTimerState.targetDuration) {
               timers[timerId]?.cancel();
               if (!timerId.contains('rest')) {
-                // Récupérer l'id de l'entrée existante
-                final registeredId =
-                    (sl<TrainingHistoryBloc>().state as TrainingHistoryLoaded)
-                        .historyEntries
-                        .firstWhereOrNull((el) =>
-                            el.trainingExerciseId ==
-                                currentTimerState.tExerciseId &&
-                            el.setNumber == currentTimerState.setNumber &&
-                            el.trainingId == currentTimerState.trainingId &&
-                            el.multisetSetNumber ==
-                                currentTimerState.multisetSetNumber)
-                        ?.id;
-                int cals = 0;
-
-                final trainingManagementState = (sl<TrainingManagementBloc>()
-                    .state as TrainingManagementLoaded);
-
-                final listOfTExercises = [
-                  ...trainingManagementState.activeTraining!.trainingExercises
-                ];
-                for (var multiset
-                    in trainingManagementState.activeTraining!.multisets) {
-                  listOfTExercises.addAll([...multiset.trainingExercises!]);
-                }
-
-                final matchingTExercise = listOfTExercises.firstWhere(
-                    (tExercise) =>
-                        tExercise.id == currentTimerState.tExerciseId);
-
-                cals = getCalories(
-                    intensity: matchingTExercise.intensity!,
-                    duration: currentTimerState.timerValue);
-
-                sl<TrainingHistoryBloc>().add(CreateOrUpdateHistoryEntry(
-                    historyEntry: HistoryEntry(
-                  id: registeredId,
-                  trainingId: currentTimerState.trainingId!,
-                  trainingExerciseId: currentTimerState.tExerciseId!,
-                  setNumber: currentTimerState.setNumber,
-                  multisetSetNumber: currentTimerState.multisetSetNumber,
-                  date: DateTime.now(),
-                  duration: currentTimerState.timerValue,
-                  distance: currentTimerState.distance.toInt(),
-                  pace: currentTimerState.pace.toInt(),
-                  calories: cals,
-                  trainingType: trainingManagementState.activeTraining!.type,
-                  trainingExerciseType: matchingTExercise.trainingExerciseType!,
-                  trainingNameAtTime:
-                      trainingManagementState.activeTraining!.name,
-                  exerciseNameAtTime: findExerciseName(matchingTExercise),
-                  intensity: matchingTExercise.intensity!,
-                )));
+                saveTrainingHistory(currentTimerState);
               }
               runTracker.stopTracking();
 
