@@ -370,7 +370,7 @@ class _HomePageState extends State<HomePage> {
                       .bodySmall!
                       .copyWith(color: AppColors.taupeGray),
                 ),
-                Text('${_periodStats!.runTotalDistance} km',
+                Text('${_periodStats!.runTotalDistance.toStringAsFixed(2)} km',
                     style: Theme.of(context).textTheme.titleLarge)
               ],
             ),
@@ -706,7 +706,8 @@ class _HomePageState extends State<HomePage> {
                       .bodySmall!
                       .copyWith(color: AppColors.taupeGray),
                 ),
-                Text('${_periodStats!.runTotalDistance / 1000} km',
+                Text(
+                    '${(_periodStats!.runTotalDistance / 1000).toStringAsFixed(2)} km',
                     style: Theme.of(context).textTheme.titleLarge)
               ],
             ),

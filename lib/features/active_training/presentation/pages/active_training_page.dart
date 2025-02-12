@@ -313,49 +313,47 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage>
                     listOfTExercises.addAll([...multiset.trainingExercises!]);
                   }
 
-                  if (currentTimerState.tExerciseId != null) {
-                    final matchingTExercise = listOfTExercises.firstWhere(
-                        (tExercise) =>
-                            tExercise.id == currentTimerState.tExerciseId);
+                  final matchingTExercise = listOfTExercises.firstWhere(
+                      (tExercise) =>
+                          tExercise.id == currentTimerState.tExerciseId);
 
-                    final duration = currentTimerState.isCountDown
-                        ? currentTimerState.countDownValue -
-                            currentTimerState.timerValue
-                        : currentTimerState.timerValue;
+                  final duration = currentTimerState.isCountDown
+                      ? currentTimerState.countDownValue -
+                          currentTimerState.timerValue
+                      : currentTimerState.timerValue;
 
-                    cals = getCalories(
-                        intensity: matchingTExercise.intensity!,
-                        duration: duration);
+                  cals = getCalories(
+                      intensity: matchingTExercise.intensity!,
+                      duration: duration);
 
-                    if (currentTimerState.timerId != 'primaryTimer' &&
-                        currentTimerState.isActive) {
-                      sl<TrainingHistoryBloc>().add(
-                        CreateOrUpdateHistoryEntry(
-                          historyEntry: HistoryEntry(
-                            id: registeredId,
-                            trainingId: currentTimerState.trainingId!,
-                            trainingExerciseId: currentTimerState.tExerciseId!,
-                            setNumber: currentTimerState.setNumber,
-                            multisetSetNumber:
-                                currentTimerState.multisetSetNumber,
-                            date: DateTime.now(),
-                            duration: duration,
-                            distance: currentTimerState.distance.toInt(),
-                            pace: currentTimerState.pace.toInt(),
-                            calories: cals,
-                            trainingType:
-                                trainingManagementState.activeTraining!.type,
-                            trainingExerciseType:
-                                matchingTExercise.trainingExerciseType!,
-                            trainingNameAtTime:
-                                trainingManagementState.activeTraining!.name,
-                            exerciseNameAtTime:
-                                findExerciseName(matchingTExercise),
-                            intensity: matchingTExercise.intensity!,
-                          ),
+                  if (currentTimerState.timerId != 'primaryTimer' &&
+                      currentTimerState.isActive) {
+                    sl<TrainingHistoryBloc>().add(
+                      CreateOrUpdateHistoryEntry(
+                        historyEntry: HistoryEntry(
+                          id: registeredId,
+                          trainingId: currentTimerState.trainingId,
+                          trainingExerciseId: currentTimerState.tExerciseId,
+                          setNumber: currentTimerState.setNumber,
+                          multisetSetNumber:
+                              currentTimerState.multisetSetNumber,
+                          date: DateTime.now(),
+                          duration: duration,
+                          distance: currentTimerState.distance.toInt(),
+                          pace: currentTimerState.pace.toInt(),
+                          calories: cals,
+                          trainingType:
+                              trainingManagementState.activeTraining!.type,
+                          trainingExerciseType:
+                              matchingTExercise.trainingExerciseType!,
+                          trainingNameAtTime:
+                              trainingManagementState.activeTraining!.name,
+                          exerciseNameAtTime:
+                              findExerciseName(matchingTExercise),
+                          intensity: matchingTExercise.intensity!,
                         ),
-                      );
-                    }
+                      ),
+                    );
                   }
 
                   GoRouter.of(context).go('/home');

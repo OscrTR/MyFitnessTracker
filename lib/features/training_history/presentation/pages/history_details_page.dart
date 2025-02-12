@@ -216,7 +216,7 @@ class HistoryDetailsPage extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text('${(entry.setNumber ?? 0) + 1}'),
+        Text('${(entry.setNumber) + 1}'),
         Row(
           children: [
             SizedBox(
@@ -253,7 +253,7 @@ class HistoryDetailsPage extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text('${(entry.setNumber ?? 0) + 1}'),
+        Text('${(entry.setNumber) + 1}'),
         Row(
           children: [
             SizedBox(
@@ -401,7 +401,7 @@ class _RunExerciseState extends State<RunExercise> {
   Widget build(BuildContext context) {
     final drop = RunLocation.calculateTotalDrop(widget.runLocations);
     final name = widget.trainingExercise.sets! > 1
-        ? '${widget.historyEntry.exerciseNameAtTime} (${widget.historyEntry.setNumber! + 1})'
+        ? '${widget.historyEntry.exerciseNameAtTime} (${widget.historyEntry.setNumber + 1})'
         : widget.historyEntry.exerciseNameAtTime;
 
     return Container(
