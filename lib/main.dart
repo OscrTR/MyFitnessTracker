@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:flutter_map_tile_caching/flutter_map_tile_caching.dart';
 import 'features/settings/presentation/bloc/settings_bloc.dart';
 import 'features/training_history/presentation/bloc/training_history_bloc.dart';
@@ -11,16 +12,15 @@ import 'core/messages/bloc/message_bloc.dart';
 import 'features/exercise_management/presentation/bloc/exercise_management_bloc.dart';
 import 'features/training_management/presentation/bloc/training_management_bloc.dart';
 import 'injection_container.dart' as di;
-import 'notification_service.dart';
 import 'router.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await EasyLocalization.ensureInitialized();
   await di.init();
-  await NotificationService.initializeNotifications();
   await FMTCObjectBoxBackend().initialise();
   await const FMTCStore('mapStore').manage.create();
+  FlutterForegroundTask.initCommunicationPort();
 
   runApp(
     EasyLocalization(

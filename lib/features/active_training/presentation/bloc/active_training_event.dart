@@ -101,3 +101,25 @@ class UpdateTimer extends ActiveTrainingEvent {
   @override
   List<Object?> get props => [timerId, runDistance];
 }
+
+class UpdateDataFromForeground extends ActiveTrainingEvent {
+  final String? secondaryTimerId;
+  final Location? locationData;
+  final double totalDistance;
+  final bool isTimerActive;
+
+  const UpdateDataFromForeground({
+    required this.secondaryTimerId,
+    required this.locationData,
+    required this.totalDistance,
+    required this.isTimerActive,
+  });
+
+  @override
+  List<Object?> get props => [
+        secondaryTimerId,
+        locationData,
+        totalDistance,
+        isTimerActive,
+      ];
+}

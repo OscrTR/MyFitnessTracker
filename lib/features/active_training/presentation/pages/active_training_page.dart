@@ -1,12 +1,13 @@
 import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:fl_location/fl_location.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:go_router/go_router.dart';
-import 'package:location/location.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:my_fitness_tracker/features/active_training/presentation/foreground_service.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../../../../app_colors.dart';
 import '../../../../helper_functions.dart';
@@ -65,6 +66,7 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       _checkLocationPermission();
+      _checkLocationStatus();
     }
   }
 
@@ -142,25 +144,16 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage>
   }
 
   Future<void> _checkLocationStatus() async {
-    Location location = Location();
-    bool serviceEnabled = await location.serviceEnabled();
-
+    bool serviceEnabled = await FlLocation.isLocationServicesEnabled;
     setState(() {
       isLocationEnabled = serviceEnabled;
     });
   }
 
   Future<void> _requestLocationEnabled() async {
-    Location location = Location();
-    bool serviceEnabled = await location.serviceEnabled();
+    bool serviceEnabled = await FlLocation.isLocationServicesEnabled;
     if (!serviceEnabled) {
-      serviceEnabled = await location.requestService();
-      if (!serviceEnabled) {
-        setState(() {
-          isLocationEnabled = false;
-        });
-        return;
-      }
+      await sl<ForegroundService>().requestService();
     }
 
     setState(() {

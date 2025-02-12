@@ -43,6 +43,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void dispose() {
     BackButtonInterceptor.remove(myInterceptor);
+
     super.dispose();
   }
 

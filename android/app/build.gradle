@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.my_fitness_tracker"
+    namespace = "dev.oscarthiebaut.my_fitness_tracker"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 

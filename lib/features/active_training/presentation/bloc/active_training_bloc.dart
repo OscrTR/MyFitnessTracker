@@ -1,18 +1,14 @@
 import 'dart:async';
-import 'dart:math';
-
 import 'package:audioplayers/audioplayers.dart';
 import 'package:bloc/bloc.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:equatable/equatable.dart';
+import 'package:fl_location/fl_location.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_tts/flutter_tts.dart';
-import 'package:location/location.dart';
 import 'package:my_fitness_tracker/features/training_management/presentation/bloc/training_management_bloc.dart';
-import 'package:pausable_timer/pausable_timer.dart';
-import 'package:sqflite/sqflite.dart';
+import 'package:my_fitness_tracker/features/active_training/presentation/foreground_service.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../../helper_functions.dart';
@@ -30,14 +26,7 @@ class ActiveTrainingBloc
   ActiveTrainingBloc() : super(ActiveTrainingInitial()) {
     final AudioPlayer audioPlayer = AudioPlayer();
     final FlutterTts flutterTts = FlutterTts();
-    final RunTracker runTracker = RunTracker();
-    int? notificationId;
-    late StreamController<int> timerStreamController;
-    // ignore: unused_local_variable
-    late Stream<int> timerStream;
     int? lastTimerValue;
-
-    final Map<String, PausableTimer> timers = {};
 
     Future<void> playCountdown() async {
       await audioPlayer.play(AssetSource('sounds/countdown.mp3'));
@@ -109,11 +98,7 @@ class ActiveTrainingBloc
     });
 
     on<ClearTimers>((event, emit) async {
-      for (var timer in timers.values) {
-        timer.cancel();
-      }
-      timers.clear();
-      runTracker.stopTracking();
+      await sl<ForegroundService>().stopService();
       emit(const ActiveTrainingLoaded(timersStateList: []));
     });
 
@@ -162,8 +147,8 @@ class ActiveTrainingBloc
                 currentTimerState.tExerciseId != null) {
               saveTrainingHistory(currentTimerState);
             }
-            runTracker.stopTracking();
-            timers[timerId]?.cancel();
+            sl<ForegroundService>().cancelTimer(timerId);
+
             // Start next timer if autostart
             if (nextTimerId != null) {
               final autostart = currentState
@@ -226,14 +211,14 @@ class ActiveTrainingBloc
             // Check if the current distance equals the objective distance
             if (currentTimerState.targetDistance > 0 &&
                 currentDistance >= currentTimerState.targetDistance) {
-              timers[timerId]?.cancel();
+              sl<ForegroundService>().cancelTimer(timerId);
+
               if (currentTimerState.isRunTimer) {
                 add(UpdateDistance(
                     timerId: timerId, distance: currentDistance));
                 if (!timerId.contains('rest')) {
                   saveTrainingHistory(currentTimerState);
                 }
-                runTracker.stopTracking();
               }
 
               // Start next timer if autostart
@@ -263,11 +248,11 @@ class ActiveTrainingBloc
             // Check if the current duration equals the objective duration
             if (currentTimerState.targetDuration > 0 &&
                 currentTimerValue >= currentTimerState.targetDuration) {
-              timers[timerId]?.cancel();
+              sl<ForegroundService>().cancelTimer(timerId);
+
               if (!timerId.contains('rest')) {
                 saveTrainingHistory(currentTimerState);
               }
-              runTracker.stopTracking();
 
               // Start next timer if autostart
               if (nextTimerId != null) {
@@ -294,25 +279,6 @@ class ActiveTrainingBloc
       }
     });
 
-    Future<void> cancelTimer(String timerId) async {
-      if (timers.containsKey(timerId)) {
-        timers[timerId]?.cancel();
-        timers.remove(timerId);
-      }
-    }
-
-    Future<void> startTimer(String timerId, void Function() callback) async {
-      if (timers.containsKey(timerId)) {
-        await cancelTimer(timerId);
-      }
-      timers[timerId] =
-          PausableTimer.periodic(const Duration(seconds: 1), () async {
-        callback();
-      });
-
-      timers[timerId]?.start();
-    }
-
     on<CreateTimer>((event, emit) async {
       if (state is ActiveTrainingLoaded) {
         final currentState = state as ActiveTrainingLoaded;
@@ -333,23 +299,20 @@ class ActiveTrainingBloc
       }
     });
 
-    void showNotification() async {
-      const AndroidNotificationDetails androidPlatformChannelSpecifics =
-          AndroidNotificationDetails('your_channel_id', 'your_channel_name',
-              importance: Importance.low,
-              priority: Priority.low,
-              ongoing: true,
-              onlyAlertOnce: true,
-              ticker: 'ticker');
-      const NotificationDetails platformChannelSpecifics =
-          NotificationDetails(android: androidPlatformChannelSpecifics);
-      await sl<FlutterLocalNotificationsPlugin>().show(
-          notificationId ?? 0,
-          'Timer Update',
-          'Timer: ${formatDurationToMinutesSeconds(lastTimerValue)}${runTracker._locationSubscription != null ? '\nDistance : ${runTracker.totalDistance.floor()}m' : ''} ',
-          platformChannelSpecifics,
-          payload: 'item x');
-    }
+    on<UpdateDataFromForeground>((event, emit) async {
+      if (state is ActiveTrainingLoaded) {
+        if (event.secondaryTimerId != null) {
+          add(UpdateTimer(timerId: 'primaryTimer', runDistance: 0));
+          add(UpdateTimer(
+              timerId: event.secondaryTimerId!,
+              runDistance: event.totalDistance));
+        } else if (event.isTimerActive) {
+          add(UpdateTimer(timerId: 'primaryTimer', runDistance: 0));
+        }
+
+        // TODO : Trouver la last location et l'update si elle est différente puis enregistrer le point en BDD
+      }
+    });
 
     on<StartTimer>((event, emit) async {
       final timerId = event.timerId;
@@ -374,37 +337,15 @@ class ActiveTrainingBloc
           }
         }
 
-        runTracker.stopTracking();
-        if (currentTimerState != null && currentTimerState.isRunTimer) {
-          runTracker.startTracking();
-        }
-
-        if (notificationId == null) {
-          notificationId = await runTracker.initTracker();
-          timerStreamController = StreamController<int>();
-          timerStream = timerStreamController.stream;
-
-          timerStreamController.stream.listen((int value) {
-            showNotification();
-          });
-        }
-
-        await startTimer(timerId, () {
-          timerStreamController.add(0);
-          add(UpdateTimer(
-              timerId: timerId, runDistance: runTracker.totalDistance));
-        });
-
-        if (timers['primaryTimer'] != null &&
-            timers['primaryTimer']!.isPaused) {
-          timers['primaryTimer']!.start();
-        }
-
         final startingValue = currentTimerState != null
             ? currentTimerState.isCountDown
                 ? currentTimerState.countDownValue
                 : 0
             : 0;
+
+        await sl<ForegroundService>().initService();
+        sl<ForegroundService>()
+            .startTimer(timerId, currentTimerState?.isRunTimer ?? false);
 
         if (updatedTimersStateList.any((e) => e.timerId == timerId)) {
           final currentTimerState =
@@ -503,6 +444,10 @@ class ActiveTrainingBloc
         final double newPace =
             newDistance > 0 ? newTimerValue * 1000 / newDistance : 0;
 
+        sl<ForegroundService>().updateNotificationText(
+          'Timer: ${formatDurationToMinutesSeconds(lastTimerValue)}${event.totalDistance > 0 ? '\nDistance : ${event.totalDistance.floor()}m' : ''} ',
+        );
+
         final updatedTimerState = currentTimerState.copyWith(
           timerValue: newTimerValue,
           distance: newDistance,
@@ -531,9 +476,8 @@ class ActiveTrainingBloc
           currentTimersStateList[index] =
               currentTimersStateList[index].copyWith(isActive: false);
         });
-        for (var timer in timers.values) {
-          timer.pause();
-        }
+
+        sl<ForegroundService>().pauseTimer();
       }
       // Start last active timer + primaryTimer
       else {
@@ -542,8 +486,8 @@ class ActiveTrainingBloc
         final lastTimerIndex = currentTimersStateList
             .indexWhere((el) => el.timerId == currentState.lastStartedTimerId);
 
-        timers['primaryTimer']?.start();
-        timers[currentState.lastStartedTimerId]?.start();
+        sl<ForegroundService>()
+            .unpauseTimer(currentState.lastStartedTimerId ?? '');
 
         currentTimersStateList[primaryTimerIndex] =
             currentTimersStateList[primaryTimerIndex].copyWith(isActive: true);
@@ -557,114 +501,5 @@ class ActiveTrainingBloc
         ),
       );
     });
-  }
-}
-
-class RunTracker {
-  LocationData? _lastLocation;
-  final Location _location = Location();
-  StreamSubscription<LocationData>? _locationSubscription;
-  double totalDistance = 0.0; // In meters
-
-  Future<int> initTracker() async {
-    PermissionStatus permission = await _location.hasPermission();
-    if (permission == PermissionStatus.granted) {
-      _location.enableBackgroundMode(enable: true);
-    }
-    final notifData = await _location.changeNotificationOptions(
-        title: 'Timer Update', subtitle: '');
-    return notifData != null ? notifData.notificationId : 0;
-  }
-
-  void startTracking() async {
-    try {
-      _locationSubscription =
-          _location.onLocationChanged.listen((LocationData currentLocation) {
-        _updateLocationAndDistance(currentLocation);
-      });
-    } catch (e) {
-      print('error: $e');
-    }
-  }
-
-  void _updateLocationAndDistance(LocationData currentLocation) async {
-    if (_lastLocation != null) {
-      double distanceInMeters = distanceBetween(
-        _lastLocation!.latitude!,
-        _lastLocation!.longitude!,
-        currentLocation.latitude!,
-        currentLocation.longitude!,
-      );
-
-      totalDistance += distanceInMeters;
-    }
-    _lastLocation = currentLocation;
-
-    final trainingId = (sl<ActiveTrainingBloc>().state as ActiveTrainingLoaded)
-        .timersStateList
-        .firstWhereOrNull((el) => el.isActive && el.timerId != 'primaryTimer')
-        ?.trainingId;
-
-    final tExerciseId = (sl<ActiveTrainingBloc>().state as ActiveTrainingLoaded)
-        .timersStateList
-        .firstWhereOrNull((el) => el.isActive && el.timerId != 'primaryTimer')
-        ?.tExerciseId;
-
-    final setNumber = (sl<ActiveTrainingBloc>().state as ActiveTrainingLoaded)
-        .timersStateList
-        .firstWhereOrNull((el) => el.isActive && el.timerId != 'primaryTimer')
-        ?.setNumber;
-
-    final multisetSetNumber = (sl<ActiveTrainingBloc>().state
-            as ActiveTrainingLoaded)
-        .timersStateList
-        .firstWhereOrNull((el) => el.isActive && el.timerId != 'primaryTimer')
-        ?.multisetSetNumber;
-
-    if (trainingId != null && tExerciseId != null) {
-      await sl<Database>().insert('run_locations', {
-        'training_id': trainingId,
-        'training_exercise_id': tExerciseId,
-        'set_number': setNumber,
-        'multiset_set_number': multisetSetNumber,
-        'latitude': currentLocation.latitude,
-        'longitude': currentLocation.longitude,
-        'altitude': currentLocation.altitude,
-        'timestamp': DateTime.now().millisecondsSinceEpoch,
-        'accuracy': currentLocation.accuracy,
-        'speed': currentLocation.speed,
-      });
-    }
-  }
-
-  double distanceBetween(
-    double startLatitude,
-    double startLongitude,
-    double endLatitude,
-    double endLongitude,
-  ) {
-    var earthRadius = 6378137.0;
-    var dLat = _toRadians(endLatitude - startLatitude);
-    var dLon = _toRadians(endLongitude - startLongitude);
-
-    var a = pow(sin(dLat / 2), 2) +
-        pow(sin(dLon / 2), 2) *
-            cos(_toRadians(startLatitude)) *
-            cos(_toRadians(endLatitude));
-    var c = 2 * asin(sqrt(a));
-
-    return earthRadius * c;
-  }
-
-  static _toRadians(double degree) {
-    return degree * pi / 180;
-  }
-
-  void stopTracking() {
-    _location.enableBackgroundMode(enable: false);
-    _locationSubscription?.cancel();
-    _locationSubscription = null;
-    _lastLocation = null;
-    totalDistance = 0.0;
   }
 }

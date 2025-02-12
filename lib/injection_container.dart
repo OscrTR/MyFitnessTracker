@@ -41,6 +41,7 @@ import 'features/exercise_management/domain/usecases/fetch_exercises.dart';
 import 'features/exercise_management/domain/usecases/get_exercise.dart';
 import 'features/exercise_management/domain/usecases/update_exercise.dart';
 import 'features/exercise_management/presentation/bloc/exercise_management_bloc.dart';
+import 'features/active_training/presentation/foreground_service.dart';
 
 final sl = GetIt.instance;
 
@@ -116,6 +117,8 @@ Future<void> init() async {
   //! Features - Active Training
   // Bloc
   sl.registerLazySingleton(() => ActiveTrainingBloc());
+
+  sl.registerLazySingleton(() => ForegroundService());
 
   //! Features - Training History
   // Bloc

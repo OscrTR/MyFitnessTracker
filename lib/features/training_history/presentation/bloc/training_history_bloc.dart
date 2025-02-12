@@ -91,7 +91,7 @@ class TrainingHistoryBloc
               message: _mapFailureToMessage(failure), isError: true)),
           (runLocations) {
             final locationsByTrainingId =
-                groupBy(runLocations, (loc) => loc.trainingId!);
+                groupBy(runLocations, (loc) => loc.trainingId);
 
             final trainings = HistoryTraining.fromHistoryEntries(
               historyEntries,
