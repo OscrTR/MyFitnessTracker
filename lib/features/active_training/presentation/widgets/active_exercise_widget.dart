@@ -391,9 +391,9 @@ class _ActiveExerciseRowState extends State<ActiveExerciseRow> {
           isCountDown: true,
           isAutostart: false,
           exerciseGlobalKey: widget.exerciseGlobalKey,
-          trainingId: null,
-          tExerciseId: null,
-          setNumber: null,
+          trainingId: widget.tExercise.trainingId!,
+          tExerciseId: widget.tExercise.id!,
+          setNumber: widget.setIndex,
           multisetSetNumber: null,
         )));
 
@@ -550,8 +550,8 @@ class ActiveExerciseDurationRow extends StatelessWidget {
           timerValue: 0,
           isAutostart: tExercise.autoStart ?? false,
           exerciseGlobalKey: exerciseGlobalKey,
-          trainingId: tExercise.trainingId,
-          tExerciseId: tExercise.id,
+          trainingId: tExercise.trainingId!,
+          tExerciseId: tExercise.id!,
           setNumber: setIndex,
           multisetSetNumber: null,
         )));
@@ -568,9 +568,9 @@ class ActiveExerciseDurationRow extends StatelessWidget {
           isCountDown: true,
           isAutostart: true,
           exerciseGlobalKey: exerciseGlobalKey,
-          trainingId: null,
-          tExerciseId: null,
-          setNumber: null,
+          trainingId: tExercise.trainingId!,
+          tExerciseId: tExercise.id!,
+          setNumber: setIndex,
           multisetSetNumber: null,
         )));
 

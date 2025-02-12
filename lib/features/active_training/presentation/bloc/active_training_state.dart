@@ -52,9 +52,9 @@ class TimerState extends Equatable {
   final double pace;
   final int nextKmMarker;
   final GlobalKey exerciseGlobalKey;
-  final int? trainingId;
-  final int? tExerciseId;
-  final int? setNumber;
+  final int trainingId;
+  final int tExerciseId;
+  final int setNumber;
   final int? multisetSetNumber;
 
   const TimerState({

@@ -88,6 +88,8 @@ class HistoryDetailsPage extends StatelessWidget {
               (sl<ExerciseManagementBloc>().state as ExerciseManagementLoaded)
                   .exercises
                   .firstWhereOrNull((e) => e.id == tExercise.exerciseId);
+          print(state.selectedTrainingEntry!.historyEntries);
+          print('id ${tExercise.id} and set ${index}');
           final entry = state.selectedTrainingEntry!.historyEntries.firstWhere(
               (entry) =>
                   entry.trainingExerciseId == tExercise.id &&

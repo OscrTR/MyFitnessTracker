@@ -8,7 +8,7 @@ class HistoryEntry extends Equatable {
   final TrainingType trainingType;
   final int trainingExerciseId;
   final TrainingExerciseType trainingExerciseType;
-  final int? setNumber;
+  final int setNumber;
   final int? multisetSetNumber;
   final DateTime date;
   final int? reps;

@@ -110,9 +110,6 @@ class ForegroundService {
     });
   }
 
-  // ------------- Service callback -------------
-  final List<LocationChanged> _callbacks = [];
-
   void onReceiveTaskData(Object data) {
     try {
       if (data is Map<String, dynamic>) {
@@ -121,32 +118,18 @@ class ForegroundService {
         Location? locationInfo;
         if (locationData != null && locationData['locationData'] != null) {
           locationInfo = Location.fromJson(locationData['locationData']);
-          for (final LocationChanged callback in _callbacks.toList()) {
-            callback(locationInfo);
-          }
         }
 
         sl<ActiveTrainingBloc>().add(
           UpdateDataFromForeground(
-            secondaryTimerId: data['secondaryTimerId'],
+            timerId: data['timerId'],
             locationData: locationInfo,
             totalDistance: data['totalDistance'],
-            isTimerActive: data['isTimerActive'],
           ),
         );
       }
     } catch (e) {
       sl<MessageBloc>().add(AddMessageEvent(message: '$e', isError: true));
     }
-  }
-
-  void addLocationChangedCallback(LocationChanged callback) {
-    if (!_callbacks.contains(callback)) {
-      _callbacks.add(callback);
-    }
-  }
-
-  void removeLocationChangedCallback(LocationChanged callback) {
-    _callbacks.remove(callback);
   }
 }

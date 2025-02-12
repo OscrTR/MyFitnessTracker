@@ -30,9 +30,7 @@ class MyTaskHandler extends TaskHandler {
   }
 
   @override
-  void onRepeatEvent(DateTime timestamp) {
-    _sendDataToMainApp();
-  }
+  void onRepeatEvent(DateTime timestamp) {}
 
   @override
   Future<void> onDestroy(DateTime timestamp) async {
@@ -92,16 +90,28 @@ class MyTaskHandler extends TaskHandler {
   }
 
   void _updateLocationAndDistance(Location currentLocation) {
-    if (lastLocation != null) {
-      final double distanceInMeters = _calculateDistance(
-        lastLocation!.latitude,
-        lastLocation!.longitude,
-        currentLocation.latitude,
-        currentLocation.longitude,
-      );
-      totalDistance += distanceInMeters;
+    // Vérifier si la position est différente avant de l'envoyer
+    if (lastLocation == null ||
+        lastLocation!.latitude != currentLocation.latitude ||
+        lastLocation!.longitude != currentLocation.longitude) {
+      if (lastLocation != null) {
+        final double distanceInMeters = _calculateDistance(
+          lastLocation!.latitude,
+          lastLocation!.longitude,
+          currentLocation.latitude,
+          currentLocation.longitude,
+        );
+        totalDistance += distanceInMeters;
+      }
+
+      lastLocation = currentLocation;
+
+      // Envoyer les données uniquement si la position a changé
+      FlutterForegroundTask.sendDataToMain({
+        'timerId': secondaryTimerId,
+        'locationData': {'locationData': currentLocation.toJson()},
+      });
     }
-    lastLocation = currentLocation;
   }
 
   double _calculateDistance(
@@ -123,17 +133,6 @@ class MyTaskHandler extends TaskHandler {
 
   double _toRadians(double degree) {
     return degree * pi / 180;
-  }
-
-  void _sendDataToMainApp() {
-    FlutterForegroundTask.sendDataToMain({
-      'secondaryTimerId': secondaryTimerId,
-      'locationData': lastLocation != null
-          ? {'locationData': lastLocation?.toJson()}
-          : null,
-      'totalDistance': totalDistance,
-      'isTimerActive': timers.values.any((timer) => timer.isActive),
-    });
   }
 
   void _clearTimers() {
@@ -163,21 +162,23 @@ class MyTaskHandler extends TaskHandler {
   }
 
   void _startTimer(String timerId) {
-    print('starting timer $timerId');
     if (timers.containsKey(timerId)) {
       _cancelTimer(timerId);
     }
-    if (timers['primaryTimer'] != null && timers['primaryTimer']!.isPaused) {
-      timers['primaryTimer']!.start();
-    }
-    if (timerId == 'primaryTimer') {
-      timers[timerId] =
-          PausableTimer.periodic(const Duration(seconds: 1), () async {});
-    } else {
+
+    timers[timerId] = PausableTimer.periodic(const Duration(seconds: 1), () {
+      // Envoie les données à chaque tick du timer
+      FlutterForegroundTask.sendDataToMain({
+        'timerId': timerId,
+        'totalDistance': totalDistance,
+      });
+    });
+
+    if (timerId != 'primaryTimer') {
       secondaryTimerId = timerId;
-      timers[timerId] =
-          PausableTimer.periodic(const Duration(seconds: 1), () async {});
     }
+
     timers[timerId]?.start();
+    timers['primaryTimer']!.start();
   }
 }

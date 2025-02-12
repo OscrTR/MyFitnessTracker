@@ -42,9 +42,9 @@ class TimerWidgetState extends State<TimerWidget> {
           isCountDown: false,
           isAutostart: false,
           exerciseGlobalKey: GlobalKey(),
-          trainingId: null,
-          tExerciseId: null,
-          setNumber: null,
+          trainingId: -1,
+          tExerciseId: -1,
+          setNumber: -1,
           multisetSetNumber: null,
         )));
     WidgetsBinding.instance.addPostFrameCallback((_) {

@@ -9,6 +9,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:my_fitness_tracker/features/training_management/presentation/bloc/training_management_bloc.dart';
 import 'package:my_fitness_tracker/features/active_training/presentation/foreground_service.dart';
+import 'package:sqflite/sqflite.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../../helper_functions.dart';
@@ -72,8 +73,8 @@ class ActiveTrainingBloc
         CreateOrUpdateHistoryEntry(
           historyEntry: HistoryEntry(
             id: registeredId,
-            trainingId: currentTimerState.trainingId!,
-            trainingExerciseId: currentTimerState.tExerciseId!,
+            trainingId: currentTimerState.trainingId,
+            trainingExerciseId: currentTimerState.tExerciseId,
             setNumber: currentTimerState.setNumber,
             multisetSetNumber: currentTimerState.multisetSetNumber,
             date: DateTime.now(),
@@ -143,8 +144,7 @@ class ActiveTrainingBloc
             }
           } else {
             // Register history entry
-            if (!timerId.contains('rest') &&
-                currentTimerState.tExerciseId != null) {
+            if (!timerId.contains('rest')) {
               saveTrainingHistory(currentTimerState);
             }
             sl<ForegroundService>().cancelTimer(timerId);
@@ -301,16 +301,35 @@ class ActiveTrainingBloc
 
     on<UpdateDataFromForeground>((event, emit) async {
       if (state is ActiveTrainingLoaded) {
-        if (event.secondaryTimerId != null) {
-          add(UpdateTimer(timerId: 'primaryTimer', runDistance: 0));
+        if (event.timerId != null && event.totalDistance != null) {
           add(UpdateTimer(
-              timerId: event.secondaryTimerId!,
-              runDistance: event.totalDistance));
-        } else if (event.isTimerActive) {
-          add(UpdateTimer(timerId: 'primaryTimer', runDistance: 0));
+              timerId: event.timerId!, runDistance: event.totalDistance!));
         }
+        if (event.locationData != null && event.timerId != null) {
+          final timerState =
+              (sl<ActiveTrainingBloc>().state as ActiveTrainingLoaded)
+                  .timersStateList
+                  .firstWhereOrNull(
+                      (el) => el.isActive && el.timerId != 'primaryTimer');
 
-        // TODO : Trouver la last location et l'update si elle est différente puis enregistrer le point en BDD
+          if (timerState != null) {
+            await sl<Database>().insert(
+              'run_locations',
+              {
+                'training_id': timerState.trainingId,
+                'training_exercise_id': timerState.tExerciseId,
+                'set_number': timerState.setNumber,
+                'multiset_set_number': timerState.multisetSetNumber,
+                'latitude': event.locationData!.latitude,
+                'longitude': event.locationData!.longitude,
+                'altitude': event.locationData!.altitude,
+                'timestamp': DateTime.now().millisecondsSinceEpoch,
+                'accuracy': event.locationData!.accuracy,
+                'speed': event.locationData!.speed,
+              },
+            );
+          }
+        }
       }
     });
 

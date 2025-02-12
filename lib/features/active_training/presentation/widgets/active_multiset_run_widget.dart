@@ -280,9 +280,9 @@ class DistanceOrDurationRun extends StatelessWidget {
                 : 0,
             isAutostart: tExercise.autoStart ?? false,
             exerciseGlobalKey: exerciseGlobalKey,
-            trainingId: tExercise.trainingId,
-            tExerciseId: tExercise.id,
-            setNumber: null,
+            trainingId: tExercise.trainingId!,
+            tExerciseId: tExercise.id!,
+            setNumber: 0,
             multisetSetNumber: setIndex,
           ),
         ));
@@ -302,9 +302,9 @@ class DistanceOrDurationRun extends StatelessWidget {
               isCountDown: true,
               isAutostart: true,
               exerciseGlobalKey: exerciseGlobalKey,
-              trainingId: null,
-              tExerciseId: null,
-              setNumber: null,
+              trainingId: tExercise.trainingId!,
+              tExerciseId: tExercise.id!,
+              setNumber: 0,
               multisetSetNumber: null),
         ));
 
@@ -529,8 +529,8 @@ class IntervalRun extends StatelessWidget {
               : 0,
           isAutostart: intervalIndex == 0 ? tExercise.autoStart ?? false : true,
           exerciseGlobalKey: exerciseGlobalKey,
-          trainingId: tExercise.trainingId,
-          tExerciseId: tExercise.id,
+          trainingId: tExercise.trainingId!,
+          tExerciseId: tExercise.id!,
           setNumber: intervalIndex,
           multisetSetNumber: setIndex,
         )));
@@ -552,9 +552,9 @@ class IntervalRun extends StatelessWidget {
               : tExercise.setRest ?? 0,
           isAutostart: true,
           exerciseGlobalKey: exerciseGlobalKey,
-          trainingId: null,
-          tExerciseId: null,
-          setNumber: null,
+          trainingId: tExercise.trainingId!,
+          tExerciseId: tExercise.id!,
+          setNumber: intervalIndex,
           multisetSetNumber: null,
         )));
 
