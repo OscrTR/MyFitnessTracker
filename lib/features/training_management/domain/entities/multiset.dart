@@ -5,8 +5,8 @@ import 'training_exercise.dart';
 class Multiset extends Equatable {
   final int? id;
   final int? trainingId;
-  final List<TrainingExercise>? trainingExercises;
-  final int? sets;
+  final List<TrainingExercise> trainingExercises;
+  final int sets;
   final int? setRest;
   final int? multisetRest;
   final String? specialInstructions;

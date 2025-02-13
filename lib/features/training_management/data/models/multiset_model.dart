@@ -23,7 +23,7 @@ class MultisetModel extends Multiset {
           .map((exerciseJson) => TrainingExerciseModel.fromJson(
               exerciseJson as Map<String, dynamic>))
           .toList(),
-      sets: json['sets'] as int?,
+      sets: json['sets'] as int,
       setRest: json['set_rest'] as int?,
       multisetRest: json['multiset_rest'] as int?,
       specialInstructions: json['special_instructions'] as String?,

@@ -44,7 +44,7 @@ class TrainingExerciseModel extends TrainingExercise {
       isTargetPaceSelected:
           (json['is_target_pace_selected'] as int?) == 1 ? true : false,
       targetPace: json['target_pace'] as int?,
-      sets: json['sets'] as int?,
+      sets: json['sets'] as int,
       isSetsInReps: (json['is_sets_in_reps'] as int) == 1 ? true : false,
       minReps: json['min_reps'] as int?,
       maxReps: json['max_reps'] as int?,

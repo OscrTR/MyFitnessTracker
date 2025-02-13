@@ -13,7 +13,7 @@ class TrainingExercise extends Equatable {
   final int? targetDuration;
   final bool? isTargetPaceSelected;
   final int? targetPace;
-  final int? sets;
+  final int sets;
   final bool isSetsInReps;
   final int? minReps;
   final int? maxReps;
@@ -38,7 +38,7 @@ class TrainingExercise extends Equatable {
     this.targetDuration,
     this.isTargetPaceSelected,
     this.targetPace,
-    this.sets,
+    required this.sets,
     required this.isSetsInReps,
     this.minReps,
     this.maxReps,
