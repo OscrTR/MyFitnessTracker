@@ -103,7 +103,7 @@ class _ActiveMultisetExerciseWidgetState
           }
         }
 
-        final isSetsInReps = widget.tExercise.isSetsInReps ?? true;
+        final isSetsInReps = widget.tExercise.isSetsInReps;
 
         return Column(
           children: [
@@ -134,12 +134,13 @@ class _ActiveMultisetExerciseWidgetState
                     const SizedBox(height: 10),
                     ExpandablePanel(
                       header: _buildExpandableHeader(
-                          matchingExercise!, context, isSetsInReps),
+                          matchingExercise, context, isSetsInReps),
                       collapsed: const SizedBox(),
                       expanded: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          if (matchingExercise.description != null &&
+                          if (matchingExercise != null &&
+                              matchingExercise.description != null &&
                               matchingExercise.description!.isNotEmpty)
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -247,13 +248,15 @@ class _ActiveMultisetExerciseWidgetState
   }
 
   Widget _buildExpandableHeader(
-      Exercise exercise, BuildContext context, bool isSetsInReps) {
+      Exercise? exercise, BuildContext context, bool isSetsInReps) {
     return Builder(builder: (context) {
       final controller = ExpandableController.of(context);
       return Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (exercise.imagePath != null && exercise.imagePath!.isNotEmpty)
+          if (exercise != null &&
+              exercise.imagePath != null &&
+              exercise.imagePath!.isNotEmpty)
             Column(
               children: [
                 SizedBox(
@@ -271,7 +274,9 @@ class _ActiveMultisetExerciseWidgetState
                 ),
               ],
             ),
-          if (exercise.imagePath != null && exercise.imagePath!.isNotEmpty)
+          if (exercise != null &&
+              exercise.imagePath != null &&
+              exercise.imagePath!.isNotEmpty)
             const SizedBox(width: 10),
           Expanded(
             child: Column(
@@ -282,7 +287,7 @@ class _ActiveMultisetExerciseWidgetState
                   children: [
                     Expanded(
                       child: Text(
-                        exercise.name,
+                        exercise?.name ?? tr('global_exercise_unknown'),
                         style: Theme.of(context).textTheme.titleMedium,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -315,7 +320,7 @@ class _ActiveMultisetExerciseWidgetState
   }
 
   ListView _buildSets() {
-    final isSetsInReps = widget.tExercise.isSetsInReps ?? true;
+    final isSetsInReps = widget.tExercise.isSetsInReps;
 
     return ListView.builder(
       shrinkWrap: true,
@@ -483,13 +488,13 @@ class _ActiveExerciseRowState extends State<ActiveExerciseRow> {
               onTap: () {
                 int cals = 0;
 
-                if (widget.tExercise.isSetsInReps!) {
+                if (widget.tExercise.isSetsInReps) {
                   cals = getCalories(
-                      intensity: widget.tExercise.intensity!,
+                      intensity: widget.tExercise.intensity,
                       reps: int.tryParse(widget.repsController.text));
                 } else {
                   cals = getCalories(
-                      intensity: widget.tExercise.intensity!,
+                      intensity: widget.tExercise.intensity,
                       duration: widget.tExercise.duration);
                 }
 
@@ -510,12 +515,12 @@ class _ActiveExerciseRowState extends State<ActiveExerciseRow> {
                           weight: int.tryParse(widget.weightController.text),
                           calories: cals,
                           trainingExerciseType:
-                              widget.tExercise.trainingExerciseType!,
+                              widget.tExercise.trainingExerciseType,
                           trainingType: training.type,
                           trainingNameAtTime: training.name,
                           exerciseNameAtTime:
                               findExerciseName(widget.tExercise),
-                          intensity: widget.tExercise.intensity!,
+                          intensity: widget.tExercise.intensity,
                         ),
                       ),
                     );
@@ -586,7 +591,7 @@ class ActiveExerciseDurationRow extends StatelessWidget {
             timerValue: 0,
             countDownValue: tExercise.duration ?? 0,
             isCountDown: true,
-            isAutostart: tExercise.autoStart ?? false,
+            isAutostart: tExercise.autoStart,
             exerciseGlobalKey: exerciseGlobalKey,
             trainingId: tExercise.trainingId!,
             tExerciseId: tExercise.id!,

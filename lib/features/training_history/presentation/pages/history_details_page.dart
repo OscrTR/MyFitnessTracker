@@ -613,12 +613,12 @@ class _ExerciseSetFormState extends State<ExerciseSetForm> {
           .reduce((value, element) => value.isAfter(element) ? value : element);
     }
     int? cals = historyEntry?.calories;
-    cals = widget.trainingExercise.isSetsInReps!
+    cals = widget.trainingExercise.isSetsInReps
         ? getCalories(
-            intensity: widget.trainingExercise.intensity!,
+            intensity: widget.trainingExercise.intensity,
             reps: reps ?? historyEntry?.reps)
         : getCalories(
-            intensity: widget.trainingExercise.intensity!,
+            intensity: widget.trainingExercise.intensity,
             duration: duration ?? historyEntry?.duration);
 
     context.read<TrainingHistoryBloc>().add(
@@ -631,14 +631,14 @@ class _ExerciseSetFormState extends State<ExerciseSetForm> {
               trainingExerciseId: historyEntry?.trainingExerciseId ??
                   widget.trainingExercise.id!,
               trainingExerciseType: historyEntry?.trainingExerciseType ??
-                  widget.trainingExercise.trainingExerciseType!,
+                  widget.trainingExercise.trainingExerciseType,
               date: historyEntry?.date ?? entryDate,
               trainingNameAtTime:
                   historyEntry?.trainingNameAtTime ?? widget.training.name,
               exerciseNameAtTime: historyEntry?.exerciseNameAtTime ??
                   findExerciseName(widget.trainingExercise),
               intensity:
-                  historyEntry?.intensity ?? widget.trainingExercise.intensity!,
+                  historyEntry?.intensity ?? widget.trainingExercise.intensity,
               weight: weight ?? historyEntry?.weight,
               reps: reps ?? historyEntry?.reps,
               duration: duration ?? historyEntry?.duration,
@@ -669,7 +669,7 @@ class _ExerciseSetFormState extends State<ExerciseSetForm> {
             widget.matchingExercise,
             widget.trainingExercise,
             context,
-            widget.trainingExercise.isSetsInReps!,
+            widget.trainingExercise.isSetsInReps,
           ),
           const SizedBox(height: 10),
           const Divider(color: AppColors.timberwolf),
@@ -758,7 +758,7 @@ class _ExerciseSetFormState extends State<ExerciseSetForm> {
                     SmallTextFieldWidget(controller: weightControllers[index]),
               ),
               const SizedBox(width: 10),
-              if (widget.trainingExercise.isSetsInReps!)
+              if (widget.trainingExercise.isSetsInReps)
                 SizedBox(
                   width: 50,
                   child:
@@ -841,7 +841,7 @@ class _ExerciseSetFormState extends State<ExerciseSetForm> {
               ),
             ),
             const SizedBox(width: 10),
-            if (widget.trainingExercise.isSetsInReps!)
+            if (widget.trainingExercise.isSetsInReps)
               const SizedBox(
                 width: 50,
                 child: Center(

@@ -64,7 +64,7 @@ class ActiveTrainingBloc
           (tExercise) => tExercise.id == currentTimerState.tExerciseId);
 
       cals = getCalories(
-          intensity: matchingTExercise.intensity!,
+          intensity: matchingTExercise.intensity,
           duration: currentTimerState.isCountDown
               ? matchingTExercise.duration
               : currentTimerState.timerValue);
@@ -85,10 +85,10 @@ class ActiveTrainingBloc
             pace: currentTimerState.pace.toInt(),
             calories: cals,
             trainingType: trainingManagementState.activeTraining!.type,
-            trainingExerciseType: matchingTExercise.trainingExerciseType!,
+            trainingExerciseType: matchingTExercise.trainingExerciseType,
             trainingNameAtTime: trainingManagementState.activeTraining!.name,
             exerciseNameAtTime: findExerciseName(matchingTExercise),
-            intensity: matchingTExercise.intensity!,
+            intensity: matchingTExercise.intensity,
           ),
         ),
       );

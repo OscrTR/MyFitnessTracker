@@ -278,7 +278,7 @@ class DistanceOrDurationRun extends StatelessWidget {
                     tExercise.isTargetPaceSelected!
                 ? tExercise.targetPace ?? 0
                 : 0,
-            isAutostart: tExercise.autoStart ?? false,
+            isAutostart: tExercise.autoStart,
             exerciseGlobalKey: exerciseGlobalKey,
             trainingId: tExercise.trainingId!,
             tExerciseId: tExercise.id!,
@@ -527,7 +527,7 @@ class IntervalRun extends StatelessWidget {
                   tExercise.isTargetPaceSelected!
               ? tExercise.targetPace ?? 0
               : 0,
-          isAutostart: intervalIndex == 0 ? tExercise.autoStart ?? false : true,
+          isAutostart: intervalIndex == 0 ? tExercise.autoStart : true,
           exerciseGlobalKey: exerciseGlobalKey,
           trainingId: tExercise.trainingId!,
           tExerciseId: tExercise.id!,

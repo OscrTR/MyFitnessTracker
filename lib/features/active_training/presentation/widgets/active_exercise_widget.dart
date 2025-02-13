@@ -98,7 +98,7 @@ class _ActiveExerciseWidgetState extends State<ActiveExerciseWidget> {
     return BlocBuilder<ActiveTrainingBloc, ActiveTrainingState>(
         builder: (context, state) {
       if (state is ActiveTrainingLoaded) {
-        final isSetsInReps = widget.tExercise.isSetsInReps ?? true;
+        final isSetsInReps = widget.tExercise.isSetsInReps;
         bool isActiveExercise = false;
         final lastStartedTimerId = state.lastStartedTimerId;
         final exerciseIndex = widget.exerciseIndex;
@@ -452,13 +452,13 @@ class _ActiveExerciseRowState extends State<ActiveExerciseRow> {
               onTap: () {
                 int cals = 0;
 
-                if (widget.tExercise.isSetsInReps!) {
+                if (widget.tExercise.isSetsInReps) {
                   cals = getCalories(
-                      intensity: widget.tExercise.intensity!,
+                      intensity: widget.tExercise.intensity,
                       reps: int.tryParse(widget.repsController.text));
                 } else {
                   cals = getCalories(
-                      intensity: widget.tExercise.intensity!,
+                      intensity: widget.tExercise.intensity,
                       duration: widget.tExercise.duration);
                 }
 
@@ -479,12 +479,12 @@ class _ActiveExerciseRowState extends State<ActiveExerciseRow> {
                           weight: int.tryParse(widget.weightController.text),
                           calories: cals,
                           trainingExerciseType:
-                              widget.tExercise.trainingExerciseType!,
+                              widget.tExercise.trainingExerciseType,
                           trainingType: training.type,
                           trainingNameAtTime: training.name,
                           exerciseNameAtTime:
                               findExerciseName(widget.tExercise),
-                          intensity: widget.tExercise.intensity!,
+                          intensity: widget.tExercise.intensity,
                         ),
                       ),
                     );
@@ -548,7 +548,7 @@ class ActiveExerciseDurationRow extends StatelessWidget {
           isRunTimer: false,
           countDownValue: tExercise.duration ?? 0,
           timerValue: 0,
-          isAutostart: tExercise.autoStart ?? false,
+          isAutostart: tExercise.autoStart,
           exerciseGlobalKey: exerciseGlobalKey,
           trainingId: tExercise.trainingId!,
           tExerciseId: tExercise.id!,

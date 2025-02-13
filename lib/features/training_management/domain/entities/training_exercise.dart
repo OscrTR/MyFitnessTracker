@@ -5,7 +5,7 @@ class TrainingExercise extends Equatable {
   final int? trainingId;
   final int? multisetId;
   final int? exerciseId;
-  final TrainingExerciseType? trainingExerciseType;
+  final TrainingExerciseType trainingExerciseType;
   final String? specialInstructions;
   final String? objectives;
   final RunExerciseTarget? runExerciseTarget;
@@ -14,15 +14,15 @@ class TrainingExercise extends Equatable {
   final bool? isTargetPaceSelected;
   final int? targetPace;
   final int? sets;
-  final bool? isSetsInReps;
+  final bool isSetsInReps;
   final int? minReps;
   final int? maxReps;
   final int? duration;
   final int? setRest;
   final int? exerciseRest;
-  final bool? autoStart;
+  final bool autoStart;
   final int? position;
-  final int? intensity;
+  final int intensity;
   final String? key;
 
   const TrainingExercise({
@@ -30,7 +30,7 @@ class TrainingExercise extends Equatable {
     this.trainingId,
     this.multisetId,
     this.exerciseId,
-    this.trainingExerciseType,
+    required this.trainingExerciseType,
     this.specialInstructions,
     this.objectives,
     this.runExerciseTarget,
@@ -39,15 +39,15 @@ class TrainingExercise extends Equatable {
     this.isTargetPaceSelected,
     this.targetPace,
     this.sets,
-    this.isSetsInReps,
+    required this.isSetsInReps,
     this.minReps,
     this.maxReps,
     this.duration,
     this.setRest,
     this.exerciseRest,
-    this.autoStart,
+    required this.autoStart,
     this.position,
-    this.intensity,
+    required this.intensity,
     this.key,
   });
 

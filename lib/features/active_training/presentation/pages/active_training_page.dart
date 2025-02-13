@@ -190,7 +190,8 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage>
 
                       if (hasRunExercise) {
                         if (isLocationPermissionGrantedAlways &&
-                            isLocationEnabled) {
+                            isLocationEnabled &&
+                            isNotificationAuthorized) {
                           isVerified = true;
                         } else {
                           return _buildRunPermissions(context);
@@ -245,10 +246,11 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage>
                   if (state.activeTraining!.trainingExercises.any((el) =>
                       el.trainingExerciseType == TrainingExerciseType.run)) {
                     if (isLocationPermissionGrantedAlways &&
-                        isLocationEnabled) {
+                        isLocationEnabled &&
+                        isNotificationAuthorized) {
                       isVerified = true;
                     }
-                  } else {
+                  } else if (isNotificationAuthorized) {
                     isVerified = true;
                   }
 
@@ -323,7 +325,7 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage>
                       : currentTimerState.timerValue;
 
                   cals = getCalories(
-                      intensity: matchingTExercise.intensity!,
+                      intensity: matchingTExercise.intensity,
                       duration: duration);
 
                   if (currentTimerState.timerId != 'primaryTimer' &&
@@ -345,12 +347,12 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage>
                           trainingType:
                               trainingManagementState.activeTraining!.type,
                           trainingExerciseType:
-                              matchingTExercise.trainingExerciseType!,
+                              matchingTExercise.trainingExerciseType,
                           trainingNameAtTime:
                               trainingManagementState.activeTraining!.name,
                           exerciseNameAtTime:
                               findExerciseName(matchingTExercise),
-                          intensity: matchingTExercise.intensity!,
+                          intensity: matchingTExercise.intensity,
                         ),
                       ),
                     );
