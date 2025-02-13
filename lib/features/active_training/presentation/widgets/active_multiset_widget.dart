@@ -41,18 +41,21 @@ class _ActiveMultisetWidgetState extends State<ActiveMultisetWidget> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               ExpandablePanel(
-                header: _buildExpandableDurationHeader(context),
+                header: _buildExpandableMultisetHeader(context),
                 collapsed: const SizedBox(),
-                expanded: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      tr('global_objectives'),
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    Text('${widget.multiset.objectives}'),
-                  ],
-                ),
+                expanded: widget.multiset.objectives != null &&
+                        widget.multiset.objectives != ''
+                    ? Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            tr('global_objectives'),
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          Text('${widget.multiset.objectives}'),
+                        ],
+                      )
+                    : const SizedBox(),
                 theme: const ExpandableThemeData(
                   hasIcon: false,
                   tapHeaderToExpand: true,
@@ -69,7 +72,7 @@ class _ActiveMultisetWidgetState extends State<ActiveMultisetWidget> {
     );
   }
 
-  Widget _buildExpandableDurationHeader(BuildContext context) {
+  Widget _buildExpandableMultisetHeader(BuildContext context) {
     return Builder(builder: (context) {
       final multisetController = ExpandableController.of(context);
       return Column(
@@ -86,18 +89,21 @@ class _ActiveMultisetWidgetState extends State<ActiveMultisetWidget> {
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-              Icon(
-                multisetController?.expanded == true
-                    ? Icons.keyboard_arrow_up
-                    : Icons.keyboard_arrow_down,
-              ),
+              if (widget.multiset.objectives != null &&
+                  widget.multiset.objectives != '')
+                Icon(
+                  multisetController?.expanded == true
+                      ? Icons.keyboard_arrow_up
+                      : Icons.keyboard_arrow_down,
+                ),
             ],
           ),
           const SizedBox(height: 10),
           Text('${widget.multiset.sets} sets'),
           Text(
               '${widget.multiset.setRest != null ? formatDurationToMinutesSeconds(widget.multiset.setRest) : '0:00'} ${tr('active_training_rest')}'),
-          if (widget.multiset.specialInstructions != null)
+          if (widget.multiset.specialInstructions != null &&
+              widget.multiset.specialInstructions != '')
             Text('${widget.multiset.specialInstructions}'),
         ],
       );
