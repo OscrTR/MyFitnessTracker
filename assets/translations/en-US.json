@@ -110,10 +110,11 @@
 
   "trainings_page_title": "Trainings",
   "trainings_page_new": "New",
+  "trainings_page_new_dialog": "New",
   "trainings_page_add_new": "Add new",
   "trainings_page_exercise": "Exercise",
-  "training_page_create_exercise": "An exercise",
-  "training_page_create_training": "A training",
+  "training_page_create_exercise": "Exercise",
+  "training_page_create_training": "Training",
   "training_page_yoga": "Yoga",
   "training_page_workout": "Workout",
   "training_page_run": "Run",
@@ -164,5 +165,6 @@
   "history_page_duration": "Duration",
   "history_page_pace": "Pace",
   "history_page_trace": "Trace",
-  "history_page_drop": "Drop"
+  "history_page_drop": "Drop",
+  "history_page_interval": "Interval"
 }

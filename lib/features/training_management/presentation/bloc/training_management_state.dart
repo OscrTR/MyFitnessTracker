@@ -64,7 +64,7 @@ class TrainingManagementLoaded extends TrainingManagementState {
     }
     // Check if at least one multiset has non-empty trainingExercises
     for (final multiset in selectedTraining!.multisets) {
-      if (multiset.trainingExercises!.isNotEmpty) {
+      if (multiset.trainingExercises.isNotEmpty) {
         return true;
       }
     }

@@ -480,7 +480,7 @@ void _showNewDialog(BuildContext context) {
       title: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(tr('global_create')),
+          Text(tr('trainings_page_new_dialog')),
           GestureDetector(
             onTap: () => Navigator.pop(context, 'Close'),
             child: Container(
@@ -563,21 +563,21 @@ int calculateTrainingDuration(Training training) {
     if (exercise.duration != null) {
       // Si l'exercice a une durée explicite
       totalSeconds += exercise.duration!;
-    } else if (exercise.isSetsInReps!) {
+    } else if (exercise.isSetsInReps) {
       // Calcul basé sur les répétitions
       int avgReps = ((exercise.minReps ?? 0) + (exercise.maxReps ?? 0)) ~/ 2;
-      totalSeconds += repsToSeconds(avgReps) * (exercise.sets ?? 1);
+      totalSeconds += repsToSeconds(avgReps) * exercise.sets;
     }
 
     // Ajout des temps de repos
-    totalSeconds += (exercise.setRest ?? 0) * (exercise.sets ?? 1);
+    totalSeconds += (exercise.setRest ?? 0) * (exercise.sets);
     totalSeconds += (exercise.exerciseRest ?? 0);
 
     // Gestion des intervalles
-    if (exercise.sets != null && exercise.sets! > 1) {
-      totalSeconds += (exercise.setRest ?? 0) * (exercise.sets! - 1);
+    if (exercise.sets > 1) {
+      totalSeconds += (exercise.setRest ?? 0) * (exercise.sets - 1);
       if (exercise.targetDuration != null) {
-        totalSeconds += exercise.targetDuration! * exercise.sets!;
+        totalSeconds += exercise.targetDuration! * exercise.sets;
       }
     }
   }
@@ -586,20 +586,20 @@ int calculateTrainingDuration(Training training) {
   for (var multiset in training.multisets) {
     int multisetTotalSeconds = 0;
 
-    for (TrainingExercise exercise in multiset.trainingExercises!) {
+    for (TrainingExercise exercise in multiset.trainingExercises) {
       if (exercise.duration != null) {
         multisetTotalSeconds += exercise.duration!;
-      } else if (exercise.isSetsInReps!) {
+      } else if (exercise.isSetsInReps) {
         int avgReps = ((exercise.minReps ?? 0) + (exercise.maxReps ?? 0)) ~/ 2;
-        multisetTotalSeconds += repsToSeconds(avgReps) * (exercise.sets ?? 1);
+        multisetTotalSeconds += repsToSeconds(avgReps) * exercise.sets;
       }
-      multisetTotalSeconds += (exercise.setRest ?? 0) * (exercise.sets ?? 1);
+      multisetTotalSeconds += (exercise.setRest ?? 0) * exercise.sets;
     }
 
     // Multiplie par le nombre de sets du multiset
-    totalSeconds += multisetTotalSeconds * (multiset.sets ?? 1);
+    totalSeconds += multisetTotalSeconds * multiset.sets;
     // Ajoute le repos entre les sets du multiset
-    totalSeconds += (multiset.setRest ?? 0) * ((multiset.sets ?? 1) - 1);
+    totalSeconds += (multiset.setRest ?? 0) * (multiset.sets - 1);
     // Ajoute le repos final du multiset
     totalSeconds += (multiset.multisetRest ?? 0);
   }

@@ -71,7 +71,7 @@ String findExerciseName(TrainingExercise tExercise) {
     final targetPace = tExercise.isTargetPaceSelected == true
         ? ' at ${formatPace(tExercise.targetPace ?? 0)}'
         : '';
-    final intervals = tExercise.sets ?? 1;
+    final intervals = tExercise.sets;
     final targetDistance =
         tExercise.targetDistance != null && tExercise.targetDistance! > 0
             ? '${(tExercise.targetDistance! / 1000).toStringAsFixed(1)}km'

@@ -472,11 +472,8 @@ class TrainingManagementBloc
             .indexWhere((multiset) => multiset.key == event.multisetKey);
 
         if (multisetIndex != null && multisetIndex != -1) {
-          final multisetExercises = List<TrainingExercise>.from(
-            currentState.selectedTraining!.multisets[multisetIndex]
-                    .trainingExercises ??
-                [],
-          );
+          final multisetExercises = List<TrainingExercise>.from(currentState
+              .selectedTraining!.multisets[multisetIndex].trainingExercises);
 
           // Add
           if (event.trainingExercise.key == null) {
@@ -551,11 +548,8 @@ class TrainingManagementBloc
             .indexWhere((multiset) => multiset.key == event.multisetKey);
 
         if (multisetIndex != null && multisetIndex != -1) {
-          final multisetExercises = List<TrainingExercise>.from(
-            currentState.selectedTraining!.multisets[multisetIndex]
-                    .trainingExercises ??
-                [],
-          );
+          final multisetExercises = List<TrainingExercise>.from(currentState
+              .selectedTraining!.multisets[multisetIndex].trainingExercises);
 
           // Add the new exercise to the multiset's exercises
           multisetExercises

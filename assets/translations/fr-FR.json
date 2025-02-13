@@ -111,10 +111,11 @@
 
   "trainings_page_title": "Entraînements",
   "trainings_page_new": "Nouveau",
+  "trainings_page_new_dialog": "Nouvel",
   "trainings_page_add_new": "Ajouter",
   "trainings_page_exercise": "Exercice",
-  "training_page_create_exercise": "Un exercice",
-  "training_page_create_training": "Un entraînement",
+  "training_page_create_exercise": "Exercice",
+  "training_page_create_training": "Entraînement",
   "training_page_yoga": "Yoga",
   "training_page_workout": "Musculation",
   "training_page_run": "Course",
@@ -164,5 +165,6 @@
   "history_page_duration": "Durée",
   "history_page_pace": "Rythme",
   "history_page_trace": "Parcours",
-  "history_page_drop": "Dénivelé"
+  "history_page_drop": "Dénivelé",
+  "history_page_interval": "Intervalle"
 }

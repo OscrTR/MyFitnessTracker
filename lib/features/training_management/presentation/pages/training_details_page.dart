@@ -133,7 +133,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
       final trainingExercises = [
         ...currentState.selectedTraining?.trainingExercises ?? [],
         ...currentState.selectedTraining?.multisets
-                .expand((m) => m.trainingExercises ?? []) ??
+                .expand((m) => m.trainingExercises) ??
             []
       ];
       final TrainingExercise exercise =
@@ -165,7 +165,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
         intensity: exercise.intensity,
       );
 
-      _controllers['sets']?.text = exercise.sets?.toString() ?? '';
+      _controllers['sets']?.text = exercise.sets.toString();
       _controllers['durationMinutes']?.text = (exercise.duration != null
           ? (exercise.duration! % 3600 ~/ 60).toString()
           : '');
@@ -233,7 +233,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
         position: multiset.position,
       );
 
-      _controllers['multisetSets']?.text = multiset.sets?.toString() ?? '';
+      _controllers['multisetSets']?.text = multiset.sets.toString();
       _controllers['multisetSetRestMinutes']?.text = (multiset.setRest != null
           ? (multiset.setRest! % 3600 ~/ 60).toString()
           : '');
@@ -756,7 +756,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                   ],
                 ),
                 Text(
-                  '${multisetKey == null ? '${tExercise.sets}x' : ''}${tExercise.isSetsInReps! ? '${tExercise.minReps ?? 0}-${tExercise.maxReps ?? 0} reps' : '${tExercise.duration} seconds'}',
+                  '${multisetKey == null ? '${tExercise.sets}x' : ''}${tExercise.isSetsInReps ? '${tExercise.minReps ?? 0}-${tExercise.maxReps ?? 0} reps' : '${tExercise.duration} seconds'}',
                   style: const TextStyle(color: AppColors.taupeGray),
                 ),
                 Text(
@@ -977,7 +977,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
   }
 
   Column _buildRunText(TrainingExercise tExercise) {
-    if (tExercise.sets != null && tExercise.sets! > 1) {
+    if (tExercise.sets > 1) {
       final targetDistance =
           tExercise.targetDistance != null && tExercise.targetDistance! > 0
               ? '${(tExercise.targetDistance! / 1000).toStringAsFixed(1)}km'
@@ -988,7 +988,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
       final targetPace = tExercise.isTargetPaceSelected == true
           ? ' at ${formatPace(tExercise.targetPace ?? 0)}'
           : '';
-      final intervals = tExercise.sets ?? 1;
+      final intervals = tExercise.sets;
       if (tExercise.runExerciseTarget == RunExerciseTarget.distance) {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -1422,7 +1422,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                       SizedBox(
                         width: 20,
                         child: Checkbox(
-                          value: _tExerciseToCreateOrEdit.autoStart!,
+                          value: _tExerciseToCreateOrEdit.autoStart,
                           onChanged: (bool? value) {
                             setDialogState(
                               () {
@@ -1713,7 +1713,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
         _buildSetsChoiceOption(
           choice: tr('exercise_reps'),
           choiceValue: true,
-          currentSelection: _tExerciseToCreateOrEdit.isSetsInReps!,
+          currentSelection: _tExerciseToCreateOrEdit.isSetsInReps,
           isReps: true,
           onSelectionChanged: (bool newValue) {
             setDialogState(() {
@@ -1727,7 +1727,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
         _buildSetsChoiceOption(
           choice: tr('exercise_duration'),
           choiceValue: false,
-          currentSelection: _tExerciseToCreateOrEdit.isSetsInReps!,
+          currentSelection: _tExerciseToCreateOrEdit.isSetsInReps,
           isReps: false,
           onSelectionChanged: (bool newValue) {
             setDialogState(() {
