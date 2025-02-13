@@ -329,7 +329,8 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage>
                       duration: duration);
 
                   if (currentTimerState.timerId != 'primaryTimer' &&
-                      currentTimerState.isActive) {
+                      currentTimerState.isActive &&
+                      !currentTimerState.timerId.contains('rest')) {
                     sl<TrainingHistoryBloc>().add(
                       CreateOrUpdateHistoryEntry(
                         historyEntry: HistoryEntry(

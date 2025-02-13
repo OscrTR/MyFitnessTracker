@@ -41,6 +41,7 @@ class ActiveMultisetExerciseWidget extends StatefulWidget {
 class _ActiveMultisetExerciseWidgetState
     extends State<ActiveMultisetExerciseWidget> {
   late final Map<String, TextEditingController> _controllers;
+  late final Map<String, int?> _setHistoryIds;
 
   @override
   void initState() {
@@ -69,6 +70,20 @@ class _ActiveMultisetExerciseWidgetState
           .lastOrNull
           ?.historyEntries;
 
+      _setHistoryIds = {
+        for (int i = 1; i <= sets; i++) ...{
+          'idSet$i': entries
+              ?.where((entry) =>
+                  entry.trainingExerciseId == widget.tExercise.id &&
+                  entry.multisetSetNumber == i - 1 &&
+                  entry.id != null)
+              .toList()
+              .sortedBy((entry) => entry.date)
+              .lastOrNull
+              ?.id,
+        }
+      };
+
       _controllers = {
         for (int i = 1; i <= sets; i++) ...{
           'weightSet$i': TextEditingController(
@@ -76,7 +91,7 @@ class _ActiveMultisetExerciseWidgetState
                 ? entries
                         .where((entry) =>
                             entry.trainingExerciseId == widget.tExercise.id &&
-                            entry.setNumber == i - 1 &&
+                            entry.multisetSetNumber == i - 1 &&
                             entry.weight != null)
                         .toList()
                         .sortedBy((entry) => entry.date)
@@ -91,7 +106,7 @@ class _ActiveMultisetExerciseWidgetState
                 ? entries
                         .where((entry) =>
                             entry.trainingExerciseId == widget.tExercise.id &&
-                            entry.setNumber == i - 1 &&
+                            entry.multisetSetNumber == i - 1 &&
                             entry.reps != null)
                         .toList()
                         .sortedBy((entry) => entry.date)
@@ -361,6 +376,7 @@ class _ActiveMultisetExerciseWidgetState
               ),
               isSetsInReps
                   ? ActiveExerciseRow(
+                      historyEntryId: _setHistoryIds['idSet${index + 1}'],
                       weightController: _controllers['weightSet${index + 1}']!,
                       repsController: _controllers['repsSet${index + 1}']!,
                       multiset: widget.multiset,
@@ -395,6 +411,7 @@ class _ActiveMultisetExerciseWidgetState
 }
 
 class ActiveExerciseRow extends StatefulWidget {
+  final int? historyEntryId;
   final Multiset multiset;
   final TrainingExercise tExercise;
   final bool isLastSet;
@@ -408,6 +425,7 @@ class ActiveExerciseRow extends StatefulWidget {
 
   const ActiveExerciseRow({
     super.key,
+    required this.historyEntryId,
     required this.multiset,
     required this.tExercise,
     required this.weightController,
@@ -430,7 +448,7 @@ class _ActiveExerciseRowState extends State<ActiveExerciseRow> {
   @override
   Widget build(BuildContext context) {
     final restTimerId =
-        '${widget.multisetIndex < 10 ? 0 : ''}${widget.multisetIndex}-${widget.setIndex < 10 ? 0 : ''}${widget.setIndex}-${widget.multisetExerciseIndex < 10 ? 0 : ''}${widget.multisetExerciseIndex}';
+        '${widget.multisetIndex < 10 ? 0 : ''}${widget.multisetIndex}-${widget.setIndex < 10 ? 0 : ''}${widget.setIndex}-${widget.multisetExerciseIndex < 10 ? 0 : ''}${widget.multisetExerciseIndex}-rest';
 
     context.read<ActiveTrainingBloc>().add(
           CreateTimer(
@@ -467,34 +485,6 @@ class _ActiveExerciseRowState extends State<ActiveExerciseRow> {
           isStarted = true;
         }
 
-        int? registeredId;
-
-        if (!isInitialized) {
-          final entries = (context.read<TrainingHistoryBloc>().state
-                  as TrainingHistoryLoaded)
-              .historyEntries;
-          final List<HistoryEntry> matchingEntries = List.from(entries.where(
-              (el) =>
-                  el.trainingExerciseId == widget.tExercise.id &&
-                  el.setNumber == widget.setIndex &&
-                  el.trainingId == widget.tExercise.trainingId));
-
-          final latestEntry = matchingEntries.isNotEmpty
-              ? matchingEntries.reduce((HistoryEntry a, HistoryEntry b) =>
-                  a.date.isAfter(b.date) ? a : b)
-              : null;
-
-          registeredId = latestEntry?.id;
-          if (registeredId != null &&
-              widget.weightController.text == '' &&
-              widget.repsController.text == '') {
-            widget.weightController.text =
-                latestEntry?.weight?.toString() ?? '';
-            widget.repsController.text = latestEntry?.reps?.toString() ?? '';
-            isInitialized = true;
-          }
-        }
-
         return Row(
           children: [
             SmallTextFieldWidget(
@@ -528,11 +518,11 @@ class _ActiveExerciseRowState extends State<ActiveExerciseRow> {
                 context.read<TrainingHistoryBloc>().add(
                       CreateOrUpdateHistoryEntry(
                         historyEntry: HistoryEntry(
-                          id: registeredId,
+                          id: widget.historyEntryId,
                           trainingId: widget.tExercise.trainingId!,
                           trainingExerciseId: widget.tExercise.id!,
-                          setNumber: widget.setIndex,
-                          multisetSetNumber: widget.multisetExerciseIndex,
+                          setNumber: 1,
+                          multisetSetNumber: widget.setIndex,
                           date: DateTime.now(),
                           reps: int.tryParse(widget.repsController.text),
                           weight: int.tryParse(widget.weightController.text),

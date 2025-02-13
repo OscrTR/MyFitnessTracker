@@ -119,6 +119,7 @@ class HistoryDetailsPage extends StatelessWidget {
                   training: training,
                 );
         } else if (item['type'] == 'multiset') {
+          print(state.selectedTrainingEntry!.historyEntries);
           final multiset = item['data'] as Multiset;
           return Text('MULTISET');
         }
@@ -643,7 +644,6 @@ class _ExerciseSetFormState extends State<ExerciseSetForm> {
               reps: reps ?? historyEntry?.reps,
               duration: duration ?? historyEntry?.duration,
               setNumber: historyEntry?.setNumber ?? index,
-              // TODO : vérifier le multiset
               multisetSetNumber: historyEntry?.multisetSetNumber,
               distance: null,
               pace: null,

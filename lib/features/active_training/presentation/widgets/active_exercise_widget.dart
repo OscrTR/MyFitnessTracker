@@ -33,6 +33,7 @@ class ActiveExerciseWidget extends StatefulWidget {
 
 class _ActiveExerciseWidgetState extends State<ActiveExerciseWidget> {
   late final Map<String, TextEditingController>? _controllers;
+  late final Map<String, int?> _setHistoryIds;
 
   @override
   void initState() {
@@ -52,6 +53,20 @@ class _ActiveExerciseWidgetState extends State<ActiveExerciseWidget> {
           .sortedBy((entry) => entry.date)
           .lastOrNull
           ?.historyEntries;
+
+      _setHistoryIds = {
+        for (int i = 1; i <= sets; i++) ...{
+          'idSet$i': entries
+              ?.where((entry) =>
+                  entry.trainingExerciseId == widget.tExercise.id &&
+                  entry.setNumber == i - 1 &&
+                  entry.id != null)
+              .toList()
+              .sortedBy((entry) => entry.date)
+              .lastOrNull
+              ?.id,
+        }
+      };
 
       _controllers = {
         for (int i = 1; i <= sets; i++) ...{
@@ -243,6 +258,8 @@ class _ActiveExerciseWidgetState extends State<ActiveExerciseWidget> {
                                   const TextStyle(color: AppColors.taupeGray)),
                           isSetsInReps
                               ? ActiveExerciseRow(
+                                  historyEntryId:
+                                      _setHistoryIds['idSet${index + 1}'],
                                   weightController:
                                       _controllers!['weightSet${index + 1}']!,
                                   repsController:
@@ -372,6 +389,7 @@ class _ActiveExerciseWidgetState extends State<ActiveExerciseWidget> {
 }
 
 class ActiveExerciseRow extends StatefulWidget {
+  final int? historyEntryId;
   final TrainingExercise tExercise;
   final int exerciseIndex;
   final int setIndex;
@@ -382,6 +400,7 @@ class ActiveExerciseRow extends StatefulWidget {
 
   const ActiveExerciseRow({
     super.key,
+    required this.historyEntryId,
     required this.weightController,
     required this.repsController,
     required this.tExercise,
@@ -401,7 +420,7 @@ class _ActiveExerciseRowState extends State<ActiveExerciseRow> {
   @override
   Widget build(BuildContext context) {
     final restTimerId =
-        '${widget.exerciseIndex < 10 ? 0 : ''}${widget.exerciseIndex}-${widget.setIndex < 10 ? 0 : ''}${widget.setIndex}';
+        '${widget.exerciseIndex < 10 ? 0 : ''}${widget.exerciseIndex}-${widget.setIndex < 10 ? 0 : ''}${widget.setIndex}-rest';
     context.read<ActiveTrainingBloc>().add(CreateTimer(
             timerState: TimerState(
           timerId: restTimerId,
@@ -430,34 +449,6 @@ class _ActiveExerciseRowState extends State<ActiveExerciseRow> {
             ?.isStarted;
         if (currentIsStarted != null && currentIsStarted) {
           isStarted = true;
-        }
-
-        int? registeredId;
-
-        if (!isInitialized) {
-          final entries = (context.read<TrainingHistoryBloc>().state
-                  as TrainingHistoryLoaded)
-              .historyEntries;
-          final List<HistoryEntry> matchingEntries = List.from(entries.where(
-              (el) =>
-                  el.trainingExerciseId == widget.tExercise.id &&
-                  el.setNumber == widget.setIndex &&
-                  el.trainingId == widget.tExercise.trainingId));
-
-          final latestEntry = matchingEntries.isNotEmpty
-              ? matchingEntries.reduce((HistoryEntry a, HistoryEntry b) =>
-                  a.date.isAfter(b.date) ? a : b)
-              : null;
-
-          registeredId = latestEntry?.id;
-          if (registeredId != null &&
-              widget.weightController.text == '' &&
-              widget.repsController.text == '') {
-            widget.weightController.text =
-                latestEntry?.weight?.toString() ?? '';
-            widget.repsController.text = latestEntry?.reps?.toString() ?? '';
-            isInitialized = true;
-          }
         }
 
         return Row(
@@ -493,7 +484,7 @@ class _ActiveExerciseRowState extends State<ActiveExerciseRow> {
                 context.read<TrainingHistoryBloc>().add(
                       CreateOrUpdateHistoryEntry(
                         historyEntry: HistoryEntry(
-                          id: registeredId,
+                          id: widget.historyEntryId,
                           trainingId: widget.tExercise.trainingId!,
                           trainingExerciseId: widget.tExercise.id!,
                           setNumber: widget.setIndex,
