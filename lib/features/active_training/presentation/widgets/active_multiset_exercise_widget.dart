@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:io';
 
 import 'package:collection/collection.dart';
@@ -7,6 +6,7 @@ import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../helper_functions.dart';
+import '../../../../injection_container.dart';
 import '../../../training_history/domain/entities/history_entry.dart';
 import '../../../training_history/presentation/bloc/training_history_bloc.dart';
 import '../../../training_management/presentation/bloc/training_management_bloc.dart';
@@ -40,20 +40,17 @@ class ActiveMultisetExerciseWidget extends StatefulWidget {
 
 class _ActiveMultisetExerciseWidgetState
     extends State<ActiveMultisetExerciseWidget> {
-  Timer? _debounceTimer;
-  late final Map<String, TextEditingController>? _controllers;
+  late final Map<String, TextEditingController> _controllers;
 
   @override
   void initState() {
     _initializeControllers();
-    _attachListeners();
     super.initState();
   }
 
   @override
   void dispose() {
-    _debounceTimer?.cancel();
-    for (var controller in _controllers!.values) {
+    for (var controller in _controllers.values) {
       controller.dispose();
     }
     super.dispose();
@@ -61,26 +58,52 @@ class _ActiveMultisetExerciseWidgetState
 
   void _initializeControllers() {
     final sets = widget.multiset.sets ?? 0;
-    _controllers = {
-      for (int i = 1; i <= sets; i++) ...{
-        'weightSet$i': TextEditingController(),
-        'repsSet$i': TextEditingController(),
-      },
-    };
-  }
+    final historyBlocState = sl<TrainingHistoryBloc>().state;
 
-  void _attachListeners() {
-    _controllers?.forEach((key, controller) {
-      controller.addListener(() => _debounce(() => _updateBloc(key)));
-    });
-  }
+    if (historyBlocState is TrainingHistoryLoaded) {
+      final entries = historyBlocState.historyTrainings
+          .where((trainingHistory) =>
+              trainingHistory.trainingId == widget.tExercise.trainingId)
+          .toList()
+          .sortedBy((entry) => entry.date)
+          .lastOrNull
+          ?.historyEntries;
 
-  void _updateBloc(String key) {}
-
-  void _debounce(Function() action,
-      [Duration delay = const Duration(milliseconds: 500)]) {
-    _debounceTimer?.cancel();
-    _debounceTimer = Timer(delay, action);
+      _controllers = {
+        for (int i = 1; i <= sets; i++) ...{
+          'weightSet$i': TextEditingController(
+            text: entries != null
+                ? entries
+                        .where((entry) =>
+                            entry.trainingExerciseId == widget.tExercise.id &&
+                            entry.setNumber == i - 1 &&
+                            entry.weight != null)
+                        .toList()
+                        .sortedBy((entry) => entry.date)
+                        .lastOrNull
+                        ?.weight
+                        ?.toString() ??
+                    ''
+                : '',
+          ),
+          'repsSet$i': TextEditingController(
+            text: entries != null
+                ? entries
+                        .where((entry) =>
+                            entry.trainingExerciseId == widget.tExercise.id &&
+                            entry.setNumber == i - 1 &&
+                            entry.reps != null)
+                        .toList()
+                        .sortedBy((entry) => entry.date)
+                        .lastOrNull
+                        ?.reps
+                        ?.toString() ??
+                    ''
+                : '',
+          ),
+        },
+      };
+    }
   }
 
   @override
@@ -338,7 +361,7 @@ class _ActiveMultisetExerciseWidgetState
               ),
               isSetsInReps
                   ? ActiveExerciseRow(
-                      weightController: _controllers!['weightSet${index + 1}']!,
+                      weightController: _controllers['weightSet${index + 1}']!,
                       repsController: _controllers['repsSet${index + 1}']!,
                       multiset: widget.multiset,
                       tExercise: widget.tExercise,
