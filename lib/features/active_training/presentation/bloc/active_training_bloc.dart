@@ -74,7 +74,7 @@ class ActiveTrainingBloc
         ];
         for (var multiset
             in trainingManagementState.activeTraining!.multisets) {
-          listOfTExercises.addAll([...multiset.trainingExercises!]);
+          listOfTExercises.addAll([...multiset.trainingExercises]);
         }
 
         final matchingTExercise = listOfTExercises.firstWhere(

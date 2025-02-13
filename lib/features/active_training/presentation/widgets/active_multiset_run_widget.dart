@@ -42,22 +42,19 @@ class _ActiveMultisetRunWidgetState extends State<ActiveMultisetRunWidget> {
             final lastStartedTimerId = state.lastStartedTimerId;
 
             if (lastStartedTimerId != null) {
-              if (widget.multiset.sets != null) {
-                final possibleTimerIds = [];
-                for (var i = 0; i < widget.multiset.sets!; i++) {
-                  possibleTimerIds.add(
-                      '${widget.multisetIndex < 10 ? 0 : ''}${widget.multisetIndex}-${i < 10 ? 0 : ''}$i-${widget.multisetExerciseIndex < 10 ? 0 : ''}${widget.multisetExerciseIndex}');
-                }
+              final possibleTimerIds = [];
+              for (var i = 0; i < widget.multiset.sets; i++) {
+                possibleTimerIds.add(
+                    '${widget.multisetIndex < 10 ? 0 : ''}${widget.multisetIndex}-${i < 10 ? 0 : ''}$i-${widget.multisetExerciseIndex < 10 ? 0 : ''}${widget.multisetExerciseIndex}');
+              }
 
-                if (possibleTimerIds
-                    .any((el) => lastStartedTimerId.startsWith(el))) {
-                  isActiveExercise = true;
-                }
+              if (possibleTimerIds
+                  .any((el) => lastStartedTimerId.startsWith(el))) {
+                isActiveExercise = true;
               }
             }
 
-            final bool isInterval =
-                widget.tExercise.sets != null && widget.tExercise.sets! > 1;
+            final bool isInterval = widget.tExercise.sets > 1;
 
             return Container(
               margin: const EdgeInsets.only(top: 20),
@@ -96,7 +93,7 @@ class _ActiveMultisetRunWidgetState extends State<ActiveMultisetRunWidget> {
                   ListView.builder(
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
-                      itemCount: widget.multiset.sets ?? 0,
+                      itemCount: widget.multiset.sets,
                       itemBuilder: (context, index) {
                         if (!isInterval) {
                           return DistanceOrDurationRun(
@@ -104,7 +101,7 @@ class _ActiveMultisetRunWidgetState extends State<ActiveMultisetRunWidget> {
                             tExercise: widget.tExercise,
                             isLastSet: widget.multiset.sets == index + 1,
                             isLastMultisetExercise:
-                                widget.multiset.trainingExercises!.length ==
+                                widget.multiset.trainingExercises.length ==
                                     widget.tExercise.position! + 1,
                             multisetIndex: widget.multisetIndex,
                             multisetExerciseIndex: widget.multisetExerciseIndex,
@@ -117,7 +114,7 @@ class _ActiveMultisetRunWidgetState extends State<ActiveMultisetRunWidget> {
                             multiset: widget.multiset,
                             isLastSet: widget.multiset.sets == index + 1,
                             isLastMultisetExercise:
-                                widget.multiset.trainingExercises!.length ==
+                                widget.multiset.trainingExercises.length ==
                                     widget.tExercise.position! + 1,
                             multisetIndex: widget.multisetIndex,
                             multisetExerciseIndex: widget.multisetExerciseIndex,
@@ -210,7 +207,7 @@ class _ActiveMultisetRunWidgetState extends State<ActiveMultisetRunWidget> {
     final targetPace = tExercise.isTargetPaceSelected == true
         ? ' at ${formatPace(tExercise.targetPace!)}'
         : '';
-    final intervals = tExercise.sets ?? 1;
+    final intervals = tExercise.sets;
 
     if (tExercise.runExerciseTarget == RunExerciseTarget.distance) {
       return Text(
@@ -404,7 +401,7 @@ class IntervalWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final intervals = tExercise.sets ?? 1;
+    final intervals = tExercise.sets;
 
     return Column(
       children: [
@@ -421,7 +418,7 @@ class IntervalWidget extends StatelessWidget {
                 intervalIndex: intervalIndex,
                 multiset: multiset,
                 isLastSet: multiset.sets == setIndex + 1,
-                isLastMultisetExercise: multiset.trainingExercises!.length ==
+                isLastMultisetExercise: multiset.trainingExercises.length ==
                     tExercise.position! + 1,
                 multisetIndex: multisetIndex,
                 multisetExerciseIndex: multisetExerciseIndex,

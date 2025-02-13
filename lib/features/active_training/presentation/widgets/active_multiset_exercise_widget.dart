@@ -58,7 +58,7 @@ class _ActiveMultisetExerciseWidgetState
   }
 
   void _initializeControllers() {
-    final sets = widget.multiset.sets ?? 0;
+    final sets = widget.multiset.sets;
     final historyBlocState = sl<TrainingHistoryBloc>().state;
 
     if (historyBlocState is TrainingHistoryLoaded) {
@@ -363,7 +363,7 @@ class _ActiveMultisetExerciseWidgetState
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      itemCount: widget.multiset.sets ?? 0,
+      itemCount: widget.multiset.sets,
       itemBuilder: (context, index) {
         return Container(
           margin: const EdgeInsets.only(top: 10),
@@ -383,7 +383,7 @@ class _ActiveMultisetExerciseWidgetState
                       tExercise: widget.tExercise,
                       isLastSet: widget.multiset.sets == index + 1,
                       isLastMultisetExercise:
-                          widget.multiset.trainingExercises!.length ==
+                          widget.multiset.trainingExercises.length ==
                               widget.tExercise.position! + 1,
                       multisetIndex: widget.multisetIndex,
                       multisetExerciseIndex: widget.multisetExerciseIndex,
@@ -395,7 +395,7 @@ class _ActiveMultisetExerciseWidgetState
                       multiset: widget.multiset,
                       isLastSet: widget.multiset.sets == index + 1,
                       isLastMultisetExercise:
-                          widget.multiset.trainingExercises!.length ==
+                          widget.multiset.trainingExercises.length ==
                               widget.tExercise.position! + 1,
                       multisetIndex: widget.multisetIndex,
                       multisetExerciseIndex: widget.multisetExerciseIndex,

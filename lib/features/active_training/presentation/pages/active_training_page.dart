@@ -184,7 +184,7 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage>
                                   el.trainingExerciseType ==
                                   TrainingExerciseType.run) ||
                               state.activeTraining!.multisets.any((multiset) =>
-                                  multiset.trainingExercises!.any((el) =>
+                                  multiset.trainingExercises.any((el) =>
                                       el.trainingExerciseType ==
                                       TrainingExerciseType.run));
 
@@ -243,8 +243,16 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage>
                     state.activeTraining != null) {
                   bool isVerified = false;
 
-                  if (state.activeTraining!.trainingExercises.any((el) =>
-                      el.trainingExerciseType == TrainingExerciseType.run)) {
+                  bool hasRunExercise = state.activeTraining!.trainingExercises
+                          .any((el) =>
+                              el.trainingExerciseType ==
+                              TrainingExerciseType.run) ||
+                      state.activeTraining!.multisets.any((multiset) =>
+                          multiset.trainingExercises.any((el) =>
+                              el.trainingExerciseType ==
+                              TrainingExerciseType.run));
+
+                  if (hasRunExercise) {
                     if (isLocationPermissionGrantedAlways &&
                         isLocationEnabled &&
                         isNotificationAuthorized) {
@@ -312,7 +320,7 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage>
                   ];
                   for (var multiset
                       in trainingManagementState.activeTraining!.multisets) {
-                    listOfTExercises.addAll([...multiset.trainingExercises!]);
+                    listOfTExercises.addAll([...multiset.trainingExercises]);
                   }
 
                   final matchingTExercise = listOfTExercises.firstWhere(

@@ -349,11 +349,13 @@ class IntervalExercise extends StatelessWidget {
   final TrainingExercise trainingExercise;
   final TrainingHistoryLoaded historyState;
   final Training training;
-  const IntervalExercise(
-      {super.key,
-      required this.trainingExercise,
-      required this.historyState,
-      required this.training});
+
+  const IntervalExercise({
+    super.key,
+    required this.trainingExercise,
+    required this.historyState,
+    required this.training,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -894,42 +896,56 @@ class HistoryMultisetWidget extends StatelessWidget {
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               itemCount: multiset.trainingExercises.length,
-              itemBuilder: (context, index) {
-                final tExercise = multiset.trainingExercises[index];
+              itemBuilder: (context, multisetExerciseindex) {
+                final tExercise =
+                    multiset.trainingExercises[multisetExerciseindex];
                 final matchingExercise = (sl<ExerciseManagementBloc>().state
                         as ExerciseManagementLoaded)
                     .exercises
                     .firstWhereOrNull((e) => e.id == tExercise.exerciseId);
-                final entry = historyState.selectedTrainingEntry!.historyEntries
-                    .firstWhere((entry) =>
-                        entry.trainingExerciseId == tExercise.id &&
-                        entry.multisetSetNumber == index);
-                final locations = historyState.selectedTrainingEntry!.locations
-                    .where((location) =>
-                        location.trainingExerciseId == tExercise.id &&
-                        location.multisetSetNumber == index)
-                    .toList();
 
-                return tExercise.trainingExerciseType ==
-                        TrainingExerciseType.run
-                    ? tExercise.sets > 1
-                        ? IntervalExercise(
-                            historyState: historyState,
-                            trainingExercise: tExercise,
-                            training: training,
-                          )
-                        : RunExercise(
-                            historyEntry: entry,
-                            runLocations: locations,
-                            trainingExercise: tExercise,
-                          )
-                    : ExerciseSetForm(
-                        trainingExercise: tExercise,
-                        matchingExercise: matchingExercise,
-                        historyState: historyState,
-                        training: training,
-                        multiset: multiset,
-                      );
+                if (tExercise.trainingExerciseType !=
+                    TrainingExerciseType.run) {
+                  return ExerciseSetForm(
+                    trainingExercise: tExercise,
+                    matchingExercise: matchingExercise,
+                    historyState: historyState,
+                    training: training,
+                    multiset: multiset,
+                  );
+                } else {
+                  return ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: multiset.sets,
+                      itemBuilder: (context, multisetSetindex) {
+                        // TODO : trouver les history entries et locations qui correspondent pour l'intervalle
+
+                        final entry = historyState
+                            .selectedTrainingEntry!.historyEntries
+                            .firstWhere((entry) =>
+                                entry.trainingExerciseId == tExercise.id &&
+                                entry.multisetSetNumber == multisetSetindex);
+                        final locations = historyState
+                            .selectedTrainingEntry!.locations
+                            .where((location) =>
+                                location.trainingExerciseId == tExercise.id &&
+                                location.multisetSetNumber == multisetSetindex)
+                            .toList();
+
+                        return tExercise.sets > 1
+                            ? IntervalExercise(
+                                historyState: historyState,
+                                trainingExercise: tExercise,
+                                training: training,
+                              )
+                            : RunExercise(
+                                historyEntry: entry,
+                                runLocations: locations,
+                                trainingExercise: tExercise,
+                              );
+                      });
+                }
               },
             )
         ],

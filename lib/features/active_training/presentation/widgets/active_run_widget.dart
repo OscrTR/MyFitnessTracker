@@ -43,8 +43,7 @@ class _ActiveRunWidgetState extends State<ActiveRunWidget> {
               isActiveExercise = true;
             }
 
-            final bool isInterval =
-                widget.tExercise.sets != null && widget.tExercise.sets! > 1;
+            final bool isInterval = widget.tExercise.sets > 1;
 
             return Container(
               margin: const EdgeInsets.only(top: 20),
@@ -179,7 +178,7 @@ class _ActiveRunWidgetState extends State<ActiveRunWidget> {
     final targetPace = tExercise.isTargetPaceSelected == true
         ? ' at ${formatPace(tExercise.targetPace ?? 0)}'
         : '';
-    final intervals = tExercise.sets ?? 1;
+    final intervals = tExercise.sets;
 
     if (tExercise.runExerciseTarget == RunExerciseTarget.distance) {
       return Text(
@@ -354,7 +353,7 @@ class IntervalWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final intervals = tExercise.sets ?? 1;
+    final intervals = tExercise.sets;
 
     return Column(
       children: [

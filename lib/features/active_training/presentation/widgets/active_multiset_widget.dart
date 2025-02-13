@@ -61,8 +61,7 @@ class _ActiveMultisetWidgetState extends State<ActiveMultisetWidget> {
                   tapHeaderToExpand: true,
                 ),
               ),
-              if (widget.multiset.trainingExercises != null)
-                _buildWidgetExercisesList(widget.multiset.trainingExercises!),
+              _buildWidgetExercisesList(widget.multiset.trainingExercises),
             ],
           ),
         ),

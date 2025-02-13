@@ -42,7 +42,7 @@ class _ActiveExerciseWidgetState extends State<ActiveExerciseWidget> {
   }
 
   void _initializeControllers() {
-    final sets = widget.tExercise.sets ?? 0;
+    final sets = widget.tExercise.sets;
     final historyBlocState = sl<TrainingHistoryBloc>().state;
 
     if (historyBlocState is TrainingHistoryLoaded) {
@@ -246,7 +246,7 @@ class _ActiveExerciseWidgetState extends State<ActiveExerciseWidget> {
               ListView.builder(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
-                  itemCount: widget.tExercise.sets ?? 0,
+                  itemCount: widget.tExercise.sets,
                   itemBuilder: (context, index) {
                     return Container(
                       margin: const EdgeInsets.only(top: 10),
