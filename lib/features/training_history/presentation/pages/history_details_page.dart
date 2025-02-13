@@ -11,6 +11,7 @@ import 'package:my_fitness_tracker/features/training_history/presentation/bloc/t
 import 'package:my_fitness_tracker/features/training_history/presentation/widgets/altitude_chart_widget.dart';
 import 'package:my_fitness_tracker/features/training_history/presentation/widgets/pace_chart_widget.dart';
 import 'package:my_fitness_tracker/features/training_history/presentation/widgets/run_map_widget.dart';
+import 'package:my_fitness_tracker/features/training_history/presentation/widgets/save_button_widget.dart';
 import 'package:my_fitness_tracker/features/training_management/domain/entities/training.dart';
 import 'package:my_fitness_tracker/features/training_management/domain/entities/training_exercise.dart';
 import 'package:my_fitness_tracker/features/training_management/presentation/bloc/training_management_bloc.dart';
@@ -788,37 +789,21 @@ class _ExerciseSetFormState extends State<ExerciseSetForm> {
                   ],
                 ),
               const SizedBox(width: 10),
-              GestureDetector(
-                onTap: () {
-                  final duration = ((int.tryParse(
-                                  durationMinutesControllers[index].text) ??
-                              0) *
-                          60) +
-                      ((int.tryParse(durationSecondsControllers[index].text) ??
-                          0));
-                  _updateHistoryEntry(
-                    setNumber: isMultiset ? 1 : index,
-                    multisetSetNumber: isMultiset ? index : null,
-                    weight: int.tryParse(weightControllers[index].text),
-                    duration: duration,
-                    reps: int.tryParse(repsControllers[index].text),
-                  );
-                },
-                child: Container(
-                  width: 36,
-                  height: 36,
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                      color: AppColors.platinum),
-                  child: const Center(
-                    child: Icon(
-                      LucideIcons.save,
-                      size: 20,
-                      color: AppColors.frenchGray,
-                    ),
-                  ),
-                ),
-              )
+              SaveButton(onTapCallback: () {
+                final duration = ((int.tryParse(
+                                durationMinutesControllers[index].text) ??
+                            0) *
+                        60) +
+                    ((int.tryParse(durationSecondsControllers[index].text) ??
+                        0));
+                _updateHistoryEntry(
+                  setNumber: isMultiset ? 1 : index,
+                  multisetSetNumber: isMultiset ? index : null,
+                  weight: int.tryParse(weightControllers[index].text),
+                  duration: duration,
+                  reps: int.tryParse(repsControllers[index].text),
+                );
+              }),
             ],
           ),
         ],

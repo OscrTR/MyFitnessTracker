@@ -316,15 +316,16 @@ class _HomePageState extends State<HomePage> {
                                     _historyTrainings![index].duration)),
                               ],
                             ),
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Icon(LucideIcons.activity, size: 16),
-                                const SizedBox(width: 5),
-                                Text(
-                                    '${(_historyTrainings![index].distance / 1000).toStringAsFixed(2)}km'),
-                              ],
-                            ),
+                            if (_historyTrainings![index].distance > 0)
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(LucideIcons.activity, size: 16),
+                                  const SizedBox(width: 5),
+                                  Text(
+                                      '${(_historyTrainings![index].distance / 1000).toStringAsFixed(2)}km'),
+                                ],
+                              ),
                             Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
