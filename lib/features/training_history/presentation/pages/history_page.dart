@@ -22,125 +22,13 @@ class HistoryPage extends StatefulWidget {
 }
 
 class _HistoryPageState extends State<HistoryPage> {
-  bool _isWeekSelected = true;
-  List<DateTime> _weeksList = [];
-  List<DateTime> _monthsList = [];
   List<HistoryTraining>? _historyTrainings;
   final ScrollController _scrollController = ScrollController();
-  Map<TrainingType, bool> _selectedTrainingTypes = {};
-
-  String _formatDateLabel(
-      BuildContext context, DateTime date, bool isWeekSelected) {
-    final currentLocale = context.locale;
-    final label =
-        DateFormat(isWeekSelected ? 'MMM d' : 'MMM', currentLocale.toString())
-            .format(date);
-    return capitalizeFirstLetter(label);
-  }
-
-  String capitalizeFirstLetter(String input) {
-    if (input.isEmpty) return input;
-    return input[0].toUpperCase() + input.substring(1);
-  }
-
-  List<DateTime> _generateWeeklyRanges() {
-    List<DateTime> ranges = [];
-    DateTime now = DateTime.now();
-
-    // Calcul du premier lundi de l'année
-    DateTime firstDayOfYear = DateTime(now.year, 1, 1);
-    int daysUntilFirstMonday =
-        (DateTime.monday - firstDayOfYear.weekday + 7) % 7;
-    DateTime firstMondayOfYear =
-        firstDayOfYear.add(Duration(days: daysUntilFirstMonday));
-
-    // Calcul de la date d'il y a 3 mois
-    DateTime threeMonthsAgo = DateTime(now.year, now.month - 3, now.day);
-
-    // Trouver le premier lundi après threeMonthsAgo
-    int daysUntilMonday = (DateTime.monday - threeMonthsAgo.weekday + 7) % 7;
-    DateTime firstMondayThreeMonthsAgo =
-        threeMonthsAgo.add(Duration(days: daysUntilMonday));
-
-    // Choisir la date de début appropriée
-    DateTime startDate;
-    if (now.difference(firstMondayOfYear).inDays < 90) {
-      startDate = firstMondayThreeMonthsAgo;
-    } else {
-      startDate = firstMondayOfYear;
-    }
-
-    final endDate = _calculateEndOfWeek();
-    DateTime current = startDate;
-
-    while (current.isBefore(endDate) || current.isAtSameMomentAs(endDate)) {
-      ranges.add(current);
-      current = current.add(const Duration(days: 7));
-    }
-
-    return ranges;
-  }
-
-  List<DateTime> _generateMonthlyRanges() {
-    List<DateTime> ranges = [];
-    DateTime now = DateTime.now();
-
-    // Calcul de la date de début (au minimum 3 mois avant aujourd'hui)
-    DateTime startDate;
-    if (now.month > 3) {
-      // Si on reste dans la même année
-      startDate = DateTime(now.year, now.month - 2, 1);
-    } else {
-      // Si on doit aller chercher dans l'année précédente
-      int monthsInPreviousYear = 3 - now.month;
-      startDate = DateTime(now.year - 1, 12 - monthsInPreviousYear + 1, 1);
-    }
-
-    // Utiliser comme date de début la plus ancienne entre le 1er janvier et 3 mois en arrière
-    DateTime firstDayOfYear = DateTime(now.year, 1, 1);
-    startDate = startDate.isBefore(firstDayOfYear) ? startDate : firstDayOfYear;
-
-    final lastDay = _getLastDayOfCurrentMonth();
-    DateTime current = startDate;
-
-    while (current.isBefore(lastDay) || current.isAtSameMomentAs(lastDay)) {
-      ranges.add(current);
-      current = DateTime(current.year, current.month + 1, 1);
-    }
-
-    return ranges;
-  }
-
-  DateTime _getLastDayOfCurrentMonth() {
-    final now = DateTime.now();
-    final nextMonth = now.month == 12 ? 1 : now.month + 1;
-    final nextMonthYear = now.month == 12 ? now.year + 1 : now.year;
-    final firstDayOfNextMonth = DateTime(nextMonthYear, nextMonth, 1);
-    return firstDayOfNextMonth.subtract(const Duration(days: 1));
-  }
-
-  DateTime _calculateEndOfWeek() {
-    final now = DateTime.now();
-    final endOfDay = DateTime(now.year, now.month, now.day, 23, 59, 59, 999);
-    final daysUntilEndOfWeek = DateTime.sunday - endOfDay.weekday;
-    return endOfDay.add(Duration(days: daysUntilEndOfWeek));
-  }
-
-  void _scrollToMostRecentDate() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
-    });
-  }
 
   @override
   void initState() {
     super.initState();
-    _weeksList = _generateWeeklyRanges();
-    _monthsList = _generateMonthlyRanges();
-    _scrollToMostRecentDate();
-    _selectedTrainingTypes = {};
-    _selectedTrainingTypes = Map.fromEntries(
-        TrainingType.values.map((type) => MapEntry(type, false)));
+    scrollToMostRecentDate(_scrollController);
   }
 
   @override
@@ -164,24 +52,24 @@ class _HistoryPageState extends State<HistoryPage> {
                     style: Theme.of(context).textTheme.displayLarge,
                   ),
                   const SizedBox(height: 20),
-                  _buildDateTypeSelection(context),
+                  _buildDateTypeSelection(context, state),
                   const SizedBox(height: 10),
                   _buildDatesList(state),
                   const SizedBox(height: 20),
                   Wrap(
                     spacing: 10,
                     children: [
-                      ..._selectedTrainingTypes.keys.map(
+                      ...state.selectedTrainingTypes.keys.map(
                         (e) => FilterChip(
                           side: BorderSide(
-                              color: _selectedTrainingTypes[e]!
+                              color: state.selectedTrainingTypes[e]!
                                   ? AppColors.white
                                   : AppColors.timberwolf),
                           label: Text(
                             e.translate(context.locale.languageCode),
                           ),
                           labelStyle: TextStyle(
-                            color: _selectedTrainingTypes[e]!
+                            color: state.selectedTrainingTypes[e]!
                                 ? AppColors.white
                                 : AppColors.licorice,
                           ),
@@ -189,10 +77,12 @@ class _HistoryPageState extends State<HistoryPage> {
                           selectedColor: AppColors.licorice,
                           checkmarkColor: AppColors.white,
                           backgroundColor: AppColors.white,
-                          selected: _selectedTrainingTypes[e]!,
+                          selected: state.selectedTrainingTypes[e]!,
                           onSelected: (bool value) {
                             setState(() {
-                              _selectedTrainingTypes[e] = value;
+                              context
+                                  .read<TrainingHistoryBloc>()
+                                  .add(SelectTrainingTypeEvent(e, value));
                             });
                           },
                         ),
@@ -200,10 +90,9 @@ class _HistoryPageState extends State<HistoryPage> {
                     ],
                   ),
                   if (historyEntries.isNotEmpty)
-                    _buildEntriesList()
+                    _buildEntriesList(state)
                   else
-                    SizedBox(
-                      height: MediaQuery.of(context).size.height - 250,
+                    Expanded(
                       child:
                           Center(child: Text(tr('history_page_no_training'))),
                     ),
@@ -215,7 +104,8 @@ class _HistoryPageState extends State<HistoryPage> {
     );
   }
 
-  ToggleSwitch _buildDateTypeSelection(BuildContext context) {
+  ToggleSwitch _buildDateTypeSelection(
+      BuildContext context, TrainingHistoryLoaded state) {
     return ToggleSwitch(
       minWidth: (MediaQuery.of(context).size.width - 40) / 2,
       inactiveBgColor: AppColors.whiteSmoke,
@@ -226,15 +116,14 @@ class _HistoryPageState extends State<HistoryPage> {
       borderWidth: 1,
       cornerRadius: 10,
       radiusStyle: true,
-      initialLabelIndex: _isWeekSelected ? 0 : 1,
+      initialLabelIndex: state.isWeekSelected ? 0 : 1,
       totalSwitches: 2,
       labels: [tr('global_week'), tr('global_month')],
       onToggle: (index) {
-        setState(() {
-          _isWeekSelected = index == 0 ? true : false;
-          context.read<TrainingHistoryBloc>().add(SetDefaultHistoryDateEvent());
-          _scrollToMostRecentDate();
-        });
+        context
+            .read<TrainingHistoryBloc>()
+            .add(SetDefaultHistoryDateEvent(index == 0 ? true : false));
+        scrollToMostRecentDate(_scrollController);
       },
     );
   }
@@ -245,13 +134,17 @@ class _HistoryPageState extends State<HistoryPage> {
       child: ListView.builder(
         controller: _scrollController,
         scrollDirection: Axis.horizontal,
-        itemCount: _isWeekSelected ? _weeksList.length : _monthsList.length,
+        itemCount: state.isWeekSelected
+            ? state.weeksList.length
+            : state.monthsList.length,
         itemBuilder: (context, index) {
-          final date = _isWeekSelected ? _weeksList[index] : _monthsList[index];
+          final date = state.isWeekSelected
+              ? state.weeksList[index]
+              : state.monthsList[index];
 
-          final label = _formatDateLabel(context, date, _isWeekSelected);
+          final label = formatDateLabel(context, date, state.isWeekSelected);
 
-          final isSelected = _isWeekSelected
+          final isSelected = state.isWeekSelected
               ? date.year == state.startDate.year &&
                   date.month == state.startDate.month &&
                   date.day == state.startDate.day
@@ -261,9 +154,9 @@ class _HistoryPageState extends State<HistoryPage> {
             padding: const EdgeInsets.symmetric(horizontal: 4.0),
             child: GestureDetector(
               onTap: () {
-                context.read<TrainingHistoryBloc>().add(
-                    SetNewDateHistoryDateEvent(
-                        startDate: date, isWeekSelected: _isWeekSelected));
+                context
+                    .read<TrainingHistoryBloc>()
+                    .add(SetNewDateHistoryDateEvent(startDate: date));
               },
               child: Container(
                 alignment: Alignment.center,
@@ -290,14 +183,14 @@ class _HistoryPageState extends State<HistoryPage> {
     );
   }
 
-  ListView _buildEntriesList() {
+  ListView _buildEntriesList(TrainingHistoryLoaded state) {
     final hasSelectedTypes =
-        _selectedTrainingTypes.values.any((isSelected) => isSelected);
+        state.selectedTrainingTypes.values.any((isSelected) => isSelected);
 
     final displayedEntries = hasSelectedTypes
         ? _historyTrainings!
-            .where(
-                (entry) => _selectedTrainingTypes[entry.trainingType] ?? false)
+            .where((entry) =>
+                state.selectedTrainingTypes[entry.trainingType] ?? false)
             .toList()
         : _historyTrainings!;
 

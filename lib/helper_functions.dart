@@ -1,5 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/widgets.dart';
 
 import 'features/exercise_management/presentation/bloc/exercise_management_bloc.dart';
 import 'features/training_management/domain/entities/training_exercise.dart';
@@ -107,4 +108,24 @@ String? findExerciseName(TrainingExercise? tExercise) {
         'Deleted exercise';
   }
   return exerciseName;
+}
+
+String formatDateLabel(
+    BuildContext context, DateTime date, bool isWeekSelected) {
+  final currentLocale = context.locale;
+  final label =
+      DateFormat(isWeekSelected ? 'MMM d' : 'MMM', currentLocale.toString())
+          .format(date);
+  return capitalizeFirstLetter(label);
+}
+
+String capitalizeFirstLetter(String input) {
+  if (input.isEmpty) return input;
+  return input[0].toUpperCase() + input.substring(1);
+}
+
+void scrollToMostRecentDate(ScrollController scrollController) {
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    scrollController.jumpTo(scrollController.position.maxScrollExtent);
+  });
 }

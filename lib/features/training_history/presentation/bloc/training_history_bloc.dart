@@ -3,6 +3,7 @@ import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:equatable/equatable.dart';
 import 'package:my_fitness_tracker/features/training_history/domain/entities/history_training.dart';
+import '../../../training_management/domain/entities/training.dart';
 import '../../domain/entities/history_entry.dart';
 import '../../../../core/error/failures.dart';
 import '../../../../core/messages/bloc/message_bloc.dart';
@@ -65,7 +66,7 @@ class TrainingHistoryBloc
               endDate: endDate,
             ));
           } else {
-            emit(TrainingHistoryLoaded(
+            emit(TrainingHistoryLoaded.withDefaultLists(
               historyEntries: historyEntries,
               historyTrainings: const [],
               startDate: startDate,
@@ -204,7 +205,7 @@ class TrainingHistoryBloc
       if (state is TrainingHistoryLoaded) {
         final currentState = state as TrainingHistoryLoaded;
 
-        final endDate = event.isWeekSelected
+        final endDate = currentState.isWeekSelected
             ? event.startDate
                 .add(const Duration(days: 7))
                 .subtract(const Duration(seconds: 1))
@@ -219,7 +220,7 @@ class TrainingHistoryBloc
               message: _mapFailureToMessage(failure), isError: true)),
           (historyEntries) {
             currentState.copyWith(historyEntries: historyEntries);
-            emit(TrainingHistoryLoaded(
+            emit(currentState.copyWith(
               historyEntries: historyEntries,
               historyTrainings: const [],
               startDate: event.startDate,
@@ -229,6 +230,18 @@ class TrainingHistoryBloc
         );
 
         add(FetchHistoryTrainingsEvent());
+      }
+    });
+
+    on<SelectTrainingTypeEvent>((event, emit) async {
+      if (state is TrainingHistoryLoaded) {
+        final currentState = state as TrainingHistoryLoaded;
+
+        final selectedTrainingTypes = currentState.selectedTrainingTypes;
+        selectedTrainingTypes[event.trainingType] = event.isSelected;
+
+        emit(currentState.copyWith(
+            selectedTrainingTypes: selectedTrainingTypes));
       }
     });
 
@@ -253,11 +266,12 @@ class TrainingHistoryBloc
               message: _mapFailureToMessage(failure), isError: true)),
           (historyEntries) {
             currentState.copyWith(historyEntries: historyEntries);
-            emit(TrainingHistoryLoaded(
+            emit(currentState.copyWith(
               historyEntries: historyEntries,
               historyTrainings: const [],
               startDate: startDate,
               endDate: endDate,
+              isWeekSelected: event.isWeekSelected,
             ));
           },
         );

@@ -166,5 +166,7 @@
   "history_page_pace": "Pace",
   "history_page_trace": "Trace",
   "history_page_drop": "Drop",
-  "history_page_interval": "Interval"
+  "history_page_interval": "Interval",
+
+  "stats_page_title": "Stats"
 }
