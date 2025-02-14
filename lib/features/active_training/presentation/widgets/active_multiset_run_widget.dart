@@ -281,28 +281,33 @@ class DistanceOrDurationRun extends StatelessWidget {
             tExerciseId: tExercise.id!,
             setNumber: 0,
             multisetSetNumber: setIndex,
+            multisetId: multiset.id,
+            exerciseId: null,
           ),
         ));
 
     context.read<ActiveTrainingBloc>().add(CreateTimer(
           timerState: TimerState(
-              timerId: restTimerId,
-              isActive: false,
-              isStarted: false,
-              isRunTimer: false,
-              timerValue: 0,
-              countDownValue: isLastMultisetExercise
-                  ? isLastSet
-                      ? multiset.multisetRest ?? 0
-                      : multiset.setRest ?? 0
-                  : tExercise.exerciseRest ?? 0,
-              isCountDown: true,
-              isAutostart: true,
-              exerciseGlobalKey: exerciseGlobalKey,
-              trainingId: tExercise.trainingId!,
-              tExerciseId: tExercise.id!,
-              setNumber: 0,
-              multisetSetNumber: null),
+            timerId: restTimerId,
+            isActive: false,
+            isStarted: false,
+            isRunTimer: false,
+            timerValue: 0,
+            countDownValue: isLastMultisetExercise
+                ? isLastSet
+                    ? multiset.multisetRest ?? 0
+                    : multiset.setRest ?? 0
+                : tExercise.exerciseRest ?? 0,
+            isCountDown: true,
+            isAutostart: true,
+            exerciseGlobalKey: exerciseGlobalKey,
+            trainingId: tExercise.trainingId!,
+            tExerciseId: tExercise.id!,
+            setNumber: 0,
+            multisetSetNumber: null,
+            multisetId: multiset.id,
+            exerciseId: null,
+          ),
         ));
 
     return BlocBuilder<ActiveTrainingBloc, ActiveTrainingState>(
@@ -530,6 +535,8 @@ class IntervalRun extends StatelessWidget {
           tExerciseId: tExercise.id!,
           setNumber: intervalIndex,
           multisetSetNumber: setIndex,
+          multisetId: multiset.id,
+          exerciseId: null,
         )));
 
     context.read<ActiveTrainingBloc>().add(CreateTimer(
@@ -553,6 +560,8 @@ class IntervalRun extends StatelessWidget {
           tExerciseId: tExercise.id!,
           setNumber: intervalIndex,
           multisetSetNumber: null,
+          multisetId: multiset.id,
+          exerciseId: null,
         )));
 
     return BlocBuilder<ActiveTrainingBloc, ActiveTrainingState>(

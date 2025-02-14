@@ -360,8 +360,10 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage>
                           trainingNameAtTime:
                               trainingManagementState.activeTraining!.name,
                           exerciseNameAtTime:
-                              findExerciseName(matchingTExercise),
+                              findExerciseName(matchingTExercise)!,
                           intensity: matchingTExercise.intensity,
+                          exerciseId: currentTimerState.exerciseId,
+                          multisetId: currentTimerState.multisetId,
                         ),
                       ),
                     );

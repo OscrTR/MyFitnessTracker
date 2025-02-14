@@ -470,6 +470,8 @@ class _ActiveExerciseRowState extends State<ActiveExerciseRow> {
               tExerciseId: widget.tExercise.id!,
               setNumber: widget.setIndex,
               multisetSetNumber: null,
+              multisetId: widget.multiset.id,
+              exerciseId: widget.tExercise.exerciseId,
             ),
           ),
         );
@@ -532,8 +534,10 @@ class _ActiveExerciseRowState extends State<ActiveExerciseRow> {
                           trainingType: training.type,
                           trainingNameAtTime: training.name,
                           exerciseNameAtTime:
-                              findExerciseName(widget.tExercise),
+                              findExerciseName(widget.tExercise)!,
                           intensity: widget.tExercise.intensity,
+                          multisetId: widget.multiset.id,
+                          exerciseId: widget.tExercise.exerciseId,
                         ),
                       ),
                     );
@@ -610,6 +614,8 @@ class ActiveExerciseDurationRow extends StatelessWidget {
             tExerciseId: tExercise.id!,
             setNumber: setIndex,
             multisetSetNumber: setIndex,
+            multisetId: multiset.id,
+            exerciseId: tExercise.exerciseId,
           ),
         ));
 
@@ -632,6 +638,8 @@ class ActiveExerciseDurationRow extends StatelessWidget {
             tExerciseId: tExercise.id!,
             setNumber: setIndex,
             multisetSetNumber: null,
+            multisetId: multiset.id,
+            exerciseId: tExercise.exerciseId,
           ),
         ));
 

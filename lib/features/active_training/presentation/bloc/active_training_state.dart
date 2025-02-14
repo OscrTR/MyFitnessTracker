@@ -56,6 +56,8 @@ class TimerState extends Equatable {
   final int tExerciseId;
   final int setNumber;
   final int? multisetSetNumber;
+  final int? multisetId;
+  final int? exerciseId;
 
   const TimerState({
     required this.timerId,
@@ -70,6 +72,8 @@ class TimerState extends Equatable {
     required this.tExerciseId,
     required this.setNumber,
     required this.multisetSetNumber,
+    required this.multisetId,
+    required this.exerciseId,
     this.countDownValue = 0,
     this.targetDistance = 0,
     this.targetDuration = 0,
@@ -107,6 +111,8 @@ class TimerState extends Equatable {
       tExerciseId: tExerciseId,
       setNumber: setNumber,
       multisetSetNumber: multisetSetNumber,
+      multisetId: multisetId,
+      exerciseId: exerciseId,
     );
   }
 
@@ -131,5 +137,7 @@ class TimerState extends Equatable {
         tExerciseId,
         setNumber,
         multisetSetNumber,
+        multisetId,
+        exerciseId,
       ];
 }

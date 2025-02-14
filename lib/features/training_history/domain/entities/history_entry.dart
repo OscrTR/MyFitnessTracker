@@ -20,6 +20,8 @@ class HistoryEntry extends Equatable {
   final String trainingNameAtTime;
   final String exerciseNameAtTime;
   final int intensity;
+  final int? exerciseId;
+  final int? multisetId;
 
   const HistoryEntry({
     this.id,
@@ -39,6 +41,8 @@ class HistoryEntry extends Equatable {
     required this.trainingNameAtTime,
     required this.exerciseNameAtTime,
     required this.intensity,
+    required this.exerciseId,
+    required this.multisetId,
   });
 
   HistoryEntry copyWith({
@@ -70,6 +74,8 @@ class HistoryEntry extends Equatable {
       trainingNameAtTime: trainingNameAtTime ?? this.trainingNameAtTime,
       exerciseNameAtTime: exerciseNameAtTime ?? this.exerciseNameAtTime,
       intensity: intensity ?? this.intensity,
+      exerciseId: exerciseId,
+      multisetId: multisetId,
     );
   }
 
@@ -93,6 +99,8 @@ class HistoryEntry extends Equatable {
       trainingNameAtTime,
       exerciseNameAtTime,
       intensity,
+      exerciseId,
+      multisetId,
     ];
   }
 }

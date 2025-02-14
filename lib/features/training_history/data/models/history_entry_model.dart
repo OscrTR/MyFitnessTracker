@@ -22,6 +22,8 @@ class HistoryEntryModel extends HistoryEntry {
     required super.trainingNameAtTime,
     required super.exerciseNameAtTime,
     required super.intensity,
+    required super.exerciseId,
+    required super.multisetId,
   });
 
   factory HistoryEntryModel.fromJson(Map<String, dynamic> json) {
@@ -44,7 +46,9 @@ class HistoryEntryModel extends HistoryEntry {
       calories: json['calories'],
       trainingNameAtTime: json['training_name_at_time'] as String,
       exerciseNameAtTime: json['exercise_name_at_time'] as String,
-      intensity: json['intensity'] as int,
+      intensity: json['intensity'],
+      exerciseId: json['exercise_id'],
+      multisetId: json['multiset_id'],
     );
   }
 
@@ -67,6 +71,8 @@ class HistoryEntryModel extends HistoryEntry {
       'training_name_at_time': trainingNameAtTime,
       'exercise_name_at_time': exerciseNameAtTime,
       'intensity': intensity,
+      'exercise_id': exerciseId,
+      'multiset_id': multisetId,
     };
   }
 }

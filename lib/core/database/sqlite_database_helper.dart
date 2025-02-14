@@ -88,8 +88,10 @@ class SQLiteDatabaseHelper {
             training_id INTEGER,
             training_name_at_time TEXT,
             training_type TEXT,
+            multiset_id INTEGER,
             training_exercise_id INTEGER,
             training_exercise_type TEXT,
+            exercise_id INTEGER,
             exercise_name_at_time TEXT,
             set_number INTEGER,
             multiset_set_number INTEGER,
@@ -110,6 +112,7 @@ class SQLiteDatabaseHelper {
           CREATE TABLE run_locations (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             training_id INTEGER,
+            multiset_id INTEGER,
             training_exercise_id INTEGER,
             set_number INTEGER,
             multiset_set_number INTEGER,

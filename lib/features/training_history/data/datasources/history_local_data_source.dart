@@ -72,6 +72,8 @@ class SQLiteHistoryLocalDataSource implements HistoryLocalDataSource {
         trainingNameAtTime: historyEntryToCreate.trainingNameAtTime,
         exerciseNameAtTime: historyEntryToCreate.exerciseNameAtTime,
         intensity: historyEntryToCreate.intensity,
+        exerciseId: historyEntryToCreate.exerciseId,
+        multisetId: historyEntryToCreate.multisetId,
       );
 
       final values = model.toJson();
@@ -96,6 +98,8 @@ class SQLiteHistoryLocalDataSource implements HistoryLocalDataSource {
         trainingNameAtTime: historyEntryToCreate.trainingNameAtTime,
         exerciseNameAtTime: historyEntryToCreate.exerciseNameAtTime,
         intensity: historyEntryToCreate.intensity,
+        exerciseId: historyEntryToCreate.exerciseId,
+        multisetId: historyEntryToCreate.multisetId,
       );
     } catch (e) {
       throw LocalDatabaseException(e.toString());
@@ -187,6 +191,8 @@ class SQLiteHistoryLocalDataSource implements HistoryLocalDataSource {
         trainingNameAtTime: historyEntryToUpdate.trainingNameAtTime,
         exerciseNameAtTime: historyEntryToUpdate.exerciseNameAtTime,
         intensity: historyEntryToUpdate.intensity,
+        exerciseId: historyEntryToUpdate.exerciseId,
+        multisetId: historyEntryToUpdate.multisetId,
       );
       await database.update(
         'history',

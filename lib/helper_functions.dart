@@ -65,7 +65,10 @@ class _IntensityData {
   });
 }
 
-String findExerciseName(TrainingExercise tExercise) {
+String? findExerciseName(TrainingExercise? tExercise) {
+  if (tExercise == null) {
+    return null;
+  }
   String exerciseName = '';
   if (tExercise.trainingExerciseType == TrainingExerciseType.run) {
     final targetPace = tExercise.isTargetPaceSelected == true

@@ -104,8 +104,10 @@ class ActiveTrainingBloc
               trainingType: trainingManagementState.activeTraining!.type,
               trainingExerciseType: matchingTExercise.trainingExerciseType,
               trainingNameAtTime: trainingManagementState.activeTraining!.name,
-              exerciseNameAtTime: findExerciseName(matchingTExercise),
+              exerciseNameAtTime: findExerciseName(matchingTExercise)!,
               intensity: matchingTExercise.intensity,
+              exerciseId: currentTimerState.exerciseId,
+              multisetId: currentTimerState.multisetId,
             ),
           ),
         );
@@ -329,6 +331,7 @@ class ActiveTrainingBloc
               'run_locations',
               {
                 'training_id': timerState.trainingId,
+                'multiset_id': timerState.multisetId,
                 'training_exercise_id': timerState.tExerciseId,
                 'set_number': timerState.setNumber,
                 'multiset_set_number': timerState.multisetSetNumber,

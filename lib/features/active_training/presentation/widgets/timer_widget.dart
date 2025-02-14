@@ -46,6 +46,8 @@ class TimerWidgetState extends State<TimerWidget> {
           tExerciseId: -1,
           setNumber: -1,
           multisetSetNumber: null,
+          multisetId: null,
+          exerciseId: null,
         )));
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context

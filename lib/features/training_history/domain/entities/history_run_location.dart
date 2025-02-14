@@ -3,6 +3,7 @@ import 'package:equatable/equatable.dart';
 class RunLocation extends Equatable {
   final int? id;
   final int trainingId;
+  final int? multisetId;
   final int trainingExerciseId;
   final int setNumber;
   final int? multisetSetNumber;
@@ -16,6 +17,7 @@ class RunLocation extends Equatable {
   const RunLocation({
     this.id,
     required this.trainingId,
+    required this.multisetId,
     required this.trainingExerciseId,
     required this.setNumber,
     required this.multisetSetNumber,
@@ -40,6 +42,7 @@ class RunLocation extends Equatable {
       timestamp: map['timestamp'] as int,
       accuracy: map['accuracy'] as double,
       speed: map['speed'] as double,
+      multisetId: map['multiset_id'] as int?,
     );
   }
 
@@ -47,6 +50,7 @@ class RunLocation extends Equatable {
     return {
       'id': id,
       'training_id': trainingId,
+      'multiset_id': multisetId,
       'training_exercise_id': trainingExerciseId,
       'set_number': setNumber,
       'multiset_set_number': multisetSetNumber,
@@ -63,6 +67,7 @@ class RunLocation extends Equatable {
   List<Object?> get props => [
         id,
         trainingId,
+        multisetId,
         trainingExerciseId,
         setNumber,
         multisetSetNumber,
