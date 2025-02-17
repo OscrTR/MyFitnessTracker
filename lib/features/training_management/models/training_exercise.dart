@@ -6,11 +6,11 @@ class TrainingExercise {
   @Id()
   int id = 0;
 
-  int? trainingId; // Id du [Training] associé
+  int? linkedTrainingId; // Id du [Training] associé
 
-  int? multisetId; // Id du [Multiset] associé (optionnel)
+  int? linkedMultisetId; // Id du [Multiset] associé (optionnel)
 
-  int? exerciseId; // Id du [Exercise] associé (optionnel)
+  int? linkedExerciseId; // Id du [Exercise] associé (optionnel)
 
   final exercise = ToOne<Exercise>();
 
@@ -79,9 +79,9 @@ class TrainingExercise {
 
   TrainingExercise.create({
     this.id = 0,
-    required this.trainingId,
-    required this.multisetId,
-    required this.exerciseId,
+    required this.linkedTrainingId,
+    required this.linkedMultisetId,
+    required this.linkedExerciseId,
     required this.type,
     this.specialInstructions,
     this.objectives,
@@ -115,9 +115,9 @@ class TrainingExercise {
 
   TrainingExercise copyWith({
     int? id,
-    int? trainingId,
-    int? multisetId,
-    int? exerciseId,
+    int? linkedTrainingId,
+    int? linkedMultisetId,
+    int? linkedExerciseId,
     TrainingExerciseType? type,
     String? specialInstructions,
     String? objectives,
@@ -141,9 +141,9 @@ class TrainingExercise {
   }) {
     return TrainingExercise.create(
       id: id ?? this.id,
-      trainingId: trainingId ?? this.trainingId,
-      multisetId: multisetId ?? this.multisetId,
-      exerciseId: exerciseId ?? this.exerciseId,
+      linkedTrainingId: linkedTrainingId ?? this.linkedTrainingId,
+      linkedMultisetId: linkedMultisetId ?? this.linkedMultisetId,
+      linkedExerciseId: linkedExerciseId ?? this.linkedExerciseId,
       type: type ?? this.type,
       specialInstructions: specialInstructions ?? this.specialInstructions,
       objectives: objectives ?? this.objectives,
@@ -163,7 +163,7 @@ class TrainingExercise {
       position: position ?? this.position,
       intensity: intensity ?? this.intensity,
       key: key ?? this.key,
-      exercise: exercise ?? this.exercise.target,
+      exercise: exercise?.copyWith() ?? this.exercise.target?.copyWith(),
     );
   }
 }

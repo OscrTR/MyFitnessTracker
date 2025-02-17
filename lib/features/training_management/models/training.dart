@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:objectbox/objectbox.dart';
+import '../../training_history/data/models/training_version.dart';
 import 'multiset.dart';
 import 'training_exercise.dart';
 
@@ -49,6 +50,9 @@ class Training {
     trainingDays = WeekDayHelper.jsonToEnumList(value);
   }
 
+  // Relation One-To-Many pour stocker les versions précédentes
+  final trainingVersions = ToMany<TrainingVersion>();
+
   // Default constructor (used by ObjectBox)
   Training(this.name);
 
@@ -89,9 +93,11 @@ class Training {
       ..type = type ?? this.type
       ..objectives = objectives ?? this.objectives
       ..trainingExercises.clear()
-      ..trainingExercises.addAll(trainingExercises ?? this.trainingExercises)
+      ..trainingExercises.addAll(trainingExercises?.map((e) => e.copyWith()) ??
+          this.trainingExercises.map((e) => e.copyWith()))
       ..multisets.clear()
-      ..multisets.addAll(multisets ?? this.multisets)
+      ..multisets.addAll(multisets?.map((e) => e.copyWith()) ??
+          this.multisets.map((e) => e.copyWith()))
       ..trainingDays = trainingDays ?? this.trainingDays;
   }
 }

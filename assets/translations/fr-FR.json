@@ -35,15 +35,15 @@
 
   "message_unexpected_error": "Erreur inattendue.",
   "message_database_failure": "Echec de la abse de données.",
-  "message_exercise_creation_success": "Exercice {} créé avec succès.",
-  "message_exercise_update_success": "Exercice {} mis à jour avec succès.",
-  "message_exercise_deletion_success": "Exercice {} supprimé avec succès.",
+  "message_exercise_creation_success": "Exercice créé avec succès.",
+  "message_exercise_update_success": "Exercice mis à jour avec succès.",
+  "message_exercise_deletion_success": "Exercice supprimé avec succès.",
   "message_training_creation_success": "Entraînement créé avec succès.",
   "message_training_update_success": "Entraînement mis à jour avec succès.",
   "message_training_deletion_success": "Entraînement supprimé avec succès.",
   "message_name_error": "Nom invalide.",
-  "message_exercise_not_found": "Exercice avec la clé {} non trouvé.",
-  "message_multiset_not_found": "Multiset avec la clé {} non trouvé.",
+  "message_exercise_not_found": "Exercice non trouvé.",
+  "message_multiset_not_found": "Multiset non trouvé.",
 
   "error_state": "Erreur d'état",
 

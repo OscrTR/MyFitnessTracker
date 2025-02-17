@@ -188,132 +188,138 @@ class _TrainingsPageState extends State<TrainingsPage> {
     });
   }
 
-  ListView _buildTrainingsList(Iterable<Training> displayedTrainings) {
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: displayedTrainings.length,
-      itemBuilder: (context, index) {
-        final training = displayedTrainings.elementAt(index);
-        final exercisesAndMultisetsList = [
-          ...training.trainingExercises
-              .map((e) => {'type': 'exercise', 'data': e}),
-          ...training.multisets.map((m) => {'type': 'multiset', 'data': m}),
-        ];
-        exercisesAndMultisetsList.sort((a, b) {
-          final aPosition = (a['data'] as dynamic).position ?? 0;
-          final bPosition = (b['data'] as dynamic).position ?? 0;
-          return aPosition.compareTo(bPosition);
-        });
+  Widget _buildTrainingsList(Iterable<Training> displayedTrainings) {
+    return BlocBuilder<TrainingManagementBloc, TrainingManagementState>(
+        builder: (context, state) {
+      if (state is TrainingManagementLoaded) {
+        return ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: displayedTrainings.length,
+          itemBuilder: (context, index) {
+            final training = displayedTrainings.elementAt(index);
+            final exercisesAndMultisetsList = [
+              ...training.trainingExercises
+                  .map((e) => {'type': 'exercise', 'data': e}),
+              ...training.multisets.map((m) => {'type': 'multiset', 'data': m}),
+            ];
+            exercisesAndMultisetsList.sort((a, b) {
+              final aPosition = (a['data'] as dynamic).position ?? 0;
+              final bPosition = (b['data'] as dynamic).position ?? 0;
+              return aPosition.compareTo(bPosition);
+            });
 
-        final daysSinceTraining =
-            (sl<TrainingManagementBloc>().state as TrainingManagementLoaded)
-                .daysSinceLastTraining[training.id];
+            final daysSinceTraining =
+                (sl<TrainingManagementBloc>().state as TrainingManagementLoaded)
+                    .daysSinceLastTraining[training.id];
 
-        return Container(
-          margin: const EdgeInsets.only(top: 20),
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-              border: Border.all(color: AppColors.timberwolf),
-              borderRadius: BorderRadius.circular(10)),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildTrainingItemHeader(training, context),
-              const SizedBox(height: 10),
-              Row(children: [
-                const Icon(
-                  LucideIcons.timer,
-                  color: AppColors.licorice,
-                  size: 16,
-                ),
-                const SizedBox(width: 5),
-                Text(formatDurationToHoursMinutesSeconds(
-                    calculateTrainingDuration(training)))
-              ]),
-              Row(children: [
-                const Icon(
-                  LucideIcons.target,
-                  color: AppColors.licorice,
-                  size: 16,
-                ),
-                const SizedBox(width: 5),
-                Text(tr('training_page_exercises_count',
-                    args: ['${exercisesAndMultisetsList.length}']))
-              ]),
-              Row(children: [
-                const Icon(
-                  LucideIcons.calendar,
-                  color: AppColors.licorice,
-                  size: 16,
-                ),
-                const SizedBox(width: 5),
-                if (daysSinceTraining != null)
-                  Text(tr('training_page_days_since_training',
-                      args: ['$daysSinceTraining']))
-                else
-                  Text(tr('global_never'))
-              ]),
-              const SizedBox(height: 10),
-              GestureDetector(
-                onTap: () {
-                  context
-                      .read<TrainingManagementBloc>()
-                      .add(GetTrainingEvent(id: training.id));
-                  GoRouter.of(context).push('/training_detail');
-                },
-                child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(vertical: 7),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: AppColors.timberwolf),
-                    borderRadius: BorderRadius.circular(5),
-                  ),
-                  child: Center(
-                      child: Text(
-                    tr('training_page_see_details'),
-                    style: const TextStyle(color: AppColors.taupeGray),
-                  )),
-                ),
-              ),
-              const SizedBox(height: 10),
-              GestureDetector(
-                onTap: () {
-                  context
-                      .read<TrainingManagementBloc>()
-                      .add(StartTrainingEvent(training.id));
-                  GoRouter.of(context).push('/active_training');
-                },
-                child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(vertical: 7),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(5),
-                    color: AppColors.licorice,
-                  ),
-                  child: Center(
-                      child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(
-                        Icons.play_arrow_rounded,
-                        color: AppColors.white,
-                        size: 16,
+            return Container(
+              margin: const EdgeInsets.only(top: 20),
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                  border: Border.all(color: AppColors.timberwolf),
+                  borderRadius: BorderRadius.circular(10)),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildTrainingItemHeader(training, context),
+                  const SizedBox(height: 10),
+                  Row(children: [
+                    const Icon(
+                      LucideIcons.timer,
+                      color: AppColors.licorice,
+                      size: 16,
+                    ),
+                    const SizedBox(width: 5),
+                    Text(formatDurationToHoursMinutesSeconds(
+                        calculateTrainingDuration(training)))
+                  ]),
+                  Row(children: [
+                    const Icon(
+                      LucideIcons.target,
+                      color: AppColors.licorice,
+                      size: 16,
+                    ),
+                    const SizedBox(width: 5),
+                    Text(tr('training_page_exercises_count',
+                        args: ['${exercisesAndMultisetsList.length}']))
+                  ]),
+                  Row(children: [
+                    const Icon(
+                      LucideIcons.calendar,
+                      color: AppColors.licorice,
+                      size: 16,
+                    ),
+                    const SizedBox(width: 5),
+                    if (daysSinceTraining != null)
+                      Text(tr('training_page_days_since_training',
+                          args: ['$daysSinceTraining']))
+                    else
+                      Text(tr('global_never'))
+                  ]),
+                  const SizedBox(height: 10),
+                  GestureDetector(
+                    onTap: () {
+                      context
+                          .read<TrainingManagementBloc>()
+                          .add(GetTrainingEvent(id: training.id));
+                      GoRouter.of(context).push('/training_detail');
+                    },
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(vertical: 7),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: AppColors.timberwolf),
+                        borderRadius: BorderRadius.circular(5),
                       ),
-                      const SizedBox(width: 5),
-                      Text(
-                        tr('global_start'),
-                        style: const TextStyle(color: AppColors.white),
+                      child: Center(
+                          child: Text(
+                        tr('training_page_see_details'),
+                        style: const TextStyle(color: AppColors.taupeGray),
+                      )),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  GestureDetector(
+                    onTap: () {
+                      context
+                          .read<TrainingManagementBloc>()
+                          .add(StartTrainingEvent(training.id));
+                      GoRouter.of(context).push('/active_training');
+                    },
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(vertical: 7),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(5),
+                        color: AppColors.licorice,
                       ),
-                    ],
-                  )),
-                ),
+                      child: Center(
+                          child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons.play_arrow_rounded,
+                            color: AppColors.white,
+                            size: 16,
+                          ),
+                          const SizedBox(width: 5),
+                          Text(
+                            tr('global_start'),
+                            style: const TextStyle(color: AppColors.white),
+                          ),
+                        ],
+                      )),
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            );
+          },
         );
-      },
-    );
+      }
+      return const SizedBox();
+    });
   }
 
   Wrap _buildFilters(BuildContext context) {
@@ -375,8 +381,8 @@ class _TrainingsPageState extends State<TrainingsPage> {
           onSelected: (bool value) {
             setState(() {
               _isExercisesSelected = value;
-              _selectedTrainingTypes = Map.fromEntries(
-                  TrainingType.values.map((type) => MapEntry(type, false)));
+              _selectedTrainingTypes =
+                  createMapWithDefaultValues(TrainingType.values);
             });
           },
         )

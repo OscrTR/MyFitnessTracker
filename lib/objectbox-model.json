@@ -5,7 +5,7 @@
   "entities": [
     {
       "id": "1:7837023745425483267",
-      "lastPropertyId": "10:7592199348303741118",
+      "lastPropertyId": "11:7425754225602225605",
       "name": "Multiset",
       "properties": [
         {
@@ -50,8 +50,8 @@
           "type": 9
         },
         {
-          "id": "10:7592199348303741118",
-          "name": "trainingId",
+          "id": "11:7425754225602225605",
+          "name": "linkedTrainingId",
           "type": 6
         }
       ],
@@ -105,12 +105,17 @@
           "id": "3:3289185353329412385",
           "name": "multisets",
           "targetId": "1:7837023745425483267"
+        },
+        {
+          "id": "4:2557248783965981805",
+          "name": "trainingVersions",
+          "targetId": "5:790968269672532113"
         }
       ]
     },
     {
       "id": "3:4756948127312470496",
-      "lastPropertyId": "25:4041142347862379862",
+      "lastPropertyId": "28:6290711620444277774",
       "name": "TrainingExercise",
       "properties": [
         {
@@ -124,7 +129,7 @@
           "name": "exerciseId",
           "type": 11,
           "flags": 520,
-          "indexId": "3:1984868986684376430",
+          "indexId": "9:553719026357103129",
           "relationTarget": "Exercise"
         },
         {
@@ -223,13 +228,18 @@
           "type": 6
         },
         {
-          "id": "24:1581587549710862424",
-          "name": "trainingId",
+          "id": "26:8546346913216974507",
+          "name": "linkedExerciseId",
           "type": 6
         },
         {
-          "id": "25:4041142347862379862",
-          "name": "multisetId",
+          "id": "27:505361365510310397",
+          "name": "linkedTrainingId",
+          "type": 6
+        },
+        {
+          "id": "28:6290711620444277774",
+          "name": "linkedMultisetId",
           "type": 6
         }
       ],
@@ -273,25 +283,86 @@
         }
       ],
       "relations": []
+    },
+    {
+      "id": "5:790968269672532113",
+      "lastPropertyId": "6:6819686565950909175",
+      "name": "TrainingVersion",
+      "properties": [
+        {
+          "id": "1:2848876468079718365",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:2732075275205302973",
+          "name": "trainingId",
+          "type": 11,
+          "flags": 520,
+          "indexId": "5:9020215719984396004",
+          "relationTarget": "Training"
+        },
+        {
+          "id": "3:5572835714115388081",
+          "name": "name",
+          "type": 9
+        },
+        {
+          "id": "4:8588810811449880299",
+          "name": "dbType",
+          "type": 6
+        },
+        {
+          "id": "5:2015978338742949354",
+          "name": "objectives",
+          "type": 9
+        },
+        {
+          "id": "6:6819686565950909175",
+          "name": "dbTrainingDays",
+          "type": 9
+        }
+      ],
+      "relations": [
+        {
+          "id": "5:2220873685979633358",
+          "name": "trainingExercises",
+          "targetId": "3:4756948127312470496"
+        },
+        {
+          "id": "6:525592784003240916",
+          "name": "multisets",
+          "targetId": "1:7837023745425483267"
+        }
+      ]
     }
   ],
-  "lastEntityId": "4:1371781158635934480",
-  "lastIndexId": "3:1984868986684376430",
-  "lastRelationId": "3:3289185353329412385",
+  "lastEntityId": "5:790968269672532113",
+  "lastIndexId": "9:553719026357103129",
+  "lastRelationId": "6:525592784003240916",
   "lastSequenceId": "0:0",
   "modelVersion": 5,
   "modelVersionParserMinimum": 5,
   "retiredEntityUids": [],
   "retiredIndexUids": [
     1997644619502088310,
-    262618515223658650
+    262618515223658650,
+    1984868986684376430,
+    9077253555612493925,
+    5680325267104003293,
+    3749658864148140912,
+    746187908374442006
   ],
   "retiredPropertyUids": [
     7117997750659844272,
     7208038991482613170,
     8957684371679850546,
     2995742759851243026,
-    5528278541389928687
+    5528278541389928687,
+    7592199348303741118,
+    1581587549710862424,
+    4041142347862379862
   ],
   "retiredRelationUids": [],
   "version": 1

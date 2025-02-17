@@ -15,6 +15,7 @@ import 'package:objectbox/objectbox.dart' as obx;
 import 'package:objectbox_flutter_libs/objectbox_flutter_libs.dart';
 
 import 'features/exercise_management/models/exercise.dart';
+import 'features/training_history/data/models/training_version.dart';
 import 'features/training_management/models/multiset.dart';
 import 'features/training_management/models/training.dart';
 import 'features/training_management/models/training_exercise.dart';
@@ -25,7 +26,7 @@ final _entities = <obx_int.ModelEntity>[
   obx_int.ModelEntity(
       id: const obx_int.IdUid(1, 7837023745425483267),
       name: 'Multiset',
-      lastPropertyId: const obx_int.IdUid(10, 7592199348303741118),
+      lastPropertyId: const obx_int.IdUid(11, 7425754225602225605),
       flags: 0,
       properties: <obx_int.ModelProperty>[
         obx_int.ModelProperty(
@@ -69,8 +70,8 @@ final _entities = <obx_int.ModelEntity>[
             type: 9,
             flags: 0),
         obx_int.ModelProperty(
-            id: const obx_int.IdUid(10, 7592199348303741118),
-            name: 'trainingId',
+            id: const obx_int.IdUid(11, 7425754225602225605),
+            name: 'linkedTrainingId',
             type: 6,
             flags: 0)
       ],
@@ -121,13 +122,17 @@ final _entities = <obx_int.ModelEntity>[
         obx_int.ModelRelation(
             id: const obx_int.IdUid(3, 3289185353329412385),
             name: 'multisets',
-            targetId: const obx_int.IdUid(1, 7837023745425483267))
+            targetId: const obx_int.IdUid(1, 7837023745425483267)),
+        obx_int.ModelRelation(
+            id: const obx_int.IdUid(4, 2557248783965981805),
+            name: 'trainingVersions',
+            targetId: const obx_int.IdUid(5, 790968269672532113))
       ],
       backlinks: <obx_int.ModelBacklink>[]),
   obx_int.ModelEntity(
       id: const obx_int.IdUid(3, 4756948127312470496),
       name: 'TrainingExercise',
-      lastPropertyId: const obx_int.IdUid(25, 4041142347862379862),
+      lastPropertyId: const obx_int.IdUid(28, 6290711620444277774),
       flags: 0,
       properties: <obx_int.ModelProperty>[
         obx_int.ModelProperty(
@@ -140,7 +145,7 @@ final _entities = <obx_int.ModelEntity>[
             name: 'exerciseId',
             type: 11,
             flags: 520,
-            indexId: const obx_int.IdUid(3, 1984868986684376430),
+            indexId: const obx_int.IdUid(9, 553719026357103129),
             relationTarget: 'Exercise'),
         obx_int.ModelProperty(
             id: const obx_int.IdUid(4, 7569012901362455937),
@@ -238,13 +243,18 @@ final _entities = <obx_int.ModelEntity>[
             type: 6,
             flags: 0),
         obx_int.ModelProperty(
-            id: const obx_int.IdUid(24, 1581587549710862424),
-            name: 'trainingId',
+            id: const obx_int.IdUid(26, 8546346913216974507),
+            name: 'linkedExerciseId',
             type: 6,
             flags: 0),
         obx_int.ModelProperty(
-            id: const obx_int.IdUid(25, 4041142347862379862),
-            name: 'multisetId',
+            id: const obx_int.IdUid(27, 505361365510310397),
+            name: 'linkedTrainingId',
+            type: 6,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(28, 6290711620444277774),
+            name: 'linkedMultisetId',
             type: 6,
             flags: 0)
       ],
@@ -288,6 +298,56 @@ final _entities = <obx_int.ModelEntity>[
             flags: 0)
       ],
       relations: <obx_int.ModelRelation>[],
+      backlinks: <obx_int.ModelBacklink>[]),
+  obx_int.ModelEntity(
+      id: const obx_int.IdUid(5, 790968269672532113),
+      name: 'TrainingVersion',
+      lastPropertyId: const obx_int.IdUid(6, 6819686565950909175),
+      flags: 0,
+      properties: <obx_int.ModelProperty>[
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(1, 2848876468079718365),
+            name: 'id',
+            type: 6,
+            flags: 1),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(2, 2732075275205302973),
+            name: 'trainingId',
+            type: 11,
+            flags: 520,
+            indexId: const obx_int.IdUid(5, 9020215719984396004),
+            relationTarget: 'Training'),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(3, 5572835714115388081),
+            name: 'name',
+            type: 9,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(4, 8588810811449880299),
+            name: 'dbType',
+            type: 6,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(5, 2015978338742949354),
+            name: 'objectives',
+            type: 9,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(6, 6819686565950909175),
+            name: 'dbTrainingDays',
+            type: 9,
+            flags: 0)
+      ],
+      relations: <obx_int.ModelRelation>[
+        obx_int.ModelRelation(
+            id: const obx_int.IdUid(5, 2220873685979633358),
+            name: 'trainingExercises',
+            targetId: const obx_int.IdUid(3, 4756948127312470496)),
+        obx_int.ModelRelation(
+            id: const obx_int.IdUid(6, 525592784003240916),
+            name: 'multisets',
+            targetId: const obx_int.IdUid(1, 7837023745425483267))
+      ],
       backlinks: <obx_int.ModelBacklink>[])
 ];
 
@@ -326,18 +386,29 @@ Future<obx.Store> openStore(
 obx_int.ModelDefinition getObjectBoxModel() {
   final model = obx_int.ModelInfo(
       entities: _entities,
-      lastEntityId: const obx_int.IdUid(4, 1371781158635934480),
-      lastIndexId: const obx_int.IdUid(3, 1984868986684376430),
-      lastRelationId: const obx_int.IdUid(3, 3289185353329412385),
+      lastEntityId: const obx_int.IdUid(5, 790968269672532113),
+      lastIndexId: const obx_int.IdUid(9, 553719026357103129),
+      lastRelationId: const obx_int.IdUid(6, 525592784003240916),
       lastSequenceId: const obx_int.IdUid(0, 0),
       retiredEntityUids: const [],
-      retiredIndexUids: const [1997644619502088310, 262618515223658650],
+      retiredIndexUids: const [
+        1997644619502088310,
+        262618515223658650,
+        1984868986684376430,
+        9077253555612493925,
+        5680325267104003293,
+        3749658864148140912,
+        746187908374442006
+      ],
       retiredPropertyUids: const [
         7117997750659844272,
         7208038991482613170,
         8957684371679850546,
         2995742759851243026,
-        5528278541389928687
+        5528278541389928687,
+        7592199348303741118,
+        1581587549710862424,
+        4041142347862379862
       ],
       retiredRelationUids: const [],
       modelVersion: 5,
@@ -365,7 +436,7 @@ obx_int.ModelDefinition getObjectBoxModel() {
               : fbb.writeString(object.objectives!);
           final keyOffset =
               object.key == null ? null : fbb.writeString(object.key!);
-          fbb.startTable(11);
+          fbb.startTable(12);
           fbb.addInt64(0, object.id);
           fbb.addInt64(1, object.sets);
           fbb.addInt64(2, object.setRest);
@@ -374,7 +445,7 @@ obx_int.ModelDefinition getObjectBoxModel() {
           fbb.addOffset(5, objectivesOffset);
           fbb.addInt64(6, object.position);
           fbb.addOffset(7, keyOffset);
-          fbb.addInt64(9, object.trainingId);
+          fbb.addInt64(10, object.linkedTrainingId);
           fbb.finish(fbb.endTable());
           return object.id;
         },
@@ -383,8 +454,8 @@ obx_int.ModelDefinition getObjectBoxModel() {
           final rootOffset = buffer.derefObject(0);
           final idParam =
               const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0);
-          final trainingIdParam =
-              const fb.Int64Reader().vTableGetNullable(buffer, rootOffset, 22);
+          final linkedTrainingIdParam =
+              const fb.Int64Reader().vTableGetNullable(buffer, rootOffset, 24);
           final setsParam =
               const fb.Int64Reader().vTableGet(buffer, rootOffset, 6, 0);
           final setRestParam =
@@ -397,7 +468,7 @@ obx_int.ModelDefinition getObjectBoxModel() {
               .vTableGetNullable(buffer, rootOffset, 18);
           final object = Multiset(
               id: idParam,
-              trainingId: trainingIdParam,
+              linkedTrainingId: linkedTrainingIdParam,
               sets: setsParam,
               setRest: setRestParam,
               multisetRest: multisetRestParam,
@@ -420,7 +491,9 @@ obx_int.ModelDefinition getObjectBoxModel() {
         toManyRelations: (Training object) => {
               obx_int.RelInfo<Training>.toMany(2, object.id):
                   object.trainingExercises,
-              obx_int.RelInfo<Training>.toMany(3, object.id): object.multisets
+              obx_int.RelInfo<Training>.toMany(3, object.id): object.multisets,
+              obx_int.RelInfo<Training>.toMany(4, object.id):
+                  object.trainingVersions
             },
         getId: (Training object) => object.id,
         setId: (Training object, int id) {
@@ -462,6 +535,10 @@ obx_int.ModelDefinition getObjectBoxModel() {
               obx_int.RelInfo<Training>.toMany(2, object.id));
           obx_int.InternalToManyAccess.setRelInfo<Training>(object.multisets,
               store, obx_int.RelInfo<Training>.toMany(3, object.id));
+          obx_int.InternalToManyAccess.setRelInfo<Training>(
+              object.trainingVersions,
+              store,
+              obx_int.RelInfo<Training>.toMany(4, object.id));
           return object;
         }),
     TrainingExercise: obx_int.EntityDefinition<TrainingExercise>(
@@ -481,7 +558,7 @@ obx_int.ModelDefinition getObjectBoxModel() {
               : fbb.writeString(object.objectives!);
           final keyOffset =
               object.key == null ? null : fbb.writeString(object.key!);
-          fbb.startTable(26);
+          fbb.startTable(29);
           fbb.addInt64(0, object.id);
           fbb.addInt64(1, object.exercise.targetId);
           fbb.addOffset(3, specialInstructionsOffset);
@@ -503,8 +580,9 @@ obx_int.ModelDefinition getObjectBoxModel() {
           fbb.addOffset(20, keyOffset);
           fbb.addInt64(21, object.dbType);
           fbb.addInt64(22, object.dbRunType);
-          fbb.addInt64(23, object.trainingId);
-          fbb.addInt64(24, object.multisetId);
+          fbb.addInt64(25, object.linkedExerciseId);
+          fbb.addInt64(26, object.linkedTrainingId);
+          fbb.addInt64(27, object.linkedMultisetId);
           fbb.finish(fbb.endTable());
           return object.id;
         },
@@ -556,10 +634,12 @@ obx_int.ModelDefinition getObjectBoxModel() {
                 const fb.Int64Reader().vTableGetNullable(buffer, rootOffset, 46)
             ..dbRunType =
                 const fb.Int64Reader().vTableGetNullable(buffer, rootOffset, 48)
-            ..trainingId =
-                const fb.Int64Reader().vTableGetNullable(buffer, rootOffset, 50)
-            ..multisetId = const fb.Int64Reader()
-                .vTableGetNullable(buffer, rootOffset, 52);
+            ..linkedExerciseId =
+                const fb.Int64Reader().vTableGetNullable(buffer, rootOffset, 54)
+            ..linkedTrainingId =
+                const fb.Int64Reader().vTableGetNullable(buffer, rootOffset, 56)
+            ..linkedMultisetId = const fb.Int64Reader()
+                .vTableGetNullable(buffer, rootOffset, 58);
           object.exercise.targetId =
               const fb.Int64Reader().vTableGet(buffer, rootOffset, 6, 0);
           object.exercise.attach(store);
@@ -611,6 +691,65 @@ obx_int.ModelDefinition getObjectBoxModel() {
                 .vTableGetNullable(buffer, rootOffset, 14);
 
           return object;
+        }),
+    TrainingVersion: obx_int.EntityDefinition<TrainingVersion>(
+        model: _entities[4],
+        toOneRelations: (TrainingVersion object) => [object.training],
+        toManyRelations: (TrainingVersion object) => {
+              obx_int.RelInfo<TrainingVersion>.toMany(5, object.id):
+                  object.trainingExercises,
+              obx_int.RelInfo<TrainingVersion>.toMany(6, object.id):
+                  object.multisets
+            },
+        getId: (TrainingVersion object) => object.id,
+        setId: (TrainingVersion object, int id) {
+          object.id = id;
+        },
+        objectToFB: (TrainingVersion object, fb.Builder fbb) {
+          final nameOffset = fbb.writeString(object.name);
+          final objectivesOffset = object.objectives == null
+              ? null
+              : fbb.writeString(object.objectives!);
+          final dbTrainingDaysOffset = object.dbTrainingDays == null
+              ? null
+              : fbb.writeString(object.dbTrainingDays!);
+          fbb.startTable(7);
+          fbb.addInt64(0, object.id);
+          fbb.addInt64(1, object.training.targetId);
+          fbb.addOffset(2, nameOffset);
+          fbb.addInt64(3, object.dbType);
+          fbb.addOffset(4, objectivesOffset);
+          fbb.addOffset(5, dbTrainingDaysOffset);
+          fbb.finish(fbb.endTable());
+          return object.id;
+        },
+        objectFromFB: (obx.Store store, ByteData fbData) {
+          final buffer = fb.BufferContext(fbData);
+          final rootOffset = buffer.derefObject(0);
+          final nameParam = const fb.StringReader(asciiOptimization: true)
+              .vTableGet(buffer, rootOffset, 8, '');
+          final dbTypeParam =
+              const fb.Int64Reader().vTableGetNullable(buffer, rootOffset, 10);
+          final objectivesParam = const fb.StringReader(asciiOptimization: true)
+              .vTableGetNullable(buffer, rootOffset, 12);
+          final dbTrainingDaysParam =
+              const fb.StringReader(asciiOptimization: true)
+                  .vTableGetNullable(buffer, rootOffset, 14);
+          final object = TrainingVersion(
+              nameParam, dbTypeParam, objectivesParam, dbTrainingDaysParam)
+            ..id = const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0);
+          object.training.targetId =
+              const fb.Int64Reader().vTableGet(buffer, rootOffset, 6, 0);
+          object.training.attach(store);
+          obx_int.InternalToManyAccess.setRelInfo<TrainingVersion>(
+              object.trainingExercises,
+              store,
+              obx_int.RelInfo<TrainingVersion>.toMany(5, object.id));
+          obx_int.InternalToManyAccess.setRelInfo<TrainingVersion>(
+              object.multisets,
+              store,
+              obx_int.RelInfo<TrainingVersion>.toMany(6, object.id));
+          return object;
         })
   };
 
@@ -651,8 +790,8 @@ class Multiset_ {
   static final key =
       obx.QueryStringProperty<Multiset>(_entities[0].properties[7]);
 
-  /// See [Multiset.trainingId].
-  static final trainingId =
+  /// See [Multiset.linkedTrainingId].
+  static final linkedTrainingId =
       obx.QueryIntegerProperty<Multiset>(_entities[0].properties[8]);
 
   /// see [Multiset.trainingExercises]
@@ -691,6 +830,11 @@ class Training_ {
   /// see [Training.multisets]
   static final multisets =
       obx.QueryRelationToMany<Training, Multiset>(_entities[1].relations[1]);
+
+  /// see [Training.trainingVersions]
+  static final trainingVersions =
+      obx.QueryRelationToMany<Training, TrainingVersion>(
+          _entities[1].relations[2]);
 }
 
 /// [TrainingExercise] entity fields to define ObjectBox queries.
@@ -779,13 +923,17 @@ class TrainingExercise_ {
   static final dbRunType =
       obx.QueryIntegerProperty<TrainingExercise>(_entities[2].properties[20]);
 
-  /// See [TrainingExercise.trainingId].
-  static final trainingId =
+  /// See [TrainingExercise.linkedExerciseId].
+  static final linkedExerciseId =
       obx.QueryIntegerProperty<TrainingExercise>(_entities[2].properties[21]);
 
-  /// See [TrainingExercise.multisetId].
-  static final multisetId =
+  /// See [TrainingExercise.linkedTrainingId].
+  static final linkedTrainingId =
       obx.QueryIntegerProperty<TrainingExercise>(_entities[2].properties[22]);
+
+  /// See [TrainingExercise.linkedMultisetId].
+  static final linkedMultisetId =
+      obx.QueryIntegerProperty<TrainingExercise>(_entities[2].properties[23]);
 }
 
 /// [Exercise] entity fields to define ObjectBox queries.
@@ -813,4 +961,40 @@ class Exercise_ {
   /// See [Exercise.dbMuscleGroups].
   static final dbMuscleGroups =
       obx.QueryStringProperty<Exercise>(_entities[3].properties[5]);
+}
+
+/// [TrainingVersion] entity fields to define ObjectBox queries.
+class TrainingVersion_ {
+  /// See [TrainingVersion.id].
+  static final id =
+      obx.QueryIntegerProperty<TrainingVersion>(_entities[4].properties[0]);
+
+  /// See [TrainingVersion.training].
+  static final training = obx.QueryRelationToOne<TrainingVersion, Training>(
+      _entities[4].properties[1]);
+
+  /// See [TrainingVersion.name].
+  static final name =
+      obx.QueryStringProperty<TrainingVersion>(_entities[4].properties[2]);
+
+  /// See [TrainingVersion.dbType].
+  static final dbType =
+      obx.QueryIntegerProperty<TrainingVersion>(_entities[4].properties[3]);
+
+  /// See [TrainingVersion.objectives].
+  static final objectives =
+      obx.QueryStringProperty<TrainingVersion>(_entities[4].properties[4]);
+
+  /// See [TrainingVersion.dbTrainingDays].
+  static final dbTrainingDays =
+      obx.QueryStringProperty<TrainingVersion>(_entities[4].properties[5]);
+
+  /// see [TrainingVersion.trainingExercises]
+  static final trainingExercises =
+      obx.QueryRelationToMany<TrainingVersion, TrainingExercise>(
+          _entities[4].relations[0]);
+
+  /// see [TrainingVersion.multisets]
+  static final multisets = obx.QueryRelationToMany<TrainingVersion, Multiset>(
+      _entities[4].relations[1]);
 }

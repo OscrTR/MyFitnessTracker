@@ -33,24 +33,6 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
   late final Map<String, TextEditingController> _controllers;
   bool _isDataInitialized = false;
 
-  final Training _defaultTraining = Training.create(
-    name: '',
-    type: TrainingType.workout,
-    trainingExercises: [],
-    multisets: [],
-    objectives: '',
-    trainingDays: [],
-  );
-
-  Training _trainingToCreateOrEdit = Training.create(
-    name: '',
-    type: TrainingType.workout,
-    trainingExercises: [],
-    multisets: [],
-    objectives: '',
-    trainingDays: [],
-  );
-
   final TrainingExercise _defaultTExercise = TrainingExercise.create(
     sets: 1,
     isSetsInReps: true,
@@ -59,9 +41,9 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
     runType: RunType.distance,
     isTargetPaceSelected: false,
     intensity: 2,
-    trainingId: null,
-    multisetId: null,
-    exerciseId: null,
+    linkedTrainingId: null,
+    linkedMultisetId: null,
+    linkedExerciseId: null,
     exercise: null,
   );
 
@@ -73,14 +55,14 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
     runType: RunType.distance,
     isTargetPaceSelected: false,
     intensity: 2,
-    trainingId: null,
-    multisetId: null,
-    exerciseId: null,
+    linkedTrainingId: null,
+    linkedMultisetId: null,
+    linkedExerciseId: null,
     exercise: null,
   );
 
   final Multiset _defaultMultiset = Multiset.create(
-    trainingId: null,
+    linkedTrainingId: null,
     sets: 1,
     setRest: 0,
     multisetRest: 0,
@@ -91,7 +73,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
   );
 
   Multiset _multisetToCreateOrEdit = Multiset.create(
-    trainingId: null,
+    linkedTrainingId: null,
     sets: 1,
     setRest: 0,
     multisetRest: 0,
@@ -120,12 +102,6 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
     final training =
         (sl<TrainingManagementBloc>().state as TrainingManagementLoaded)
             .selectedTraining;
-
-    _trainingToCreateOrEdit = _trainingToCreateOrEdit.copyWith(
-        name: training?.name,
-        objectives: training?.objectives,
-        trainingDays: training?.trainingDays,
-        type: training?.type ?? TrainingType.workout);
 
     _controllers['trainingName']!.text = training?.name ?? '';
     _controllers['trainingObjectives']!.text = training?.objectives ?? '';
@@ -163,9 +139,9 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
         targetDistance: exercise.targetDistance,
         targetDuration: exercise.targetDuration,
         id: exercise.id,
-        trainingId: exercise.trainingId,
-        multisetId: exercise.multisetId,
-        exerciseId: exercise.exerciseId,
+        linkedTrainingId: exercise.linkedTrainingId,
+        linkedMultisetId: exercise.linkedMultisetId,
+        linkedExerciseId: exercise.linkedExerciseId,
         targetPace: exercise.targetPace,
         exerciseRest: exercise.exerciseRest,
         position: exercise.position,
@@ -232,7 +208,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
       _multisetToCreateOrEdit = _multisetToCreateOrEdit.copyWith(
         key: key,
         id: multiset.id,
-        trainingId: multiset.trainingId,
+        linkedTrainingId: multiset.linkedTrainingId,
         trainingExercises: multiset.trainingExercises,
         sets: multiset.sets,
         setRest: multiset.setRest,
@@ -303,18 +279,26 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
   void _updateData(String key) {
     if (!mounted) return;
 
-    if (key == 'trainingName') {
-      _trainingToCreateOrEdit = _trainingToCreateOrEdit.copyWith(
+    if (key == 'trainingName' || key == 'trainingObjectives') {
+      final training = (context.read<TrainingManagementBloc>().state
+                  as TrainingManagementLoaded)
+              .selectedTraining ??
+          Training.create(
+            name: '',
+            type: TrainingType.workout,
+            trainingExercises: [],
+            multisets: [],
+            objectives: '',
+            trainingDays: [],
+          );
+
+      final trainingToCreateOrEdit = training.copyWith(
         name: _controllers['trainingName']!.text.trim(),
-      );
-      sl<TrainingManagementBloc>()
-          .add(AddOrUpdateSelectedTrainingEvent(_trainingToCreateOrEdit));
-    } else if (key == 'trainingObjectives') {
-      _trainingToCreateOrEdit = _trainingToCreateOrEdit.copyWith(
         objectives: _controllers['trainingObjectives']!.text.trim(),
       );
+
       sl<TrainingManagementBloc>()
-          .add(AddOrUpdateSelectedTrainingEvent(_trainingToCreateOrEdit));
+          .add(CreateOrUpdateSelectedTrainingEvent(trainingToCreateOrEdit));
     } else if (key.contains('multiset')) {
       final currentValues = {
         'sets': _multisetToCreateOrEdit.sets,
@@ -451,11 +435,8 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
     });
   }
 
-  void _sortTrainingDays() {
-    _trainingToCreateOrEdit = _trainingToCreateOrEdit.copyWith(
-      trainingDays: List<WeekDay>.from(_trainingToCreateOrEdit.trainingDays!)
-        ..sort((a, b) => a.index.compareTo(b.index)),
-    );
+  List<WeekDay> _sortTrainingDays(List<WeekDay> weekdays) {
+    return weekdays..sort((a, b) => a.index.compareTo(b.index));
   }
 
   @override
@@ -526,9 +507,19 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
         height: 70,
         child: GestureDetector(
           onTap: () {
+            final training = (context.read<TrainingManagementBloc>().state
+                        as TrainingManagementLoaded)
+                    .selectedTraining ??
+                Training.create(
+                  name: '',
+                  type: TrainingType.workout,
+                  trainingExercises: [],
+                  multisets: [],
+                  objectives: '',
+                  trainingDays: [],
+                );
             final bloc = context.read<TrainingManagementBloc>();
-            bloc.add(AddOrUpdateTrainingEvent(_trainingToCreateOrEdit));
-            _trainingToCreateOrEdit = _defaultTraining;
+            bloc.add(CreateOrUpdateTrainingEvent(training));
             GoRouter.of(context).push('/trainings');
           },
           child: Container(
@@ -616,7 +607,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                   .state as ExerciseManagementLoaded)
               .exercises
               .firstWhereOrNull(
-                (el) => el.id == tExercise.exerciseId,
+                (el) => el.id == tExercise.linkedExerciseId,
               );
 
           if (exercisesAndMultisetsList.length <= 1) {
@@ -972,7 +963,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                   .state as ExerciseManagementLoaded)
               .exercises
               .firstWhereOrNull(
-                (el) => el.id == tExercise.exerciseId,
+                (el) => el.id == tExercise.linkedExerciseId,
               );
           return _buildExerciseItem(tExercise, exercise, context, multisetKey);
         },
@@ -1225,9 +1216,24 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
               actions: [
                 GestureDetector(
                   onTap: () {
-                    sl<TrainingManagementBloc>().add(AddOrUpdateMultisetEvent(
-                        multiset: _multisetToCreateOrEdit,
-                        training: _trainingToCreateOrEdit));
+                    final training = (context
+                                .read<TrainingManagementBloc>()
+                                .state as TrainingManagementLoaded)
+                            .selectedTraining ??
+                        Training.create(
+                          name: '',
+                          type: TrainingType.workout,
+                          trainingExercises: [],
+                          multisets: [],
+                          objectives: '',
+                          trainingDays: [],
+                        );
+
+                    sl<TrainingManagementBloc>().add(
+                        CreateOrUpdateMultisetEvent(
+                            multiset: _multisetToCreateOrEdit,
+                            training: training));
+
                     _resetData();
                     Navigator.pop(context, 'Save');
                   },
@@ -1306,7 +1312,8 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                   ),
                   const SizedBox(height: 10),
                   CustomDropdown<TrainingExerciseType>(
-                    items: TrainingExerciseType.values,
+                    items: TrainingExerciseType.values
+                        .sublist(0, TrainingExerciseType.values.length - 1),
                     initialItem: _tExerciseToCreateOrEdit.type,
                     decoration: CustomDropdownDecoration(
                       listItemStyle: Theme.of(context)
@@ -1459,14 +1466,27 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                 onTap: () {
                   if (multisetKey != null) {
                     sl<TrainingManagementBloc>().add(
-                        AddOrUpdateMultisetExerciseEvent(
+                        CreateOrUpdateMultisetExerciseEvent(
                             trainingExercise: _tExerciseToCreateOrEdit,
                             multisetKey: multisetKey));
                   } else {
+                    final training = (context
+                                .read<TrainingManagementBloc>()
+                                .state as TrainingManagementLoaded)
+                            .selectedTraining ??
+                        Training.create(
+                          name: '',
+                          type: TrainingType.workout,
+                          trainingExercises: [],
+                          multisets: [],
+                          objectives: '',
+                          trainingDays: [],
+                        );
+
                     sl<TrainingManagementBloc>().add(
-                        AddOrUpdateTrainingExerciseEvent(
+                        CreateOrUpdateTrainingExerciseEvent(
                             trainingExercise: _tExerciseToCreateOrEdit,
-                            training: _trainingToCreateOrEdit));
+                            training: training));
                   }
 
                   _resetData();
@@ -1696,7 +1716,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
           },
           onChanged: (value) {
             _tExerciseToCreateOrEdit = _tExerciseToCreateOrEdit.copyWith(
-                exercise: value, exerciseId: value?.id);
+                exercise: value, linkedExerciseId: value?.id);
           },
         ),
         const SizedBox(height: 20),
@@ -1963,6 +1983,18 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
   }
 
   Container _buildTrainingGeneralInfo(BuildContext context) {
+    final training = (context.read<TrainingManagementBloc>().state
+                as TrainingManagementLoaded)
+            .selectedTraining ??
+        Training.create(
+          name: '',
+          type: TrainingType.workout,
+          trainingExercises: [],
+          multisets: [],
+          objectives: '',
+          trainingDays: [],
+        );
+
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
       decoration: BoxDecoration(
@@ -1991,7 +2023,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
           const SizedBox(height: 10),
           CustomDropdown<TrainingType>(
             items: TrainingType.values,
-            initialItem: _trainingToCreateOrEdit.type,
+            initialItem: training.type,
             decoration: CustomDropdownDecoration(
               listItemStyle: Theme.of(context)
                   .textTheme
@@ -2021,10 +2053,21 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
               return Text(item.translate(context.locale.languageCode));
             },
             onChanged: (value) {
-              _trainingToCreateOrEdit =
-                  _trainingToCreateOrEdit.copyWith(type: value!);
+              final training = (context.read<TrainingManagementBloc>().state
+                          as TrainingManagementLoaded)
+                      .selectedTraining ??
+                  Training.create(
+                    name: '',
+                    type: TrainingType.workout,
+                    trainingExercises: [],
+                    multisets: [],
+                    objectives: '',
+                    trainingDays: [],
+                  );
+
               sl<TrainingManagementBloc>().add(
-                  AddOrUpdateSelectedTrainingEvent(_trainingToCreateOrEdit));
+                  CreateOrUpdateSelectedTrainingEvent(
+                      training.copyWith(type: value)));
             },
           ),
           const SizedBox(height: 20),
@@ -2036,8 +2079,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: WeekDay.values.map((day) {
-              bool isSelected =
-                  _trainingToCreateOrEdit.trainingDays!.contains(day);
+              bool isSelected = training.trainingDays!.contains(day);
 
               return Column(
                 mainAxisSize: MainAxisSize.min,
@@ -2045,19 +2087,31 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                   GestureDetector(
                     onTap: () {
                       List<WeekDay> newSelection =
-                          List.from(_trainingToCreateOrEdit.trainingDays!);
+                          List.from(training.trainingDays!);
                       if (isSelected) {
                         newSelection.remove(day);
                       } else {
                         newSelection.add(day);
                       }
                       setState(() {
-                        _trainingToCreateOrEdit = _trainingToCreateOrEdit
-                            .copyWith(trainingDays: newSelection);
-                        _sortTrainingDays();
+                        final training = (context
+                                    .read<TrainingManagementBloc>()
+                                    .state as TrainingManagementLoaded)
+                                .selectedTraining ??
+                            Training.create(
+                              name: '',
+                              type: TrainingType.workout,
+                              trainingExercises: [],
+                              multisets: [],
+                              objectives: '',
+                              trainingDays: [],
+                            );
+
                         sl<TrainingManagementBloc>().add(
-                            AddOrUpdateSelectedTrainingEvent(
-                                _trainingToCreateOrEdit));
+                            CreateOrUpdateSelectedTrainingEvent(
+                                training.copyWith(
+                                    trainingDays:
+                                        _sortTrainingDays(newSelection))));
                       });
                     },
                     child: Column(

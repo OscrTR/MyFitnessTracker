@@ -59,8 +59,10 @@ class TrainingManagementBloc
 
     on<DeleteTrainingEvent>((event, emit) async {
       if (state is! TrainingManagementLoaded) return;
+      final currentState = state as TrainingManagementLoaded;
       try {
         await sl<ObjectBox>().deleteTraining(event.training);
+        emit(currentState.copyWith(selectedTraining: null));
         messageBloc.add(AddMessageEvent(
             message: tr('message_training_deletion_success'), isError: false));
 
@@ -75,7 +77,6 @@ class TrainingManagementBloc
     on<GetTrainingEvent>((event, emit) async {
       if (state is! TrainingManagementLoaded) return;
       final currentState = state as TrainingManagementLoaded;
-
       try {
         final training = sl<ObjectBox>().getTrainingById(event.id);
         emit(currentState.copyWith(selectedTraining: training));
@@ -127,7 +128,7 @@ class TrainingManagementBloc
       emit(currentState.copyWith(selectedTraining: updatedTraining));
     });
 
-    on<AddOrUpdateTrainingEvent>((event, emit) async {
+    on<CreateOrUpdateTrainingEvent>((event, emit) async {
       if (state is! TrainingManagementLoaded) return;
       final currentState = state as TrainingManagementLoaded;
       Training trainingToCreateOrUpdate;
@@ -176,7 +177,7 @@ class TrainingManagementBloc
       }
     });
 
-    on<AddOrUpdateSelectedTrainingEvent>((event, emit) async {
+    on<CreateOrUpdateSelectedTrainingEvent>((event, emit) async {
       if (state is! TrainingManagementLoaded) return;
       final currentState = state as TrainingManagementLoaded;
       Training trainingToCreateOrUpdate;
@@ -208,7 +209,7 @@ class TrainingManagementBloc
     });
 
     //! Training exercise
-    on<AddOrUpdateTrainingExerciseEvent>((event, emit) {
+    on<CreateOrUpdateTrainingExerciseEvent>((event, emit) {
       if (state is! TrainingManagementLoaded) return;
       final currentState = state as TrainingManagementLoaded;
       final trainingExercises = List<TrainingExercise>.from(
@@ -220,9 +221,9 @@ class TrainingManagementBloc
       if (event.trainingExercise.key == null) {
         final tExerciseToAdd = TrainingExercise.create(
           id: event.trainingExercise.id,
-          trainingId: event.trainingExercise.trainingId,
-          multisetId: event.trainingExercise.multisetId,
-          exerciseId: event.trainingExercise.exerciseId,
+          linkedTrainingId: event.trainingExercise.linkedTrainingId,
+          linkedMultisetId: event.trainingExercise.linkedMultisetId,
+          linkedExerciseId: event.trainingExercise.linkedExerciseId,
           type: event.trainingExercise.type,
           specialInstructions: event.trainingExercise.specialInstructions,
           objectives: event.trainingExercise.objectives,
@@ -328,7 +329,7 @@ class TrainingManagementBloc
     });
 
     //! Multiset
-    on<AddOrUpdateMultisetEvent>((event, emit) {
+    on<CreateOrUpdateMultisetEvent>((event, emit) {
       if (state is! TrainingManagementLoaded) return;
       final currentState = state as TrainingManagementLoaded;
       final trainingExercises = List<TrainingExercise>.from(
@@ -340,7 +341,7 @@ class TrainingManagementBloc
       if (event.multiset.key == null) {
         final multisetToAdd = Multiset.create(
           id: event.multiset.id,
-          trainingId: event.multiset.trainingId,
+          linkedTrainingId: event.multiset.linkedTrainingId,
           trainingExercises: event.multiset.trainingExercises,
           sets: event.multiset.sets,
           setRest: event.multiset.setRest,
@@ -376,7 +377,7 @@ class TrainingManagementBloc
       emit(currentState.copyWith(selectedTraining: updatedTraining));
     });
 
-    on<AddOrUpdateMultisetExerciseEvent>((event, emit) {
+    on<CreateOrUpdateMultisetExerciseEvent>((event, emit) {
       if (state is! TrainingManagementLoaded) return;
       final currentState = state as TrainingManagementLoaded;
 
@@ -392,9 +393,9 @@ class TrainingManagementBloc
         if (event.trainingExercise.key == null) {
           final tExerciseToAdd = TrainingExercise.create(
             id: event.trainingExercise.id,
-            trainingId: event.trainingExercise.trainingId,
-            multisetId: event.trainingExercise.multisetId,
-            exerciseId: event.trainingExercise.exerciseId,
+            linkedTrainingId: event.trainingExercise.linkedTrainingId,
+            linkedMultisetId: event.trainingExercise.linkedMultisetId,
+            linkedExerciseId: event.trainingExercise.linkedExerciseId,
             type: event.trainingExercise.type,
             specialInstructions: event.trainingExercise.specialInstructions,
             objectives: event.trainingExercise.objectives,

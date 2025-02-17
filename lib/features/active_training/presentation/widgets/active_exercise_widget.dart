@@ -48,7 +48,7 @@ class _ActiveExerciseWidgetState extends State<ActiveExerciseWidget> {
     if (historyBlocState is TrainingHistoryLoaded) {
       final entries = historyBlocState.historyTrainings
           .where((trainingHistory) =>
-              trainingHistory.trainingId == widget.tExercise.trainingId)
+              trainingHistory.trainingId == widget.tExercise.linkedTrainingId)
           .toList()
           .sortedBy((entry) => entry.date)
           .lastOrNull
@@ -434,7 +434,7 @@ class _ActiveExerciseRowState extends State<ActiveExerciseRow> {
           isCountDown: true,
           isAutostart: false,
           exerciseGlobalKey: widget.exerciseGlobalKey,
-          trainingId: widget.tExercise.trainingId!,
+          trainingId: widget.tExercise.linkedTrainingId!,
           tExerciseId: widget.tExercise.id,
           setNumber: widget.setIndex,
           multisetSetNumber: null,
@@ -487,7 +487,7 @@ class _ActiveExerciseRowState extends State<ActiveExerciseRow> {
                       CreateOrUpdateHistoryEntry(
                         historyEntry: HistoryEntry(
                           id: widget.historyEntryId,
-                          trainingId: widget.tExercise.trainingId!,
+                          trainingId: widget.tExercise.linkedTrainingId!,
                           trainingExerciseId: widget.tExercise.id,
                           setNumber: widget.setIndex,
                           multisetSetNumber: null,
@@ -568,7 +568,7 @@ class ActiveExerciseDurationRow extends StatelessWidget {
           timerValue: 0,
           isAutostart: tExercise.isAutoStart,
           exerciseGlobalKey: exerciseGlobalKey,
-          trainingId: tExercise.trainingId!,
+          trainingId: tExercise.linkedTrainingId!,
           tExerciseId: tExercise.id,
           setNumber: setIndex,
           multisetSetNumber: null,
@@ -588,7 +588,7 @@ class ActiveExerciseDurationRow extends StatelessWidget {
           isCountDown: true,
           isAutostart: true,
           exerciseGlobalKey: exerciseGlobalKey,
-          trainingId: tExercise.trainingId!,
+          trainingId: tExercise.linkedTrainingId!,
           tExerciseId: tExercise.id,
           setNumber: setIndex,
           multisetSetNumber: null,

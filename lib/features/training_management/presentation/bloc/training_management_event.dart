@@ -41,19 +41,19 @@ class GetTrainingEvent extends TrainingManagementEvent {
 
 class ClearSelectedTrainingEvent extends TrainingManagementEvent {}
 
-class AddOrUpdateTrainingEvent extends TrainingManagementEvent {
+class CreateOrUpdateTrainingEvent extends TrainingManagementEvent {
   final Training training;
 
-  const AddOrUpdateTrainingEvent(this.training);
+  const CreateOrUpdateTrainingEvent(this.training);
 
   @override
   List<Object?> get props => [training];
 }
 
-class AddOrUpdateSelectedTrainingEvent extends TrainingManagementEvent {
+class CreateOrUpdateSelectedTrainingEvent extends TrainingManagementEvent {
   final Training training;
 
-  const AddOrUpdateSelectedTrainingEvent(this.training);
+  const CreateOrUpdateSelectedTrainingEvent(this.training);
 
   @override
   List<Object?> get props => [training];
@@ -94,11 +94,11 @@ class UpdateSelectedTrainingProperty extends TrainingManagementEvent {
 }
 
 //! Training exercises
-class AddOrUpdateTrainingExerciseEvent extends TrainingManagementEvent {
+class CreateOrUpdateTrainingExerciseEvent extends TrainingManagementEvent {
   final TrainingExercise trainingExercise;
   final Training training;
 
-  const AddOrUpdateTrainingExerciseEvent(
+  const CreateOrUpdateTrainingExerciseEvent(
       {required this.trainingExercise, required this.training});
 
   @override
@@ -115,22 +115,22 @@ class RemoveTrainingExerciseEvent extends TrainingManagementEvent {
 }
 
 //! Multiset
-class AddOrUpdateMultisetEvent extends TrainingManagementEvent {
+class CreateOrUpdateMultisetEvent extends TrainingManagementEvent {
   final Multiset multiset;
   final Training training;
 
-  const AddOrUpdateMultisetEvent(
+  const CreateOrUpdateMultisetEvent(
       {required this.multiset, required this.training});
 
   @override
   List<Object> get props => [multiset, training];
 }
 
-class AddOrUpdateMultisetExerciseEvent extends TrainingManagementEvent {
+class CreateOrUpdateMultisetExerciseEvent extends TrainingManagementEvent {
   final String multisetKey;
   final TrainingExercise trainingExercise;
 
-  const AddOrUpdateMultisetExerciseEvent(
+  const CreateOrUpdateMultisetExerciseEvent(
       {required this.multisetKey, required this.trainingExercise});
 
   @override

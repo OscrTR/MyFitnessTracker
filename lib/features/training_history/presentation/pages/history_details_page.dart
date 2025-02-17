@@ -719,7 +719,7 @@ class _ExerciseSetFormState extends State<ExerciseSetForm> {
             historyEntry: HistoryEntry(
               id: historyEntry?.id,
               trainingId: historyEntry?.trainingId ??
-                  widget.trainingExercise?.trainingId ??
+                  widget.trainingExercise?.linkedTrainingId ??
                   widget.historyEntriesList[0].trainingId,
               trainingType: historyEntry?.trainingType ??
                   widget.training?.type ??
@@ -753,7 +753,7 @@ class _ExerciseSetFormState extends State<ExerciseSetForm> {
                   widget.trainingExercise?.exercise.targetId ??
                   widget.historyEntriesList[0].exerciseId,
               multisetId: historyEntry?.multisetId ??
-                  widget.trainingExercise?.multisetId ??
+                  widget.trainingExercise?.linkedTrainingId ??
                   widget.historyEntriesList[0].multisetId,
             ),
           ),

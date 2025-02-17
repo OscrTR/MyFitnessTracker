@@ -9,8 +9,6 @@ abstract class TrainingManagementState extends Equatable {
 
 class TrainingManagementInitial extends TrainingManagementState {}
 
-class TrainingManagementLoading extends TrainingManagementState {}
-
 class TrainingManagementLoaded extends TrainingManagementState {
   final List<Training> trainings;
   final Training? selectedTraining;
@@ -47,9 +45,17 @@ class TrainingManagementLoaded extends TrainingManagementState {
               name: selectedTraining?.name ?? this.selectedTraining?.name,
               type: selectedTraining?.type ?? this.selectedTraining?.type,
               trainingExercises: selectedTraining?.trainingExercises ??
-                  this.selectedTraining?.trainingExercises,
+                  this
+                      .selectedTraining
+                      ?.trainingExercises
+                      .map((e) => e.copyWith())
+                      .toList(),
               multisets: selectedTraining?.multisets ??
-                  this.selectedTraining?.multisets,
+                  this
+                      .selectedTraining
+                      ?.multisets
+                      .map((e) => e.copyWith())
+                      .toList(),
             ),
     );
   }
@@ -78,13 +84,4 @@ class TrainingManagementLoaded extends TrainingManagementState {
         activeTraining,
         daysSinceLastTraining,
       ];
-}
-
-class TrainingManagementFailure extends TrainingManagementState {
-  final String message;
-
-  const TrainingManagementFailure(this.message);
-
-  @override
-  List<Object> get props => [message];
 }

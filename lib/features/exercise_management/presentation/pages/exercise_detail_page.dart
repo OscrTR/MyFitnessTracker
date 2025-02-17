@@ -140,7 +140,8 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
                     ),
                     const SizedBox(height: 10),
                     CustomDropdown<ExerciseType>(
-                      items: ExerciseType.values,
+                      items: ExerciseType.values
+                          .sublist(0, ExerciseType.values.length - 1),
                       initialItem: _selectedExerciseType,
                       decoration: CustomDropdownDecoration(
                         listItemStyle: Theme.of(context)

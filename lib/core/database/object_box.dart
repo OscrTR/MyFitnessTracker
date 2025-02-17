@@ -1,4 +1,5 @@
 import 'package:my_fitness_tracker/features/exercise_management/models/exercise.dart';
+import 'package:my_fitness_tracker/features/training_history/data/models/training_version.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import '../../features/training_management/models/multiset.dart';
@@ -12,12 +13,14 @@ class ObjectBox {
   late final Box<Multiset> _multisetBox;
   late final Box<TrainingExercise> _trainingExerciseBox;
   late final Box<Exercise> _exerciseBox;
+  late final Box<TrainingVersion> _trainingVersionBox;
 
   ObjectBox._create(this._store) {
     _trainingBox = Box<Training>(_store);
     _multisetBox = Box<Multiset>(_store);
     _trainingExerciseBox = Box<TrainingExercise>(_store);
     _exerciseBox = Box<Exercise>(_store);
+    _trainingVersionBox = Box<TrainingVersion>(_store);
   }
 
   /// Méthode statique asynchrone pour créer une instance.
@@ -35,7 +38,14 @@ class ObjectBox {
     for (var multiset in training.multisets) {
       createMultiset(multiset);
     }
-    return _trainingBox.put(training);
+
+    final createdTraining = _trainingBox.put(training);
+
+    // Enregistrer le nouveau [TrainingVersion]
+    final newVersion = TrainingVersion.fromTraining(training);
+    createTrainingVersion(newVersion);
+
+    return createdTraining;
   }
 
   Future<int> createMultiset(Multiset multiset) async {
@@ -53,75 +63,21 @@ class ObjectBox {
     return _exerciseBox.put(exercise);
   }
 
+  Future<int> createTrainingVersion(TrainingVersion trainingVersion) async {
+    return _trainingVersionBox.put(trainingVersion);
+  }
+
   //* Read operations
   List<Training> getAllTrainings() {
-    final allTrainings = _trainingBox.getAll();
-    final allExercises = _exerciseBox.getAll();
-
-    for (var training in allTrainings) {
-      // Initialize relations between a [Training] and its [Multiset]s
-      training.multisets.addAll(_multisetBox
-          .getAll()
-          .where((multiset) => multiset.trainingId == training.id));
-
-      for (var multiset in training.multisets) {
-        // Initialize relations between a [Multiset] and its [TrainingExercise]s
-        multiset.trainingExercises.addAll(_trainingExerciseBox
-            .getAll()
-            .where((exercise) => exercise.multisetId == multiset.id));
-
-        for (var trainingExercise in multiset.trainingExercises) {
-          // Initialize a relation between a [TrainingExercise] and its [Exercise]
-          trainingExercise.exercise.target = allExercises.firstWhere(
-              (tExercise) => tExercise.id == trainingExercise.exerciseId);
-        }
-      }
-
-      // Initialize relations between a [Training] and its [TrainingExercise]s
-      training.trainingExercises.addAll(_trainingExerciseBox.getAll().where(
-          (tExercise) =>
-              tExercise.trainingId == training.id &&
-              tExercise.multisetId == null));
-
-      for (var trainingExercise in training.trainingExercises) {
-        // Initialize a relation between a [TrainingExercise] and its [Exercise]
-        trainingExercise.exercise.target = allExercises.firstWhere(
-            (exercise) => exercise.id == trainingExercise.exerciseId);
-      }
-    }
-    return allTrainings;
+    return _trainingBox.getAll();
   }
 
   List<Multiset> getAllMultisets() {
-    final allMultisets = _multisetBox.getAll();
-    final allExercises = _exerciseBox.getAll();
-
-    for (var multiset in allMultisets) {
-      // Initialize relations between a [Multiset] and its [TrainingExercise]s
-      multiset.trainingExercises.addAll(_trainingExerciseBox
-          .getAll()
-          .where((tExercise) => tExercise.multisetId == multiset.id));
-
-      for (var trainingExercise in multiset.trainingExercises) {
-        // Initialize a relation between a [TrainingExercise] and its [Exercise]
-        trainingExercise.exercise.target = allExercises.firstWhere(
-            (exercise) => exercise.id == trainingExercise.exerciseId);
-      }
-    }
-
-    return allMultisets;
+    return _multisetBox.getAll();
   }
 
   List<TrainingExercise> getAllTrainingExercises() {
-    final allExercises = _exerciseBox.getAll();
-    final allTrainingExercises = _trainingExerciseBox.getAll();
-
-    for (var trainingExercise in allTrainingExercises) {
-      // Initialize a relation between a [TrainingExercise] and its [Exercise]
-      trainingExercise.exercise.target = allExercises
-          .firstWhere((exercise) => exercise.id == trainingExercise.exerciseId);
-    }
-    return allTrainingExercises;
+    return _trainingExerciseBox.getAll();
   }
 
   List<Exercise> getAllExercises() {
@@ -172,6 +128,10 @@ class ObjectBox {
     // Mettre à jour le training
     await _trainingBox.putAsync(training);
 
+    // Enregistrer le nouveau [TrainingVersion]
+    final newVersion = TrainingVersion.fromTraining(training);
+    createTrainingVersion(newVersion);
+
     // Nettoyer les éléments inutilisés
     final allTrainings = _trainingBox.getAll();
     final usedTExerciseIds = allTrainings
@@ -182,7 +142,7 @@ class ObjectBox {
 
     // Identifier et supprimer les exercices non utilisés
     final allTrainingsTExercises =
-        _trainingExerciseBox.getAll().where((e) => e.multisetId == null);
+        _trainingExerciseBox.getAll().where((e) => e.linkedMultisetId == null);
     final unusedTExercises = allTrainingsTExercises
         .where((e) => !usedTExerciseIds.contains(e.id))
         .toList();
@@ -226,7 +186,7 @@ class ObjectBox {
 
     // Identifier et supprimer les exercices non utilisés
     final allMultisetsTExercises =
-        _trainingExerciseBox.getAll().where((e) => e.multisetId != null);
+        _trainingExerciseBox.getAll().where((e) => e.linkedMultisetId != null);
     final unusedTExercises = allMultisetsTExercises
         .where((e) => !usedTExerciseIds.contains(e.id))
         .toList();

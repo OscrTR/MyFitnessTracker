@@ -7,7 +7,7 @@ class Multiset {
   @Id()
   int id = 0;
 
-  int? trainingId; // Id du [Training] associé
+  int? linkedTrainingId; // Id du [Training] associé
 
   final trainingExercises = ToMany<TrainingExercise>();
 
@@ -24,7 +24,7 @@ class Multiset {
 // Default constructor (used by ObjectBox)
   Multiset({
     required this.id,
-    required this.trainingId,
+    required this.linkedTrainingId,
     required this.sets,
     required this.setRest,
     required this.multisetRest,
@@ -35,7 +35,7 @@ class Multiset {
   // Named constructor for app usage
   Multiset.create({
     this.id = 0,
-    required this.trainingId,
+    required this.linkedTrainingId,
     required this.sets,
     required this.setRest,
     required this.multisetRest,
@@ -52,7 +52,7 @@ class Multiset {
 
   Multiset copyWith({
     int? id,
-    int? trainingId,
+    int? linkedTrainingId,
     List<TrainingExercise>? trainingExercises,
     int? sets,
     int? setRest,
@@ -64,16 +64,25 @@ class Multiset {
   }) {
     return Multiset(
       id: id ?? this.id,
-      trainingId: trainingId ?? this.trainingId,
+      linkedTrainingId: linkedTrainingId ?? this.linkedTrainingId,
       sets: sets ?? this.sets,
       setRest: setRest ?? this.setRest,
       multisetRest: multisetRest ?? this.multisetRest,
       position: position ?? this.position,
       key: key ?? this.key,
     )
-      ..specialInstructions = specialInstructions ?? this.objectives
+      ..specialInstructions = specialInstructions ?? this.specialInstructions
       ..objectives = objectives ?? this.objectives
       ..trainingExercises.clear()
-      ..trainingExercises.addAll(trainingExercises ?? this.trainingExercises);
+      ..trainingExercises.addAll(
+        trainingExercises != null
+            ? trainingExercises
+                .map((tExercise) => tExercise.copyWith())
+                .toList()
+            : this
+                .trainingExercises
+                .map((tExercise) => tExercise.copyWith())
+                .toList(),
+      );
   }
 }
