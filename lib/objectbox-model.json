@@ -1,0 +1,298 @@
+{
+  "_note1": "KEEP THIS FILE! Check it into a version control system (VCS) like git.",
+  "_note2": "ObjectBox manages crucial IDs for your object model. See docs for details.",
+  "_note3": "If you have VCS merge conflicts, you must resolve them according to ObjectBox docs.",
+  "entities": [
+    {
+      "id": "1:7837023745425483267",
+      "lastPropertyId": "10:7592199348303741118",
+      "name": "Multiset",
+      "properties": [
+        {
+          "id": "1:8719446480133154916",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:6013580209830941836",
+          "name": "sets",
+          "type": 6
+        },
+        {
+          "id": "3:2508266651475172113",
+          "name": "setRest",
+          "type": 6
+        },
+        {
+          "id": "4:1435541522072950637",
+          "name": "multisetRest",
+          "type": 6
+        },
+        {
+          "id": "5:1717837802590117520",
+          "name": "specialInstructions",
+          "type": 9
+        },
+        {
+          "id": "6:6039037355741241067",
+          "name": "objectives",
+          "type": 9
+        },
+        {
+          "id": "7:8381868419772571920",
+          "name": "position",
+          "type": 6
+        },
+        {
+          "id": "8:201493524754498310",
+          "name": "key",
+          "type": 9
+        },
+        {
+          "id": "10:7592199348303741118",
+          "name": "trainingId",
+          "type": 6
+        }
+      ],
+      "relations": [
+        {
+          "id": "1:8212219717969508965",
+          "name": "trainingExercises",
+          "targetId": "3:4756948127312470496"
+        }
+      ]
+    },
+    {
+      "id": "2:2932161035028909040",
+      "lastPropertyId": "7:3629004880923664589",
+      "name": "Training",
+      "properties": [
+        {
+          "id": "1:3515765141364894896",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:3135303093556622218",
+          "name": "name",
+          "type": 9
+        },
+        {
+          "id": "4:5016644797159749358",
+          "name": "objectives",
+          "type": 9
+        },
+        {
+          "id": "6:6786941717840464610",
+          "name": "dbType",
+          "type": 6
+        },
+        {
+          "id": "7:3629004880923664589",
+          "name": "dbTrainingDays",
+          "type": 9
+        }
+      ],
+      "relations": [
+        {
+          "id": "2:4935659058856285213",
+          "name": "trainingExercises",
+          "targetId": "3:4756948127312470496"
+        },
+        {
+          "id": "3:3289185353329412385",
+          "name": "multisets",
+          "targetId": "1:7837023745425483267"
+        }
+      ]
+    },
+    {
+      "id": "3:4756948127312470496",
+      "lastPropertyId": "25:4041142347862379862",
+      "name": "TrainingExercise",
+      "properties": [
+        {
+          "id": "1:6108871729213740517",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:7429479038024413978",
+          "name": "exerciseId",
+          "type": 11,
+          "flags": 520,
+          "indexId": "3:1984868986684376430",
+          "relationTarget": "Exercise"
+        },
+        {
+          "id": "4:7569012901362455937",
+          "name": "specialInstructions",
+          "type": 9
+        },
+        {
+          "id": "5:8107865731497299671",
+          "name": "objectives",
+          "type": 9
+        },
+        {
+          "id": "7:5459245783809742483",
+          "name": "targetDistance",
+          "type": 6
+        },
+        {
+          "id": "8:4621418631557638427",
+          "name": "targetDuration",
+          "type": 6
+        },
+        {
+          "id": "9:1852368107492337616",
+          "name": "isTargetPaceSelected",
+          "type": 1
+        },
+        {
+          "id": "10:8806688819027779267",
+          "name": "targetPace",
+          "type": 6
+        },
+        {
+          "id": "11:128248959963900822",
+          "name": "sets",
+          "type": 6
+        },
+        {
+          "id": "12:1223404940800654621",
+          "name": "isSetsInReps",
+          "type": 1
+        },
+        {
+          "id": "13:2924402670291120286",
+          "name": "minReps",
+          "type": 6
+        },
+        {
+          "id": "14:1980150629980597560",
+          "name": "maxReps",
+          "type": 6
+        },
+        {
+          "id": "15:4906135197889964248",
+          "name": "duration",
+          "type": 6
+        },
+        {
+          "id": "16:7894728641131780750",
+          "name": "setRest",
+          "type": 6
+        },
+        {
+          "id": "17:979885308642330532",
+          "name": "exerciseRest",
+          "type": 6
+        },
+        {
+          "id": "18:5357601499003534908",
+          "name": "isAutoStart",
+          "type": 1
+        },
+        {
+          "id": "19:4603778332535153773",
+          "name": "position",
+          "type": 6
+        },
+        {
+          "id": "20:597337282396317998",
+          "name": "intensity",
+          "type": 6
+        },
+        {
+          "id": "21:702072385444039418",
+          "name": "key",
+          "type": 9
+        },
+        {
+          "id": "22:3729112720790051269",
+          "name": "dbType",
+          "type": 6
+        },
+        {
+          "id": "23:4843306632898592410",
+          "name": "dbRunType",
+          "type": 6
+        },
+        {
+          "id": "24:1581587549710862424",
+          "name": "trainingId",
+          "type": 6
+        },
+        {
+          "id": "25:4041142347862379862",
+          "name": "multisetId",
+          "type": 6
+        }
+      ],
+      "relations": []
+    },
+    {
+      "id": "4:1371781158635934480",
+      "lastPropertyId": "6:5199546075756722168",
+      "name": "Exercise",
+      "properties": [
+        {
+          "id": "1:5819755668094325734",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:271087027588398860",
+          "name": "name",
+          "type": 9
+        },
+        {
+          "id": "3:693625742645067785",
+          "name": "imagePath",
+          "type": 9
+        },
+        {
+          "id": "4:2216787406317418660",
+          "name": "description",
+          "type": 9
+        },
+        {
+          "id": "5:7319180526493872213",
+          "name": "dbType",
+          "type": 6
+        },
+        {
+          "id": "6:5199546075756722168",
+          "name": "dbMuscleGroups",
+          "type": 9
+        }
+      ],
+      "relations": []
+    }
+  ],
+  "lastEntityId": "4:1371781158635934480",
+  "lastIndexId": "3:1984868986684376430",
+  "lastRelationId": "3:3289185353329412385",
+  "lastSequenceId": "0:0",
+  "modelVersion": 5,
+  "modelVersionParserMinimum": 5,
+  "retiredEntityUids": [],
+  "retiredIndexUids": [
+    1997644619502088310,
+    262618515223658650
+  ],
+  "retiredPropertyUids": [
+    7117997750659844272,
+    7208038991482613170,
+    8957684371679850546,
+    2995742759851243026,
+    5528278541389928687
+  ],
+  "retiredRelationUids": [],
+  "version": 1
+}

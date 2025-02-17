@@ -3,7 +3,7 @@ import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:equatable/equatable.dart';
 import 'package:my_fitness_tracker/features/training_history/domain/entities/history_training.dart';
-import '../../../training_management/domain/entities/training.dart';
+import '../../../training_management/models/training.dart';
 import '../../domain/entities/history_entry.dart';
 import '../../../../core/error/failures.dart';
 import '../../../../core/messages/bloc/message_bloc.dart';

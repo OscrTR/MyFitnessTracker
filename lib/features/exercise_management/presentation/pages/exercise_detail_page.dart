@@ -12,7 +12,7 @@ import 'package:path_provider/path_provider.dart';
 import '../../../../app_colors.dart';
 import '../../../../core/widgets/custom_text_field_widget.dart';
 import '../../../../injection_container.dart';
-import '../../domain/entities/exercise.dart';
+import '../../models/exercise.dart';
 import '../bloc/exercise_management_bloc.dart';
 import '../widgets/exercise_detail_image_picker_widget.dart';
 
@@ -67,7 +67,7 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
     final exercise =
         (sl<ExerciseManagementBloc>().state as ExerciseManagementLoaded)
             .selectedExercise;
-    _selectedExerciseType = exercise?.exerciseType ?? ExerciseType.workout;
+    _selectedExerciseType = exercise?.type ?? ExerciseType.workout;
 
     // Réinitialiser la map avant de la remplir
     _selectedMuscleGroups = {}; // Ou créez une nouvelle map
@@ -242,15 +242,11 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
                   }
                   context.read<ExerciseManagementBloc>().add(
                         CreateOrUpdateExerciseEvent(
-                          Exercise(
-                            id: (sl<ExerciseManagementBloc>().state
-                                    as ExerciseManagementLoaded)
-                                .selectedExercise
-                                ?.id,
+                          Exercise.create(
                             name: _nameController.text,
                             description: _descriptionController.text,
                             imagePath: _image?.path ?? '',
-                            exerciseType: _selectedExerciseType,
+                            type: _selectedExerciseType,
                             muscleGroups: _selectedMuscleGroups.entries
                                 .where((el) => el.value == true)
                                 .map((el) => el.key)
@@ -435,7 +431,7 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
               child: GestureDetector(
                 onTap: () {
                   sl<ExerciseManagementBloc>()
-                      .add(DeleteExerciseEvent(exercise.id!));
+                      .add(DeleteExerciseEvent(exercise.id));
                   GoRouter.of(context).push('/trainings');
                 },
                 child: const Icon(

@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 
 import '../../../../app_colors.dart';
 import '../../../../helper_functions.dart';
-import '../../../training_management/domain/entities/multiset.dart';
-import '../../../training_management/domain/entities/training_exercise.dart';
+import '../../../training_management/models/multiset.dart';
+import '../../../training_management/models/training_exercise.dart';
 import 'active_multiset_exercise_widget.dart';
 import 'active_multiset_run_widget.dart';
 
@@ -65,7 +65,7 @@ class _ActiveMultisetWidgetState extends State<ActiveMultisetWidget> {
             ],
           ),
         ),
-        if (!widget.isLast && widget.multiset.multisetRest != null)
+        if (!widget.isLast && widget.multiset.multisetRest != 0)
           _buildExerciseRest()
       ],
     );
@@ -100,7 +100,7 @@ class _ActiveMultisetWidgetState extends State<ActiveMultisetWidget> {
           const SizedBox(height: 10),
           Text('${widget.multiset.sets} sets'),
           Text(
-              '${widget.multiset.setRest != null ? formatDurationToMinutesSeconds(widget.multiset.setRest) : '0:00'} ${tr('active_training_rest')}'),
+              '${widget.multiset.setRest != 0 ? formatDurationToMinutesSeconds(widget.multiset.setRest) : '0:00'} ${tr('active_training_rest')}'),
           if (widget.multiset.specialInstructions != null &&
               widget.multiset.specialInstructions != '')
             Text('${widget.multiset.specialInstructions}'),
@@ -118,7 +118,7 @@ class _ActiveMultisetWidgetState extends State<ActiveMultisetWidget> {
         final exercise = items[index];
         final isLast = index == items.length - 1;
 
-        return exercise.trainingExerciseType == TrainingExerciseType.run
+        return exercise.type == TrainingExerciseType.run
             ? ActiveMultisetRunWidget(
                 multiset: widget.multiset,
                 tExercise: exercise,
@@ -153,7 +153,7 @@ class _ActiveMultisetWidgetState extends State<ActiveMultisetWidget> {
           if (!widget.isLast) const SizedBox(width: 5),
           if (!widget.isLast)
             Text(
-              widget.multiset.multisetRest != null
+              widget.multiset.multisetRest != 0
                   ? formatDurationToMinutesSeconds(widget.multiset.multisetRest)
                   : '0:00',
             ),

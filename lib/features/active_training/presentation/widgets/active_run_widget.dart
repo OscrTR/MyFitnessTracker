@@ -2,9 +2,9 @@ import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:my_fitness_tracker/features/training_management/models/training_exercise.dart';
 import '../../../../app_colors.dart';
 import '../../../../helper_functions.dart';
-import '../../../training_management/domain/entities/training_exercise.dart';
 import '../bloc/active_training_bloc.dart';
 import 'distance_widget.dart';
 import 'duration_timer_widget.dart';
@@ -141,15 +141,14 @@ class _ActiveRunWidgetState extends State<ActiveRunWidget> {
         ? ' at ${formatPace(widget.tExercise.targetPace ?? 0)}'
         : '';
 
-    if (widget.tExercise.runExerciseTarget == RunExerciseTarget.distance) {
+    if (widget.tExercise.runType == RunType.distance) {
       return Text(
         '${tr('active_training_running')} $targetDistance$targetPace',
         style: Theme.of(context).textTheme.titleMedium,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
       );
-    } else if (widget.tExercise.runExerciseTarget ==
-        RunExerciseTarget.duration) {
+    } else if (widget.tExercise.runType == RunType.duration) {
       return Text(
         '${tr('active_training_running')} $targetDuration$targetPace',
         style: Theme.of(context).textTheme.titleMedium,
@@ -180,7 +179,7 @@ class _ActiveRunWidgetState extends State<ActiveRunWidget> {
         : '';
     final intervals = tExercise.sets;
 
-    if (tExercise.runExerciseTarget == RunExerciseTarget.distance) {
+    if (tExercise.runType == RunType.distance) {
       return Text(
         '${tr('active_training_running_interval')} ${'$intervals'}x$targetDistance$targetPace',
         style: Theme.of(context).textTheme.titleMedium,
@@ -225,22 +224,20 @@ class DistanceOrDurationRun extends StatelessWidget {
             isRunTimer: true,
             isCountDown: false,
             timerValue: 0,
-            targetDistance:
-                tExercise.runExerciseTarget == RunExerciseTarget.distance
-                    ? tExercise.targetDistance ?? 0
-                    : 0,
-            targetDuration:
-                tExercise.runExerciseTarget == RunExerciseTarget.duration
-                    ? tExercise.targetDuration ?? 0
-                    : 0,
+            targetDistance: tExercise.runType == RunType.distance
+                ? tExercise.targetDistance ?? 0
+                : 0,
+            targetDuration: tExercise.runType == RunType.duration
+                ? tExercise.targetDuration ?? 0
+                : 0,
             targetPace: tExercise.isTargetPaceSelected != null &&
                     tExercise.isTargetPaceSelected!
                 ? tExercise.targetPace ?? 0
                 : 0,
-            isAutostart: tExercise.autoStart,
+            isAutostart: tExercise.isAutoStart,
             exerciseGlobalKey: exerciseGlobalKey,
             trainingId: tExercise.trainingId!,
-            tExerciseId: tExercise.id!,
+            tExerciseId: tExercise.id,
             setNumber: 0,
             multisetSetNumber: null,
             multisetId: null,
@@ -261,7 +258,7 @@ class DistanceOrDurationRun extends StatelessWidget {
             isAutostart: true,
             exerciseGlobalKey: exerciseGlobalKey,
             trainingId: tExercise.trainingId!,
-            tExerciseId: tExercise.id!,
+            tExerciseId: tExercise.id,
             setNumber: 0,
             multisetSetNumber: null,
             multisetId: null,
@@ -452,22 +449,20 @@ class IntervalRun extends StatelessWidget {
           isRunTimer: true,
           timerValue: 0,
           isCountDown: false,
-          targetDistance:
-              tExercise.runExerciseTarget == RunExerciseTarget.distance
-                  ? tExercise.targetDistance ?? 0
-                  : 0,
-          targetDuration:
-              tExercise.runExerciseTarget == RunExerciseTarget.duration
-                  ? 0
-                  : tExercise.targetDuration ?? 0,
+          targetDistance: tExercise.runType == RunType.distance
+              ? tExercise.targetDistance ?? 0
+              : 0,
+          targetDuration: tExercise.runType == RunType.duration
+              ? 0
+              : tExercise.targetDuration ?? 0,
           targetPace: tExercise.isTargetPaceSelected != null &&
                   tExercise.isTargetPaceSelected!
               ? tExercise.targetPace ?? 0
               : 0,
-          isAutostart: intervalIndex == 0 ? tExercise.autoStart : true,
+          isAutostart: intervalIndex == 0 ? tExercise.isAutoStart : true,
           exerciseGlobalKey: exerciseGlobalKey,
           trainingId: tExercise.trainingId!,
-          tExerciseId: tExercise.id!,
+          tExerciseId: tExercise.id,
           setNumber: intervalIndex,
           multisetSetNumber: null,
           multisetId: null,
@@ -489,7 +484,7 @@ class IntervalRun extends StatelessWidget {
           isAutostart: true,
           exerciseGlobalKey: exerciseGlobalKey,
           trainingId: tExercise.trainingId!,
-          tExerciseId: tExercise.id!,
+          tExerciseId: tExercise.id,
           setNumber: intervalIndex,
           multisetSetNumber: null,
           multisetId: null,

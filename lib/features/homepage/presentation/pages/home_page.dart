@@ -9,9 +9,10 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:my_fitness_tracker/features/training_history/domain/entities/history_period_stats.dart';
 import 'package:my_fitness_tracker/features/training_history/domain/entities/history_training.dart';
 import 'package:my_fitness_tracker/features/training_history/presentation/bloc/training_history_bloc.dart';
-import 'package:my_fitness_tracker/features/training_management/domain/entities/training.dart';
+import 'package:my_fitness_tracker/features/training_management/models/training.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 import '../../../../app_colors.dart';
+
 import '../../../../helper_functions.dart';
 import '../../../../injection_container.dart';
 import '../../../training_management/presentation/bloc/training_management_bloc.dart';
@@ -948,7 +949,7 @@ Widget _buildTrainingsList(BuildContext context) {
                         ),
                         const SizedBox(height: 3),
                         Text(
-                          training.type.translate(context.locale.languageCode),
+                          training.type!.translate(context.locale.languageCode),
                           style: Theme.of(context)
                               .textTheme
                               .bodySmall!
@@ -963,7 +964,7 @@ Widget _buildTrainingsList(BuildContext context) {
                               onTap: () {
                                 context
                                     .read<TrainingManagementBloc>()
-                                    .add(StartTrainingEvent(training.id!));
+                                    .add(StartTrainingEvent(training.id));
                                 GoRouter.of(context).push('/active_training');
                               },
                               child: Container(
@@ -1028,7 +1029,7 @@ Widget _buildTrainingsList(BuildContext context) {
                         if (value == 'edit') {
                           context
                               .read<TrainingManagementBloc>()
-                              .add(GetTrainingEvent(id: training.id!));
+                              .add(GetTrainingEvent(id: training.id));
                           GoRouter.of(context).push('/training_detail');
                         }
                       },

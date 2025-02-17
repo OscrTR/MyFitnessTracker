@@ -22,12 +22,12 @@ class FetchTrainingsEvent extends TrainingManagementEvent {}
 class LoadDaysSinceTrainingEvent extends TrainingManagementEvent {}
 
 class DeleteTrainingEvent extends TrainingManagementEvent {
-  final int id;
+  final Training training;
 
-  const DeleteTrainingEvent(this.id);
+  const DeleteTrainingEvent(this.training);
 
   @override
-  List<Object> get props => [id];
+  List<Object> get props => [training];
 }
 
 class GetTrainingEvent extends TrainingManagementEvent {

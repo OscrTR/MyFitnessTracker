@@ -3,7 +3,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/widgets.dart';
 
 import 'features/exercise_management/presentation/bloc/exercise_management_bloc.dart';
-import 'features/training_management/domain/entities/training_exercise.dart';
+import 'features/training_management/models/training_exercise.dart';
 import 'injection_container.dart';
 
 String formatDurationToMinutesSeconds(int? seconds) {
@@ -71,7 +71,7 @@ String? findExerciseName(TrainingExercise? tExercise) {
     return null;
   }
   String exerciseName = '';
-  if (tExercise.trainingExerciseType == TrainingExerciseType.run) {
+  if (tExercise.type == TrainingExerciseType.run) {
     final targetPace = tExercise.isTargetPaceSelected == true
         ? ' at ${formatPace(tExercise.targetPace ?? 0)}'
         : '';
@@ -85,27 +85,28 @@ String? findExerciseName(TrainingExercise? tExercise) {
         : '';
 
     if (intervals > 1) {
-      if (tExercise.runExerciseTarget == RunExerciseTarget.distance) {
+      if (tExercise.runType == RunType.distance) {
         exerciseName =
             '${tr('active_training_running_interval')} ${'$intervals'}x$targetDistance$targetPace';
       } else {
         exerciseName =
             '${tr('active_training_running_interval')} ${'$intervals'}x$targetDuration$targetPace';
       }
-    } else if (tExercise.runExerciseTarget == RunExerciseTarget.distance) {
+    } else if (tExercise.runType == RunType.distance) {
       exerciseName =
           '${tr('active_training_running')} $targetDistance$targetPace';
-    } else if (tExercise.runExerciseTarget == RunExerciseTarget.duration) {
+    } else if (tExercise.runType == RunType.duration) {
       exerciseName =
           '${tr('active_training_running')} $targetDuration$targetPace';
     }
   } else {
-    exerciseName = (sl<ExerciseManagementBloc>().state
-                as ExerciseManagementLoaded)
-            .exercises
-            .firstWhereOrNull((exercise) => exercise.id == tExercise.exerciseId)
-            ?.name ??
-        'Deleted exercise';
+    exerciseName =
+        (sl<ExerciseManagementBloc>().state as ExerciseManagementLoaded)
+                .exercises
+                .firstWhereOrNull(
+                    (exercise) => exercise.id == tExercise.exercise.targetId)
+                ?.name ??
+            'Deleted exercise';
   }
   return exerciseName;
 }
@@ -128,4 +129,10 @@ void scrollToMostRecentDate(ScrollController scrollController) {
   WidgetsBinding.instance.addPostFrameCallback((_) {
     scrollController.jumpTo(scrollController.position.maxScrollExtent);
   });
+}
+
+Map<T, bool> createMapWithDefaultValues<T>(List<T> enumValues) {
+  return Map.fromEntries(enumValues
+      .sublist(0, enumValues.length - 1)
+      .map((value) => MapEntry(value, false)));
 }

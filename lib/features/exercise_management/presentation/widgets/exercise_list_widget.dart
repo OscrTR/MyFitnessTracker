@@ -20,7 +20,7 @@ class ExerciseList extends StatelessWidget {
             itemBuilder: (context, index) {
               final exercise = state.exercises[index];
               return ExerciseListItem(
-                exerciseId: exercise.id!,
+                exerciseId: exercise.id,
                 exerciseName: exercise.name,
                 exerciseImagePath: exercise.imagePath,
                 exerciseDescription: exercise.description,

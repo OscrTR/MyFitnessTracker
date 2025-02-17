@@ -168,5 +168,6 @@
   "history_page_drop": "Drop",
   "history_page_interval": "Interval",
 
-  "stats_page_title": "Stats"
+  "stats_page_title": "Stats",
+  "stats_page_deleted_exercises": "Deleted exercises"
 }

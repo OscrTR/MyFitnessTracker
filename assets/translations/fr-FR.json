@@ -168,5 +168,6 @@
   "history_page_drop": "Dénivelé",
   "history_page_interval": "Intervalle",
 
-  "stats_page_title": "Statistiques"
+  "stats_page_title": "Statistiques",
+  "stats_page_deleted_exercises": "Exercices supprimés"
 }

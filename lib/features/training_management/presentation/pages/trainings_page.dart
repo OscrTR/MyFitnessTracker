@@ -5,13 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import '../../domain/entities/training_exercise.dart';
+import '../../models/training_exercise.dart';
 import '../../../../app_colors.dart';
 import '../../../../helper_functions.dart';
 import '../../../../injection_container.dart';
 import '../../../exercise_management/presentation/bloc/exercise_management_bloc.dart';
 import '../bloc/training_management_bloc.dart';
-import '../../domain/entities/training.dart';
+import '../../models/training.dart';
 
 class TrainingsPage extends StatefulWidget {
   const TrainingsPage({super.key});
@@ -28,8 +28,7 @@ class _TrainingsPageState extends State<TrainingsPage> {
   void initState() {
     super.initState();
     _selectedTrainingTypes = {};
-    _selectedTrainingTypes = Map.fromEntries(
-        TrainingType.values.map((type) => MapEntry(type, false)));
+    _selectedTrainingTypes = createMapWithDefaultValues(TrainingType.values);
     sl<TrainingManagementBloc>().add(FetchTrainingsEvent());
   }
 
@@ -160,7 +159,7 @@ class _TrainingsPageState extends State<TrainingsPage> {
                         onTap: () {
                           context
                               .read<ExerciseManagementBloc>()
-                              .add(GetExerciseEvent(exercise.id!));
+                              .add(GetExerciseEvent(exercise.id));
                           GoRouter.of(context).push('/exercise_detail');
                         },
                         child: Container(
@@ -260,7 +259,7 @@ class _TrainingsPageState extends State<TrainingsPage> {
                 onTap: () {
                   context
                       .read<TrainingManagementBloc>()
-                      .add(GetTrainingEvent(id: training.id!));
+                      .add(GetTrainingEvent(id: training.id));
                   GoRouter.of(context).push('/training_detail');
                 },
                 child: Container(
@@ -282,7 +281,7 @@ class _TrainingsPageState extends State<TrainingsPage> {
                 onTap: () {
                   context
                       .read<TrainingManagementBloc>()
-                      .add(StartTrainingEvent(training.id!));
+                      .add(StartTrainingEvent(training.id));
                   GoRouter.of(context).push('/active_training');
                 },
                 child: Container(
@@ -436,7 +435,7 @@ class _TrainingsPageState extends State<TrainingsPage> {
               color: AppColors.parchment,
               borderRadius: BorderRadius.circular(5)),
           child: Text(
-            training.type.translate(context.locale.languageCode),
+            training.type!.translate(context.locale.languageCode),
             style: Theme.of(context).textTheme.bodySmall,
           ),
         ),
@@ -599,9 +598,9 @@ int calculateTrainingDuration(Training training) {
     // Multiplie par le nombre de sets du multiset
     totalSeconds += multisetTotalSeconds * multiset.sets;
     // Ajoute le repos entre les sets du multiset
-    totalSeconds += (multiset.setRest ?? 0) * (multiset.sets - 1);
+    totalSeconds += multiset.setRest * (multiset.sets - 1);
     // Ajoute le repos final du multiset
-    totalSeconds += (multiset.multisetRest ?? 0);
+    totalSeconds += multiset.multisetRest;
   }
 
   return totalSeconds;

@@ -22,7 +22,8 @@ class SQLiteDatabaseHelper {
             exercise_type TEXT,
             description TEXT, 
             image_path TEXT,
-            muscle_groups TEXT
+            muscle_groups TEXT,
+            version INTEGER DEFAULT 1
           )
         ''');
 
@@ -32,7 +33,8 @@ class SQLiteDatabaseHelper {
             name TEXT,
             type INTEGER, 
             objectives TEXT,
-            training_days TEXT
+            training_days TEXT,
+            version INTEGER DEFAULT 1
           )
         ''');
 
@@ -47,6 +49,7 @@ class SQLiteDatabaseHelper {
             objectives TEXT,
             position INTEGER,
             key TEXT,
+            version INTEGER DEFAULT 1,
             FOREIGN KEY(training_id) REFERENCES trainings(id) ON DELETE CASCADE
           )
         ''');
@@ -76,6 +79,7 @@ class SQLiteDatabaseHelper {
             position INTEGER,
             intensity INTEGER,
             key TEXT,
+            version INTEGER DEFAULT 1,
             FOREIGN KEY(training_id) REFERENCES trainings(id) ON DELETE CASCADE,
             FOREIGN KEY(multiset_id) REFERENCES multisets(id) ON DELETE CASCADE,
             FOREIGN KEY(exercise_id) REFERENCES exercises(id) ON DELETE CASCADE
@@ -124,6 +128,17 @@ class SQLiteDatabaseHelper {
             speed REAL,
             FOREIGN KEY(training_exercise_id) REFERENCES training_exercises(id),
             FOREIGN KEY(training_id) REFERENCES trainings(id)
+          )
+        ''');
+
+        await db.execute('''
+          CREATE TABLE versions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            object_id INTEGER,
+            object_type TEXT,  -- 'exercice', 'training', 'multiset', 'training_exercise'
+            version INTEGER,
+            data JSON,  -- stocke les données de l'objet avant modification
+            modification_date INTEGER
           )
         ''');
       },

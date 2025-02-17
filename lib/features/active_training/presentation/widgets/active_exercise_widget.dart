@@ -12,9 +12,9 @@ import '../../../training_history/presentation/bloc/training_history_bloc.dart';
 import '../../../../helper_functions.dart';
 import '../bloc/active_training_bloc.dart';
 import '../../../../app_colors.dart';
-import '../../../exercise_management/domain/entities/exercise.dart';
+import '../../../exercise_management/models/exercise.dart';
 import '../../../exercise_management/presentation/bloc/exercise_management_bloc.dart';
-import '../../../training_management/domain/entities/training_exercise.dart';
+import '../../../training_management/models/training_exercise.dart';
 import '../../../../core/widgets/small_text_field_widget.dart';
 
 class ActiveExerciseWidget extends StatefulWidget {
@@ -118,8 +118,8 @@ class _ActiveExerciseWidgetState extends State<ActiveExerciseWidget> {
     return BlocBuilder<ExerciseManagementBloc, ExerciseManagementState>(
       builder: (context, exerciseBlocState) {
         final matchingExercise = exerciseBlocState is ExerciseManagementLoaded
-            ? exerciseBlocState.exercises
-                .firstWhereOrNull((e) => e.id == widget.tExercise.exerciseId)
+            ? exerciseBlocState.exercises.firstWhereOrNull(
+                (e) => e.id == widget.tExercise.exercise.targetId)
             : null;
 
         return Column(
@@ -435,11 +435,11 @@ class _ActiveExerciseRowState extends State<ActiveExerciseRow> {
           isAutostart: false,
           exerciseGlobalKey: widget.exerciseGlobalKey,
           trainingId: widget.tExercise.trainingId!,
-          tExerciseId: widget.tExercise.id!,
+          tExerciseId: widget.tExercise.id,
           setNumber: widget.setIndex,
           multisetSetNumber: null,
           multisetId: null,
-          exerciseId: widget.tExercise.exerciseId,
+          exerciseId: widget.tExercise.exercise.targetId,
         )));
 
     return BlocBuilder<ActiveTrainingBloc, ActiveTrainingState>(
@@ -488,22 +488,21 @@ class _ActiveExerciseRowState extends State<ActiveExerciseRow> {
                         historyEntry: HistoryEntry(
                           id: widget.historyEntryId,
                           trainingId: widget.tExercise.trainingId!,
-                          trainingExerciseId: widget.tExercise.id!,
+                          trainingExerciseId: widget.tExercise.id,
                           setNumber: widget.setIndex,
                           multisetSetNumber: null,
                           date: DateTime.now(),
                           reps: int.tryParse(widget.repsController.text),
                           weight: int.tryParse(widget.weightController.text),
                           calories: cals,
-                          trainingExerciseType:
-                              widget.tExercise.trainingExerciseType,
-                          trainingType: training.type,
+                          trainingExerciseType: widget.tExercise.type!,
+                          trainingType: training.type!,
                           trainingNameAtTime: training.name,
                           exerciseNameAtTime:
                               findExerciseName(widget.tExercise)!,
                           intensity: widget.tExercise.intensity,
                           multisetId: null,
-                          exerciseId: widget.tExercise.exerciseId,
+                          exerciseId: widget.tExercise.exercise.targetId,
                         ),
                       ),
                     );
@@ -567,14 +566,14 @@ class ActiveExerciseDurationRow extends StatelessWidget {
           isRunTimer: false,
           countDownValue: tExercise.duration ?? 0,
           timerValue: 0,
-          isAutostart: tExercise.autoStart,
+          isAutostart: tExercise.isAutoStart,
           exerciseGlobalKey: exerciseGlobalKey,
           trainingId: tExercise.trainingId!,
-          tExerciseId: tExercise.id!,
+          tExerciseId: tExercise.id,
           setNumber: setIndex,
           multisetSetNumber: null,
           multisetId: null,
-          exerciseId: tExercise.exerciseId,
+          exerciseId: tExercise.exercise.targetId,
         )));
 
     context.read<ActiveTrainingBloc>().add(CreateTimer(
@@ -590,11 +589,11 @@ class ActiveExerciseDurationRow extends StatelessWidget {
           isAutostart: true,
           exerciseGlobalKey: exerciseGlobalKey,
           trainingId: tExercise.trainingId!,
-          tExerciseId: tExercise.id!,
+          tExerciseId: tExercise.id,
           setNumber: setIndex,
           multisetSetNumber: null,
           multisetId: null,
-          exerciseId: tExercise.exerciseId,
+          exerciseId: tExercise.exercise.targetId,
         )));
 
     return BlocBuilder<ActiveTrainingBloc, ActiveTrainingState>(

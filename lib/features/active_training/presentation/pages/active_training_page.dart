@@ -21,10 +21,10 @@ import '../widgets/active_multiset_widget.dart';
 import '../widgets/active_run_widget.dart';
 import '../widgets/timer_widget.dart';
 
-import '../../../training_management/domain/entities/training_exercise.dart';
+import '../../../training_management/models/training_exercise.dart';
 import '../../../training_management/presentation/bloc/training_management_bloc.dart';
 
-import '../../../training_management/domain/entities/multiset.dart';
+import '../../../training_management/models/multiset.dart';
 import '../widgets/active_exercise_widget.dart';
 
 const uuid = Uuid();
@@ -179,14 +179,13 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage>
                         state.activeTraining != null) {
                       bool isVerified = false;
 
-                      bool hasRunExercise =
-                          state.activeTraining!.trainingExercises.any((el) =>
-                                  el.trainingExerciseType ==
-                                  TrainingExerciseType.run) ||
-                              state.activeTraining!.multisets.any((multiset) =>
-                                  multiset.trainingExercises.any((el) =>
-                                      el.trainingExerciseType ==
-                                      TrainingExerciseType.run));
+                      bool hasRunExercise = state
+                              .activeTraining!.trainingExercises
+                              .any((el) =>
+                                  el.type == TrainingExerciseType.run) ||
+                          state.activeTraining!.multisets.any((multiset) =>
+                              multiset.trainingExercises.any(
+                                  (el) => el.type == TrainingExerciseType.run));
 
                       if (hasRunExercise) {
                         if (isLocationPermissionGrantedAlways &&
@@ -244,13 +243,10 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage>
                   bool isVerified = false;
 
                   bool hasRunExercise = state.activeTraining!.trainingExercises
-                          .any((el) =>
-                              el.trainingExerciseType ==
-                              TrainingExerciseType.run) ||
-                      state.activeTraining!.multisets.any((multiset) =>
-                          multiset.trainingExercises.any((el) =>
-                              el.trainingExerciseType ==
-                              TrainingExerciseType.run));
+                          .any((el) => el.type == TrainingExerciseType.run) ||
+                      state.activeTraining!.multisets.any((multiset) => multiset
+                          .trainingExercises
+                          .any((el) => el.type == TrainingExerciseType.run));
 
                   if (hasRunExercise) {
                     if (isLocationPermissionGrantedAlways &&
@@ -354,9 +350,8 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage>
                           pace: currentTimerState.pace.toInt(),
                           calories: cals,
                           trainingType:
-                              trainingManagementState.activeTraining!.type,
-                          trainingExerciseType:
-                              matchingTExercise.trainingExerciseType,
+                              trainingManagementState.activeTraining!.type!,
+                          trainingExerciseType: matchingTExercise.type!,
                           trainingNameAtTime:
                               trainingManagementState.activeTraining!.name,
                           exerciseNameAtTime:
@@ -612,7 +607,7 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage>
                   }
                 }
               },
-              child: exercise.trainingExerciseType == TrainingExerciseType.run
+              child: exercise.type == TrainingExerciseType.run
                   ? ActiveRunWidget(
                       tExercise: exercise,
                       isLast: isLast,

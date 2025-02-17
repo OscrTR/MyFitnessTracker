@@ -1,8 +1,8 @@
 import 'package:get_it/get_it.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:my_fitness_tracker/core/database/object_box.dart';
 import 'package:my_fitness_tracker/features/training_history/domain/usecases/fetch_history_run_locations.dart';
 import 'features/settings/presentation/bloc/settings_bloc.dart';
-import 'features/training_management/domain/usecases/get_days_since_training.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -22,24 +22,7 @@ import 'features/training_history/domain/usecases/delete_history_entry.dart';
 import 'features/training_history/domain/usecases/fetch_history_entries.dart';
 import 'features/training_history/presentation/bloc/training_history_bloc.dart';
 
-import 'features/training_management/domain/usecases/create_training.dart';
-import 'features/training_management/domain/usecases/delete_training.dart';
-import 'features/training_management/domain/usecases/get_training.dart';
-import 'features/training_management/domain/usecases/update_training.dart';
-import 'features/training_management/data/datasources/training_local_data_source.dart';
-import 'features/training_management/data/repositories/training_repository_impl.dart';
-import 'features/training_management/domain/repositories/training_repository.dart';
-import 'features/training_management/domain/usecases/fetch_trainings.dart';
 import 'features/training_management/presentation/bloc/training_management_bloc.dart';
-
-import 'features/exercise_management/data/datasources/exercise_local_data_source.dart';
-import 'features/exercise_management/data/repositories/exercise_repository_impl.dart';
-import 'features/exercise_management/domain/repositories/exercise_repository.dart';
-import 'features/exercise_management/domain/usecases/create_exercise.dart';
-import 'features/exercise_management/domain/usecases/delete_exercise.dart';
-import 'features/exercise_management/domain/usecases/fetch_exercises.dart';
-import 'features/exercise_management/domain/usecases/get_exercise.dart';
-import 'features/exercise_management/domain/usecases/update_exercise.dart';
 import 'features/exercise_management/presentation/bloc/exercise_management_bloc.dart';
 import 'features/active_training/presentation/foreground_service.dart';
 
@@ -53,6 +36,8 @@ Future<void> init() async {
   // Ensure the Database is ready before registering anything that depends on it
   await sl.isReady<Database>();
 
+  sl.registerSingletonAsync<ObjectBox>(() async => await ObjectBox.create());
+
   //! Core
   sl.registerLazySingleton(() => MessageBloc());
   sl.registerLazySingleton(() => FlutterLocalNotificationsPlugin());
@@ -63,56 +48,13 @@ Future<void> init() async {
 
   //! Features - Exercise Management
   // Bloc
-  sl.registerLazySingleton(() => ExerciseManagementBloc(
-      createExercise: sl(),
-      fetchExercises: sl(),
-      updateExercise: sl(),
-      deleteExercise: sl(),
-      getExercise: sl(),
-      messageBloc: sl()));
-
-  // Usecases
-  sl.registerLazySingleton(() => CreateExercise(sl()));
-  sl.registerLazySingleton(() => GetExercise(sl()));
-  sl.registerLazySingleton(() => FetchExercises(sl()));
-  sl.registerLazySingleton(() => UpdateExercise(sl()));
-  sl.registerLazySingleton(() => DeleteExercise(sl()));
-
-  // Repository
-  sl.registerLazySingleton<ExerciseRepository>(
-      () => ExerciseRepositoryImpl(localDataSource: sl()));
-
-  // Data sources
-  sl.registerLazySingleton<ExerciseLocalDataSource>(
-      () => SQLiteExerciseLocalDataSource(database: sl()));
+  sl.registerLazySingleton(() => ExerciseManagementBloc(messageBloc: sl()));
 
   //! Features - Training Management
   // Bloc
   sl.registerLazySingleton(() => TrainingManagementBloc(
-        createTraining: sl(),
-        fetchTrainings: sl(),
-        getTraining: sl(),
-        updateTraining: sl(),
-        deleteTraining: sl(),
-        getDaysSinceTraining: sl(),
         messageBloc: sl(),
       ));
-
-  // Usecases
-  sl.registerLazySingleton(() => CreateTraining(sl()));
-  sl.registerLazySingleton(() => FetchTrainings(sl()));
-  sl.registerLazySingleton(() => GetTraining(sl()));
-  sl.registerLazySingleton(() => UpdateTraining(sl()));
-  sl.registerLazySingleton(() => DeleteTraining(sl()));
-  sl.registerLazySingleton(() => GetDaysSinceTraining(sl()));
-
-  // Repository
-  sl.registerLazySingleton<TrainingRepository>(
-      () => TrainingRepositoryImpl(localDataSource: sl()));
-
-  // Data sources
-  sl.registerLazySingleton<TrainingLocalDataSource>(
-      () => SQLiteTrainingLocalDataSource(database: sl()));
 
   //! Features - Active Training
   // Bloc

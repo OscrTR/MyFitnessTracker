@@ -9,7 +9,6 @@ import 'package:toggle_switch/toggle_switch.dart';
 import '../../../../app_colors.dart';
 import '../../../../helper_functions.dart';
 import '../../../../injection_container.dart';
-import '../../../training_management/domain/entities/training.dart';
 import '../../../training_management/presentation/bloc/training_management_bloc.dart';
 import '../../domain/entities/history_training.dart';
 import '../bloc/training_history_bloc.dart';
