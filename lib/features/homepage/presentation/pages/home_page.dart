@@ -13,6 +13,7 @@ import 'package:my_fitness_tracker/features/training_management/models/training.
 import 'package:toggle_switch/toggle_switch.dart';
 import '../../../../app_colors.dart';
 
+import '../../../../core/enums/enums.dart';
 import '../../../../helper_functions.dart';
 import '../../../../injection_container.dart';
 import '../../../training_management/presentation/bloc/training_management_bloc.dart';

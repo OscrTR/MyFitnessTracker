@@ -1,6 +1,4 @@
-import 'package:my_fitness_tracker/features/training_management/models/training.dart';
-
-import '../../../training_management/models/training_exercise.dart';
+import '../../../../core/enums/enums.dart';
 import '../../domain/entities/history_entry.dart';
 
 class HistoryEntryModel extends HistoryEntry {

@@ -3,6 +3,7 @@ import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../app_colors.dart';
+import '../../../../core/enums/enums.dart';
 import '../../../../helper_functions.dart';
 import '../../../training_management/models/multiset.dart';
 import '../../../training_management/models/training_exercise.dart';

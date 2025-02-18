@@ -3,6 +3,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../app_colors.dart';
+import '../../../../core/enums/enums.dart';
 import '../../../../helper_functions.dart';
 import '../../../training_management/models/multiset.dart';
 import '../../../training_management/models/training_exercise.dart';

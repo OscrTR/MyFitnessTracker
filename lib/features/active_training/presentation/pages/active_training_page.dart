@@ -10,6 +10,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:my_fitness_tracker/features/active_training/presentation/foreground_service.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../../../../app_colors.dart';
+import '../../../../core/enums/enums.dart';
 import '../../../../helper_functions.dart';
 import '../../../training_history/domain/entities/history_entry.dart';
 import '../../../training_history/presentation/bloc/training_history_bloc.dart';

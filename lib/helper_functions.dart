@@ -2,6 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/widgets.dart';
 
+import 'core/enums/enums.dart';
 import 'features/exercise_management/presentation/bloc/exercise_management_bloc.dart';
 import 'features/training_management/models/training_exercise.dart';
 import 'injection_container.dart';

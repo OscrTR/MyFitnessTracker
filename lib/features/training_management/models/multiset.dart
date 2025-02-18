@@ -85,4 +85,43 @@ class Multiset {
                 .toList(),
       );
   }
+
+  /// Convertit un objet `Multiset` en JSON
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'linkedTrainingId': linkedTrainingId,
+      'sets': sets,
+      'setRest': setRest,
+      'multisetRest': multisetRest,
+      'specialInstructions': specialInstructions,
+      'objectives': objectives,
+      'position': position,
+      'key': key,
+      'trainingExercises': trainingExercises
+          .map((exercise) => exercise.toJson())
+          .toList(), // Sérialisation des TrainingExercises associés
+    };
+  }
+
+  /// Crée un objet `Multiset` à partir d'un JSON
+  static Multiset fromJson(Map<String, dynamic> json) {
+    final multiset = Multiset.create(
+      id: json['id'] as int? ?? 0,
+      linkedTrainingId: json['linkedTrainingId'] as int?,
+      sets: json['sets'] as int? ?? 0,
+      setRest: json['setRest'] as int? ?? 0,
+      multisetRest: json['multisetRest'] as int? ?? 0,
+      position: json['position'] as int?,
+      key: json['key'] as String?,
+      specialInstructions: json['specialInstructions'] as String?,
+      objectives: json['objectives'] as String?,
+      trainingExercises: (json['trainingExercises'] as List<dynamic>?)
+              ?.map((e) => TrainingExercise.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
+    );
+
+    return multiset;
+  }
 }

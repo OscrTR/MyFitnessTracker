@@ -4,6 +4,7 @@ import 'package:equatable/equatable.dart';
 import 'package:my_fitness_tracker/core/database/object_box.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../../../core/enums/enums.dart';
 import '../../../../core/messages/bloc/message_bloc.dart';
 import '../../../../injection_container.dart';
 import '../../models/multiset.dart';

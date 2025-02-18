@@ -1,6 +1,8 @@
 import 'package:my_fitness_tracker/features/exercise_management/models/exercise.dart';
 import 'package:objectbox/objectbox.dart';
 
+import '../../../core/enums/enums.dart';
+
 @Entity()
 class TrainingExercise {
   @Id()
@@ -166,46 +168,73 @@ class TrainingExercise {
       exercise: exercise?.copyWith() ?? this.exercise.target?.copyWith(),
     );
   }
-}
 
-// Enum `TrainingExerciseType`
-enum TrainingExerciseType {
-  run,
-  yoga,
-  workout,
-  meditation,
-  unknown;
-
-  String translate(String locale) {
-    switch (this) {
-      case TrainingExerciseType.yoga:
-        return locale == 'fr' ? 'Yoga' : 'Yoga';
-      case TrainingExerciseType.workout:
-        return locale == 'fr' ? 'Renforcement' : 'Workout';
-      case TrainingExerciseType.run:
-        return locale == 'fr' ? 'Course' : 'Run';
-      case TrainingExerciseType.meditation:
-        return locale == 'fr' ? 'Méditation' : 'Meditation';
-      case TrainingExerciseType.unknown:
-        return locale == 'fr' ? 'Inconnu' : 'Unknown';
-    }
+  /// Convertit un objet `TrainingExercise` en JSON
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'linkedTrainingId': linkedTrainingId,
+      'linkedMultisetId': linkedMultisetId,
+      'linkedExerciseId': linkedExerciseId,
+      'type': dbType,
+      'specialInstructions': specialInstructions,
+      'objectives': objectives,
+      'runType': dbRunType,
+      'targetDistance': targetDistance,
+      'targetDuration': targetDuration,
+      'isTargetPaceSelected': isTargetPaceSelected,
+      'targetPace': targetPace,
+      'sets': sets,
+      'isSetsInReps': isSetsInReps,
+      'minReps': minReps,
+      'maxReps': maxReps,
+      'duration': duration,
+      'setRest': setRest,
+      'exerciseRest': exerciseRest,
+      'isAutoStart': isAutoStart,
+      'position': position,
+      'intensity': intensity,
+      'key': key,
+      'exercise':
+          exercise.target?.toJson(), // Sérialisation de l'exercice associé
+    };
   }
-}
 
-// Enum `RunExerciseTarget`
-enum RunType {
-  distance,
-  duration,
-  unknown;
+  /// Crée un objet `TrainingExercise` à partir d'un JSON
+  static TrainingExercise fromJson(Map<String, dynamic> json) {
+    final trainingExercise = TrainingExercise.create(
+      id: json['id'] as int? ?? 0,
+      linkedTrainingId: json['linkedTrainingId'] as int?,
+      linkedMultisetId: json['linkedMultisetId'] as int?,
+      linkedExerciseId: json['linkedExerciseId'] as int?,
+      type: json['type'] != null
+          ? TrainingExerciseType.values[json['type'] as int]
+          : null,
+      specialInstructions: json['specialInstructions'] as String?,
+      objectives: json['objectives'] as String?,
+      runType: json['runType'] != null
+          ? RunType.values[json['runType'] as int]
+          : null,
+      targetDistance: json['targetDistance'] as int?,
+      targetDuration: json['targetDuration'] as int?,
+      isTargetPaceSelected: json['isTargetPaceSelected'] as bool?,
+      targetPace: json['targetPace'] as int?,
+      sets: json['sets'] as int? ?? 0,
+      isSetsInReps: json['isSetsInReps'] as bool? ?? false,
+      minReps: json['minReps'] as int?,
+      maxReps: json['maxReps'] as int?,
+      duration: json['duration'] as int?,
+      setRest: json['setRest'] as int?,
+      exerciseRest: json['exerciseRest'] as int?,
+      isAutoStart: json['isAutoStart'] as bool? ?? false,
+      position: json['position'] as int?,
+      intensity: json['intensity'] as int? ?? 0,
+      key: json['key'] as String?,
+      exercise: json['exercise'] != null
+          ? Exercise.fromJson(json['exercise'] as Map<String, dynamic>)
+          : null,
+    );
 
-  String translate(String locale) {
-    switch (this) {
-      case RunType.distance:
-        return locale == 'fr' ? 'Distance' : 'Distance';
-      case RunType.duration:
-        return locale == 'fr' ? 'Durée' : 'Duration';
-      case RunType.unknown:
-        return locale == 'fr' ? 'Inconnu' : 'Unknown';
-    }
+    return trainingExercise;
   }
 }

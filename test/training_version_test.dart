@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:my_fitness_tracker/core/enums/enums.dart';
 import 'package:my_fitness_tracker/features/exercise_management/models/exercise.dart';
 import 'package:my_fitness_tracker/features/training_history/data/models/training_version.dart';
 import 'package:my_fitness_tracker/features/training_management/models/multiset.dart';
@@ -59,19 +60,22 @@ void main() {
     );
 
     final trainingVersion = TrainingVersion.fromTraining(training);
+    final matchingTraining = trainingVersion.toTraining();
 
-    expect(trainingVersion.trainingExercises.length, equals(2));
-    expect(trainingVersion.trainingExercises[0].exercise.target!.name,
+    expect(matchingTraining?.trainingExercises.length, equals(2));
+    expect(matchingTraining?.trainingExercises[0].exercise.target!.name,
         equals('Squat'));
-    expect(trainingVersion.trainingExercises[1].exercise.target!.name,
+    expect(matchingTraining?.trainingExercises[1].exercise.target!.name,
         equals('Bench Press'));
-    expect(trainingVersion.multisets.length, equals(1));
-    expect(trainingVersion.multisets[0].trainingExercises.length, equals(2));
+    expect(matchingTraining?.multisets.length, equals(1));
+    expect(matchingTraining?.multisets[0].trainingExercises.length, equals(2));
     expect(
-        trainingVersion.multisets[0].trainingExercises[0].exercise.target!.name,
+        matchingTraining
+            ?.multisets[0].trainingExercises[0].exercise.target!.name,
         equals('Squat'));
     expect(
-        trainingVersion.multisets[0].trainingExercises[1].exercise.target!.name,
+        matchingTraining
+            ?.multisets[0].trainingExercises[1].exercise.target!.name,
         equals('Bench Press'));
   });
 }

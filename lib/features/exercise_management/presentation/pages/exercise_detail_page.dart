@@ -10,6 +10,7 @@ import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 
 import '../../../../app_colors.dart';
+import '../../../../core/enums/enums.dart';
 import '../../../../core/widgets/custom_text_field_widget.dart';
 import '../../../../injection_container.dart';
 import '../../models/exercise.dart';

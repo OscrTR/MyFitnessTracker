@@ -1,6 +1,6 @@
 import 'dart:convert';
-
 import 'package:objectbox/objectbox.dart';
+import '../../../core/enums/enums.dart';
 import '../../training_history/data/models/training_version.dart';
 import 'multiset.dart';
 import 'training_exercise.dart';
@@ -100,6 +100,49 @@ class Training {
           this.multisets.map((e) => e.copyWith()))
       ..trainingDays = trainingDays ?? this.trainingDays;
   }
+
+  /// Convertit un objet `Training` en JSON
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'type': dbType,
+      'objectives': objectives,
+      'trainingDays':
+          dbTrainingDays, // Conserve les jours d'entraînement sous forme de chaîne JSON
+      'trainingExercises': trainingExercises
+          .map((exercise) => exercise.toJson())
+          .toList(), // Sérialisation des TrainingExercises
+      'multisets': multisets
+          .map((multiset) => multiset.toJson())
+          .toList(), // Sérialisation des Multisets
+    };
+  }
+
+  /// Crée un objet `Training` à partir d'un JSON
+  static Training fromJson(Map<String, dynamic> json) {
+    final training = Training(json['name'] as String)
+      ..id = json['id'] as int? ?? 0
+      ..dbType = json['type'] as int?
+      ..objectives = json['objectives'] as String?
+      ..dbTrainingDays = json['trainingDays'] as String?;
+
+    // Désérialisation de la liste des TrainingExercises
+    final exercisesJson = json['trainingExercises'] as List<dynamic>?;
+    if (exercisesJson != null) {
+      training.trainingExercises.addAll(exercisesJson
+          .map((e) => TrainingExercise.fromJson(e as Map<String, dynamic>)));
+    }
+
+    // Désérialisation de la liste des Multisets
+    final multisetsJson = json['multisets'] as List<dynamic>?;
+    if (multisetsJson != null) {
+      training.multisets.addAll(multisetsJson
+          .map((e) => Multiset.fromJson(e as Map<String, dynamic>)));
+    }
+
+    return training;
+  }
 }
 
 // Helper pour convertir une liste d'énums en chaîne JSON et vice-versa
@@ -114,56 +157,5 @@ class WeekDayHelper {
     return (jsonDecode(json) as List<dynamic>)
         .map((e) => WeekDay.values[e as int])
         .toList();
-  }
-}
-
-// Enum TrainingType
-enum TrainingType {
-  run,
-  yoga,
-  workout,
-  unknown;
-
-  String translate(String locale) {
-    switch (this) {
-      case TrainingType.yoga:
-        return locale == 'fr' ? 'Yoga' : 'Yoga';
-      case TrainingType.workout:
-        return locale == 'fr' ? 'Renforcement' : 'Workout';
-      case TrainingType.run:
-        return locale == 'fr' ? 'Course' : 'Run';
-      case TrainingType.unknown:
-        return locale == 'fr' ? 'Inconnu' : 'Unknown';
-    }
-  }
-}
-
-// Enum WeekDay
-enum WeekDay {
-  monday,
-  tuesday,
-  wednesday,
-  thursday,
-  friday,
-  saturday,
-  sunday;
-
-  String translate(String locale) {
-    switch (this) {
-      case WeekDay.monday:
-        return locale == 'fr' ? 'Lundi' : 'Monday';
-      case WeekDay.tuesday:
-        return locale == 'fr' ? 'Mardi' : 'Tuesday';
-      case WeekDay.wednesday:
-        return locale == 'fr' ? 'Mercredi' : 'Wednesday';
-      case WeekDay.thursday:
-        return locale == 'fr' ? 'Jeudi' : 'Thursday';
-      case WeekDay.friday:
-        return locale == 'fr' ? 'Vendredi' : 'Friday';
-      case WeekDay.saturday:
-        return locale == 'fr' ? 'Samedi' : 'Saturday';
-      case WeekDay.sunday:
-        return locale == 'fr' ? 'Dimanche' : 'Sunday';
-    }
   }
 }

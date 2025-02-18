@@ -1,6 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:my_fitness_tracker/features/training_management/models/training.dart';
-import '../../../training_management/models/training_exercise.dart';
+import '../../../../core/enums/enums.dart';
 
 class HistoryEntry extends Equatable {
   final int? id;

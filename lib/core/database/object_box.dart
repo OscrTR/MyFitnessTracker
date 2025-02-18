@@ -100,6 +100,13 @@ class ObjectBox {
     return _exerciseBox.get(id);
   }
 
+  List<TrainingVersion>? getTrainingVersionsForTrainingId(int id) {
+    return _trainingVersionBox
+        .getAll()
+        .where((trainingVersion) => trainingVersion.linkedTrainingId == id)
+        .toList();
+  }
+
   //* Update operations
   Future<void> updateTraining(Training training) async {
     _store.runInTransaction(TxMode.write, () {

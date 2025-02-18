@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_fitness_tracker/features/training_management/models/training_exercise.dart';
 import '../../../../app_colors.dart';
+import '../../../../core/enums/enums.dart';
 import '../../../../helper_functions.dart';
 import '../bloc/active_training_bloc.dart';
 import 'distance_widget.dart';
