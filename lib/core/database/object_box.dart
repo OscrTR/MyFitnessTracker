@@ -31,7 +31,7 @@ class ObjectBox {
   }
 
   //* Create operations
-  Future<int> createTraining(Training training) async {
+  int createTraining(Training training) {
     for (var tExercise in training.trainingExercises) {
       createTrainingExercise(tExercise);
     }
@@ -48,22 +48,22 @@ class ObjectBox {
     return createdTraining;
   }
 
-  Future<int> createMultiset(Multiset multiset) async {
+  int createMultiset(Multiset multiset) {
     for (var tExercise in multiset.trainingExercises) {
       createTrainingExercise(tExercise);
     }
     return _multisetBox.put(multiset);
   }
 
-  Future<int> createTrainingExercise(TrainingExercise trainingExercise) async {
+  int createTrainingExercise(TrainingExercise trainingExercise) {
     return _trainingExerciseBox.put(trainingExercise);
   }
 
-  Future<int> createExercise(Exercise exercise) async {
+  int createExercise(Exercise exercise) {
     return _exerciseBox.put(exercise);
   }
 
-  Future<int> createTrainingVersion(TrainingVersion trainingVersion) async {
+  int createTrainingVersion(TrainingVersion trainingVersion) {
     return _trainingVersionBox.put(trainingVersion);
   }
 
@@ -102,110 +102,103 @@ class ObjectBox {
 
   //* Update operations
   Future<void> updateTraining(Training training) async {
-    // Mettre à jour les trainingExercises
-    for (var tExercise in training.trainingExercises) {
-      updateTrainingExercise(tExercise);
+    _store.runInTransaction(TxMode.write, () {
+      // Récupérer le [Training] actuel depuis la base de données
+      final currentTraining = getTrainingById(training.id);
+
+      if (currentTraining == null) {
+        throw Exception("Le training à mettre à jour n'existe pas.");
+      }
+
+      // Identifier les [TrainingExercise]s à supprimer (ceux qui ne sont plus référencés)
+      final oldTrainingExercises = currentTraining.trainingExercises.toList();
+      final newTrainingExerciseIds =
+          training.trainingExercises.map((e) => e.id).toSet();
+
+      final trainingExercisesToDelete = oldTrainingExercises
+          .where((exercise) => !newTrainingExerciseIds.contains(exercise.id))
+          .toList();
+
+      // Identifier les [Multiset]s à supprimer (ceux qui ne sont plus référencés)
+      final oldMultisets = currentTraining.multisets.toList();
+      final newMultisetIds = training.multisets.map((e) => e.id).toSet();
+
+      final multisetsToDelete = oldMultisets
+          .where((multiset) => !newMultisetIds.contains(multiset.id))
+          .toList();
+
+      // Supprimer les [TrainingExercise]s obsolètes
+      for (var tExercise in trainingExercisesToDelete) {
+        deleteTrainingExercise(tExercise.id);
+      }
+
+      // Supprimer les [Multiset]s obsolètes
+      for (var multiset in multisetsToDelete) {
+        deleteMultiset(multiset);
+      }
+
+      // Mettre à jour les [TrainingExercise]s
+      for (var tExercise in training.trainingExercises) {
+        updateTrainingExercise(tExercise);
+      }
+
+      // Mettre à jour les [Multiset]s
+      for (var multiset in training.multisets) {
+        updateMultiset(multiset);
+      }
+
+      // Mettre à jour le [Training]
+      _trainingBox.put(training);
+
+      // Enregistrer le nouveau [TrainingVersion]
+      final newVersion = TrainingVersion.fromTraining(training);
+      createTrainingVersion(newVersion);
+    });
+  }
+
+  void updateMultiset(Multiset multiset) {
+    // Récupérer le [Multiset] actuel depuis la base de données
+    final currentMultiset = getMultisetById(multiset.id);
+
+    if (currentMultiset == null) {
+      throw Exception("Le training à mettre à jour n'existe pas.");
     }
 
-    // Mettre à jour les multisets
-    for (var multiset in training.multisets) {
-      updateMultiset(multiset);
-    }
+    // Identifier les [TrainingExercise]s à supprimer (ceux qui ne sont plus référencés)
+    final oldTrainingExercises = currentMultiset.trainingExercises.toList();
+    final newTrainingExerciseIds =
+        multiset.trainingExercises.map((e) => e.id).toSet();
 
-    // Effacer les anciens exercices et multisets
-    training.trainingExercises.clear();
-    training.multisets.clear();
-
-    // Ajouter les nouveaux exercices et multisets
-    for (var tExercise in training.trainingExercises) {
-      training.trainingExercises.add(tExercise);
-    }
-
-    for (var multiset in training.multisets) {
-      training.multisets.add(multiset);
-    }
-
-    // Mettre à jour le training
-    await _trainingBox.putAsync(training);
-
-    // Enregistrer le nouveau [TrainingVersion]
-    final newVersion = TrainingVersion.fromTraining(training);
-    createTrainingVersion(newVersion);
-
-    // Nettoyer les éléments inutilisés
-    final allTrainings = _trainingBox.getAll();
-    final usedTExerciseIds = allTrainings
-        .expand((t) => t.trainingExercises.map((e) => e.id))
-        .toSet();
-    final usedMultisetsIds =
-        allTrainings.expand((t) => t.multisets.map((e) => e.id)).toSet();
-
-    // Identifier et supprimer les exercices non utilisés
-    final allTrainingsTExercises =
-        _trainingExerciseBox.getAll().where((e) => e.linkedMultisetId == null);
-    final unusedTExercises = allTrainingsTExercises
-        .where((e) => !usedTExerciseIds.contains(e.id))
+    final trainingExercisesToDelete = oldTrainingExercises
+        .where((exercise) => !newTrainingExerciseIds.contains(exercise.id))
         .toList();
 
-    for (var tExercise in unusedTExercises) {
+    // Supprimer les [TrainingExercise]s obsolètes
+    for (var tExercise in trainingExercisesToDelete) {
       deleteTrainingExercise(tExercise.id);
     }
 
-    // Identifier et supprimer les multisets non utilisés
-    final allMultisets = _multisetBox.getAll();
-    final unusedMultisets =
-        allMultisets.where((e) => !usedMultisetsIds.contains(e.id)).toList();
-
-    for (var multiset in unusedMultisets) {
-      await deleteMultiset(multiset);
-    }
-  }
-
-  Future<void> updateMultiset(Multiset multiset) async {
-    // Mettre à jour les trainingExercises
+    // Mettre à jour les [TrainingExercise]s
     for (var tExercise in multiset.trainingExercises) {
       updateTrainingExercise(tExercise);
     }
 
-    // Effacer les anciens exercices
-    multiset.trainingExercises.clear();
-
-    // Ajouter les nouveaux exercices
-    for (var tExercise in multiset.trainingExercises) {
-      multiset.trainingExercises.add(tExercise);
-    }
-
-    // Mettre à jour le training
-    await _multisetBox.putAsync(multiset);
-
-    // Nettoyer les éléments inutilisés
-    final allMultisets = _multisetBox.getAll();
-    final usedTExerciseIds = allMultisets
-        .expand((m) => m.trainingExercises.map((e) => e.id))
-        .toSet();
-
-    // Identifier et supprimer les exercices non utilisés
-    final allMultisetsTExercises =
-        _trainingExerciseBox.getAll().where((e) => e.linkedMultisetId != null);
-    final unusedTExercises = allMultisetsTExercises
-        .where((e) => !usedTExerciseIds.contains(e.id))
-        .toList();
-
-    for (var tExercise in unusedTExercises) {
-      deleteTrainingExercise(tExercise.id);
-    }
+    // Mettre à jour le [Multiset]
+    _multisetBox.put(multiset);
   }
 
-  Future<void> updateTrainingExercise(TrainingExercise trainingExercise) async {
-    _trainingExerciseBox.putAsync(trainingExercise);
+  void updateTrainingExercise(TrainingExercise trainingExercise) {
+    _trainingExerciseBox.put(trainingExercise);
   }
 
   Future<void> updateExercise(Exercise exercise) async {
-    _exerciseBox.putAsync(exercise);
+    await _store.runInTransaction(TxMode.write, () async {
+      _exerciseBox.put(exercise);
+    });
   }
 
   //* Delete operations
-  Future<void> deleteTraining(Training training) async {
+  void deleteTraining(Training training) {
     for (var tExercise in training.trainingExercises) {
       deleteTrainingExercise(tExercise.id);
     }
@@ -214,22 +207,22 @@ class ObjectBox {
       deleteMultiset(multiset);
     }
 
-    _trainingBox.removeAsync(training.id);
+    _trainingBox.remove(training.id);
   }
 
-  Future<void> deleteMultiset(Multiset multiset) async {
+  void deleteMultiset(Multiset multiset) {
     for (var tExercise in multiset.trainingExercises) {
       deleteTrainingExercise(tExercise.id);
     }
 
-    _multisetBox.removeAsync(multiset.id);
+    _multisetBox.remove(multiset.id);
   }
 
-  Future<void> deleteTrainingExercise(int id) async {
-    _trainingExerciseBox.removeAsync(id);
+  void deleteTrainingExercise(int id) {
+    _trainingExerciseBox.remove(id);
   }
 
-  Future<void> deleteExercise(int id) async {
-    _exerciseBox.removeAsync(id);
+  void deleteExercise(int id) {
+    _exerciseBox.remove(id);
   }
 }

@@ -80,7 +80,7 @@ class ExerciseManagementBloc
     on<DeleteExerciseEvent>((event, emit) async {
       if (state is! ExerciseManagementLoaded) return;
       try {
-        await sl<ObjectBox>().deleteExercise(event.id);
+        sl<ObjectBox>().deleteExercise(event.id);
         messageBloc.add(AddMessageEvent(
             message: tr('message_exercise_deletion_success'), isError: false));
 

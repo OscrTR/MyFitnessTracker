@@ -39,6 +39,7 @@ class TrainingManagementBloc
       // add(LoadDaysSinceTrainingEvent());
     });
 
+// TODO
     // on<LoadDaysSinceTrainingEvent>((event, emit) async {
     //   if (state is TrainingManagementLoaded) {
     //     final currentState = state as TrainingManagementLoaded;
@@ -61,8 +62,8 @@ class TrainingManagementBloc
       if (state is! TrainingManagementLoaded) return;
       final currentState = state as TrainingManagementLoaded;
       try {
-        await sl<ObjectBox>().deleteTraining(event.training);
-        emit(currentState.copyWith(selectedTraining: null));
+        sl<ObjectBox>().deleteTraining(event.training);
+        emit(currentState.copyWith(resetSelectedTraining: true));
         messageBloc.add(AddMessageEvent(
             message: tr('message_training_deletion_success'), isError: false));
 
@@ -159,7 +160,7 @@ class TrainingManagementBloc
         final isUpdate = trainingToCreateOrUpdate.id != 0;
 
         if (isUpdate) {
-          sl<ObjectBox>().updateTraining(event.training);
+          await sl<ObjectBox>().updateTraining(event.training);
           messageBloc.add(const AddMessageEvent(
               message: 'Training updated successfully.', isError: false));
         } else {
