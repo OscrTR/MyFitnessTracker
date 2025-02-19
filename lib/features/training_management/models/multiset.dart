@@ -6,20 +6,16 @@ import 'training_exercise.dart';
 class Multiset {
   @Id()
   int id = 0;
-
   int? linkedTrainingId; // Id du [Training] associé
-
-  final trainingExercises = ToMany<TrainingExercise>();
-
   int sets; // Nombre de séries dans ce [Multiset]
   int setRest; // Temps de repos entre les séries (en secondes)
   int multisetRest; // Temps de repos après ce [Multiset] (en secondes)
-
   String? specialInstructions; // Instructions spécifiques (optionnel)
   String? objectives; // Objectifs spécifiques (optionnel)
-
   int? position; // Position dans une session d'entraînement
   String? key; // Identifiant unique pour le widget associé
+
+  final trainingExercises = ToMany<TrainingExercise>();
 
 // Default constructor (used by ObjectBox)
   Multiset({

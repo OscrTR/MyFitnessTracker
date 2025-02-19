@@ -1,7 +1,9 @@
 import 'dart:convert';
+
 import 'package:objectbox/objectbox.dart';
+
 import '../../../core/enums/enums.dart';
-import '../../training_history/data/models/training_version.dart';
+import '../../training_history/models/training_version.dart';
 import 'multiset.dart';
 import 'training_exercise.dart';
 

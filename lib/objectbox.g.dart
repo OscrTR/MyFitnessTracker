@@ -15,7 +15,9 @@ import 'package:objectbox/objectbox.dart' as obx;
 import 'package:objectbox_flutter_libs/objectbox_flutter_libs.dart';
 
 import 'features/exercise_management/models/exercise.dart';
-import 'features/training_history/data/models/training_version.dart';
+import 'features/training_history/models/history_entry.dart';
+import 'features/training_history/models/history_run_location.dart';
+import 'features/training_history/models/training_version.dart';
 import 'features/training_management/models/multiset.dart';
 import 'features/training_management/models/training.dart';
 import 'features/training_management/models/training_exercise.dart';
@@ -77,7 +79,8 @@ final _entities = <obx_int.ModelEntity>[
             id: const obx_int.IdUid(7, 3458214617607180662),
             name: 'linkedTrainingId',
             type: 6,
-            flags: 0),
+            flags: 8,
+            indexId: const obx_int.IdUid(13, 6974256475971044142)),
         obx_int.ModelProperty(
             id: const obx_int.IdUid(8, 913685373474112095),
             name: 'jsonRepresentation',
@@ -322,6 +325,141 @@ final _entities = <obx_int.ModelEntity>[
             flags: 0)
       ],
       relations: <obx_int.ModelRelation>[],
+      backlinks: <obx_int.ModelBacklink>[]),
+  obx_int.ModelEntity(
+      id: const obx_int.IdUid(9, 3821391270278984653),
+      name: 'HistoryEntry',
+      lastPropertyId: const obx_int.IdUid(13, 5357017449888742192),
+      flags: 0,
+      properties: <obx_int.ModelProperty>[
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(1, 1202102945155801650),
+            name: 'id',
+            type: 6,
+            flags: 1),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(2, 759658472392615631),
+            name: 'linkedTrainingId',
+            type: 6,
+            flags: 8,
+            indexId: const obx_int.IdUid(11, 404464184818398324)),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(3, 1388466592994179384),
+            name: 'linkedTrainingVersionId',
+            type: 6,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(4, 8399788429246015951),
+            name: 'linkedTrainingExerciseId',
+            type: 6,
+            flags: 8,
+            indexId: const obx_int.IdUid(12, 4914535975276213714)),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(5, 5131062754587907804),
+            name: 'setNumber',
+            type: 6,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(6, 7858472305094376572),
+            name: 'intervalNumber',
+            type: 6,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(7, 1107473113922232000),
+            name: 'date',
+            type: 10,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(8, 955105224773308255),
+            name: 'reps',
+            type: 6,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(9, 7165512611319607455),
+            name: 'weight',
+            type: 6,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(10, 3207129095682776037),
+            name: 'duration',
+            type: 6,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(11, 8312239276116873916),
+            name: 'distance',
+            type: 6,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(12, 7365023370072387070),
+            name: 'pace',
+            type: 6,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(13, 5357017449888742192),
+            name: 'calories',
+            type: 6,
+            flags: 0)
+      ],
+      relations: <obx_int.ModelRelation>[],
+      backlinks: <obx_int.ModelBacklink>[]),
+  obx_int.ModelEntity(
+      id: const obx_int.IdUid(10, 736439548103471689),
+      name: 'RunLocation',
+      lastPropertyId: const obx_int.IdUid(10, 1234639187600418317),
+      flags: 0,
+      properties: <obx_int.ModelProperty>[
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(1, 5743143731714757881),
+            name: 'id',
+            type: 6,
+            flags: 1),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(2, 5932305188348334297),
+            name: 'linkedTrainingId',
+            type: 6,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(3, 6918431226825001339),
+            name: 'linkedTrainingExerciseId',
+            type: 6,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(4, 6206192423764166985),
+            name: 'setNumber',
+            type: 6,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(5, 1876648930540348526),
+            name: 'latitude',
+            type: 8,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(6, 1250084718218949796),
+            name: 'longitude',
+            type: 8,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(7, 5897119805137802194),
+            name: 'altitude',
+            type: 8,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(8, 3307788763215710895),
+            name: 'timestamp',
+            type: 6,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(9, 6528187627267363548),
+            name: 'accuracy',
+            type: 8,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(10, 1234639187600418317),
+            name: 'speed',
+            type: 8,
+            flags: 0)
+      ],
+      relations: <obx_int.ModelRelation>[],
       backlinks: <obx_int.ModelBacklink>[])
 ];
 
@@ -360,8 +498,8 @@ Future<obx.Store> openStore(
 obx_int.ModelDefinition getObjectBoxModel() {
   final model = obx_int.ModelInfo(
       entities: _entities,
-      lastEntityId: const obx_int.IdUid(8, 6393605471041917069),
-      lastIndexId: const obx_int.IdUid(10, 7811118391172708957),
+      lastEntityId: const obx_int.IdUid(10, 736439548103471689),
+      lastIndexId: const obx_int.IdUid(13, 6974256475971044142),
       lastRelationId: const obx_int.IdUid(10, 5640924886941127514),
       lastSequenceId: const obx_int.IdUid(0, 0),
       retiredEntityUids: const [
@@ -746,6 +884,138 @@ obx_int.ModelDefinition getObjectBoxModel() {
               const fb.Int64Reader().vTableGet(buffer, rootOffset, 12, 0);
           object.exercise.attach(store);
           return object;
+        }),
+    HistoryEntry: obx_int.EntityDefinition<HistoryEntry>(
+        model: _entities[5],
+        toOneRelations: (HistoryEntry object) => [],
+        toManyRelations: (HistoryEntry object) => {},
+        getId: (HistoryEntry object) => object.id,
+        setId: (HistoryEntry object, int id) {
+          object.id = id;
+        },
+        objectToFB: (HistoryEntry object, fb.Builder fbb) {
+          fbb.startTable(14);
+          fbb.addInt64(0, object.id);
+          fbb.addInt64(1, object.linkedTrainingId);
+          fbb.addInt64(2, object.linkedTrainingVersionId);
+          fbb.addInt64(3, object.linkedTrainingExerciseId);
+          fbb.addInt64(4, object.setNumber);
+          fbb.addInt64(5, object.intervalNumber);
+          fbb.addInt64(6, object.date.millisecondsSinceEpoch);
+          fbb.addInt64(7, object.reps);
+          fbb.addInt64(8, object.weight);
+          fbb.addInt64(9, object.duration);
+          fbb.addInt64(10, object.distance);
+          fbb.addInt64(11, object.pace);
+          fbb.addInt64(12, object.calories);
+          fbb.finish(fbb.endTable());
+          return object.id;
+        },
+        objectFromFB: (obx.Store store, ByteData fbData) {
+          final buffer = fb.BufferContext(fbData);
+          final rootOffset = buffer.derefObject(0);
+          final idParam =
+              const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0);
+          final linkedTrainingIdParam =
+              const fb.Int64Reader().vTableGet(buffer, rootOffset, 6, 0);
+          final linkedTrainingVersionIdParam =
+              const fb.Int64Reader().vTableGet(buffer, rootOffset, 8, 0);
+          final linkedTrainingExerciseIdParam =
+              const fb.Int64Reader().vTableGet(buffer, rootOffset, 10, 0);
+          final setNumberParam =
+              const fb.Int64Reader().vTableGet(buffer, rootOffset, 12, 0);
+          final intervalNumberParam =
+              const fb.Int64Reader().vTableGetNullable(buffer, rootOffset, 14);
+          final dateParam = DateTime.fromMillisecondsSinceEpoch(
+              const fb.Int64Reader().vTableGet(buffer, rootOffset, 16, 0));
+          final repsParam =
+              const fb.Int64Reader().vTableGetNullable(buffer, rootOffset, 18);
+          final weightParam =
+              const fb.Int64Reader().vTableGetNullable(buffer, rootOffset, 20);
+          final durationParam =
+              const fb.Int64Reader().vTableGetNullable(buffer, rootOffset, 22);
+          final distanceParam =
+              const fb.Int64Reader().vTableGetNullable(buffer, rootOffset, 24);
+          final paceParam =
+              const fb.Int64Reader().vTableGetNullable(buffer, rootOffset, 26);
+          final caloriesParam =
+              const fb.Int64Reader().vTableGetNullable(buffer, rootOffset, 28);
+          final object = HistoryEntry(
+              id: idParam,
+              linkedTrainingId: linkedTrainingIdParam,
+              linkedTrainingVersionId: linkedTrainingVersionIdParam,
+              linkedTrainingExerciseId: linkedTrainingExerciseIdParam,
+              setNumber: setNumberParam,
+              intervalNumber: intervalNumberParam,
+              date: dateParam,
+              reps: repsParam,
+              weight: weightParam,
+              duration: durationParam,
+              distance: distanceParam,
+              pace: paceParam,
+              calories: caloriesParam);
+
+          return object;
+        }),
+    RunLocation: obx_int.EntityDefinition<RunLocation>(
+        model: _entities[6],
+        toOneRelations: (RunLocation object) => [],
+        toManyRelations: (RunLocation object) => {},
+        getId: (RunLocation object) => object.id,
+        setId: (RunLocation object, int id) {
+          object.id = id;
+        },
+        objectToFB: (RunLocation object, fb.Builder fbb) {
+          fbb.startTable(11);
+          fbb.addInt64(0, object.id);
+          fbb.addInt64(1, object.linkedTrainingId);
+          fbb.addInt64(2, object.linkedTrainingExerciseId);
+          fbb.addInt64(3, object.setNumber);
+          fbb.addFloat64(4, object.latitude);
+          fbb.addFloat64(5, object.longitude);
+          fbb.addFloat64(6, object.altitude);
+          fbb.addInt64(7, object.timestamp);
+          fbb.addFloat64(8, object.accuracy);
+          fbb.addFloat64(9, object.speed);
+          fbb.finish(fbb.endTable());
+          return object.id;
+        },
+        objectFromFB: (obx.Store store, ByteData fbData) {
+          final buffer = fb.BufferContext(fbData);
+          final rootOffset = buffer.derefObject(0);
+          final idParam =
+              const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0);
+          final linkedTrainingIdParam =
+              const fb.Int64Reader().vTableGet(buffer, rootOffset, 6, 0);
+          final linkedTrainingExerciseIdParam =
+              const fb.Int64Reader().vTableGet(buffer, rootOffset, 8, 0);
+          final setNumberParam =
+              const fb.Int64Reader().vTableGet(buffer, rootOffset, 10, 0);
+          final latitudeParam =
+              const fb.Float64Reader().vTableGet(buffer, rootOffset, 12, 0);
+          final longitudeParam =
+              const fb.Float64Reader().vTableGet(buffer, rootOffset, 14, 0);
+          final altitudeParam =
+              const fb.Float64Reader().vTableGet(buffer, rootOffset, 16, 0);
+          final timestampParam =
+              const fb.Int64Reader().vTableGet(buffer, rootOffset, 18, 0);
+          final accuracyParam =
+              const fb.Float64Reader().vTableGet(buffer, rootOffset, 20, 0);
+          final speedParam =
+              const fb.Float64Reader().vTableGet(buffer, rootOffset, 22, 0);
+          final object = RunLocation(
+              id: idParam,
+              linkedTrainingId: linkedTrainingIdParam,
+              linkedTrainingExerciseId: linkedTrainingExerciseIdParam,
+              setNumber: setNumberParam,
+              latitude: latitudeParam,
+              longitude: longitudeParam,
+              altitude: altitudeParam,
+              timestamp: timestampParam,
+              accuracy: accuracyParam,
+              speed: speedParam);
+
+          return object;
         })
   };
 
@@ -972,4 +1242,102 @@ class TrainingExercise_ {
   /// See [TrainingExercise.dbRunType].
   static final dbRunType =
       obx.QueryIntegerProperty<TrainingExercise>(_entities[4].properties[23]);
+}
+
+/// [HistoryEntry] entity fields to define ObjectBox queries.
+class HistoryEntry_ {
+  /// See [HistoryEntry.id].
+  static final id =
+      obx.QueryIntegerProperty<HistoryEntry>(_entities[5].properties[0]);
+
+  /// See [HistoryEntry.linkedTrainingId].
+  static final linkedTrainingId =
+      obx.QueryIntegerProperty<HistoryEntry>(_entities[5].properties[1]);
+
+  /// See [HistoryEntry.linkedTrainingVersionId].
+  static final linkedTrainingVersionId =
+      obx.QueryIntegerProperty<HistoryEntry>(_entities[5].properties[2]);
+
+  /// See [HistoryEntry.linkedTrainingExerciseId].
+  static final linkedTrainingExerciseId =
+      obx.QueryIntegerProperty<HistoryEntry>(_entities[5].properties[3]);
+
+  /// See [HistoryEntry.setNumber].
+  static final setNumber =
+      obx.QueryIntegerProperty<HistoryEntry>(_entities[5].properties[4]);
+
+  /// See [HistoryEntry.intervalNumber].
+  static final intervalNumber =
+      obx.QueryIntegerProperty<HistoryEntry>(_entities[5].properties[5]);
+
+  /// See [HistoryEntry.date].
+  static final date =
+      obx.QueryDateProperty<HistoryEntry>(_entities[5].properties[6]);
+
+  /// See [HistoryEntry.reps].
+  static final reps =
+      obx.QueryIntegerProperty<HistoryEntry>(_entities[5].properties[7]);
+
+  /// See [HistoryEntry.weight].
+  static final weight =
+      obx.QueryIntegerProperty<HistoryEntry>(_entities[5].properties[8]);
+
+  /// See [HistoryEntry.duration].
+  static final duration =
+      obx.QueryIntegerProperty<HistoryEntry>(_entities[5].properties[9]);
+
+  /// See [HistoryEntry.distance].
+  static final distance =
+      obx.QueryIntegerProperty<HistoryEntry>(_entities[5].properties[10]);
+
+  /// See [HistoryEntry.pace].
+  static final pace =
+      obx.QueryIntegerProperty<HistoryEntry>(_entities[5].properties[11]);
+
+  /// See [HistoryEntry.calories].
+  static final calories =
+      obx.QueryIntegerProperty<HistoryEntry>(_entities[5].properties[12]);
+}
+
+/// [RunLocation] entity fields to define ObjectBox queries.
+class RunLocation_ {
+  /// See [RunLocation.id].
+  static final id =
+      obx.QueryIntegerProperty<RunLocation>(_entities[6].properties[0]);
+
+  /// See [RunLocation.linkedTrainingId].
+  static final linkedTrainingId =
+      obx.QueryIntegerProperty<RunLocation>(_entities[6].properties[1]);
+
+  /// See [RunLocation.linkedTrainingExerciseId].
+  static final linkedTrainingExerciseId =
+      obx.QueryIntegerProperty<RunLocation>(_entities[6].properties[2]);
+
+  /// See [RunLocation.setNumber].
+  static final setNumber =
+      obx.QueryIntegerProperty<RunLocation>(_entities[6].properties[3]);
+
+  /// See [RunLocation.latitude].
+  static final latitude =
+      obx.QueryDoubleProperty<RunLocation>(_entities[6].properties[4]);
+
+  /// See [RunLocation.longitude].
+  static final longitude =
+      obx.QueryDoubleProperty<RunLocation>(_entities[6].properties[5]);
+
+  /// See [RunLocation.altitude].
+  static final altitude =
+      obx.QueryDoubleProperty<RunLocation>(_entities[6].properties[6]);
+
+  /// See [RunLocation.timestamp].
+  static final timestamp =
+      obx.QueryIntegerProperty<RunLocation>(_entities[6].properties[7]);
+
+  /// See [RunLocation.accuracy].
+  static final accuracy =
+      obx.QueryDoubleProperty<RunLocation>(_entities[6].properties[8]);
+
+  /// See [RunLocation.speed].
+  static final speed =
+      obx.QueryDoubleProperty<RunLocation>(_entities[6].properties[9]);
 }

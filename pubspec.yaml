@@ -47,7 +47,6 @@ dependencies:
   permission_handler: ^11.3.1
   searchfield: ^1.2.4
   shared_preferences: ^2.3.5
-  sqflite: ^2.3.3+1
   toggle_switch: ^2.3.0
   top_snackbar_flutter: ^3.1.0
   uuid: ^4.5.1

@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:my_fitness_tracker/core/enums/enums.dart';
 import 'package:my_fitness_tracker/features/exercise_management/models/exercise.dart';
-import 'package:my_fitness_tracker/features/training_history/data/models/training_version.dart';
+import 'package:my_fitness_tracker/features/training_history/models/training_version.dart';
 import 'package:my_fitness_tracker/features/training_management/models/multiset.dart';
 import 'package:my_fitness_tracker/features/training_management/models/training.dart';
 import 'package:my_fitness_tracker/features/training_management/models/training_exercise.dart';

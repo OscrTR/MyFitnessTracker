@@ -3,7 +3,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/widgets.dart';
 
 import 'core/enums/enums.dart';
-import 'features/exercise_management/presentation/bloc/exercise_management_bloc.dart';
+import 'features/exercise_management/bloc/exercise_management_bloc.dart';
 import 'features/training_management/models/training_exercise.dart';
 import 'injection_container.dart';
 
@@ -67,10 +67,7 @@ class _IntensityData {
   });
 }
 
-String? findExerciseName(TrainingExercise? tExercise) {
-  if (tExercise == null) {
-    return null;
-  }
+String findExerciseName(TrainingExercise tExercise) {
   String exerciseName = '';
   if (tExercise.type == TrainingExerciseType.run) {
     final targetPace = tExercise.isTargetPaceSelected == true

@@ -3,14 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:flutter_map_tile_caching/flutter_map_tile_caching.dart';
-import 'features/settings/presentation/bloc/settings_bloc.dart';
-import 'features/training_history/presentation/bloc/training_history_bloc.dart';
-import 'features/active_training/presentation/bloc/active_training_bloc.dart';
 
 import 'app_theme.dart';
 import 'core/messages/bloc/message_bloc.dart';
-import 'features/exercise_management/presentation/bloc/exercise_management_bloc.dart';
-import 'features/training_management/presentation/bloc/training_management_bloc.dart';
+import 'features/active_training/bloc/active_training_bloc.dart';
+import 'features/exercise_management/bloc/exercise_management_bloc.dart';
+import 'features/settings/bloc/settings_bloc.dart';
+import 'features/training_history/bloc/training_history_bloc.dart';
+import 'features/training_management/bloc/training_management_bloc.dart';
 import 'injection_container.dart' as di;
 import 'router.dart';
 

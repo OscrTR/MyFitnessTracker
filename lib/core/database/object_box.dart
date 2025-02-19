@@ -1,5 +1,7 @@
-import 'package:my_fitness_tracker/features/exercise_management/models/exercise.dart';
-import 'package:my_fitness_tracker/features/training_history/data/models/training_version.dart';
+import '../../features/exercise_management/models/exercise.dart';
+import '../../features/training_history/models/history_entry.dart';
+import '../../features/training_history/models/history_run_location.dart';
+import '../../features/training_history/models/training_version.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import '../../features/training_management/models/multiset.dart';
@@ -14,6 +16,8 @@ class ObjectBox {
   late final Box<TrainingExercise> _trainingExerciseBox;
   late final Box<Exercise> _exerciseBox;
   late final Box<TrainingVersion> _trainingVersionBox;
+  late final Box<HistoryEntry> _historyEntryBox;
+  late final Box<RunLocation> _runLocationBox;
 
   ObjectBox._create(this._store) {
     _trainingBox = Box<Training>(_store);
@@ -21,6 +25,8 @@ class ObjectBox {
     _trainingExerciseBox = Box<TrainingExercise>(_store);
     _exerciseBox = Box<Exercise>(_store);
     _trainingVersionBox = Box<TrainingVersion>(_store);
+    _historyEntryBox = Box<HistoryEntry>(_store);
+    _runLocationBox = Box<RunLocation>(_store);
   }
 
   /// Méthode statique asynchrone pour créer une instance.
@@ -67,6 +73,14 @@ class ObjectBox {
     return _trainingVersionBox.put(trainingVersion);
   }
 
+  int createHistoryEntry(HistoryEntry historyEntry) {
+    return _historyEntryBox.put(historyEntry);
+  }
+
+  int createRunLocation(RunLocation runLocation) {
+    return _runLocationBox.put(runLocation);
+  }
+
   //* Read operations
   List<Training> getAllTrainings() {
     return _trainingBox.getAll();
@@ -100,15 +114,77 @@ class ObjectBox {
     return _exerciseBox.get(id);
   }
 
-  List<TrainingVersion>? getTrainingVersionsForTrainingId(int id) {
-    return _trainingVersionBox
-        .getAll()
-        .where((trainingVersion) => trainingVersion.linkedTrainingId == id)
-        .toList();
+  TrainingVersion? getMostRecentTrainingVersionForTrainingId(int id) {
+    final query = _trainingVersionBox
+        .query(TrainingVersion_.linkedTrainingId.equals(id))
+        .order(TrainingVersion_.id, flags: Order.descending)
+        .build();
+
+    final result = query.findFirst();
+    query.close();
+
+    return result;
+  }
+
+  TrainingVersion? getTrainingVersionById(int id) {
+    return _trainingVersionBox.get(id);
+  }
+
+  List<HistoryEntry> getAllHistoryEntries() {
+    return _historyEntryBox.getAll();
+  }
+
+  List<HistoryEntry> getHistoryEntriesForPeriod(
+      DateTime startDate, DateTime endDate) {
+    final query = _historyEntryBox
+        .query((HistoryEntry_.date.between(
+            startDate.millisecondsSinceEpoch, endDate.millisecondsSinceEpoch)))
+        .build();
+
+    final results = query.find();
+
+    query.close();
+
+    return results;
+  }
+
+  bool checkIfTrainingHasRecentEntry(int trainingExerciseId) {
+    final now = DateTime.now();
+    final twoHoursAgo = now.subtract(const Duration(hours: 2));
+
+    final query = _historyEntryBox
+        .query(HistoryEntry_.date
+                .greaterThan(twoHoursAgo.millisecondsSinceEpoch) &
+            HistoryEntry_.linkedTrainingExerciseId.equals(trainingExerciseId))
+        .build();
+
+    final results = query.find();
+
+    query.close();
+
+    return results.isNotEmpty;
+  }
+
+  List<RunLocation> getAllRunLocations() {
+    return _runLocationBox.getAll();
+  }
+
+  List<RunLocation> getRunLocationsForPeriod(
+      DateTime startDate, DateTime endDate) {
+    final query = _runLocationBox
+        .query((RunLocation_.timestamp.between(
+            startDate.millisecondsSinceEpoch, endDate.millisecondsSinceEpoch)))
+        .build();
+
+    final results = query.find();
+
+    query.close();
+
+    return results;
   }
 
   //* Update operations
-  Future<void> updateTraining(Training training) async {
+  void updateTraining(Training training) {
     _store.runInTransaction(TxMode.write, () {
       // Récupérer le [Training] actuel depuis la base de données
       final currentTraining = getTrainingById(training.id);
@@ -198,9 +274,15 @@ class ObjectBox {
     _trainingExerciseBox.put(trainingExercise);
   }
 
-  Future<void> updateExercise(Exercise exercise) async {
-    await _store.runInTransaction(TxMode.write, () async {
+  void updateExercise(Exercise exercise) {
+    _store.runInTransaction(TxMode.write, () {
       _exerciseBox.put(exercise);
+    });
+  }
+
+  void updateHistoryEntry(HistoryEntry historyEntry) {
+    _store.runInTransaction(TxMode.write, () {
+      _historyEntryBox.put(historyEntry);
     });
   }
 
@@ -231,5 +313,23 @@ class ObjectBox {
 
   void deleteExercise(int id) {
     _exerciseBox.remove(id);
+  }
+
+  void deleteHistoryEntry(int id) {
+    _historyEntryBox.remove(id);
+  }
+
+  void deleteHistoryEntriesForTrainingId(int trainingId) {
+    final query = _historyEntryBox
+        .query(HistoryEntry_.linkedTrainingId.equals(trainingId))
+        .build();
+
+    final entriesToDelete = query.find();
+
+    query.close();
+
+    for (final entry in entriesToDelete) {
+      _historyEntryBox.remove(entry.id);
+    }
   }
 }

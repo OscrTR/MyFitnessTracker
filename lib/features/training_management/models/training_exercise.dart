@@ -1,4 +1,4 @@
-import 'package:my_fitness_tracker/features/exercise_management/models/exercise.dart';
+import '../../exercise_management/models/exercise.dart';
 import 'package:objectbox/objectbox.dart';
 
 import '../../../core/enums/enums.dart';

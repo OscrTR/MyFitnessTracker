@@ -56,7 +56,9 @@
         {
           "id": "7:3458214617607180662",
           "name": "linkedTrainingId",
-          "type": 6
+          "type": 6,
+          "flags": 8,
+          "indexId": "13:6974256475971044142"
         },
         {
           "id": "8:913685373474112095",
@@ -307,10 +309,147 @@
         }
       ],
       "relations": []
+    },
+    {
+      "id": "9:3821391270278984653",
+      "lastPropertyId": "13:5357017449888742192",
+      "name": "HistoryEntry",
+      "properties": [
+        {
+          "id": "1:1202102945155801650",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:759658472392615631",
+          "name": "linkedTrainingId",
+          "type": 6,
+          "flags": 8,
+          "indexId": "11:404464184818398324"
+        },
+        {
+          "id": "3:1388466592994179384",
+          "name": "linkedTrainingVersionId",
+          "type": 6
+        },
+        {
+          "id": "4:8399788429246015951",
+          "name": "linkedTrainingExerciseId",
+          "type": 6,
+          "flags": 8,
+          "indexId": "12:4914535975276213714"
+        },
+        {
+          "id": "5:5131062754587907804",
+          "name": "setNumber",
+          "type": 6
+        },
+        {
+          "id": "6:7858472305094376572",
+          "name": "intervalNumber",
+          "type": 6
+        },
+        {
+          "id": "7:1107473113922232000",
+          "name": "date",
+          "type": 10
+        },
+        {
+          "id": "8:955105224773308255",
+          "name": "reps",
+          "type": 6
+        },
+        {
+          "id": "9:7165512611319607455",
+          "name": "weight",
+          "type": 6
+        },
+        {
+          "id": "10:3207129095682776037",
+          "name": "duration",
+          "type": 6
+        },
+        {
+          "id": "11:8312239276116873916",
+          "name": "distance",
+          "type": 6
+        },
+        {
+          "id": "12:7365023370072387070",
+          "name": "pace",
+          "type": 6
+        },
+        {
+          "id": "13:5357017449888742192",
+          "name": "calories",
+          "type": 6
+        }
+      ],
+      "relations": []
+    },
+    {
+      "id": "10:736439548103471689",
+      "lastPropertyId": "10:1234639187600418317",
+      "name": "RunLocation",
+      "properties": [
+        {
+          "id": "1:5743143731714757881",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:5932305188348334297",
+          "name": "linkedTrainingId",
+          "type": 6
+        },
+        {
+          "id": "3:6918431226825001339",
+          "name": "linkedTrainingExerciseId",
+          "type": 6
+        },
+        {
+          "id": "4:6206192423764166985",
+          "name": "setNumber",
+          "type": 6
+        },
+        {
+          "id": "5:1876648930540348526",
+          "name": "latitude",
+          "type": 8
+        },
+        {
+          "id": "6:1250084718218949796",
+          "name": "longitude",
+          "type": 8
+        },
+        {
+          "id": "7:5897119805137802194",
+          "name": "altitude",
+          "type": 8
+        },
+        {
+          "id": "8:3307788763215710895",
+          "name": "timestamp",
+          "type": 6
+        },
+        {
+          "id": "9:6528187627267363548",
+          "name": "accuracy",
+          "type": 8
+        },
+        {
+          "id": "10:1234639187600418317",
+          "name": "speed",
+          "type": 8
+        }
+      ],
+      "relations": []
     }
   ],
-  "lastEntityId": "8:6393605471041917069",
-  "lastIndexId": "10:7811118391172708957",
+  "lastEntityId": "10:736439548103471689",
+  "lastIndexId": "13:6974256475971044142",
   "lastRelationId": "10:5640924886941127514",
   "lastSequenceId": "0:0",
   "modelVersion": 5,

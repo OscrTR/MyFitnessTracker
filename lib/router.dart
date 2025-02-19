@@ -3,20 +3,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
-import 'package:my_fitness_tracker/features/training_history/presentation/pages/history_details_page.dart';
+import 'features/training_history/pages/history_details_page.dart';
 import 'package:top_snackbar_flutter/custom_snack_bar.dart';
 import 'package:top_snackbar_flutter/top_snack_bar.dart';
 
 import 'app_colors.dart';
 import 'core/messages/bloc/message_bloc.dart';
-import 'features/stats/presentation/pages/stats_page.dart';
-import 'features/training_history/presentation/pages/history_page.dart';
-import 'features/active_training/presentation/pages/active_training_page.dart';
-import 'features/exercise_management/presentation/pages/exercise_detail_page.dart';
-import 'features/homepage/presentation/pages/home_page.dart';
-import 'features/settings/presentation/pages/settings_page.dart';
-import 'features/training_management/presentation/pages/training_details_page.dart';
-import 'features/training_management/presentation/pages/trainings_page.dart';
+import 'features/stats/pages/stats_page.dart';
+import 'features/training_history/pages/history_page.dart';
+import 'features/active_training/pages/active_training_page.dart';
+import 'features/exercise_management/pages/exercise_detail_page.dart';
+import 'features/homepage/pages/home_page.dart';
+import 'features/settings/pages/settings_page.dart';
+import 'features/training_management/pages/training_details_page.dart';
+import 'features/training_management/pages/trainings_page.dart';
 
 final router = GoRouter(
   initialLocation: '/home',

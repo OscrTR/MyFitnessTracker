@@ -1,5 +1,7 @@
 import 'dart:convert';
+
 import 'package:objectbox/objectbox.dart';
+
 import '../../../core/enums/enums.dart';
 
 @Entity()
