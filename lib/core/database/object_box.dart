@@ -37,40 +37,16 @@ class ObjectBox {
   }
 
   //* Create operations
-  int createTraining(Training training) {
-    for (var tExercise in training.trainingExercises) {
-      createTrainingExercise(tExercise);
-    }
-    for (var multiset in training.multisets) {
-      createMultiset(multiset);
-    }
 
-    final createdTraining = _trainingBox.put(training);
-
-    // Enregistrer le nouveau [TrainingVersion]
-    final newVersion = TrainingVersion.fromTraining(training);
-    createTrainingVersion(newVersion);
-
-    return createdTraining;
-  }
-
-  int createMultiset(Multiset multiset) {
-    for (var tExercise in multiset.trainingExercises) {
-      createTrainingExercise(tExercise);
-    }
-    return _multisetBox.put(multiset);
-  }
-
-  int createTrainingExercise(TrainingExercise trainingExercise) {
-    return _trainingExerciseBox.put(trainingExercise);
+  void createTraining(Training training, TrainingVersion trainingVersion) {
+    _store.runInTransaction(TxMode.write, () {
+      training.trainingVersions.add(trainingVersion);
+      _trainingBox.put(training);
+    });
   }
 
   int createExercise(Exercise exercise) {
     return _exerciseBox.put(exercise);
-  }
-
-  int createTrainingVersion(TrainingVersion trainingVersion) {
-    return _trainingVersionBox.put(trainingVersion);
   }
 
   int createHistoryEntry(HistoryEntry historyEntry) {
@@ -79,6 +55,11 @@ class ObjectBox {
 
   int createRunLocation(RunLocation runLocation) {
     return _runLocationBox.put(runLocation);
+  }
+
+  int createTrainingVersion(Training training) {
+    final newVersion = TrainingVersion.fromTraining(training);
+    return _trainingVersionBox.put(newVersion);
   }
 
   //* Read operations
@@ -115,15 +96,7 @@ class ObjectBox {
   }
 
   TrainingVersion? getMostRecentTrainingVersionForTrainingId(int id) {
-    final query = _trainingVersionBox
-        .query(TrainingVersion_.linkedTrainingId.equals(id))
-        .order(TrainingVersion_.id, flags: Order.descending)
-        .build();
-
-    final result = query.findFirst();
-    query.close();
-
-    return result;
+    return _trainingBox.get(id)?.trainingVersions.last;
   }
 
   TrainingVersion? getTrainingVersionById(int id) {
@@ -183,15 +156,46 @@ class ObjectBox {
     return results;
   }
 
+  Map<int, int?> getDaysSinceTraining() {
+    Map<int, int?> daysSinceTrainings = {};
+
+    final trainings = getAllTrainings();
+
+    for (var training in trainings) {
+      final query = _runLocationBox
+          .query((RunLocation_.linkedTrainingId.equals(training.id)))
+          .order(RunLocation_.timestamp, flags: Order.descending)
+          .build();
+
+      final result = query.findFirst();
+
+      query.close();
+      if (result != null) {
+        final timestamp = DateTime.fromMillisecondsSinceEpoch(result.timestamp);
+        final now = DateTime.now();
+        final differenceInDays = now.difference(timestamp).inDays;
+
+        // Ajouter la valeur à la map
+        daysSinceTrainings[training.id] = differenceInDays;
+      } else {
+        // Si aucun résultat n'existe pour le training, on met `null` dans la map
+        daysSinceTrainings[training.id] = null;
+      }
+    }
+
+    return daysSinceTrainings;
+  }
+
   //* Update operations
-  void updateTraining(Training training) {
+  void updateTraining(Training training, TrainingVersion trainingVersion) {
     _store.runInTransaction(TxMode.write, () {
-      // Récupérer le [Training] actuel depuis la base de données
       final currentTraining = getTrainingById(training.id);
 
       if (currentTraining == null) {
         throw Exception("Le training à mettre à jour n'existe pas.");
       }
+
+      training.trainingVersions.add(trainingVersion);
 
       // Identifier les [TrainingExercise]s à supprimer (ceux qui ne sont plus référencés)
       final oldTrainingExercises = currentTraining.trainingExercises.toList();
@@ -202,6 +206,11 @@ class ObjectBox {
           .where((exercise) => !newTrainingExerciseIds.contains(exercise.id))
           .toList();
 
+      // Supprimer les [TrainingExercise]s obsolètes
+      for (var tExercise in trainingExercisesToDelete) {
+        _trainingExerciseBox.remove(tExercise.id);
+      }
+
       // Identifier les [Multiset]s à supprimer (ceux qui ne sont plus référencés)
       final oldMultisets = currentTraining.multisets.toList();
       final newMultisetIds = training.multisets.map((e) => e.id).toSet();
@@ -210,68 +219,17 @@ class ObjectBox {
           .where((multiset) => !newMultisetIds.contains(multiset.id))
           .toList();
 
-      // Supprimer les [TrainingExercise]s obsolètes
-      for (var tExercise in trainingExercisesToDelete) {
-        deleteTrainingExercise(tExercise.id);
-      }
-
       // Supprimer les [Multiset]s obsolètes
       for (var multiset in multisetsToDelete) {
-        deleteMultiset(multiset);
-      }
-
-      // Mettre à jour les [TrainingExercise]s
-      for (var tExercise in training.trainingExercises) {
-        updateTrainingExercise(tExercise);
-      }
-
-      // Mettre à jour les [Multiset]s
-      for (var multiset in training.multisets) {
-        updateMultiset(multiset);
+        for (var tExercise in multiset.trainingExercises) {
+          _trainingExerciseBox.remove(tExercise.id);
+        }
+        _multisetBox.remove(multiset.id);
       }
 
       // Mettre à jour le [Training]
       _trainingBox.put(training);
-
-      // Enregistrer le nouveau [TrainingVersion]
-      final newVersion = TrainingVersion.fromTraining(training);
-      createTrainingVersion(newVersion);
     });
-  }
-
-  void updateMultiset(Multiset multiset) {
-    // Récupérer le [Multiset] actuel depuis la base de données
-    final currentMultiset = getMultisetById(multiset.id);
-
-    if (currentMultiset == null) {
-      throw Exception("Le training à mettre à jour n'existe pas.");
-    }
-
-    // Identifier les [TrainingExercise]s à supprimer (ceux qui ne sont plus référencés)
-    final oldTrainingExercises = currentMultiset.trainingExercises.toList();
-    final newTrainingExerciseIds =
-        multiset.trainingExercises.map((e) => e.id).toSet();
-
-    final trainingExercisesToDelete = oldTrainingExercises
-        .where((exercise) => !newTrainingExerciseIds.contains(exercise.id))
-        .toList();
-
-    // Supprimer les [TrainingExercise]s obsolètes
-    for (var tExercise in trainingExercisesToDelete) {
-      deleteTrainingExercise(tExercise.id);
-    }
-
-    // Mettre à jour les [TrainingExercise]s
-    for (var tExercise in multiset.trainingExercises) {
-      updateTrainingExercise(tExercise);
-    }
-
-    // Mettre à jour le [Multiset]
-    _multisetBox.put(multiset);
-  }
-
-  void updateTrainingExercise(TrainingExercise trainingExercise) {
-    _trainingExerciseBox.put(trainingExercise);
   }
 
   void updateExercise(Exercise exercise) {
@@ -289,26 +247,17 @@ class ObjectBox {
   //* Delete operations
   void deleteTraining(Training training) {
     for (var tExercise in training.trainingExercises) {
-      deleteTrainingExercise(tExercise.id);
+      _trainingExerciseBox.remove(tExercise.id);
     }
 
     for (var multiset in training.multisets) {
-      deleteMultiset(multiset);
+      for (var tExercise in multiset.trainingExercises) {
+        _trainingExerciseBox.remove(tExercise.id);
+      }
+      _multisetBox.remove(multiset.id);
     }
 
     _trainingBox.remove(training.id);
-  }
-
-  void deleteMultiset(Multiset multiset) {
-    for (var tExercise in multiset.trainingExercises) {
-      deleteTrainingExercise(tExercise.id);
-    }
-
-    _multisetBox.remove(multiset.id);
-  }
-
-  void deleteTrainingExercise(int id) {
-    _trainingExerciseBox.remove(id);
   }
 
   void deleteExercise(int id) {

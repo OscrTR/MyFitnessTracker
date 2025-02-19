@@ -17,7 +17,14 @@ class StartTrainingEvent extends TrainingManagementEvent {
 }
 
 //! Trainings
-class FetchTrainingsEvent extends TrainingManagementEvent {}
+class FetchTrainingsEvent extends TrainingManagementEvent {
+  final bool hasToResetSelectedTraining;
+
+  const FetchTrainingsEvent([this.hasToResetSelectedTraining = false]);
+
+  @override
+  List<Object?> get props => [hasToResetSelectedTraining];
+}
 
 class LoadDaysSinceTrainingEvent extends TrainingManagementEvent {}
 

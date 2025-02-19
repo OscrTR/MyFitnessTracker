@@ -26,38 +26,24 @@ class TrainingManagementBloc
     on<FetchTrainingsEvent>((event, emit) async {
       try {
         final fetchedTrainings = sl<ObjectBox>().getAllTrainings();
+        final daysSinceTraining = sl<ObjectBox>().getDaysSinceTraining();
 
         if (state is TrainingManagementLoaded) {
           final currentState = state as TrainingManagementLoaded;
-          emit(currentState.copyWith(trainings: fetchedTrainings));
+          emit(currentState.copyWith(
+              trainings: fetchedTrainings,
+              daysSinceLastTraining: daysSinceTraining,
+              resetSelectedTraining: event.hasToResetSelectedTraining));
         } else {
-          emit(TrainingManagementLoaded(trainings: fetchedTrainings));
+          emit(TrainingManagementLoaded(
+              trainings: fetchedTrainings,
+              daysSinceLastTraining: daysSinceTraining));
         }
       } catch (e) {
         messageBloc.add(AddMessageEvent(
             message: 'An error occurred: ${e.toString()}', isError: true));
       }
-      // add(LoadDaysSinceTrainingEvent());
     });
-
-// TODO
-    // on<LoadDaysSinceTrainingEvent>((event, emit) async {
-    //   if (state is TrainingManagementLoaded) {
-    //     final currentState = state as TrainingManagementLoaded;
-    //     final days = <int, int?>{};
-    //     for (Training training in currentState.trainings) {
-    //       final result = await getDaysSinceTraining(get_d.Params(training.id!));
-    //       result.fold(
-    //         (failure) => messageBloc.add(AddMessageEvent(
-    //             message: _mapFailureToMessage(failure), isError: true)),
-    //         (res) {
-    //           days[training.id!] = res;
-    //         },
-    //       );
-    //     }
-    //     emit(currentState.copyWith(daysSinceLastTraining: days));
-    //   }
-    // });
 
     on<DeleteTrainingEvent>((event, emit) async {
       if (state is! TrainingManagementLoaded) return;
@@ -160,17 +146,25 @@ class TrainingManagementBloc
       try {
         final isUpdate = trainingToCreateOrUpdate.id != 0;
 
+        // TODO mettre à jour la training version
+
+        final trainingVersionId =
+            sl<ObjectBox>().createTrainingVersion(event.training);
+
+        final trainingVersion =
+            sl<ObjectBox>().getTrainingVersionById(trainingVersionId)!;
+
         if (isUpdate) {
-          sl<ObjectBox>().updateTraining(event.training);
+          sl<ObjectBox>().updateTraining(event.training, trainingVersion);
           messageBloc.add(const AddMessageEvent(
               message: 'Training updated successfully.', isError: false));
         } else {
-          sl<ObjectBox>().createTraining(event.training);
+          sl<ObjectBox>().createTraining(event.training, trainingVersion);
           messageBloc.add(const AddMessageEvent(
               message: 'Training created successfully.', isError: false));
         }
 
-        add(FetchTrainingsEvent());
+        add(FetchTrainingsEvent(true));
       } catch (e) {
         messageBloc.add(AddMessageEvent(
           message: 'An error occurred: ${e.toString()}',
@@ -245,6 +239,8 @@ class TrainingManagementBloc
           key: uuid.v4(),
           runType: event.trainingExercise.runType,
           intensity: event.trainingExercise.intensity,
+          training: event.trainingExercise.training.target,
+          multiset: event.trainingExercise.multiset.target,
           exercise: event.trainingExercise.exercise.target,
         );
 
@@ -417,6 +413,8 @@ class TrainingManagementBloc
             key: uuid.v4(),
             runType: event.trainingExercise.runType,
             intensity: event.trainingExercise.intensity,
+            training: event.trainingExercise.training.target,
+            multiset: event.trainingExercise.multiset.target,
             exercise: event.trainingExercise.exercise.target,
           );
           multisetExercises.add(tExerciseToAdd);

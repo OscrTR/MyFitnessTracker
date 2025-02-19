@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:objectbox/objectbox.dart';
 
 import '../../../core/enums/enums.dart';
+import '../../training_management/models/training_exercise.dart';
 
 @Entity()
 class Exercise {
@@ -43,6 +44,9 @@ class Exercise {
     // Lors de la création de l'exercise, convertir le string en list de [MuscleGroup]
     muscleGroups = MuscleGroupHelper.jsonToEnumList(value);
   }
+
+  @Backlink('exercise')
+  final trainingExercises = ToMany<TrainingExercise>();
 
 // Default constructor (used by ObjectBox)
   Exercise(this.name);

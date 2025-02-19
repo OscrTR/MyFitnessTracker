@@ -45,7 +45,6 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
     linkedTrainingId: null,
     linkedMultisetId: null,
     linkedExerciseId: null,
-    exercise: null,
   );
 
   TrainingExercise _tExerciseToCreateOrEdit = TrainingExercise.create(
@@ -59,7 +58,6 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
     linkedTrainingId: null,
     linkedMultisetId: null,
     linkedExerciseId: null,
-    exercise: null,
   );
 
   final Multiset _defaultMultiset = Multiset.create(
@@ -2023,7 +2021,8 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
           ),
           const SizedBox(height: 10),
           CustomDropdown<TrainingType>(
-            items: TrainingType.values,
+            items:
+                TrainingType.values.sublist(0, TrainingType.values.length - 1),
             initialItem: training.type,
             decoration: CustomDropdownDecoration(
               listItemStyle: Theme.of(context)

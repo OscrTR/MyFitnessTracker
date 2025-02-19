@@ -1,20 +1,26 @@
-import '../../exercise_management/models/exercise.dart';
 import 'package:objectbox/objectbox.dart';
 
 import '../../../core/enums/enums.dart';
+import 'training.dart';
+import 'multiset.dart';
+import '../../exercise_management/models/exercise.dart';
 
 @Entity()
 class TrainingExercise {
   @Id()
   int id = 0;
 
-  int? linkedTrainingId; // Id du [Training] associé
+  /// Relation `ToOne` avec `Training`
+  final training = ToOne<Training>();
+  int? linkedTrainingId; // ID du Training pour cas d'absence
 
-  int? linkedMultisetId; // Id du [Multiset] associé (optionnel)
+  /// Relation `ToOne` avec `Multiset`
+  final multiset = ToOne<Multiset>();
+  int? linkedMultisetId; // ID du Multiset pour cas d'absence
 
-  int? linkedExerciseId; // Id du [Exercise] associé (optionnel)
-
+  /// Relation `ToOne` avec `Exercise`
   final exercise = ToOne<Exercise>();
+  int? linkedExerciseId; // ID de l'Exercise pour cas d'absence
 
   // Stocke l'index de l'enum `TrainingExerciseType`
   @Transient()
@@ -73,14 +79,34 @@ class TrainingExercise {
   String? key;
 
   TrainingExercise({
+    required this.id,
+    required this.linkedTrainingId,
+    required this.linkedMultisetId,
+    required this.linkedExerciseId,
+    this.specialInstructions,
+    this.objectives,
+    this.targetDistance,
+    this.targetDuration,
+    this.isTargetPaceSelected,
+    this.targetPace,
     required this.sets,
     required this.isSetsInReps,
+    this.minReps,
+    this.maxReps,
+    this.duration,
+    this.setRest,
+    this.exerciseRest,
     required this.isAutoStart,
+    this.position,
     required this.intensity,
+    this.key,
   });
 
   TrainingExercise.create({
     this.id = 0,
+    Training? training,
+    Multiset? multiset,
+    Exercise? exercise,
     required this.linkedTrainingId,
     required this.linkedMultisetId,
     required this.linkedExerciseId,
@@ -103,9 +129,19 @@ class TrainingExercise {
     this.position,
     required this.intensity,
     this.key,
-    required Exercise? exercise,
   }) {
-    this.exercise.target = exercise;
+    if (training != null) {
+      this.training.target = training;
+      linkedTrainingId = training.id;
+    }
+    if (multiset != null) {
+      this.multiset.target = multiset;
+      linkedMultisetId = multiset.id;
+    }
+    if (exercise != null) {
+      this.exercise.target = exercise;
+      linkedExerciseId = exercise.id;
+    }
   }
 
   void _ensureStableTrainingExerciseTypeEnumValues() {
@@ -139,6 +175,8 @@ class TrainingExercise {
     int? position,
     int? intensity,
     String? key,
+    Training? training,
+    Multiset? multiset,
     Exercise? exercise,
   }) {
     return TrainingExercise.create(
@@ -165,7 +203,9 @@ class TrainingExercise {
       position: position ?? this.position,
       intensity: intensity ?? this.intensity,
       key: key ?? this.key,
-      exercise: exercise?.copyWith() ?? this.exercise.target?.copyWith(),
+      training: training ?? this.training.target,
+      multiset: multiset ?? this.multiset.target,
+      exercise: exercise ?? this.exercise.target,
     );
   }
 

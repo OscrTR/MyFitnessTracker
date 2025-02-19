@@ -8,6 +8,9 @@ import '../../training_management/models/training.dart';
 class TrainingVersion {
   @Id()
   int id = 0;
+
+  final training = ToOne<Training>();
+
   @Index()
   int? linkedTrainingId; // Id du [Training] associé
 

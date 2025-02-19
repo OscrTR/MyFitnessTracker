@@ -44,7 +44,7 @@
     },
     {
       "id": "5:790968269672532113",
-      "lastPropertyId": "8:913685373474112095",
+      "lastPropertyId": "9:310065567690501096",
       "name": "TrainingVersion",
       "properties": [
         {
@@ -64,13 +64,21 @@
           "id": "8:913685373474112095",
           "name": "jsonRepresentation",
           "type": 9
+        },
+        {
+          "id": "9:310065567690501096",
+          "name": "trainingId",
+          "type": 11,
+          "flags": 520,
+          "indexId": "18:8361029363842921308",
+          "relationTarget": "Training"
         }
       ],
       "relations": []
     },
     {
       "id": "6:7860540944696488375",
-      "lastPropertyId": "9:3032517674823575647",
+      "lastPropertyId": "10:3160592449506464948",
       "name": "Multiset",
       "properties": [
         {
@@ -118,15 +126,17 @@
           "id": "9:3032517674823575647",
           "name": "key",
           "type": 9
+        },
+        {
+          "id": "10:3160592449506464948",
+          "name": "trainingId",
+          "type": 11,
+          "flags": 520,
+          "indexId": "15:740355451561039071",
+          "relationTarget": "Training"
         }
       ],
-      "relations": [
-        {
-          "id": "7:8334379565981685192",
-          "name": "trainingExercises",
-          "targetId": "8:6393605471041917069"
-        }
-      ]
+      "relations": []
     },
     {
       "id": "7:950078833293376110",
@@ -160,27 +170,11 @@
           "type": 9
         }
       ],
-      "relations": [
-        {
-          "id": "8:6295459699345603544",
-          "name": "trainingExercises",
-          "targetId": "8:6393605471041917069"
-        },
-        {
-          "id": "9:8756662863016031796",
-          "name": "multisets",
-          "targetId": "6:7860540944696488375"
-        },
-        {
-          "id": "10:5640924886941127514",
-          "name": "trainingVersions",
-          "targetId": "5:790968269672532113"
-        }
-      ]
+      "relations": []
     },
     {
       "id": "8:6393605471041917069",
-      "lastPropertyId": "24:3428839521455793776",
+      "lastPropertyId": "26:3180538339066583057",
       "name": "TrainingExercise",
       "properties": [
         {
@@ -306,6 +300,22 @@
           "id": "24:3428839521455793776",
           "name": "dbRunType",
           "type": 6
+        },
+        {
+          "id": "25:8443970736056161446",
+          "name": "trainingId",
+          "type": 11,
+          "flags": 520,
+          "indexId": "16:1795910135981621663",
+          "relationTarget": "Training"
+        },
+        {
+          "id": "26:3180538339066583057",
+          "name": "multisetId",
+          "type": 11,
+          "flags": 520,
+          "indexId": "17:1582373349832831025",
+          "relationTarget": "Multiset"
         }
       ],
       "relations": []
@@ -402,7 +412,9 @@
         {
           "id": "2:5932305188348334297",
           "name": "linkedTrainingId",
-          "type": 6
+          "type": 6,
+          "flags": 8,
+          "indexId": "14:1932446220951238492"
         },
         {
           "id": "3:6918431226825001339",
@@ -449,7 +461,7 @@
     }
   ],
   "lastEntityId": "10:736439548103471689",
-  "lastIndexId": "13:6974256475971044142",
+  "lastIndexId": "18:8361029363842921308",
   "lastRelationId": "10:5640924886941127514",
   "lastSequenceId": "0:0",
   "modelVersion": 5,
@@ -524,7 +536,11 @@
   ],
   "retiredRelationUids": [
     2220873685979633358,
-    525592784003240916
+    525592784003240916,
+    8334379565981685192,
+    6295459699345603544,
+    8756662863016031796,
+    5640924886941127514
   ],
   "version": 1
 }

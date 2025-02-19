@@ -4,6 +4,7 @@ import 'package:objectbox/objectbox.dart';
 class RunLocation {
   @Id()
   int id = 0;
+  @Index()
   int linkedTrainingId;
   int linkedTrainingExerciseId;
   int setNumber;

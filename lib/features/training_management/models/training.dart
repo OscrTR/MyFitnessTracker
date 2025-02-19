@@ -33,7 +33,10 @@ class Training {
   }
 
   // Relation One-To-Many
+  @Backlink('training')
   final trainingExercises = ToMany<TrainingExercise>();
+
+  @Backlink('training')
   final multisets = ToMany<Multiset>();
 
   // Stocker les objectifs sous forme de chaîne
@@ -53,6 +56,7 @@ class Training {
   }
 
   // Relation One-To-Many pour stocker les versions précédentes
+  @Backlink('training')
   final trainingVersions = ToMany<TrainingVersion>();
 
   // Default constructor (used by ObjectBox)

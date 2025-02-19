@@ -454,7 +454,7 @@ class _ActiveExerciseRowState extends State<ActiveExerciseRow> {
           isCountDown: true,
           isAutostart: false,
           exerciseGlobalKey: widget.exerciseGlobalKey,
-          trainingId: widget.tExercise.linkedTrainingId!,
+          trainingId: widget.tExercise.training.target!.id,
           tExerciseId: widget.tExercise.id,
           setNumber: widget.setIndex,
           trainingVersionId: widget.lastTrainingVersionId,
