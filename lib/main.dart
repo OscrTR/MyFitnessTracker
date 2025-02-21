@@ -21,6 +21,7 @@ void main() async {
   await di.init();
   FlutterForegroundTask.initCommunicationPort();
   await di.sl<DatabaseService>().init();
+  await di.sl<DatabaseService>().performMaintenance();
 
   runApp(
     EasyLocalization(

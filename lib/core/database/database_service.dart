@@ -130,7 +130,40 @@ class DatabaseService {
     FOREIGN KEY (trainingVersionId) REFERENCES training_versions (id)
   )
   ''');
+
+      await tx.execute('''
+  CREATE INDEX idx_history_entries_trainingId ON history_entries(trainingId)
+  ''');
+
+      await tx.execute('''
+  CREATE INDEX idx_training_versions_trainingId ON training_versions(trainingId)
+  ''');
+
+      await tx.execute('''
+  CREATE INDEX idx_exercises_multisetId ON exercises(multisetId)
+  ''');
+
+      await tx.execute('''
+  CREATE INDEX idx_exercises_trainingId ON exercises(trainingId)
+  ''');
+
+      await tx.execute('''
+  CREATE INDEX idx_history_entries_date ON history_entries(date)
+  ''');
+
+      await tx.execute('''
+  CREATE INDEX idx_run_locations_date ON run_locations(date)
+  ''');
+
+      await tx.execute('''
+  CREATE INDEX idx_history_entries_trainingId_date ON history_entries(trainingId, date)
+  ''');
     }));
+
+  Future<void> performMaintenance() async {
+    await _db.execute("VACUUM;");
+    await _db.execute("ANALYZE;");
+  }
 
   // Initialisation de la base de données
   Future<void> init() async {
@@ -330,7 +363,7 @@ class DatabaseService {
     final twoHoursAgo = now.subtract(const Duration(hours: 2));
 
     final result = await _db.execute(
-      'SELECT 1 FROM history_entries WHERE date > ? AND linkedExerciseId = ? LIMIT 1',
+      'SELECT 1 FROM history_entries WHERE date > ? AND trainingId = ? LIMIT 1',
       [twoHoursAgo.millisecondsSinceEpoch, exerciseId],
     );
 
