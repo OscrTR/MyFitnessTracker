@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:animated_custom_dropdown/custom_dropdown.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -31,7 +30,6 @@ class _BaseExerciseDetailPageState extends State<BaseExerciseDetailPage> {
   File? _image;
   bool _isDataInitialized = false;
   File? _imageToDelete;
-  late ExerciseType _selectedExerciseType;
   Map<MuscleGroup, bool> _selectedMuscleGroups = {};
 
   @override
@@ -99,180 +97,141 @@ class _BaseExerciseDetailPageState extends State<BaseExerciseDetailPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(children: [
-        SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: BlocBuilder<BaseExerciseManagementBloc,
-                BaseExerciseManagementState>(builder: (context, state) {
-              if (state is BaseExerciseManagementLoaded) {
-                final baseExercise = state.selectedBaseExercise;
+      body: SizedBox.expand(
+        child: BlocBuilder<BaseExerciseManagementBloc,
+            BaseExerciseManagementState>(builder: (context, state) {
+          if (state is BaseExerciseManagementLoaded) {
+            final baseExercise = state.selectedBaseExercise;
 
-                if (baseExercise != null && !_isDataInitialized) {
-                  _nameController.text = baseExercise.name;
-                  _descriptionController.text = baseExercise.description;
-                  _image = baseExercise.imagePath.isNotEmpty
-                      ? File(baseExercise.imagePath)
-                      : null;
-                  _isDataInitialized = true;
-                }
-
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildHeader(context, baseExercise),
-                    const SizedBox(height: 30),
-                    CustomTextField(
-                      controller: _nameController,
-                      hintText: context.tr('exercise_detail_page_name_hint'),
-                    ),
-                    const SizedBox(height: 20),
-                    CustomTextField(
-                      controller: _descriptionController,
-                      hintText:
-                          context.tr('exercise_detail_page_description_hint'),
-                    ),
-                    const SizedBox(height: 20),
-                    Text(
-                      tr('exercise_detail_page_type'),
-                      style: const TextStyle(color: AppColors.taupeGray),
-                    ),
-                    const SizedBox(height: 10),
-                    CustomDropdown<ExerciseType>(
-                      items: ExerciseType.values
-                          .sublist(0, ExerciseType.values.length - 1),
-                      initialItem: _selectedExerciseType,
-                      decoration: CustomDropdownDecoration(
-                        listItemStyle: Theme.of(context)
-                            .textTheme
-                            .bodyMedium!
-                            .copyWith(color: AppColors.timberwolf),
-                        headerStyle: Theme.of(context)
-                            .textTheme
-                            .bodyMedium!
-                            .copyWith(color: AppColors.licorice),
-                        closedSuffixIcon: const Icon(
-                          Icons.keyboard_arrow_down_rounded,
-                          size: 20,
-                          color: AppColors.timberwolf,
-                        ),
-                        expandedSuffixIcon: const Icon(
-                          Icons.keyboard_arrow_up_rounded,
-                          size: 20,
-                          color: AppColors.timberwolf,
-                        ),
-                        closedBorder: Border.all(color: AppColors.timberwolf),
-                        expandedBorder: Border.all(color: AppColors.timberwolf),
-                      ),
-                      headerBuilder: (context, selectedItem, enabled) {
-                        return Text(selectedItem
-                            .translate(context.locale.languageCode));
-                      },
-                      listItemBuilder:
-                          (context, item, isSelected, onItemSelect) {
-                        return Text(
-                            item.translate(context.locale.languageCode));
-                      },
-                      onChanged: (value) {
-                        _selectedExerciseType = value!;
-                      },
-                    ),
-                    const SizedBox(height: 10),
-                    const SizedBox(height: 20),
-                    _buildMuscleGroups(context),
-                    const SizedBox(height: 20),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          tr('exercise_detail_page_image'),
-                          style: const TextStyle(color: AppColors.taupeGray),
-                        ),
-                        if (_image == null)
-                          GestureDetector(
-                            onTap: _pickImage,
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 15, vertical: 7),
-                              decoration: BoxDecoration(
-                                  border:
-                                      Border.all(color: AppColors.timberwolf),
-                                  borderRadius: BorderRadius.circular(5)),
-                              child: Text(
-                                tr('global_select'),
+            if (baseExercise != null && !_isDataInitialized) {
+              _nameController.text = baseExercise.name;
+              _descriptionController.text = baseExercise.description;
+              _image = baseExercise.imagePath.isNotEmpty
+                  ? File(baseExercise.imagePath)
+                  : null;
+              _isDataInitialized = true;
+            }
+            return Stack(
+              children: [
+                SingleChildScrollView(
+                  child: Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildHeader(context, baseExercise),
+                          const SizedBox(height: 30),
+                          CustomTextField(
+                            controller: _nameController,
+                            hintText:
+                                context.tr('exercise_detail_page_name_hint'),
+                          ),
+                          const SizedBox(height: 20),
+                          CustomTextField(
+                            controller: _descriptionController,
+                            hintText: context
+                                .tr('exercise_detail_page_description_hint'),
+                          ),
+                          const SizedBox(height: 20),
+                          _buildMuscleGroups(context),
+                          const SizedBox(height: 20),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                tr('exercise_detail_page_image'),
                                 style:
                                     const TextStyle(color: AppColors.taupeGray),
                               ),
-                            ),
+                              if (_image == null)
+                                GestureDetector(
+                                  onTap: _pickImage,
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 15, vertical: 7),
+                                    decoration: BoxDecoration(
+                                        border: Border.all(
+                                            color: AppColors.timberwolf),
+                                        borderRadius: BorderRadius.circular(5)),
+                                    child: Text(
+                                      tr('global_select'),
+                                      style: const TextStyle(
+                                          color: AppColors.taupeGray),
+                                    ),
+                                  ),
+                                ),
+                            ],
                           ),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-                    ImagePickerWidget(
-                      image: _image,
-                      onAddImage: _pickImage,
-                      onChangeImage: _pickImage,
-                      onDeleteImage: () {
-                        setState(() {
-                          _imageToDelete = _image;
-                          _image = null;
-                        });
+                          const SizedBox(height: 10),
+                          ImagePickerWidget(
+                            image: _image,
+                            onAddImage: _pickImage,
+                            onChangeImage: _pickImage,
+                            onDeleteImage: () {
+                              setState(() {
+                                _imageToDelete = _image;
+                                _image = null;
+                              });
+                            },
+                          ),
+                          const SizedBox(height: 70)
+                        ],
+                      )),
+                ),
+                Positioned(
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  child: Container(
+                    color: AppColors.floralWhite,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 10),
+                    height: 70,
+                    child: GestureDetector(
+                      onTap: () {
+                        if (_imageToDelete != null) {
+                          _deleteImageFile();
+                        }
+                        context.read<BaseExerciseManagementBloc>().add(
+                              CreateOrUpdateBaseExerciseEvent(
+                                BaseExercise(
+                                  id: baseExercise!.id,
+                                  name: _nameController.text,
+                                  description: _descriptionController.text,
+                                  imagePath: _image?.path ?? '',
+                                  muscleGroups: _selectedMuscleGroups.entries
+                                      .where((el) => el.value == true)
+                                      .map((el) => el.key)
+                                      .toList(),
+                                ),
+                              ),
+                            );
+                        widget.fromTrainingCreation
+                            ? GoRouter.of(context).push('/training_detail')
+                            : GoRouter.of(context).push('/trainings');
+                        BlocProvider.of<BaseExerciseManagementBloc>(context)
+                            .add(ClearSelectedBaseExerciseEvent());
                       },
-                    ),
-                    const SizedBox(height: 70)
-                  ],
-                );
-              }
-              return Center(child: Text(context.tr('error_state')));
-            }),
-          ),
-        ),
-        Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: Container(
-              color: AppColors.floralWhite,
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              height: 70,
-              child: GestureDetector(
-                onTap: () {
-                  if (_imageToDelete != null) {
-                    _deleteImageFile();
-                  }
-                  context.read<BaseExerciseManagementBloc>().add(
-                        CreateOrUpdateBaseExerciseEvent(
-                          BaseExercise(
-                            name: _nameController.text,
-                            description: _descriptionController.text,
-                            imagePath: _image?.path ?? '',
-                            muscleGroups: _selectedMuscleGroups.entries
-                                .where((el) => el.value == true)
-                                .map((el) => el.key)
-                                .toList(),
+                      child: Container(
+                        decoration: BoxDecoration(
+                            color: AppColors.folly,
+                            borderRadius: BorderRadius.circular(5)),
+                        child: Center(
+                          child: Text(
+                            tr('global_save'),
+                            style: const TextStyle(color: AppColors.white),
                           ),
                         ),
-                      );
-                  widget.fromTrainingCreation
-                      ? GoRouter.of(context).push('/training_detail')
-                      : GoRouter.of(context).push('/trainings');
-                  BlocProvider.of<BaseExerciseManagementBloc>(context)
-                      .add(ClearSelectedBaseExerciseEvent());
-                },
-                child: Container(
-                  decoration: BoxDecoration(
-                      color: AppColors.folly,
-                      borderRadius: BorderRadius.circular(5)),
-                  child: Center(
-                    child: Text(
-                      tr('global_save'),
-                      style: const TextStyle(color: AppColors.white),
+                      ),
                     ),
                   ),
-                ),
-              ),
-            ))
-      ]),
+                )
+              ],
+            );
+          }
+          return Center(child: Text(context.tr('error_state')));
+        }),
+      ),
     );
   }
 

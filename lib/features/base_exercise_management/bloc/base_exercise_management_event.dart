@@ -19,12 +19,12 @@ class GetBaseExerciseEvent extends BaseExerciseManagementEvent {
 class GetAllBaseExercisesEvent extends BaseExerciseManagementEvent {}
 
 class CreateOrUpdateBaseExerciseEvent extends BaseExerciseManagementEvent {
-  final BaseExercise exercise;
+  final BaseExercise baseExercise;
 
-  const CreateOrUpdateBaseExerciseEvent(this.exercise);
+  const CreateOrUpdateBaseExerciseEvent(this.baseExercise);
 
   @override
-  List<Object> get props => [exercise];
+  List<Object> get props => [baseExercise];
 }
 
 class DeleteBaseExerciseEvent extends BaseExerciseManagementEvent {

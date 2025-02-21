@@ -51,16 +51,17 @@ class BaseExerciseManagementBloc
       if (state is! BaseExerciseManagementLoaded) return;
 
       try {
-        final isUpdate = event.exercise.id != 0;
+        final isUpdate = event.baseExercise.id != null;
 
         if (isUpdate) {
-          sl<DatabaseService>().updateBaseExercise(event.exercise);
+          await sl<DatabaseService>().updateBaseExercise(event.baseExercise);
           messageBloc.add(AddMessageEvent(
-              message: tr('message_exercise_update_success'), isError: false));
+              message: tr('message_base_exercise_update_success'),
+              isError: false));
         } else {
-          sl<DatabaseService>().createBaseExercise(event.exercise);
+          await sl<DatabaseService>().createBaseExercise(event.baseExercise);
           messageBloc.add(AddMessageEvent(
-              message: tr('message_exercise_creation_success'),
+              message: tr('message_base_exercise_creation_success'),
               isError: false));
         }
         add(GetAllBaseExercisesEvent());
@@ -73,9 +74,10 @@ class BaseExerciseManagementBloc
     on<DeleteBaseExerciseEvent>((event, emit) async {
       if (state is! BaseExerciseManagementLoaded) return;
       try {
-        sl<DatabaseService>().deleteBaseExercise(event.id);
+        await sl<DatabaseService>().deleteBaseExercise(event.id);
         messageBloc.add(AddMessageEvent(
-            message: tr('message_exercise_deletion_success'), isError: false));
+            message: tr('message_base_exercise_deletion_success'),
+            isError: false));
 
         add(GetAllBaseExercisesEvent());
       } catch (e) {

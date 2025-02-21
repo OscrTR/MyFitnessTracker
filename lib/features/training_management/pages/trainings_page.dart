@@ -35,6 +35,8 @@ class _TrainingsPageState extends State<TrainingsPage> {
 
   @override
   Widget build(BuildContext context) {
+    // print(
+    //     'Found base exercises : ${(sl<BaseExerciseManagementBloc>().state as BaseExerciseManagementLoaded).baseExercises.map((b) => b.name).toList()}');
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(20),

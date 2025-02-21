@@ -35,9 +35,9 @@
 
   "message_unexpected_error": "Erreur inattendue.",
   "message_database_failure": "Echec de la abse de données.",
-  "message_exercise_creation_success": "Exercice créé avec succès.",
-  "message_exercise_update_success": "Exercice mis à jour avec succès.",
-  "message_exercise_deletion_success": "Exercice supprimé avec succès.",
+  "message_base_exercise_creation_success": "Base d'exercice créé avec succès.",
+  "message_base_exercise_update_success": "Base d'exercice mise à jour avec succès.",
+  "message_base_exercise_deletion_success": "Base d'exercice supprimée avec succès.",
   "message_training_creation_success": "Entraînement créé avec succès.",
   "message_training_update_success": "Entraînement mis à jour avec succès.",
   "message_training_deletion_success": "Entraînement supprimé avec succès.",
