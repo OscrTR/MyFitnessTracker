@@ -72,10 +72,10 @@ class _HomePageState extends State<HomePage> {
     for (var training
         in (sl<TrainingManagementBloc>().state as TrainingManagementLoaded)
             .trainings) {
-      if (trainingType != null && training.type == trainingType) {
-        sum += training.trainingDays?.length ?? 0;
+      if (trainingType != null && training.trainingType == trainingType) {
+        sum += training.trainingDays.length;
       } else if (trainingType == null) {
-        sum += training.trainingDays?.length ?? 0;
+        sum += training.trainingDays.length;
       }
     }
     return sum;
@@ -299,7 +299,7 @@ class _HomePageState extends State<HomePage> {
                               child: Text(
                                 _historyTrainings![index]
                                     .training
-                                    .type!
+                                    .trainingType
                                     .translate(context.locale.languageCode),
                                 style: Theme.of(context).textTheme.bodySmall,
                               ),
@@ -782,10 +782,10 @@ class _HomePageState extends State<HomePage> {
 }
 
 Widget _buildTrainingsList(BuildContext context) {
-  String getDayText(WeekDay day) {
+  String getDayText(TrainingDay day) {
     final now = DateTime.now();
-    final currentDay =
-        WeekDay.values[now.weekday - 1]; // -1 car DateTime.weekday commence à 1
+    final currentDay = TrainingDay
+        .values[now.weekday - 1]; // -1 car DateTime.weekday commence à 1
 
     if (day == currentDay) {
       return context.locale.languageCode == 'fr' ? 'Aujourd\'hui' : 'Today';
@@ -793,11 +793,11 @@ Widget _buildTrainingsList(BuildContext context) {
     return day.translate(context.locale.languageCode);
   }
 
-  WeekDay getNextTrainingDay(Training training) {
+  TrainingDay getNextTrainingDay(Training training) {
     final now = DateTime.now();
     final currentDayIndex = now.weekday - 1;
 
-    final sortedDays = List<WeekDay>.from(training.trainingDays!)
+    final sortedDays = List<TrainingDay>.from(training.trainingDays)
       ..sort((a, b) => a.index.compareTo(b.index));
 
     // On cherche d'abord si le jour actuel est un jour d'entraînement
@@ -817,14 +817,14 @@ Widget _buildTrainingsList(BuildContext context) {
       builder: (context, state) {
     if (state is TrainingManagementLoaded) {
       final plannedTrainings = state.trainings
-          .where((t) => t.trainingDays?.isNotEmpty ?? false)
+          .where((t) => t.trainingDays.isNotEmpty)
           .toList()
         ..sort((a, b) {
           final now = DateTime.now();
           final currentDayIndex = now.weekday - 1;
 
           int getNextDayIndex(Training t) {
-            final days = t.trainingDays!
+            final days = t.trainingDays
               ..sort((x, y) => x.index.compareTo(y.index));
             final todayIndex =
                 days.indexWhere((d) => d.index == currentDayIndex);
@@ -951,7 +951,8 @@ Widget _buildTrainingsList(BuildContext context) {
                         ),
                         const SizedBox(height: 3),
                         Text(
-                          training.type!.translate(context.locale.languageCode),
+                          training.trainingType
+                              .translate(context.locale.languageCode),
                           style: Theme.of(context)
                               .textTheme
                               .bodySmall!
@@ -966,7 +967,7 @@ Widget _buildTrainingsList(BuildContext context) {
                               onTap: () {
                                 context
                                     .read<TrainingManagementBloc>()
-                                    .add(StartTrainingEvent(training.id));
+                                    .add(StartTrainingEvent(training.id!));
                                 GoRouter.of(context).push('/active_training');
                               },
                               child: Container(
@@ -1031,7 +1032,7 @@ Widget _buildTrainingsList(BuildContext context) {
                         if (value == 'edit') {
                           context
                               .read<TrainingManagementBloc>()
-                              .add(GetTrainingEvent(id: training.id));
+                              .add(GetTrainingEvent(id: training.id!));
                           GoRouter.of(context).push('/training_detail');
                         }
                       },

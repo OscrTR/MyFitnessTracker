@@ -2,12 +2,13 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
-import 'package:flutter_map_tile_caching/flutter_map_tile_caching.dart';
+import 'core/database/database_service.dart';
 
 import 'app_theme.dart';
+
 import 'core/messages/bloc/message_bloc.dart';
 import 'features/active_training/bloc/active_training_bloc.dart';
-import 'features/exercise_management/bloc/exercise_management_bloc.dart';
+import 'features/base_exercise_management/bloc/base_exercise_management_bloc.dart';
 import 'features/settings/bloc/settings_bloc.dart';
 import 'features/training_history/bloc/training_history_bloc.dart';
 import 'features/training_management/bloc/training_management_bloc.dart';
@@ -18,9 +19,8 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await EasyLocalization.ensureInitialized();
   await di.init();
-  await FMTCObjectBoxBackend().initialise();
-  await const FMTCStore('mapStore').manage.create();
   FlutterForegroundTask.initCommunicationPort();
+  await di.sl<DatabaseService>().init();
 
   runApp(
     EasyLocalization(
@@ -44,9 +44,9 @@ class MyApp extends StatelessWidget {
           create: (_) => di.sl<MessageBloc>(),
           lazy: false,
         ),
-        BlocProvider<ExerciseManagementBloc>(
-          create: (_) =>
-              di.sl<ExerciseManagementBloc>()..add(FetchExercisesEvent()),
+        BlocProvider<BaseExerciseManagementBloc>(
+          create: (_) => di.sl<BaseExerciseManagementBloc>()
+            ..add(GetAllBaseExercisesEvent()),
           lazy: false,
         ),
         BlocProvider<TrainingManagementBloc>(

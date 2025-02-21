@@ -12,7 +12,7 @@ import 'core/messages/bloc/message_bloc.dart';
 import 'features/stats/pages/stats_page.dart';
 import 'features/training_history/pages/history_page.dart';
 import 'features/active_training/pages/active_training_page.dart';
-import 'features/exercise_management/pages/exercise_detail_page.dart';
+import 'features/base_exercise_management/pages/base_exercise_detail_page.dart';
 import 'features/homepage/pages/home_page.dart';
 import 'features/settings/pages/settings_page.dart';
 import 'features/training_management/pages/training_details_page.dart';
@@ -107,7 +107,7 @@ final router = GoRouter(
             final fromTrainingCreation =
                 (state.extra as String?) == 'training_detail';
             return CustomTransitionPage(
-              child: ExerciseDetailPage(
+              child: BaseExerciseDetailPage(
                 fromTrainingCreation: fromTrainingCreation,
               ),
               transitionsBuilder:

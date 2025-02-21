@@ -2,9 +2,9 @@ import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../training_management/models/training_exercise.dart';
+
+import '../../training_management/models/exercise.dart';
 import '../../../app_colors.dart';
-import '../../../core/database/object_box.dart';
 import '../../../core/enums/enums.dart';
 import '../../../helper_functions.dart';
 import '../../../injection_container.dart';
@@ -15,15 +15,17 @@ import 'duration_timer_widget.dart';
 import 'pace_widget.dart';
 
 class ActiveRunWidget extends StatefulWidget {
-  final TrainingExercise tExercise;
+  final Exercise exercise;
   final int exerciseIndex;
   final bool isLast;
+  final int lastTrainingVersionId;
 
   const ActiveRunWidget({
     super.key,
-    required this.tExercise,
+    required this.exercise,
     required this.isLast,
     required this.exerciseIndex,
+    required this.lastTrainingVersionId,
   });
 
   @override
@@ -34,14 +36,10 @@ class _ActiveRunWidgetState extends State<ActiveRunWidget> {
   final training =
       (sl<TrainingManagementBloc>().state as TrainingManagementLoaded)
           .activeTraining!;
-  late final int lastTrainingVersionId;
 
   @override
   void initState() {
     super.initState();
-    lastTrainingVersionId = sl<ObjectBox>()
-        .getMostRecentTrainingVersionForTrainingId(training.id)!
-        .id;
   }
 
   @override
@@ -60,7 +58,7 @@ class _ActiveRunWidgetState extends State<ActiveRunWidget> {
               isActiveExercise = true;
             }
 
-            final bool isInterval = widget.tExercise.sets > 1;
+            final bool isInterval = widget.exercise.sets > 1;
 
             return Container(
               margin: const EdgeInsets.only(top: 20),
@@ -80,10 +78,9 @@ class _ActiveRunWidgetState extends State<ActiveRunWidget> {
                   const SizedBox(height: 10),
                   isInterval ? buildIntervalText() : buildRunExerciseText(),
                   const SizedBox(height: 10),
-                  if (widget.tExercise.specialInstructions != null &&
-                      widget.tExercise.specialInstructions != '')
-                    Text('${widget.tExercise.specialInstructions}'),
-                  if (widget.tExercise.objectives != null)
+                  if (widget.exercise.specialInstructions.isNotEmpty)
+                    Text(widget.exercise.specialInstructions),
+                  if (widget.exercise.objectives.isNotEmpty)
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -91,26 +88,26 @@ class _ActiveRunWidgetState extends State<ActiveRunWidget> {
                           '${tr('global_objectives')}: ',
                           style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
-                        Text('${widget.tExercise.objectives}'),
+                        Text(widget.exercise.objectives),
                       ],
                     ),
                   const SizedBox(height: 10),
                   const Divider(color: AppColors.timberwolf),
                   if (!isInterval)
                     DistanceOrDurationRun(
-                      tExercise: widget.tExercise,
+                      exercise: widget.exercise,
                       isLast: widget.isLast,
                       exerciseIndex: widget.exerciseIndex,
                       exerciseGlobalKey: widget.key! as GlobalKey,
-                      lastTrainingVersionId: lastTrainingVersionId,
+                      lastTrainingVersionId: widget.lastTrainingVersionId,
                     ),
                   if (isInterval)
                     IntervalWidget(
-                      tExercise: widget.tExercise,
+                      exercise: widget.exercise,
                       isLast: widget.isLast,
                       exerciseIndex: widget.exerciseIndex,
                       exerciseGlobalKey: widget.key! as GlobalKey,
-                      lastTrainingVersionId: lastTrainingVersionId,
+                      lastTrainingVersionId: widget.lastTrainingVersionId,
                     ),
                   const SizedBox(height: 10),
                 ],
@@ -138,9 +135,9 @@ class _ActiveRunWidgetState extends State<ActiveRunWidget> {
           if (!widget.isLast) const SizedBox(width: 5),
           if (!widget.isLast)
             Text(
-              widget.tExercise.exerciseRest != null
+              widget.exercise.exerciseRest != 0
                   ? formatDurationToHoursMinutesSeconds(
-                      widget.tExercise.exerciseRest!)
+                      widget.exercise.exerciseRest)
                   : '0:00',
             ),
         ],
@@ -149,25 +146,25 @@ class _ActiveRunWidgetState extends State<ActiveRunWidget> {
   }
 
   Text buildRunExerciseText() {
-    final targetDistance = widget.tExercise.targetDistance != null &&
-            widget.tExercise.targetDistance! > 0
-        ? '${(widget.tExercise.targetDistance! / 1000).toStringAsFixed(1)}km'
+    final targetDistance = widget.exercise.targetDistance != 0 &&
+            widget.exercise.targetDistance > 0
+        ? '${(widget.exercise.targetDistance / 1000).toStringAsFixed(1)}km'
         : '';
-    final targetDuration = widget.tExercise.targetDuration != null
-        ? formatDurationToHoursMinutesSeconds(widget.tExercise.targetDuration!)
+    final targetDuration = widget.exercise.targetDuration != 0
+        ? formatDurationToHoursMinutesSeconds(widget.exercise.targetDuration)
         : '';
-    final targetPace = widget.tExercise.isTargetPaceSelected == true
-        ? ' at ${formatPace(widget.tExercise.targetPace ?? 0)}'
+    final targetPace = widget.exercise.isTargetPaceSelected == true
+        ? ' at ${formatPace(widget.exercise.targetPace)}'
         : '';
 
-    if (widget.tExercise.runType == RunType.distance) {
+    if (widget.exercise.runType == RunType.distance) {
       return Text(
         '${tr('active_training_running')} $targetDistance$targetPace',
         style: Theme.of(context).textTheme.titleMedium,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
       );
-    } else if (widget.tExercise.runType == RunType.duration) {
+    } else if (widget.exercise.runType == RunType.duration) {
       return Text(
         '${tr('active_training_running')} $targetDuration$targetPace',
         style: Theme.of(context).textTheme.titleMedium,
@@ -185,20 +182,19 @@ class _ActiveRunWidgetState extends State<ActiveRunWidget> {
   }
 
   Text buildIntervalText() {
-    final tExercise = widget.tExercise;
-    final targetDistance =
-        tExercise.targetDistance != null && tExercise.targetDistance! > 0
-            ? '${(tExercise.targetDistance! / 1000).toStringAsFixed(1)}km'
-            : '';
-    final targetDuration = tExercise.targetDuration != null
-        ? formatDurationToHoursMinutesSeconds(tExercise.targetDuration!)
+    final exercise = widget.exercise;
+    final targetDistance = exercise.targetDistance > 0
+        ? '${(exercise.targetDistance / 1000).toStringAsFixed(1)}km'
         : '';
-    final targetPace = tExercise.isTargetPaceSelected == true
-        ? ' at ${formatPace(tExercise.targetPace ?? 0)}'
+    final targetDuration = exercise.targetDuration != 0
+        ? formatDurationToHoursMinutesSeconds(exercise.targetDuration)
         : '';
-    final intervals = tExercise.sets;
+    final targetPace = exercise.isTargetPaceSelected == true
+        ? ' at ${formatPace(exercise.targetPace)}'
+        : '';
+    final intervals = exercise.sets;
 
-    if (tExercise.runType == RunType.distance) {
+    if (exercise.runType == RunType.distance) {
       return Text(
         '${tr('active_training_running_interval')} ${'$intervals'}x$targetDistance$targetPace',
         style: Theme.of(context).textTheme.titleMedium,
@@ -217,7 +213,7 @@ class _ActiveRunWidgetState extends State<ActiveRunWidget> {
 }
 
 class DistanceOrDurationRun extends StatelessWidget {
-  final TrainingExercise tExercise;
+  final Exercise exercise;
   final int exerciseIndex;
   final bool isLast;
   final GlobalKey exerciseGlobalKey;
@@ -225,7 +221,7 @@ class DistanceOrDurationRun extends StatelessWidget {
 
   const DistanceOrDurationRun(
       {super.key,
-      required this.tExercise,
+      required this.exercise,
       required this.isLast,
       required this.exerciseIndex,
       required this.exerciseGlobalKey,
@@ -244,20 +240,17 @@ class DistanceOrDurationRun extends StatelessWidget {
             isRunTimer: true,
             isCountDown: false,
             timerValue: 0,
-            targetDistance: tExercise.runType == RunType.distance
-                ? tExercise.targetDistance ?? 0
+            targetDistance: exercise.runType == RunType.distance
+                ? exercise.targetDistance
                 : 0,
-            targetDuration: tExercise.runType == RunType.duration
-                ? tExercise.targetDuration ?? 0
+            targetDuration: exercise.runType == RunType.duration
+                ? exercise.targetDuration
                 : 0,
-            targetPace: tExercise.isTargetPaceSelected != null &&
-                    tExercise.isTargetPaceSelected!
-                ? tExercise.targetPace ?? 0
-                : 0,
-            isAutostart: tExercise.isAutoStart,
+            targetPace: exercise.isTargetPaceSelected ? exercise.targetPace : 0,
+            isAutostart: exercise.isAutoStart,
             exerciseGlobalKey: exerciseGlobalKey,
-            trainingId: tExercise.linkedTrainingId!,
-            tExerciseId: tExercise.id,
+            trainingId: exercise.trainingId!,
+            exerciseId: exercise.id!,
             setNumber: 0,
             trainingVersionId: lastTrainingVersionId,
             intervalNumber: null,
@@ -272,12 +265,12 @@ class DistanceOrDurationRun extends StatelessWidget {
             isStarted: false,
             isRunTimer: false,
             timerValue: 0,
-            countDownValue: tExercise.exerciseRest ?? 0,
+            countDownValue: exercise.exerciseRest,
             isCountDown: true,
             isAutostart: true,
             exerciseGlobalKey: exerciseGlobalKey,
-            trainingId: tExercise.linkedTrainingId!,
-            tExerciseId: tExercise.id,
+            trainingId: exercise.trainingId!,
+            exerciseId: exercise.id!,
             setNumber: 0,
             trainingVersionId: lastTrainingVersionId,
             intervalNumber: null,
@@ -357,7 +350,7 @@ class DistanceOrDurationRun extends StatelessWidget {
 }
 
 class IntervalWidget extends StatelessWidget {
-  final TrainingExercise tExercise;
+  final Exercise exercise;
   final int exerciseIndex;
   final bool isLast;
   final GlobalKey exerciseGlobalKey;
@@ -365,7 +358,7 @@ class IntervalWidget extends StatelessWidget {
 
   const IntervalWidget({
     super.key,
-    required this.tExercise,
+    required this.exercise,
     required this.isLast,
     required this.exerciseIndex,
     required this.exerciseGlobalKey,
@@ -374,7 +367,7 @@ class IntervalWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final intervals = tExercise.sets;
+    final intervals = exercise.sets;
 
     return Column(
       children: [
@@ -386,7 +379,7 @@ class IntervalWidget extends StatelessWidget {
               final bool isLastInterval = index + 1 == intervals;
 
               return IntervalRun(
-                tExercise: tExercise,
+                exercise: exercise,
                 isLastInterval: isLastInterval,
                 exerciseIndex: exerciseIndex,
                 intervalIndex: index,
@@ -440,7 +433,7 @@ class IntervalWidget extends StatelessWidget {
 }
 
 class IntervalRun extends StatelessWidget {
-  final TrainingExercise tExercise;
+  final Exercise exercise;
   final int exerciseIndex;
   final int intervalIndex;
   final bool isLastInterval;
@@ -449,7 +442,7 @@ class IntervalRun extends StatelessWidget {
 
   const IntervalRun({
     super.key,
-    required this.tExercise,
+    required this.exercise,
     required this.isLastInterval,
     required this.exerciseIndex,
     required this.intervalIndex,
@@ -472,20 +465,17 @@ class IntervalRun extends StatelessWidget {
           isRunTimer: true,
           timerValue: 0,
           isCountDown: false,
-          targetDistance: tExercise.runType == RunType.distance
-              ? tExercise.targetDistance ?? 0
+          targetDistance: exercise.runType == RunType.distance
+              ? exercise.targetDistance
               : 0,
-          targetDuration: tExercise.runType == RunType.duration
+          targetDuration: exercise.runType == RunType.duration
               ? 0
-              : tExercise.targetDuration ?? 0,
-          targetPace: tExercise.isTargetPaceSelected != null &&
-                  tExercise.isTargetPaceSelected!
-              ? tExercise.targetPace ?? 0
-              : 0,
-          isAutostart: intervalIndex == 0 ? tExercise.isAutoStart : true,
+              : exercise.targetDuration,
+          targetPace: exercise.isTargetPaceSelected ? exercise.targetPace : 0,
+          isAutostart: intervalIndex == 0 ? exercise.isAutoStart : true,
           exerciseGlobalKey: exerciseGlobalKey,
-          trainingId: tExercise.linkedTrainingId!,
-          tExerciseId: tExercise.id,
+          trainingId: exercise.trainingId!,
+          exerciseId: exercise.id!,
           setNumber: intervalIndex,
           trainingVersionId: lastTrainingVersionId,
           intervalNumber: intervalIndex,
@@ -500,13 +490,12 @@ class IntervalRun extends StatelessWidget {
           isRunTimer: false,
           timerValue: 0,
           isCountDown: true,
-          countDownValue: isLastInterval
-              ? tExercise.exerciseRest ?? 0
-              : tExercise.setRest ?? 0,
+          countDownValue:
+              isLastInterval ? exercise.exerciseRest : exercise.setRest,
           isAutostart: true,
           exerciseGlobalKey: exerciseGlobalKey,
-          trainingId: tExercise.linkedTrainingId!,
-          tExerciseId: tExercise.id,
+          trainingId: exercise.trainingId!,
+          exerciseId: exercise.id!,
           setNumber: intervalIndex,
           trainingVersionId: lastTrainingVersionId,
           intervalNumber: intervalIndex,
@@ -558,9 +547,9 @@ class IntervalRun extends StatelessWidget {
                     ),
                     const SizedBox(width: 5),
                     Text(
-                      tExercise.setRest != null
+                      exercise.setRest != 0
                           ? formatDurationToHoursMinutesSeconds(
-                              tExercise.setRest!)
+                              exercise.setRest)
                           : '0:00',
                       style: const TextStyle(color: AppColors.frenchGray),
                     ),

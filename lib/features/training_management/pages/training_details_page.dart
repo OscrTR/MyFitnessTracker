@@ -9,16 +9,16 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../core/enums/enums.dart';
-import '../../exercise_management/bloc/exercise_management_bloc.dart';
+import '../../base_exercise_management/bloc/base_exercise_management_bloc.dart';
 import '../models/training.dart';
 
 import '../../../app_colors.dart';
 import '../../../helper_functions.dart';
 import '../../../injection_container.dart';
 import '../../../core/widgets/custom_text_field_widget.dart';
-import '../../exercise_management/models/exercise.dart';
+import '../../base_exercise_management/models/base_exercise.dart';
 import '../models/multiset.dart';
-import '../models/training_exercise.dart';
+import '../models/exercise.dart';
 import '../bloc/training_management_bloc.dart';
 import '../widgets/big_text_field_widget.dart';
 import '../../../core/widgets/small_text_field_widget.dart';
@@ -34,52 +34,62 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
   late final Map<String, TextEditingController> _controllers;
   bool _isDataInitialized = false;
 
-  final TrainingExercise _defaultTExercise = TrainingExercise.create(
+  final Exercise _defaultTExercise = Exercise(
     sets: 1,
     isSetsInReps: true,
-    type: TrainingExerciseType.workout,
+    exerciseType: ExerciseType.workout,
     isAutoStart: false,
     runType: RunType.distance,
     isTargetPaceSelected: false,
     intensity: 2,
-    linkedTrainingId: null,
-    linkedMultisetId: null,
-    linkedExerciseId: null,
+    specialInstructions: '',
+    objectives: '',
+    targetDistance: 0,
+    targetDuration: 0,
+    targetPace: 0,
+    minReps: 0,
+    maxReps: 0,
+    duration: 0,
+    setRest: 0,
+    exerciseRest: 0,
   );
 
-  TrainingExercise _tExerciseToCreateOrEdit = TrainingExercise.create(
+  Exercise _tExerciseToCreateOrEdit = Exercise(
     sets: 1,
     isSetsInReps: true,
-    type: TrainingExerciseType.workout,
+    exerciseType: ExerciseType.workout,
     isAutoStart: false,
     runType: RunType.distance,
     isTargetPaceSelected: false,
     intensity: 2,
-    linkedTrainingId: null,
-    linkedMultisetId: null,
-    linkedExerciseId: null,
+    specialInstructions: '',
+    objectives: '',
+    targetDistance: 0,
+    targetDuration: 0,
+    targetPace: 0,
+    minReps: 0,
+    maxReps: 0,
+    duration: 0,
+    setRest: 0,
+    exerciseRest: 0,
   );
 
-  final Multiset _defaultMultiset = Multiset.create(
-    linkedTrainingId: null,
+  final Multiset _defaultMultiset = Multiset(
     sets: 1,
     setRest: 0,
     multisetRest: 0,
     specialInstructions: '',
     objectives: '',
     position: null,
-    trainingExercises: [],
   );
 
-  Multiset _multisetToCreateOrEdit = Multiset.create(
-    linkedTrainingId: null,
+  Multiset _multisetToCreateOrEdit = Multiset(
     sets: 1,
     setRest: 0,
     multisetRest: 0,
     specialInstructions: '',
     objectives: '',
     position: null,
-    trainingExercises: [],
   );
 
   @override
@@ -111,85 +121,77 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
     final currentState = bloc.state;
 
     if (currentState is TrainingManagementLoaded) {
-      final trainingExercises = [
-        ...currentState.selectedTraining?.trainingExercises ?? [],
-        ...currentState.selectedTraining?.multisets
-                .expand((m) => m.trainingExercises) ??
-            []
-      ];
-      final TrainingExercise exercise =
-          trainingExercises.firstWhere((exercise) => exercise.key == key);
+      final exercises = currentState.selectedTraining?.exercises;
+
+      final Exercise exercise =
+          exercises!.firstWhere((exercise) => exercise.widgetKey == key);
 
       _tExerciseToCreateOrEdit = _tExerciseToCreateOrEdit.copyWith(
-        key: key,
-        type: exercise.type,
+        id: exercise.id,
+        trainingId: exercise.trainingId,
+        multisetId: exercise.multisetId,
+        baseExerciseId: exercise.baseExerciseId,
+        exerciseType: exercise.exerciseType,
         runType: exercise.runType,
+        specialInstructions: exercise.specialInstructions,
+        objectives: exercise.objectives,
+        targetDistance: exercise.targetDistance,
+        targetDuration: exercise.targetDuration,
         isTargetPaceSelected: exercise.isTargetPaceSelected,
+        targetPace: exercise.targetPace,
         isAutoStart: exercise.isAutoStart,
         isSetsInReps: exercise.isSetsInReps,
-        exercise: exercise.exercise.target,
         sets: exercise.sets,
         duration: exercise.duration,
         minReps: exercise.minReps,
         maxReps: exercise.maxReps,
         setRest: exercise.setRest,
-        specialInstructions: exercise.specialInstructions,
-        objectives: exercise.objectives,
-        targetDistance: exercise.targetDistance,
-        targetDuration: exercise.targetDuration,
-        id: exercise.id,
-        linkedTrainingId: exercise.linkedTrainingId,
-        linkedMultisetId: exercise.linkedMultisetId,
-        linkedExerciseId: exercise.linkedExerciseId,
-        targetPace: exercise.targetPace,
         exerciseRest: exercise.exerciseRest,
         position: exercise.position,
         intensity: exercise.intensity,
+        widgetKey: exercise.widgetKey,
       );
 
       _controllers['sets']?.text = exercise.sets.toString();
-      _controllers['durationMinutes']?.text = (exercise.duration != null
-          ? (exercise.duration! % 3600 ~/ 60).toString()
+      _controllers['durationMinutes']?.text = (exercise.duration != 0
+          ? (exercise.duration % 3600 ~/ 60).toString()
           : '');
-      _controllers['durationSeconds']?.text = (exercise.duration != null
-          ? (exercise.duration! % 60).toString()
-          : '');
-      _controllers['minReps']?.text = exercise.minReps?.toString() ?? '';
-      _controllers['maxReps']?.text = exercise.maxReps?.toString() ?? '';
-      _controllers['setRestMinutes']?.text = (exercise.setRest != null
-          ? (exercise.setRest! % 3600 ~/ 60).toString()
+      _controllers['durationSeconds']?.text =
+          (exercise.duration != 0 ? (exercise.duration % 60).toString() : '');
+      _controllers['minReps']?.text = exercise.minReps.toString();
+      _controllers['maxReps']?.text = exercise.maxReps.toString();
+      _controllers['setRestMinutes']?.text = (exercise.setRest != 0
+          ? (exercise.setRest % 3600 ~/ 60).toString()
           : '');
       _controllers['setRestSeconds']?.text =
-          (exercise.setRest != null ? (exercise.setRest! % 60).toString() : '');
-      _controllers['specialInstructions']?.text =
-          exercise.specialInstructions?.toString() ?? '';
-      _controllers['objectives']?.text = exercise.objectives?.toString() ?? '';
-      _controllers['distance']?.text = (exercise.targetDistance != null
-          ? (exercise.targetDistance! / 1000).toString()
+          (exercise.setRest != 0 ? (exercise.setRest % 60).toString() : '');
+      _controllers['specialInstructions']?.text = exercise.specialInstructions;
+      _controllers['objectives']?.text = exercise.objectives;
+      _controllers['distance']?.text = (exercise.targetDistance != 0
+          ? (exercise.targetDistance / 1000).toString()
           : '');
-      _controllers['targetDurationHours']?.text =
-          (exercise.targetDuration != null
-              ? (exercise.targetDuration! ~/ 3600).toString()
-              : '');
+      _controllers['targetDurationHours']?.text = (exercise.targetDuration != 0
+          ? (exercise.targetDuration ~/ 3600).toString()
+          : '');
       _controllers['targetDurationMinutes']?.text =
-          (exercise.targetDuration != null
-              ? (exercise.targetDuration! % 3600 ~/ 60).toString()
+          (exercise.targetDuration != 0
+              ? (exercise.targetDuration % 3600 ~/ 60).toString()
               : '');
       _controllers['targetDurationSeconds']?.text =
-          (exercise.targetDuration != null
-              ? (exercise.targetDuration! % 60).toString()
+          (exercise.targetDuration != 0
+              ? (exercise.targetDuration % 60).toString()
               : '');
-      _controllers['paceMinutes']?.text = (exercise.targetPace != null
-          ? (exercise.targetPace! % 3600 ~/ 60).toString()
+      _controllers['paceMinutes']?.text = (exercise.targetPace != 0
+          ? (exercise.targetPace % 3600 ~/ 60).toString()
           : '');
-      _controllers['paceSeconds']?.text = (exercise.targetPace != null
-          ? (exercise.targetPace! % 60).toString()
+      _controllers['paceSeconds']?.text = (exercise.targetPace != 0
+          ? (exercise.targetPace % 60).toString()
           : '');
-      _controllers['exerciseRestMinutes']?.text = (exercise.exerciseRest != null
-          ? (exercise.exerciseRest! % 3600 ~/ 60).toString()
+      _controllers['exerciseRestMinutes']?.text = (exercise.exerciseRest != 0
+          ? (exercise.exerciseRest % 3600 ~/ 60).toString()
           : '');
-      _controllers['exerciseRestSeconds']?.text = (exercise.exerciseRest != null
-          ? (exercise.exerciseRest! % 60).toString()
+      _controllers['exerciseRestSeconds']?.text = (exercise.exerciseRest != 0
+          ? (exercise.exerciseRest % 60).toString()
           : '');
     }
   }
@@ -202,19 +204,18 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
       final List<Multiset> multisets =
           currentState.selectedTraining?.multisets ?? [];
       final Multiset multiset =
-          multisets.firstWhere((multiset) => multiset.key == key);
+          multisets.firstWhere((multiset) => multiset.widgetKey == key);
 
       _multisetToCreateOrEdit = _multisetToCreateOrEdit.copyWith(
-        key: key,
         id: multiset.id,
-        linkedTrainingId: multiset.linkedTrainingId,
-        trainingExercises: multiset.trainingExercises,
+        trainingId: multiset.trainingId,
         sets: multiset.sets,
         setRest: multiset.setRest,
         multisetRest: multiset.multisetRest,
         specialInstructions: multiset.specialInstructions,
         objectives: multiset.objectives,
         position: multiset.position,
+        widgetKey: key,
       );
 
       _controllers['multisetSets']?.text = multiset.sets.toString();
@@ -226,10 +227,8 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
           (multiset.multisetRest % 3600 ~/ 60).toString();
       _controllers['multisetRestSeconds']?.text =
           (multiset.multisetRest % 60).toString();
-      _controllers['multisetInstructions']?.text =
-          multiset.specialInstructions?.toString() ?? '';
-      _controllers['multisetObjectives']?.text =
-          multiset.objectives?.toString() ?? '';
+      _controllers['multisetInstructions']?.text = multiset.specialInstructions;
+      _controllers['multisetObjectives']?.text = multiset.objectives;
     }
   }
 
@@ -282,19 +281,18 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
       final training = (context.read<TrainingManagementBloc>().state
                   as TrainingManagementLoaded)
               .selectedTraining ??
-          Training.create(
-            name: '',
-            type: TrainingType.workout,
-            trainingExercises: [],
-            multisets: [],
-            objectives: '',
-            trainingDays: [],
-          );
+          Training(
+              name: '',
+              trainingType: TrainingType.workout,
+              exercises: [],
+              multisets: [],
+              objectives: '',
+              trainingDays: [],
+              baseExercises: []);
 
       final trainingToCreateOrEdit = training.copyWith(
-        name: _controllers['trainingName']!.text.trim(),
-        objectives: _controllers['trainingObjectives']!.text.trim(),
-      );
+          name: _controllers['trainingName']!.text.trim(),
+          objectives: _controllers['trainingObjectives']!.text.trim());
 
       sl<TrainingManagementBloc>()
           .add(CreateOrUpdateSelectedTrainingEvent(trainingToCreateOrEdit));
@@ -309,28 +307,28 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
 
       _multisetToCreateOrEdit = _multisetToCreateOrEdit.copyWith(
         sets: key == 'multisetSets'
-            ? int.tryParse(_controllers['multisetSets']?.text ?? '1')
-            : currentValues['sets'] as int?,
+            ? int.tryParse(_controllers['multisetSets']?.text ?? '1') ?? 1
+            : currentValues['sets'] as int? ?? 1,
         setRest: key == 'multisetSetRestMinutes' ||
                 key == 'multisetSetRestSeconds'
             ? ((int.tryParse(_controllers['multisetSetRestMinutes']?.text ??
                             '0') ??
                         0) *
                     60) +
-                ((int.tryParse(
+                (int.tryParse(
                         _controllers['multisetSetRestSeconds']?.text ?? '0') ??
-                    0))
-            : currentValues['setRest'] as int?,
+                    0)
+            : currentValues['setRest'] as int? ?? 0,
         multisetRest: key == 'multisetRestMinutes' ||
                 key == 'multisetRestSeconds'
             ? ((int.tryParse(
                             _controllers['multisetRestMinutes']?.text ?? '0') ??
                         0) *
                     60) +
-                ((int.tryParse(
+                (int.tryParse(
                         _controllers['multisetRestSeconds']?.text ?? '0') ??
-                    0))
-            : currentValues['multisetRest'] as int?,
+                    0)
+            : currentValues['multisetRest'] as int? ?? 0,
         specialInstructions: key == 'multisetInstructions'
             ? _controllers['multisetInstructions']?.text ?? ''
             : currentValues['specialInstructions'] as String?,
@@ -356,7 +354,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
 
       _tExerciseToCreateOrEdit = _tExerciseToCreateOrEdit.copyWith(
         sets: key == 'sets'
-            ? int.tryParse(_controllers['sets']?.text ?? '1')
+            ? int.tryParse(_controllers['sets']?.text ?? '1') ?? 1
             : currentValues['sets'] as int?,
         minReps: key == 'minReps'
             ? int.tryParse(_controllers['minReps']?.text ?? '')
@@ -368,15 +366,14 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
             ? ((int.tryParse(_controllers['durationMinutes']?.text ?? '0') ??
                         0) *
                     60) +
-                ((int.tryParse(_controllers['durationSeconds']?.text ?? '0') ??
-                    0))
+                (int.tryParse(_controllers['durationSeconds']?.text ?? '0') ??
+                    0)
             : currentValues['duration'] as int?,
         setRest: key == 'setRestMinutes' || key == 'setRestSeconds'
             ? ((int.tryParse(_controllers['setRestMinutes']?.text ?? '0') ??
                         0) *
                     60) +
-                ((int.tryParse(_controllers['setRestSeconds']?.text ?? '0') ??
-                    0))
+                (int.tryParse(_controllers['setRestSeconds']?.text ?? '0') ?? 0)
             : currentValues['setRest'] as int?,
         exerciseRest: key == 'exerciseRestMinutes' ||
                 key == 'exerciseRestSeconds'
@@ -384,9 +381,9 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                             _controllers['exerciseRestMinutes']?.text ?? '0') ??
                         0) *
                     60) +
-                ((int.tryParse(
+                (int.tryParse(
                         _controllers['exerciseRestSeconds']?.text ?? '0') ??
-                    0))
+                    0)
             : currentValues['exerciseRest'] as int?,
         specialInstructions: key == 'specialInstructions'
             ? _controllers['specialInstructions']?.text ?? ''
@@ -411,14 +408,14 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                             '') ??
                         0) *
                     60) +
-                ((int.tryParse(
+                (int.tryParse(
                         _controllers['targetDurationSeconds']?.text ?? '') ??
-                    0))
+                    0)
             : currentValues['targetDuration'] as int?,
         targetPace: key == 'paceMinutes' || key == 'paceSeconds'
             ? ((int.tryParse(_controllers['paceMinutes']?.text ?? '') ?? 0) *
                     60) +
-                ((int.tryParse(_controllers['paceSeconds']?.text ?? '') ?? 0))
+                (int.tryParse(_controllers['paceSeconds']?.text ?? '') ?? 0)
             : currentValues['targetPace'] as int?,
       );
     }
@@ -434,8 +431,8 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
     });
   }
 
-  List<WeekDay> _sortTrainingDays(List<WeekDay> weekdays) {
-    return weekdays..sort((a, b) => a.index.compareTo(b.index));
+  List<TrainingDay> _sortTrainingDays(List<TrainingDay> trainingDays) {
+    return trainingDays..sort((a, b) => a.index.compareTo(b.index));
   }
 
   @override
@@ -453,7 +450,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                 _isDataInitialized = true;
               }
               exercisesAndMultisetsList = [
-                ...state.selectedTraining!.trainingExercises
+                ...state.selectedTraining!.exercises
                     .map((e) => {'type': 'exercise', 'data': e}),
                 ...state.selectedTraining!.multisets
                     .map((m) => {'type': 'multiset', 'data': m}),
@@ -509,13 +506,14 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
             final training = (context.read<TrainingManagementBloc>().state
                         as TrainingManagementLoaded)
                     .selectedTraining ??
-                Training.create(
+                Training(
                   name: '',
-                  type: TrainingType.workout,
-                  trainingExercises: [],
+                  trainingType: TrainingType.workout,
+                  exercises: [],
                   multisets: [],
                   objectives: '',
                   trainingDays: [],
+                  baseExercises: [],
                 );
             final bloc = context.read<TrainingManagementBloc>();
             bloc.add(CreateOrUpdateTrainingEvent(training));
@@ -564,7 +562,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
         final updatedExercises = combinedList
             .where((item) => item['type'] == 'exercise')
             .map((item) {
-          final exercise = item['data'] as TrainingExercise;
+          final exercise = item['data'] as Exercise;
           final newPosition = combinedList.indexOf(item);
           return exercise.copyWith(position: newPosition);
         }).toList();
@@ -580,50 +578,47 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
         // Dispatch the updated training exercises to the bloc
         context.read<TrainingManagementBloc>().add(
               UpdateSelectedTrainingProperty(
-                  trainingExercises: updatedExercises,
-                  multisets: updatedMultisets),
+                  exercises: updatedExercises, multisets: updatedMultisets),
             );
       },
       children: exercisesAndMultisetsList.asMap().entries.map((entry) {
         var item = entry.value;
 
         if (item['type'] == 'exercise') {
-          var tExercise = item['data'] as TrainingExercise;
-          if (tExercise.type == TrainingExerciseType.run) {
+          var exercise = item['data'] as Exercise;
+          if (exercise.exerciseType == ExerciseType.run) {
             if (exercisesAndMultisetsList.length <= 1) {
               return GestureDetector(
-                key: ValueKey(tExercise.key),
+                key: ValueKey(exercise.widgetKey),
                 onLongPress: () {},
-                child: _buildRunExerciseItem(tExercise, context, null),
+                child: _buildRunExerciseItem(exercise, context, null),
               );
             } else {
-              return _buildRunExerciseItem(tExercise, context, null);
+              return _buildRunExerciseItem(exercise, context, null);
             }
           }
 
-          final Exercise? exercise = (context
-                  .read<ExerciseManagementBloc>()
-                  .state as ExerciseManagementLoaded)
-              .exercises
-              .firstWhereOrNull(
-                (el) => el.id == tExercise.linkedExerciseId,
-              );
+          final BaseExercise? baseExercise = (context
+                  .read<BaseExerciseManagementBloc>()
+                  .state as BaseExerciseManagementLoaded)
+              .baseExercises
+              .firstWhereOrNull((b) => b.id == exercise.baseExerciseId);
 
           if (exercisesAndMultisetsList.length <= 1) {
             return GestureDetector(
-              key: ValueKey(tExercise.key),
+              key: ValueKey(exercise.widgetKey),
               onLongPress: () {},
-              child: _buildExerciseItem(tExercise, exercise, context, null),
+              child: _buildExerciseItem(exercise, baseExercise, context, null),
             );
           } else {
-            return _buildExerciseItem(tExercise, exercise, context, null);
+            return _buildExerciseItem(exercise, baseExercise, context, null);
           }
         } else if (item['type'] == 'multiset') {
           var tMultiset = item['data'] as Multiset;
 
           if (exercisesAndMultisetsList.length <= 1) {
             return GestureDetector(
-              key: ValueKey(tMultiset.key),
+              key: ValueKey(tMultiset.widgetKey),
               onLongPress: () {},
               child: _buildMultisetItem(context, tMultiset),
             );
@@ -641,11 +636,11 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
     );
   }
 
-  Container _buildExerciseItem(TrainingExercise tExercise, Exercise? exercise,
-      BuildContext context, String? multisetKey) {
+  Container _buildExerciseItem(Exercise exercise, BaseExercise? baseExercise,
+      BuildContext context, Multiset? multiset) {
     return Container(
-      key: ValueKey(tExercise.key),
-      margin: EdgeInsets.only(top: multisetKey == null ? 20 : 10),
+      key: ValueKey(exercise.widgetKey),
+      margin: EdgeInsets.only(top: multiset == null ? 20 : 10),
       decoration: BoxDecoration(
           border: Border.all(color: AppColors.timberwolf),
           borderRadius: BorderRadius.circular(10),
@@ -654,7 +649,8 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (exercise?.imagePath != null && exercise!.imagePath!.isNotEmpty)
+          if (baseExercise?.imagePath != null &&
+              baseExercise!.imagePath.isNotEmpty)
             Column(
               children: [
                 const SizedBox(height: 10),
@@ -664,7 +660,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(15),
                     child: Image.file(
-                      File(exercise.imagePath!),
+                      File(baseExercise.imagePath),
                       width: MediaQuery.of(context).size.width - 40,
                       fit: BoxFit.cover,
                       alignment: Alignment.bottomCenter,
@@ -673,7 +669,8 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                 ),
               ],
             ),
-          if (exercise?.imagePath != null && exercise!.imagePath!.isNotEmpty)
+          if (baseExercise?.imagePath != null &&
+              baseExercise!.imagePath.isNotEmpty)
             const SizedBox(width: 10),
           Expanded(
             child: Column(
@@ -684,7 +681,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                   children: [
                     Expanded(
                       child: Text(
-                        exercise?.name ?? tr('exercise_unknown'),
+                        baseExercise?.name ?? tr('exercise_unknown'),
                         style: Theme.of(context).textTheme.titleMedium,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -703,20 +700,20 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                           color: AppColors.white,
                           onSelected: (value) {
                             if (value == 'edit') {
-                              initializeExerciseControllers(tExercise.key!);
-                              _buildExerciseDialog(context,
-                                  multisetKey: multisetKey);
+                              initializeExerciseControllers(
+                                  exercise.widgetKey!);
+                              _buildExerciseDialog(context, multiset: multiset);
                             } else if (value == 'delete') {
                               final bloc =
                                   BlocProvider.of<TrainingManagementBloc>(
                                       context);
-                              if (multisetKey != null) {
+                              if (multiset != null) {
                                 bloc.add(RemoveMultisetExerciseEvent(
-                                    multisetKey: multisetKey,
-                                    exerciseKey: tExercise.key!));
+                                    multisetKey: multiset.widgetKey!,
+                                    exerciseKey: exercise.widgetKey!));
                               } else {
-                                bloc.add(RemoveTrainingExerciseEvent(
-                                    tExercise.key!));
+                                bloc.add(
+                                    RemoveExerciseEvent(exercise.widgetKey!));
                               }
                             }
                           },
@@ -748,11 +745,11 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                   ],
                 ),
                 Text(
-                  '${multisetKey == null ? '${tExercise.sets}x' : ''}${tExercise.isSetsInReps ? '${tExercise.minReps ?? 0}-${tExercise.maxReps ?? 0} reps' : '${tExercise.duration} seconds'}',
+                  '${multiset == null ? '${exercise.sets}x' : ''}${exercise.isSetsInReps ? '${exercise.minReps}-${exercise.maxReps} reps' : '${exercise.duration} seconds'}',
                   style: const TextStyle(color: AppColors.taupeGray),
                 ),
                 Text(
-                  '${multisetKey == null ? (tExercise.setRest ?? 0) : tExercise.exerciseRest ?? 0} seconds rest',
+                  '${multiset == null ? (exercise.setRest) : exercise.exerciseRest} seconds rest',
                   style: const TextStyle(color: AppColors.taupeGray),
                 )
               ],
@@ -764,9 +761,9 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
   }
 
   Container _buildRunExerciseItem(
-      TrainingExercise tExercise, BuildContext context, String? multisetKey) {
+      Exercise exercise, BuildContext context, Multiset? multiset) {
     return Container(
-      key: ValueKey(tExercise.key),
+      key: ValueKey(exercise.widgetKey),
       margin: const EdgeInsets.only(top: 10),
       decoration: BoxDecoration(
           border: Border.all(color: AppColors.timberwolf),
@@ -800,12 +797,12 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                     color: AppColors.white,
                     onSelected: (value) {
                       if (value == 'edit') {
-                        initializeExerciseControllers(tExercise.key!);
-                        _buildExerciseDialog(context, multisetKey: multisetKey);
+                        initializeExerciseControllers(exercise.widgetKey!);
+                        _buildExerciseDialog(context, multiset: multiset);
                       } else if (value == 'delete') {
                         final bloc =
                             BlocProvider.of<TrainingManagementBloc>(context);
-                        bloc.add(RemoveTrainingExerciseEvent(tExercise.key!));
+                        bloc.add(RemoveExerciseEvent(exercise.widgetKey!));
                       }
                     },
                     itemBuilder: (BuildContext context) => [
@@ -833,15 +830,15 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
               ),
             ],
           ),
-          _buildRunText(tExercise),
+          _buildRunText(exercise),
         ],
       ),
     );
   }
 
-  Container _buildMultisetItem(BuildContext context, Multiset tMultiset) {
+  Container _buildMultisetItem(BuildContext context, Multiset multiset) {
     return Container(
-      key: ValueKey(tMultiset.key!),
+      key: ValueKey(multiset.widgetKey),
       margin: const EdgeInsets.only(top: 20),
       decoration: BoxDecoration(
           border: Border.all(color: AppColors.timberwolf),
@@ -874,12 +871,12 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                     color: AppColors.white,
                     onSelected: (value) {
                       if (value == 'edit') {
-                        initializeMultisetControllers(tMultiset.key!);
+                        initializeMultisetControllers(multiset.widgetKey!);
                         _buildMultisetDialog(context);
                       } else if (value == 'delete') {
                         final bloc =
                             BlocProvider.of<TrainingManagementBloc>(context);
-                        bloc.add(RemoveTrainingExerciseEvent(tMultiset.key!));
+                        bloc.add(RemoveExerciseEvent(multiset.widgetKey!));
                       }
                     },
                     itemBuilder: (BuildContext context) => [
@@ -908,18 +905,18 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
             ],
           ),
           Text(
-            '${tMultiset.sets} set(s)',
+            '${multiset.sets} set(s)',
             style: const TextStyle(color: AppColors.taupeGray),
           ),
           Text(
-            '${tMultiset.setRest} seconds rest',
+            '${multiset.setRest} seconds rest',
             style: const TextStyle(color: AppColors.taupeGray),
           ),
-          _buildExercisesList(tMultiset.key!),
+          _buildExercisesList(multiset),
           const SizedBox(height: 20),
           GestureDetector(
             onTap: () {
-              _buildExerciseDialog(context, multisetKey: tMultiset.key);
+              _buildExerciseDialog(context, multiset: multiset);
             },
             child: Container(
               padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
@@ -939,50 +936,49 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
     );
   }
 
-  Widget _buildExercisesList(String multisetKey) {
-    final multisetExercises = (context.read<TrainingManagementBloc>().state
-                as TrainingManagementLoaded)
-            .selectedTraining
-            ?.multisets
-            .firstWhere((multiset) => multiset.key == multisetKey)
-            .trainingExercises ??
-        [];
+  Widget _buildExercisesList(Multiset multiset) {
+    final List<Exercise> multisetExercises =
+        (sl<TrainingManagementBloc>().state as TrainingManagementLoaded)
+            .activeTraining!
+            .exercises
+            .where((e) => e.multisetId == multiset.id)
+            .toList();
 
     return ListView.builder(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         itemBuilder: (context, index) {
-          final TrainingExercise tExercise = multisetExercises[index];
-          if (tExercise.type == TrainingExerciseType.run) {
-            return _buildRunExerciseItem(tExercise, context, multisetKey);
+          final Exercise exercise = multisetExercises[index];
+          if (exercise.exerciseType == ExerciseType.run) {
+            return _buildRunExerciseItem(exercise, context, multiset);
           }
 
-          final Exercise? exercise = (context
-                  .read<ExerciseManagementBloc>()
-                  .state as ExerciseManagementLoaded)
-              .exercises
+          final BaseExercise? baseExercise = (context
+                  .read<BaseExerciseManagementBloc>()
+                  .state as BaseExerciseManagementLoaded)
+              .baseExercises
               .firstWhereOrNull(
-                (el) => el.id == tExercise.linkedExerciseId,
+                (b) => b.id == exercise.baseExerciseId,
               );
-          return _buildExerciseItem(tExercise, exercise, context, multisetKey);
+          return _buildExerciseItem(exercise, baseExercise, context, multiset);
         },
         itemCount: multisetExercises.length);
   }
 
-  Column _buildRunText(TrainingExercise tExercise) {
-    if (tExercise.sets > 1) {
+  Column _buildRunText(Exercise exercise) {
+    if (exercise.sets > 1) {
       final targetDistance =
-          tExercise.targetDistance != null && tExercise.targetDistance! > 0
-              ? '${(tExercise.targetDistance! / 1000).toStringAsFixed(1)}km'
+          exercise.targetDistance != 0 && exercise.targetDistance > 0
+              ? '${(exercise.targetDistance / 1000).toStringAsFixed(1)}km'
               : '';
-      final targetDuration = tExercise.targetDuration != null
-          ? formatDurationToHoursMinutesSeconds(tExercise.targetDuration!)
+      final targetDuration = exercise.targetDuration != 0
+          ? formatDurationToHoursMinutesSeconds(exercise.targetDuration)
           : '';
-      final targetPace = tExercise.isTargetPaceSelected == true
-          ? ' at ${formatPace(tExercise.targetPace ?? 0)}'
+      final targetPace = exercise.isTargetPaceSelected == true
+          ? ' at ${formatPace(exercise.targetPace)}'
           : '';
-      final intervals = tExercise.sets;
-      if (tExercise.runType == RunType.distance) {
+      final intervals = exercise.sets;
+      if (exercise.runType == RunType.distance) {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -991,7 +987,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
               style: const TextStyle(color: AppColors.taupeGray),
             ),
             Text(
-              '${tExercise.setRest ?? 0} seconds rest',
+              '${exercise.setRest} seconds rest',
               style: const TextStyle(color: AppColors.taupeGray),
             ),
           ],
@@ -1005,7 +1001,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
               style: const TextStyle(color: AppColors.taupeGray),
             ),
             Text(
-              '${tExercise.setRest ?? 0} seconds rest',
+              '${exercise.setRest} seconds rest',
               style: const TextStyle(color: AppColors.taupeGray),
             ),
           ],
@@ -1013,16 +1009,16 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
       }
     } else {
       final targetDistance =
-          tExercise.targetDistance != null && tExercise.targetDistance! > 0
-              ? '${(tExercise.targetDistance! / 1000).toStringAsFixed(1)}km'
+          exercise.targetDistance != 0 && exercise.targetDistance > 0
+              ? '${(exercise.targetDistance / 1000).toStringAsFixed(1)}km'
               : '';
-      final targetDuration = tExercise.targetDuration != null
-          ? formatDurationToHoursMinutesSeconds(tExercise.targetDuration!)
+      final targetDuration = exercise.targetDuration != 0
+          ? formatDurationToHoursMinutesSeconds(exercise.targetDuration)
           : '';
-      final targetPace = tExercise.isTargetPaceSelected == true
-          ? ' at ${formatPace(tExercise.targetPace ?? 0)}'
+      final targetPace = exercise.isTargetPaceSelected == true
+          ? ' at ${formatPace(exercise.targetPace)}'
           : '';
-      if (tExercise.runType == RunType.distance) {
+      if (exercise.runType == RunType.distance) {
         return Column(
           children: [
             Text(
@@ -1096,7 +1092,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
       builder: (dialogContext) => StatefulBuilder(
         builder: (context, setDialogState) => Builder(
           builder: (context) {
-            final bool isEdit = _multisetToCreateOrEdit.key != null;
+            final bool isEdit = _multisetToCreateOrEdit.id != null;
             return AlertDialog(
               insetPadding: const EdgeInsets.symmetric(horizontal: 20),
               shape: RoundedRectangleBorder(
@@ -1219,13 +1215,14 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                                 .read<TrainingManagementBloc>()
                                 .state as TrainingManagementLoaded)
                             .selectedTraining ??
-                        Training.create(
+                        Training(
                           name: '',
-                          type: TrainingType.workout,
-                          trainingExercises: [],
+                          trainingType: TrainingType.workout,
+                          exercises: [],
                           multisets: [],
                           objectives: '',
                           trainingDays: [],
+                          baseExercises: [],
                         );
 
                     sl<TrainingManagementBloc>().add(
@@ -1262,12 +1259,12 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
   }
 
   Future<void> _buildExerciseDialog(BuildContext context,
-      {String? multisetKey}) async {
+      {Multiset? multiset}) async {
     await showDialog(
       context: context,
       builder: (dialogContext) => StatefulBuilder(
         builder: (context, setDialogState) => Builder(builder: (context) {
-          final bool isEdit = _tExerciseToCreateOrEdit.key != null;
+          final bool isEdit = _tExerciseToCreateOrEdit.id != null;
           return AlertDialog(
             insetPadding: const EdgeInsets.symmetric(horizontal: 20),
             shape: RoundedRectangleBorder(
@@ -1310,10 +1307,10 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                     style: const TextStyle(color: AppColors.taupeGray),
                   ),
                   const SizedBox(height: 10),
-                  CustomDropdown<TrainingExerciseType>(
-                    items: TrainingExerciseType.values
-                        .sublist(0, TrainingExerciseType.values.length - 1),
-                    initialItem: _tExerciseToCreateOrEdit.type,
+                  CustomDropdown<ExerciseType>(
+                    items: ExerciseType.values
+                        .sublist(0, ExerciseType.values.length - 1),
+                    initialItem: _tExerciseToCreateOrEdit.exerciseType,
                     decoration: CustomDropdownDecoration(
                       listItemStyle: Theme.of(context)
                           .textTheme
@@ -1346,8 +1343,8 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                     onChanged: (value) {
                       setDialogState(
                         () {
-                          _tExerciseToCreateOrEdit =
-                              _tExerciseToCreateOrEdit.copyWith(type: value);
+                          _tExerciseToCreateOrEdit = _tExerciseToCreateOrEdit
+                              .copyWith(exerciseType: value);
                         },
                       );
                     },
@@ -1393,9 +1390,9 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                     },
                   ),
                   const SizedBox(height: 20),
-                  _tExerciseToCreateOrEdit.type != TrainingExerciseType.run
+                  _tExerciseToCreateOrEdit.exerciseType != ExerciseType.run
                       ? _buildYogaOrWorkoutFields(context, setDialogState,
-                          multisetKey, _tExerciseToCreateOrEdit.exercise.target)
+                          multiset, _tExerciseToCreateOrEdit.baseExerciseId)
                       : _buildRunFields(setDialogState),
                   SizedBox(
                     height: 48,
@@ -1463,28 +1460,28 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
             actions: [
               GestureDetector(
                 onTap: () {
-                  if (multisetKey != null) {
+                  if (multiset != null) {
                     sl<TrainingManagementBloc>().add(
                         CreateOrUpdateMultisetExerciseEvent(
-                            trainingExercise: _tExerciseToCreateOrEdit,
-                            multisetKey: multisetKey));
+                            exercise: _tExerciseToCreateOrEdit,
+                            multisetKey: multiset.widgetKey!));
                   } else {
                     final training = (context
                                 .read<TrainingManagementBloc>()
                                 .state as TrainingManagementLoaded)
                             .selectedTraining ??
-                        Training.create(
-                          name: '',
-                          type: TrainingType.workout,
-                          trainingExercises: [],
-                          multisets: [],
-                          objectives: '',
-                          trainingDays: [],
-                        );
+                        Training(
+                            name: '',
+                            trainingType: TrainingType.workout,
+                            exercises: [],
+                            multisets: [],
+                            objectives: '',
+                            trainingDays: [],
+                            baseExercises: []);
 
                     sl<TrainingManagementBloc>().add(
-                        CreateOrUpdateTrainingExerciseEvent(
-                            trainingExercise: _tExerciseToCreateOrEdit,
+                        CreateOrUpdateExerciseEvent(
+                            exercise: _tExerciseToCreateOrEdit,
                             training: training));
                   }
 
@@ -1532,7 +1529,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
         _buildTargetChoiceOption(
           choice: tr('exercise_distance'),
           choiceValue: RunType.distance,
-          currentSelection: _tExerciseToCreateOrEdit.runType!,
+          currentSelection: _tExerciseToCreateOrEdit.runType,
           onSelectionChanged: (RunType value) {
             setDialogState(() {
               _tExerciseToCreateOrEdit =
@@ -1544,7 +1541,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
         _buildTargetChoiceOption(
           choice: tr('exercise_duration'),
           choiceValue: RunType.duration,
-          currentSelection: _tExerciseToCreateOrEdit.runType!,
+          currentSelection: _tExerciseToCreateOrEdit.runType,
           onSelectionChanged: (RunType value) {
             setDialogState(() {
               _tExerciseToCreateOrEdit =
@@ -1607,10 +1604,9 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                     children: [
                       SmallTextFieldWidget(
                         controller: _controllers['paceMinutes']!,
-                        textColor:
-                            _tExerciseToCreateOrEdit.isTargetPaceSelected!
-                                ? AppColors.licorice
-                                : AppColors.frenchGray,
+                        textColor: _tExerciseToCreateOrEdit.isTargetPaceSelected
+                            ? AppColors.licorice
+                            : AppColors.frenchGray,
                       ),
                       SizedBox(
                         width: 20,
@@ -1619,7 +1615,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                               style: TextStyle(
                                 fontSize: 20,
                                 color: _tExerciseToCreateOrEdit
-                                        .isTargetPaceSelected!
+                                        .isTargetPaceSelected
                                     ? AppColors.licorice
                                     : AppColors.frenchGray,
                               )),
@@ -1627,10 +1623,9 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                       ),
                       SmallTextFieldWidget(
                         controller: _controllers['paceSeconds']!,
-                        textColor:
-                            _tExerciseToCreateOrEdit.isTargetPaceSelected!
-                                ? AppColors.licorice
-                                : AppColors.frenchGray,
+                        textColor: _tExerciseToCreateOrEdit.isTargetPaceSelected
+                            ? AppColors.licorice
+                            : AppColors.frenchGray,
                       ),
                     ],
                   ),
@@ -1643,8 +1638,11 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
     );
   }
 
-  Column _buildYogaOrWorkoutFields(BuildContext context,
-      StateSetter setDialogState, String? multisetKey, Exercise? exercise) {
+  Column _buildYogaOrWorkoutFields(
+      BuildContext context,
+      StateSetter setDialogState,
+      Multiset? multiset,
+      int? initialBaseExerciseId) {
     return Column(
       children: [
         Row(
@@ -1675,14 +1673,15 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
           ],
         ),
         const SizedBox(height: 10),
-        CustomDropdown<Exercise>.search(
-          items:
-              (sl<ExerciseManagementBloc>().state as ExerciseManagementLoaded)
-                  .exercises,
+        CustomDropdown<BaseExercise>.search(
+          items: (sl<BaseExerciseManagementBloc>().state
+                  as BaseExerciseManagementLoaded)
+              .baseExercises,
           hintText: tr('exercise_search'),
-          initialItem: exercise != null
-              ? (sl<ExerciseManagementBloc>().state as ExerciseManagementLoaded)
-                  .exercises
+          initialItem: initialBaseExerciseId != null
+              ? (sl<BaseExerciseManagementBloc>().state
+                      as BaseExerciseManagementLoaded)
+                  .baseExercises
                   .firstWhereOrNull((exercise) => exercise.id == exercise.id)
               : null,
           decoration: CustomDropdownDecoration(
@@ -1714,12 +1713,12 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
             return Text(item.name);
           },
           onChanged: (value) {
-            _tExerciseToCreateOrEdit = _tExerciseToCreateOrEdit.copyWith(
-                exercise: value, linkedExerciseId: value?.id);
+            _tExerciseToCreateOrEdit =
+                _tExerciseToCreateOrEdit.copyWith(baseExerciseId: value?.id!);
           },
         ),
         const SizedBox(height: 20),
-        if (multisetKey == null)
+        if (multiset == null)
           SizedBox(
             height: 48,
             child: Row(
@@ -1759,7 +1758,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
           controller1: _controllers['durationMinutes'],
           controller2: _controllers['durationSeconds'],
         ),
-        if (multisetKey == null)
+        if (multiset == null)
           SizedBox(
             height: 48,
             child: Row(
@@ -1985,13 +1984,14 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
     final training = (context.read<TrainingManagementBloc>().state
                 as TrainingManagementLoaded)
             .selectedTraining ??
-        Training.create(
+        Training(
           name: '',
-          type: TrainingType.workout,
-          trainingExercises: [],
+          trainingType: TrainingType.workout,
+          exercises: [],
           multisets: [],
           objectives: '',
           trainingDays: [],
+          baseExercises: [],
         );
 
     return Container(
@@ -2023,7 +2023,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
           CustomDropdown<TrainingType>(
             items:
                 TrainingType.values.sublist(0, TrainingType.values.length - 1),
-            initialItem: training.type,
+            initialItem: training.trainingType,
             decoration: CustomDropdownDecoration(
               listItemStyle: Theme.of(context)
                   .textTheme
@@ -2056,18 +2056,19 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
               final training = (context.read<TrainingManagementBloc>().state
                           as TrainingManagementLoaded)
                       .selectedTraining ??
-                  Training.create(
+                  Training(
                     name: '',
-                    type: TrainingType.workout,
-                    trainingExercises: [],
+                    trainingType: TrainingType.workout,
+                    exercises: [],
                     multisets: [],
                     objectives: '',
                     trainingDays: [],
+                    baseExercises: [],
                   );
 
               sl<TrainingManagementBloc>().add(
                   CreateOrUpdateSelectedTrainingEvent(
-                      training.copyWith(type: value)));
+                      training.copyWith(trainingType: value)));
             },
           ),
           const SizedBox(height: 20),
@@ -2078,16 +2079,16 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
           const SizedBox(height: 10),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: WeekDay.values.map((day) {
-              bool isSelected = training.trainingDays!.contains(day);
+            children: TrainingDay.values.map((day) {
+              bool isSelected = training.trainingDays.contains(day);
 
               return Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   GestureDetector(
                     onTap: () {
-                      List<WeekDay> newSelection =
-                          List.from(training.trainingDays!);
+                      List<TrainingDay> newSelection =
+                          List.from(training.trainingDays);
                       if (isSelected) {
                         newSelection.remove(day);
                       } else {
@@ -2098,20 +2099,23 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                                     .read<TrainingManagementBloc>()
                                     .state as TrainingManagementLoaded)
                                 .selectedTraining ??
-                            Training.create(
+                            Training(
                               name: '',
-                              type: TrainingType.workout,
-                              trainingExercises: [],
+                              trainingType: TrainingType.workout,
+                              exercises: [],
                               multisets: [],
                               objectives: '',
+                              baseExercises: [],
                               trainingDays: [],
                             );
 
                         sl<TrainingManagementBloc>().add(
-                            CreateOrUpdateSelectedTrainingEvent(
-                                training.copyWith(
-                                    trainingDays:
-                                        _sortTrainingDays(newSelection))));
+                          CreateOrUpdateSelectedTrainingEvent(
+                            training.copyWith(
+                              trainingDays: _sortTrainingDays(newSelection),
+                            ),
+                          ),
+                        );
                       });
                     },
                     child: Column(
@@ -2193,7 +2197,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
               child: GestureDetector(
                 onTap: () {
                   sl<TrainingManagementBloc>()
-                      .add(DeleteTrainingEvent(state.selectedTraining!));
+                      .add(DeleteTrainingEvent(state.selectedTraining!.id!));
                   GoRouter.of(context).push('/trainings');
                 },
                 child: const Icon(

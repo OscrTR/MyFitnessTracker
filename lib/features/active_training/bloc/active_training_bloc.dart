@@ -7,7 +7,8 @@ import 'package:equatable/equatable.dart';
 import 'package:fl_location/fl_location.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_tts/flutter_tts.dart';
-import '../../../core/database/object_box.dart';
+import '../../../core/database/database_service.dart';
+
 import '../../training_history/models/history_run_location.dart';
 import '../../training_management/bloc/training_management_bloc.dart';
 import '../foreground_service.dart';
@@ -55,8 +56,7 @@ class ActiveTrainingBloc
 
         final registeredId = entries
             ?.where((entry) =>
-                entry.linkedTrainingExerciseId ==
-                    currentTimerState.tExerciseId &&
+                entry.exerciseId == currentTimerState.exerciseId &&
                 entry.setNumber == currentTimerState.setNumber)
             .toList()
             .sortedBy((entry) => entry.date)
@@ -68,29 +68,24 @@ class ActiveTrainingBloc
         final trainingManagementState =
             (sl<TrainingManagementBloc>().state as TrainingManagementLoaded);
 
-        final listOfTExercises = [
-          ...trainingManagementState.activeTraining!.trainingExercises
-        ];
-        for (var multiset
-            in trainingManagementState.activeTraining!.multisets) {
-          listOfTExercises.addAll([...multiset.trainingExercises]);
-        }
+        final listOfExercises =
+            trainingManagementState.activeTraining!.exercises;
 
-        final matchingTExercise = listOfTExercises.firstWhere(
-            (tExercise) => tExercise.id == currentTimerState.tExerciseId);
+        final matchingExercise = listOfExercises.firstWhere(
+            (exercise) => exercise.id == currentTimerState.exerciseId);
 
         cals = getCalories(
-            intensity: matchingTExercise.intensity,
+            intensity: matchingExercise.intensity,
             duration: currentTimerState.isCountDown
-                ? matchingTExercise.duration
+                ? matchingExercise.duration
                 : currentTimerState.timerValue);
 
         sl<TrainingHistoryBloc>().add(
           CreateOrUpdateHistoryEntry(
             historyEntry: HistoryEntry(
-              id: registeredId ?? 0,
-              linkedTrainingId: currentTimerState.trainingId,
-              linkedTrainingExerciseId: currentTimerState.tExerciseId,
+              id: registeredId,
+              trainingId: currentTimerState.trainingId,
+              exerciseId: currentTimerState.exerciseId,
               setNumber: currentTimerState.setNumber,
               date: DateTime.now(),
               duration: currentTimerState.isCountDown
@@ -99,8 +94,10 @@ class ActiveTrainingBloc
               distance: currentTimerState.distance.toInt(),
               pace: currentTimerState.pace.toInt(),
               calories: cals,
-              linkedTrainingVersionId: currentTimerState.trainingVersionId,
               intervalNumber: currentTimerState.intervalNumber,
+              trainingVersionId: currentTimerState.trainingVersionId,
+              reps: 0,
+              weight: 0,
             ),
           ),
         );
@@ -321,18 +318,20 @@ class ActiveTrainingBloc
 
           if (timerState != null) {
             final runLocation = RunLocation(
-                id: 0,
-                linkedTrainingId: timerState.trainingId,
-                linkedTrainingExerciseId: timerState.tExerciseId,
-                setNumber: timerState.setNumber,
-                latitude: event.locationData!.latitude,
-                longitude: event.locationData!.longitude,
-                altitude: event.locationData!.altitude,
-                timestamp: DateTime.now().millisecondsSinceEpoch,
-                accuracy: event.locationData!.accuracy,
-                speed: event.locationData!.speed);
+              id: 0,
+              trainingId: timerState.trainingId,
+              exerciseId: timerState.exerciseId,
+              setNumber: timerState.setNumber,
+              latitude: event.locationData!.latitude,
+              longitude: event.locationData!.longitude,
+              altitude: event.locationData!.altitude,
+              date: DateTime.now().millisecondsSinceEpoch,
+              accuracy: event.locationData!.accuracy,
+              speed: event.locationData!.speed,
+              trainingVersionId: timerState.trainingVersionId,
+            );
 
-            sl<ObjectBox>().createRunLocation(runLocation);
+            sl<DatabaseService>().createRunLocation(runLocation);
           }
         }
       }

@@ -29,12 +29,12 @@ class FetchTrainingsEvent extends TrainingManagementEvent {
 class LoadDaysSinceTrainingEvent extends TrainingManagementEvent {}
 
 class DeleteTrainingEvent extends TrainingManagementEvent {
-  final Training training;
+  final int id;
 
-  const DeleteTrainingEvent(this.training);
+  const DeleteTrainingEvent(this.id);
 
   @override
-  List<Object> get props => [training];
+  List<Object> get props => [id];
 }
 
 class GetTrainingEvent extends TrainingManagementEvent {
@@ -71,17 +71,17 @@ class UpdateSelectedTrainingProperty extends TrainingManagementEvent {
   final String? name;
   final TrainingType? type;
   final bool? isSelected;
-  final List<TrainingExercise>? trainingExercises;
+  final List<Exercise>? exercises;
   final String? objectives;
   final List<Multiset>? multisets;
-  final List<WeekDay>? trainingDays;
+  final List<TrainingDay>? trainingDays;
 
   const UpdateSelectedTrainingProperty({
     this.id,
     this.name,
     this.type,
     this.isSelected,
-    this.trainingExercises,
+    this.exercises,
     this.objectives,
     this.multisets,
     this.trainingDays,
@@ -93,7 +93,7 @@ class UpdateSelectedTrainingProperty extends TrainingManagementEvent {
         name,
         type,
         isSelected,
-        trainingExercises,
+        exercises,
         multisets,
         objectives,
         trainingDays
@@ -101,24 +101,24 @@ class UpdateSelectedTrainingProperty extends TrainingManagementEvent {
 }
 
 //! Training exercises
-class CreateOrUpdateTrainingExerciseEvent extends TrainingManagementEvent {
-  final TrainingExercise trainingExercise;
+class CreateOrUpdateExerciseEvent extends TrainingManagementEvent {
+  final Exercise exercise;
   final Training training;
 
-  const CreateOrUpdateTrainingExerciseEvent(
-      {required this.trainingExercise, required this.training});
+  const CreateOrUpdateExerciseEvent(
+      {required this.exercise, required this.training});
 
   @override
-  List<Object> get props => [trainingExercise, training];
+  List<Object> get props => [exercise, training];
 }
 
-class RemoveTrainingExerciseEvent extends TrainingManagementEvent {
-  final String trainingExerciseKey;
+class RemoveExerciseEvent extends TrainingManagementEvent {
+  final String exerciseKey;
 
-  const RemoveTrainingExerciseEvent(this.trainingExerciseKey);
+  const RemoveExerciseEvent(this.exerciseKey);
 
   @override
-  List<Object> get props => [trainingExerciseKey];
+  List<Object> get props => [exerciseKey];
 }
 
 //! Multiset
@@ -135,13 +135,13 @@ class CreateOrUpdateMultisetEvent extends TrainingManagementEvent {
 
 class CreateOrUpdateMultisetExerciseEvent extends TrainingManagementEvent {
   final String multisetKey;
-  final TrainingExercise trainingExercise;
+  final Exercise exercise;
 
   const CreateOrUpdateMultisetExerciseEvent(
-      {required this.multisetKey, required this.trainingExercise});
+      {required this.multisetKey, required this.exercise});
 
   @override
-  List<Object> get props => [multisetKey, trainingExercise];
+  List<Object> get props => [multisetKey, exercise];
 }
 
 class RemoveMultisetExerciseEvent extends TrainingManagementEvent {

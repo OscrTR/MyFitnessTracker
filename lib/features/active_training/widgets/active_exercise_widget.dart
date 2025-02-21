@@ -5,28 +5,30 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../base_exercise_management/bloc/base_exercise_management_bloc.dart';
+import '../../base_exercise_management/models/base_exercise.dart';
 import '../../training_management/bloc/training_management_bloc.dart';
-import '../../../core/database/object_box.dart';
 import '../../../injection_container.dart';
 import '../../training_history/models/history_entry.dart';
 import '../../training_history/bloc/training_history_bloc.dart';
 import '../../../helper_functions.dart';
 import '../bloc/active_training_bloc.dart';
 import '../../../app_colors.dart';
-import '../../exercise_management/models/exercise.dart';
-import '../../exercise_management/bloc/exercise_management_bloc.dart';
-import '../../training_management/models/training_exercise.dart';
+import '../../training_management/models/exercise.dart';
 import '../../../core/widgets/small_text_field_widget.dart';
 
 class ActiveExerciseWidget extends StatefulWidget {
-  final TrainingExercise tExercise;
+  final Exercise exercise;
+  final int lastTrainingVersionId;
   final int exerciseIndex;
   final bool isLast;
-  const ActiveExerciseWidget(
-      {super.key,
-      required this.tExercise,
-      required this.isLast,
-      required this.exerciseIndex});
+  const ActiveExerciseWidget({
+    super.key,
+    required this.exercise,
+    required this.isLast,
+    required this.exerciseIndex,
+    required this.lastTrainingVersionId,
+  });
 
   @override
   State<ActiveExerciseWidget> createState() => _ActiveExerciseWidgetState();
@@ -39,26 +41,21 @@ class _ActiveExerciseWidgetState extends State<ActiveExerciseWidget> {
   final training =
       (sl<TrainingManagementBloc>().state as TrainingManagementLoaded)
           .activeTraining!;
-  late final int lastTrainingVersionId;
 
   @override
   void initState() {
     super.initState();
     _initializeControllers();
-    lastTrainingVersionId = sl<ObjectBox>()
-        .getMostRecentTrainingVersionForTrainingId(training.id)!
-        .id;
   }
 
   void _initializeControllers() {
-    final sets = widget.tExercise.sets;
+    final sets = widget.exercise.sets;
     final historyBlocState = sl<TrainingHistoryBloc>().state;
 
     if (historyBlocState is TrainingHistoryLoaded) {
       final entries = historyBlocState.historyTrainings
           .where((trainingHistory) =>
-              trainingHistory.linkedTrainingVersionId ==
-              widget.tExercise.linkedTrainingId)
+              trainingHistory.training.id == widget.exercise.trainingId)
           .toList()
           .sortedBy((entry) => entry.date)
           .lastOrNull
@@ -68,7 +65,7 @@ class _ActiveExerciseWidgetState extends State<ActiveExerciseWidget> {
         for (int i = 1; i <= sets; i++) ...{
           'idSet$i': entries
               ?.where((entry) =>
-                  entry.linkedTrainingExerciseId == widget.tExercise.id &&
+                  entry.exerciseId == widget.exercise.id &&
                   entry.setNumber == i - 1)
               .toList()
               .sortedBy((entry) => entry.date)
@@ -83,15 +80,14 @@ class _ActiveExerciseWidgetState extends State<ActiveExerciseWidget> {
             text: entries != null
                 ? entries
                         .where((entry) =>
-                            entry.linkedTrainingExerciseId ==
-                                widget.tExercise.id &&
+                            entry.exerciseId == widget.exercise.id &&
                             entry.setNumber == i - 1 &&
-                            entry.weight != null)
+                            entry.weight != 0)
                         .toList()
                         .sortedBy((entry) => entry.date)
                         .lastOrNull
                         ?.weight
-                        ?.toString() ??
+                        .toString() ??
                     ''
                 : '',
           ),
@@ -99,15 +95,14 @@ class _ActiveExerciseWidgetState extends State<ActiveExerciseWidget> {
             text: entries != null
                 ? entries
                         .where((entry) =>
-                            entry.linkedTrainingExerciseId ==
-                                widget.tExercise.id &&
+                            entry.exerciseId == widget.exercise.id &&
                             entry.setNumber == i - 1 &&
-                            entry.reps != null)
+                            entry.reps != 0)
                         .toList()
                         .sortedBy((entry) => entry.date)
                         .lastOrNull
                         ?.reps
-                        ?.toString() ??
+                        .toString() ??
                     ''
                 : '',
           ),
@@ -126,17 +121,18 @@ class _ActiveExerciseWidgetState extends State<ActiveExerciseWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ExerciseManagementBloc, ExerciseManagementState>(
+    return BlocBuilder<BaseExerciseManagementBloc, BaseExerciseManagementState>(
       builder: (context, exerciseBlocState) {
-        final matchingExercise = exerciseBlocState is ExerciseManagementLoaded
-            ? exerciseBlocState.exercises.firstWhereOrNull(
-                (e) => e.id == widget.tExercise.exercise.targetId)
+        final matchingExercise = exerciseBlocState
+                is BaseExerciseManagementLoaded
+            ? exerciseBlocState.baseExercises
+                .firstWhereOrNull((e) => e.id == widget.exercise.baseExerciseId)
             : null;
 
         return Column(
           children: [
-            _buildExercise(matchingExercise, widget.tExercise, context,
-                lastTrainingVersionId),
+            _buildExercise(matchingExercise, widget.exercise, context,
+                widget.lastTrainingVersionId),
             _buildExerciseRest(),
           ],
         );
@@ -145,15 +141,15 @@ class _ActiveExerciseWidgetState extends State<ActiveExerciseWidget> {
   }
 
   Widget _buildExercise(
-    Exercise? exercise,
-    TrainingExercise tExercise,
+    BaseExercise? baseExercise,
+    Exercise exercise,
     BuildContext context,
     int lastTrainingVersionId,
   ) {
     return BlocBuilder<ActiveTrainingBloc, ActiveTrainingState>(
         builder: (context, state) {
       if (state is ActiveTrainingLoaded) {
-        final isSetsInReps = widget.tExercise.isSetsInReps;
+        final isSetsInReps = widget.exercise.isSetsInReps;
         bool isActiveExercise = false;
         final lastStartedTimerId = state.lastStartedTimerId;
         final exerciseIndex = widget.exerciseIndex;
@@ -182,15 +178,14 @@ class _ActiveExerciseWidgetState extends State<ActiveExerciseWidget> {
                   highlightColor: Colors.transparent,
                 ),
                 child: ExpandablePanel(
-                  header:
-                      _buildExpandableHeader(exercise, context, isSetsInReps),
+                  header: _buildExpandableHeader(
+                      baseExercise, context, isSetsInReps),
                   collapsed: const SizedBox(),
                   expanded: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      if (exercise != null &&
-                          exercise.description != null &&
-                          exercise.description!.isNotEmpty)
+                      if (baseExercise != null &&
+                          baseExercise.description.isNotEmpty)
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -200,7 +195,7 @@ class _ActiveExerciseWidgetState extends State<ActiveExerciseWidget> {
                                   const TextStyle(fontWeight: FontWeight.bold),
                             ),
                             Text(
-                              exercise.description!,
+                              baseExercise.description,
                               style: Theme.of(context)
                                   .textTheme
                                   .bodySmall!
@@ -208,7 +203,7 @@ class _ActiveExerciseWidgetState extends State<ActiveExerciseWidget> {
                             ),
                           ],
                         ),
-                      if (tExercise.objectives != null)
+                      if (exercise.objectives.isNotEmpty)
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -217,7 +212,7 @@ class _ActiveExerciseWidgetState extends State<ActiveExerciseWidget> {
                               style:
                                   const TextStyle(fontWeight: FontWeight.bold),
                             ),
-                            Text('${tExercise.objectives}'),
+                            Text(exercise.objectives),
                           ],
                         ),
                     ],
@@ -262,7 +257,7 @@ class _ActiveExerciseWidgetState extends State<ActiveExerciseWidget> {
               ListView.builder(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
-                  itemCount: widget.tExercise.sets,
+                  itemCount: widget.exercise.sets,
                   itemBuilder: (context, index) {
                     return Container(
                       margin: const EdgeInsets.only(top: 10),
@@ -280,16 +275,16 @@ class _ActiveExerciseWidgetState extends State<ActiveExerciseWidget> {
                                       _controllers!['weightSet${index + 1}']!,
                                   repsController:
                                       _controllers['repsSet${index + 1}']!,
-                                  tExercise: widget.tExercise,
-                                  isLastSet: widget.tExercise.sets == index + 1,
+                                  exercise: widget.exercise,
+                                  isLastSet: widget.exercise.sets == index + 1,
                                   exerciseIndex: widget.exerciseIndex,
                                   setIndex: index,
                                   exerciseGlobalKey: widget.key! as GlobalKey,
                                   lastTrainingVersionId: lastTrainingVersionId,
                                 )
                               : ActiveExerciseDurationRow(
-                                  tExercise: widget.tExercise,
-                                  isLastSet: widget.tExercise.sets == index + 1,
+                                  exercise: widget.exercise,
+                                  isLastSet: widget.exercise.sets == index + 1,
                                   exerciseIndex: widget.exerciseIndex,
                                   setIndex: index,
                                   exerciseGlobalKey: widget.key! as GlobalKey,
@@ -308,15 +303,13 @@ class _ActiveExerciseWidgetState extends State<ActiveExerciseWidget> {
   }
 
   Widget _buildExpandableHeader(
-      Exercise? exercise, BuildContext context, bool isSetsInReps) {
+      BaseExercise? baseExercise, BuildContext context, bool isSetsInReps) {
     return Builder(builder: (context) {
       final controller = ExpandableController.of(context);
       return Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (exercise != null &&
-              exercise.imagePath != null &&
-              exercise.imagePath!.isNotEmpty)
+          if (baseExercise != null && baseExercise.imagePath.isNotEmpty)
             Column(
               children: [
                 SizedBox(
@@ -325,7 +318,7 @@ class _ActiveExerciseWidgetState extends State<ActiveExerciseWidget> {
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(15),
                     child: Image.file(
-                      File(exercise.imagePath!),
+                      File(baseExercise.imagePath),
                       width: MediaQuery.of(context).size.width - 40,
                       fit: BoxFit.cover,
                       alignment: Alignment.bottomCenter,
@@ -334,9 +327,7 @@ class _ActiveExerciseWidgetState extends State<ActiveExerciseWidget> {
                 ),
               ],
             ),
-          if (exercise != null &&
-              exercise.imagePath != null &&
-              exercise.imagePath!.isNotEmpty)
+          if (baseExercise != null && baseExercise.imagePath.isNotEmpty)
             const SizedBox(width: 10),
           Expanded(
             child: Column(
@@ -347,8 +338,8 @@ class _ActiveExerciseWidgetState extends State<ActiveExerciseWidget> {
                   children: [
                     Expanded(
                       child: Text(
-                        exercise != null
-                            ? exercise.name
+                        baseExercise != null
+                            ? baseExercise.name
                             : tr('global_exercise_unknown'),
                         style: Theme.of(context).textTheme.titleMedium,
                         maxLines: 1,
@@ -364,15 +355,15 @@ class _ActiveExerciseWidgetState extends State<ActiveExerciseWidget> {
                 ),
                 if (isSetsInReps)
                   Text(
-                      '${widget.tExercise.minReps ?? 0}-${widget.tExercise.maxReps ?? 0} reps')
+                      '${widget.exercise.minReps}-${widget.exercise.maxReps} reps')
                 else
                   Text(
-                      '${widget.tExercise.duration} ${tr('active_training_seconds')}'),
+                      '${widget.exercise.duration} ${tr('active_training_seconds')}'),
                 Text(
-                  '${widget.tExercise.setRest != null ? formatDurationToMinutesSeconds(widget.tExercise.setRest) : '0:00'} ${tr('active_training_rest')}',
+                  '${formatDurationToMinutesSeconds(widget.exercise.setRest)} ${tr('active_training_rest')}',
                 ),
-                if (widget.tExercise.specialInstructions != null)
-                  Text('${widget.tExercise.specialInstructions}'),
+                if (widget.exercise.specialInstructions.isNotEmpty)
+                  Text(widget.exercise.specialInstructions),
               ],
             ),
           )
@@ -395,9 +386,8 @@ class _ActiveExerciseWidgetState extends State<ActiveExerciseWidget> {
           if (!widget.isLast) const SizedBox(width: 5),
           if (!widget.isLast)
             Text(
-              widget.tExercise.exerciseRest != null
-                  ? formatDurationToMinutesSeconds(
-                      widget.tExercise.exerciseRest)
+              widget.exercise.exerciseRest != 0
+                  ? formatDurationToMinutesSeconds(widget.exercise.exerciseRest)
                   : '0:00',
             ),
         ],
@@ -408,7 +398,7 @@ class _ActiveExerciseWidgetState extends State<ActiveExerciseWidget> {
 
 class ActiveExerciseRow extends StatefulWidget {
   final int? historyEntryId;
-  final TrainingExercise tExercise;
+  final Exercise exercise;
   final int exerciseIndex;
   final int setIndex;
   final bool isLastSet;
@@ -422,7 +412,7 @@ class ActiveExerciseRow extends StatefulWidget {
     required this.historyEntryId,
     required this.weightController,
     required this.repsController,
-    required this.tExercise,
+    required this.exercise,
     required this.isLastSet,
     required this.exerciseIndex,
     required this.setIndex,
@@ -449,13 +439,13 @@ class _ActiveExerciseRowState extends State<ActiveExerciseRow> {
           isRunTimer: false,
           timerValue: 0,
           countDownValue: widget.isLastSet
-              ? widget.tExercise.exerciseRest ?? 0
-              : widget.tExercise.setRest ?? 0,
+              ? widget.exercise.exerciseRest
+              : widget.exercise.setRest,
           isCountDown: true,
           isAutostart: false,
           exerciseGlobalKey: widget.exerciseGlobalKey,
-          trainingId: widget.tExercise.training.target!.id,
-          tExerciseId: widget.tExercise.id,
+          trainingId: widget.exercise.trainingId!,
+          exerciseId: widget.exercise.id!,
           setNumber: widget.setIndex,
           trainingVersionId: widget.lastTrainingVersionId,
           intervalNumber: null,
@@ -488,29 +478,33 @@ class _ActiveExerciseRowState extends State<ActiveExerciseRow> {
               onTap: () {
                 int cals = 0;
 
-                if (widget.tExercise.isSetsInReps) {
+                if (widget.exercise.isSetsInReps) {
                   cals = getCalories(
-                      intensity: widget.tExercise.intensity,
+                      intensity: widget.exercise.intensity,
                       reps: int.tryParse(widget.repsController.text));
                 } else {
                   cals = getCalories(
-                      intensity: widget.tExercise.intensity,
-                      duration: widget.tExercise.duration);
+                      intensity: widget.exercise.intensity,
+                      duration: widget.exercise.duration);
                 }
 
                 context.read<TrainingHistoryBloc>().add(
                       CreateOrUpdateHistoryEntry(
                         historyEntry: HistoryEntry(
                           id: widget.historyEntryId ?? 0,
-                          linkedTrainingId: widget.tExercise.linkedTrainingId!,
-                          linkedTrainingExerciseId: widget.tExercise.id,
+                          trainingId: widget.exercise.trainingId!,
+                          exerciseId: widget.exercise.id!,
                           setNumber: widget.setIndex,
                           date: DateTime.now(),
-                          reps: int.tryParse(widget.repsController.text),
-                          weight: int.tryParse(widget.weightController.text),
+                          reps: int.tryParse(widget.repsController.text) ?? 0,
+                          weight:
+                              int.tryParse(widget.weightController.text) ?? 0,
                           calories: cals,
-                          linkedTrainingVersionId: widget.lastTrainingVersionId,
+                          trainingVersionId: widget.lastTrainingVersionId,
                           intervalNumber: null,
+                          duration: 0,
+                          distance: 0,
+                          pace: 0,
                         ),
                       ),
                     );
@@ -544,7 +538,7 @@ class _ActiveExerciseRowState extends State<ActiveExerciseRow> {
 }
 
 class ActiveExerciseDurationRow extends StatelessWidget {
-  final TrainingExercise tExercise;
+  final Exercise exercise;
   final bool isLastSet;
   final int exerciseIndex;
   final int setIndex;
@@ -553,7 +547,7 @@ class ActiveExerciseDurationRow extends StatelessWidget {
 
   const ActiveExerciseDurationRow({
     super.key,
-    required this.tExercise,
+    required this.exercise,
     required this.isLastSet,
     required this.exerciseIndex,
     required this.setIndex,
@@ -574,12 +568,12 @@ class ActiveExerciseDurationRow extends StatelessWidget {
           isStarted: false,
           isCountDown: true,
           isRunTimer: false,
-          countDownValue: tExercise.duration ?? 0,
+          countDownValue: exercise.duration,
           timerValue: 0,
-          isAutostart: tExercise.isAutoStart,
+          isAutostart: exercise.isAutoStart,
           exerciseGlobalKey: exerciseGlobalKey,
-          trainingId: tExercise.linkedTrainingId!,
-          tExerciseId: tExercise.id,
+          trainingId: exercise.trainingId!,
+          exerciseId: exercise.id!,
           setNumber: setIndex,
           trainingVersionId: lastTrainingVersionId,
           intervalNumber: null,
@@ -592,13 +586,12 @@ class ActiveExerciseDurationRow extends StatelessWidget {
           isStarted: false,
           isRunTimer: false,
           timerValue: 0,
-          countDownValue:
-              isLastSet ? tExercise.exerciseRest ?? 0 : tExercise.setRest ?? 0,
+          countDownValue: isLastSet ? exercise.exerciseRest : exercise.setRest,
           isCountDown: true,
           isAutostart: true,
           exerciseGlobalKey: exerciseGlobalKey,
-          trainingId: tExercise.linkedTrainingId!,
-          tExerciseId: tExercise.id,
+          trainingId: exercise.trainingId!,
+          exerciseId: exercise.id!,
           setNumber: setIndex,
           trainingVersionId: lastTrainingVersionId,
           intervalNumber: null,
@@ -629,8 +622,8 @@ class ActiveExerciseDurationRow extends StatelessWidget {
                 borderRadius: const BorderRadius.all(Radius.circular(10))),
             child: Text(
               isStarted
-                  ? '${tr('global_done')} ${formatDurationToMinutesSeconds(tExercise.duration ?? 0)}'
-                  : '${tr('global_start')} ${formatDurationToMinutesSeconds(tExercise.duration ?? 0)}',
+                  ? '${tr('global_done')} ${formatDurationToMinutesSeconds(exercise.duration)}'
+                  : '${tr('global_start')} ${formatDurationToMinutesSeconds(exercise.duration)}',
               style: TextStyle(
                   color: isStarted ? AppColors.frenchGray : AppColors.white),
             ),

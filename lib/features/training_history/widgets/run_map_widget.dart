@@ -1,7 +1,13 @@
+import 'dart:io';
+
+import 'package:dio_cache_interceptor/dio_cache_interceptor.dart';
+import 'package:dio_cache_interceptor_file_store/dio_cache_interceptor_file_store.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map_tile_caching/flutter_map_tile_caching.dart';
+import 'package:flutter_map_cache/flutter_map_cache.dart';
+
 import 'package:latlong2/latlong.dart';
+import 'package:path_provider/path_provider.dart';
 import '../../../app_colors.dart';
 
 import '../models/history_run_location.dart';
@@ -16,9 +22,12 @@ class RunMapView extends StatefulWidget {
 }
 
 class _RunMapViewState extends State<RunMapView> {
-  final _tileProvider = FMTCTileProvider(
-    stores: const {'mapStore': BrowseStoreStrategy.readUpdateCreate},
-  );
+  final Future<CacheStore> _cacheStoreFuture = _getCacheStore();
+
+  static Future<CacheStore> _getCacheStore() async {
+    final dir = await getTemporaryDirectory();
+    return FileCacheStore('${dir.path}${Platform.pathSeparator}MapTiles');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -58,36 +67,51 @@ class _RunMapViewState extends State<RunMapView> {
       child: SizedBox(
         height: 250,
         width: MediaQuery.of(context).size.width - 60,
-        child: FlutterMap(
-          options: MapOptions(
-            backgroundColor: AppColors.floralWhite,
-            initialCenter: center,
-            initialZoom: 13.0,
-            initialCameraFit: CameraFit.bounds(
-              bounds: bounds,
-              padding: const EdgeInsets.all(50.0),
-            ),
-            interactionOptions: const InteractionOptions(
-              enableMultiFingerGestureRace: true,
-            ),
-          ),
-          children: [
-            TileLayer(
-              urlTemplate:
-                  'https://cartodb-basemaps-a.global.ssl.fastly.net/rastertiles/voyager/{z}/{x}/{y}.png',
-              userAgentPackageName: 'dev.oscarthiebaut.my_fitness_tracker',
-              tileProvider: _tileProvider,
-            ),
-            PolylineLayer(
-              polylines: [
-                Polyline(
-                  points: points,
-                  strokeWidth: 4.0,
-                  color: AppColors.folly,
+        child: FutureBuilder(
+          future: _cacheStoreFuture,
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              final cacheStore = snapshot.data!;
+              return FlutterMap(
+                options: MapOptions(
+                  backgroundColor: AppColors.floralWhite,
+                  initialCenter: center,
+                  initialZoom: 13.0,
+                  initialCameraFit: CameraFit.bounds(
+                    bounds: bounds,
+                    padding: const EdgeInsets.all(50.0),
+                  ),
+                  interactionOptions: const InteractionOptions(
+                    enableMultiFingerGestureRace: true,
+                  ),
                 ),
-              ],
-            ),
-          ],
+                children: [
+                  TileLayer(
+                    urlTemplate:
+                        'https://cartodb-basemaps-a.global.ssl.fastly.net/rastertiles/voyager/{z}/{x}/{y}.png',
+                    userAgentPackageName:
+                        'dev.oscarthiebaut.my_fitness_tracker',
+                    tileProvider: CachedTileProvider(
+                      store: cacheStore,
+                    ),
+                  ),
+                  PolylineLayer(
+                    polylines: [
+                      Polyline(
+                        points: points,
+                        strokeWidth: 4.0,
+                        color: AppColors.folly,
+                      ),
+                    ],
+                  ),
+                ],
+              );
+            }
+            if (snapshot.hasError) {
+              return Center(child: Text(snapshot.error.toString()));
+            }
+            return const Center(child: CircularProgressIndicator());
+          },
         ),
       ),
     );

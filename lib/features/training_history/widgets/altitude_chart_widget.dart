@@ -15,9 +15,9 @@ class AltitudeChart extends StatelessWidget {
     return '${altitude.toStringAsFixed(1)}m';
   }
 
-  String _formatTimestamp(int timestamp) {
-    final date = DateTime.fromMillisecondsSinceEpoch(timestamp);
-    return '${date.hour}:${date.minute.toString().padLeft(2, '0')}:${date.second.toString().padLeft(2, '0')}';
+  String _formatDate(int date) {
+    final formattedDate = DateTime.fromMillisecondsSinceEpoch(date);
+    return '${formattedDate.hour}:${formattedDate.minute.toString().padLeft(2, '0')}:${formattedDate.second.toString().padLeft(2, '0')}';
   }
 
   double _calculateInterval(double min, double max) {
@@ -138,10 +138,10 @@ class AltitudeChart extends StatelessWidget {
 
                   final index = touchedSpot.spotIndex;
                   final location = locations[index];
-                  final timestamp = _formatTimestamp(location.timestamp);
+                  final date = _formatDate(location.date);
 
                   return LineTooltipItem(
-                    'Pace: $formattedDifference\nTime: $timestamp',
+                    'Pace: $formattedDifference\nTime: $date',
                     const TextStyle(color: Colors.white),
                   );
                 }).toList();

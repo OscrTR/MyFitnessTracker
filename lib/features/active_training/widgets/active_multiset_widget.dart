@@ -6,19 +6,24 @@ import '../../../app_colors.dart';
 import '../../../core/enums/enums.dart';
 import '../../../helper_functions.dart';
 import '../../training_management/models/multiset.dart';
-import '../../training_management/models/training_exercise.dart';
+import '../../training_management/models/exercise.dart';
 import 'active_multiset_exercise_widget.dart';
 import 'active_multiset_run_widget.dart';
 
 class ActiveMultisetWidget extends StatefulWidget {
   final Multiset multiset;
+  final List<Exercise> multisetExercises;
   final bool isLast;
   final int multisetIndex;
+  final int lastTrainingVersionId;
+
   const ActiveMultisetWidget({
     super.key,
     required this.isLast,
     required this.multiset,
+    required this.multisetExercises,
     required this.multisetIndex,
+    required this.lastTrainingVersionId,
   });
 
   @override
@@ -44,8 +49,7 @@ class _ActiveMultisetWidgetState extends State<ActiveMultisetWidget> {
               ExpandablePanel(
                 header: _buildExpandableMultisetHeader(context),
                 collapsed: const SizedBox(),
-                expanded: widget.multiset.objectives != null &&
-                        widget.multiset.objectives != ''
+                expanded: widget.multiset.objectives.isNotEmpty
                     ? Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -53,7 +57,7 @@ class _ActiveMultisetWidgetState extends State<ActiveMultisetWidget> {
                             tr('global_objectives'),
                             style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
-                          Text('${widget.multiset.objectives}'),
+                          Text(widget.multiset.objectives),
                         ],
                       )
                     : const SizedBox(),
@@ -62,7 +66,7 @@ class _ActiveMultisetWidgetState extends State<ActiveMultisetWidget> {
                   tapHeaderToExpand: true,
                 ),
               ),
-              _buildWidgetExercisesList(widget.multiset.trainingExercises),
+              _buildWidgetExercisesList(widget.multisetExercises),
             ],
           ),
         ),
@@ -89,8 +93,7 @@ class _ActiveMultisetWidgetState extends State<ActiveMultisetWidget> {
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-              if (widget.multiset.objectives != null &&
-                  widget.multiset.objectives != '')
+              if (widget.multiset.objectives.isNotEmpty)
                 Icon(
                   multisetController?.expanded == true
                       ? Icons.keyboard_arrow_up
@@ -102,15 +105,14 @@ class _ActiveMultisetWidgetState extends State<ActiveMultisetWidget> {
           Text('${widget.multiset.sets} sets'),
           Text(
               '${widget.multiset.setRest != 0 ? formatDurationToMinutesSeconds(widget.multiset.setRest) : '0:00'} ${tr('active_training_rest')}'),
-          if (widget.multiset.specialInstructions != null &&
-              widget.multiset.specialInstructions != '')
-            Text('${widget.multiset.specialInstructions}'),
+          if (widget.multiset.specialInstructions.isNotEmpty)
+            Text(widget.multiset.specialInstructions),
         ],
       );
     });
   }
 
-  Widget _buildWidgetExercisesList(List<TrainingExercise> items) {
+  Widget _buildWidgetExercisesList(List<Exercise> items) {
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -119,22 +121,24 @@ class _ActiveMultisetWidgetState extends State<ActiveMultisetWidget> {
         final exercise = items[index];
         final isLast = index == items.length - 1;
 
-        return exercise.type == TrainingExerciseType.run
+        return exercise.exerciseType == ExerciseType.run
             ? ActiveMultisetRunWidget(
                 multiset: widget.multiset,
-                tExercise: exercise,
+                exercise: exercise,
                 isLast: isLast,
                 multisetIndex: widget.multisetIndex,
                 multisetExerciseIndex: index,
                 key: GlobalKey(),
+                lastTrainingVersionId: widget.lastTrainingVersionId,
               )
             : ActiveMultisetExerciseWidget(
                 multiset: widget.multiset,
-                tExercise: exercise,
+                exercise: exercise,
                 isLast: isLast,
                 multisetIndex: widget.multisetIndex,
                 multisetExerciseIndex: index,
                 key: GlobalKey(),
+                lastTrainingVersionId: widget.lastTrainingVersionId,
               );
       },
     );

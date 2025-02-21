@@ -1,167 +1,114 @@
 import 'dart:convert';
 
-import 'package:objectbox/objectbox.dart';
+import 'package:equatable/equatable.dart';
+
+import '../../base_exercise_management/models/base_exercise.dart';
 
 import '../../../core/enums/enums.dart';
-import '../../training_history/models/training_version.dart';
+import 'exercise.dart';
 import 'multiset.dart';
-import 'training_exercise.dart';
 
-@Entity()
-class Training {
-  @Id()
-  int id = 0;
+class Training extends Equatable {
+  final int? id;
+  final String name;
+  final TrainingType trainingType;
+  final String objectives;
+  final List<TrainingDay> trainingDays;
+  final List<Multiset> multisets;
+  final List<Exercise> exercises;
+  final List<BaseExercise> baseExercises;
 
-  String name;
-
-  // Property pour stocker l'index de l'enum TrainingType
-  @Transient()
-  TrainingType? type;
-
-  int? get dbType {
-    _ensureStableTrainingTypeEnumValues();
-    return type?.index;
-  }
-
-  set dbType(int? value) {
-    if (value == null) type = null;
-
-    _ensureStableTrainingTypeEnumValues();
-    type = value! >= 0 && value < TrainingType.values.length
-        ? TrainingType.values[value]
-        : TrainingType.unknown;
-  }
-
-  // Relation One-To-Many
-  @Backlink('training')
-  final trainingExercises = ToMany<TrainingExercise>();
-
-  @Backlink('training')
-  final multisets = ToMany<Multiset>();
-
-  // Stocker les objectifs sous forme de chaîne
-  String? objectives;
-
-  // Stocker les WeekDays (enum) sous forme de chaîne (ex. JSON)
-  @Transient()
-  List<WeekDay>? trainingDays;
-
-  String? get dbTrainingDays {
-    return WeekDayHelper.enumListToJson(trainingDays);
-  }
-
-  set dbTrainingDays(String? value) {
-    // Lors de la création du training, convertir le string en list de Weekdays
-    trainingDays = WeekDayHelper.jsonToEnumList(value);
-  }
-
-  // Relation One-To-Many pour stocker les versions précédentes
-  @Backlink('training')
-  final trainingVersions = ToMany<TrainingVersion>();
-
-  // Default constructor (used by ObjectBox)
-  Training(this.name);
-
-  // Named constructor for app usage
-  Training.create({
+  const Training({
+    this.id,
     required this.name,
-    required this.type,
+    required this.trainingType,
     required this.objectives,
     required this.trainingDays,
-    required List<TrainingExercise> trainingExercises,
-    required List<Multiset> multisets,
-  }) {
-    if (trainingExercises.isNotEmpty) {
-      this.trainingExercises.addAll(trainingExercises);
-    }
-    if (multisets.isNotEmpty) {
-      this.multisets.addAll(multisets);
-    }
-  }
+    required this.multisets,
+    required this.exercises,
+    required this.baseExercises,
+  });
 
-  void _ensureStableTrainingTypeEnumValues() {
-    assert(TrainingType.run.index == 0);
-    assert(TrainingType.yoga.index == 1);
-    assert(TrainingType.workout.index == 2);
+  @override
+  List<Object?> get props {
+    return [
+      id,
+      name,
+      trainingType,
+      objectives,
+      trainingDays,
+      multisets,
+      exercises,
+      baseExercises,
+    ];
   }
 
   Training copyWith({
     int? id,
     String? name,
-    TrainingType? type,
+    TrainingType? trainingType,
     String? objectives,
-    List<TrainingExercise>? trainingExercises,
+    List<TrainingDay>? trainingDays,
     List<Multiset>? multisets,
-    List<WeekDay>? trainingDays,
+    List<Exercise>? exercises,
+    List<BaseExercise>? baseExercises,
   }) {
-    return Training(name ?? this.name)
-      ..id = id ?? this.id
-      ..type = type ?? this.type
-      ..objectives = objectives ?? this.objectives
-      ..trainingExercises.clear()
-      ..trainingExercises.addAll(trainingExercises?.map((e) => e.copyWith()) ??
-          this.trainingExercises.map((e) => e.copyWith()))
-      ..multisets.clear()
-      ..multisets.addAll(multisets?.map((e) => e.copyWith()) ??
-          this.multisets.map((e) => e.copyWith()))
-      ..trainingDays = trainingDays ?? this.trainingDays;
+    return Training(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      trainingType: trainingType ?? this.trainingType,
+      objectives: objectives ?? this.objectives,
+      trainingDays: trainingDays ?? this.trainingDays,
+      multisets: multisets ?? this.multisets,
+      exercises: exercises ?? this.exercises,
+      baseExercises: baseExercises ?? this.baseExercises,
+    );
   }
 
-  /// Convertit un objet `Training` en JSON
-  Map<String, dynamic> toJson() {
-    return {
+  Map<String, dynamic> toMap() {
+    return <String, dynamic>{
       'id': id,
       'name': name,
-      'type': dbType,
+      'trainingType': trainingType.toMap(),
       'objectives': objectives,
-      'trainingDays':
-          dbTrainingDays, // Conserve les jours d'entraînement sous forme de chaîne JSON
-      'trainingExercises': trainingExercises
-          .map((exercise) => exercise.toJson())
-          .toList(), // Sérialisation des TrainingExercises
-      'multisets': multisets
-          .map((multiset) => multiset.toJson())
-          .toList(), // Sérialisation des Multisets
+      'trainingDays': trainingDays.map((x) => x.toMap()).toList(),
+      'multisets': multisets.map((x) => x.toMap()).toList(),
+      'exercises': exercises.map((x) => x.toMap()).toList(),
+      'baseExercises': baseExercises.map((x) => x.toMap()).toList(),
     };
   }
 
-  /// Crée un objet `Training` à partir d'un JSON
-  static Training fromJson(Map<String, dynamic> json) {
-    final training = Training(json['name'] as String)
-      ..id = json['id'] as int? ?? 0
-      ..dbType = json['type'] as int?
-      ..objectives = json['objectives'] as String?
-      ..dbTrainingDays = json['trainingDays'] as String?;
-
-    // Désérialisation de la liste des TrainingExercises
-    final exercisesJson = json['trainingExercises'] as List<dynamic>?;
-    if (exercisesJson != null) {
-      training.trainingExercises.addAll(exercisesJson
-          .map((e) => TrainingExercise.fromJson(e as Map<String, dynamic>)));
-    }
-
-    // Désérialisation de la liste des Multisets
-    final multisetsJson = json['multisets'] as List<dynamic>?;
-    if (multisetsJson != null) {
-      training.multisets.addAll(multisetsJson
-          .map((e) => Multiset.fromJson(e as Map<String, dynamic>)));
-    }
-
-    return training;
-  }
-}
-
-// Helper pour convertir une liste d'énums en chaîne JSON et vice-versa
-class WeekDayHelper {
-  static String? enumListToJson(List<WeekDay>? enums) {
-    if (enums == null) return null;
-    return jsonEncode(enums.map((e) => e.index).toList());
+  factory Training.fromMap(Map<String, dynamic> map) {
+    return Training(
+      id: map['id'] != null ? map['id'] as int : null,
+      name: map['name'] as String,
+      trainingType: TrainingType.fromMap(map['trainingType']),
+      objectives: map['objectives'] as String,
+      trainingDays: List<TrainingDay>.from(
+        (map['trainingDays'] as List<int>).map<TrainingDay>(
+          (x) => TrainingDay.fromMap(x as String),
+        ),
+      ),
+      multisets: List<Multiset>.from(
+        (map['multisets'] as List<int>).map<Multiset>(
+          (x) => Multiset.fromMap(x as Map<String, dynamic>),
+        ),
+      ),
+      exercises: List<Exercise>.from(
+        (map['exercises'] as List<int>).map<Exercise>(
+          (x) => Exercise.fromMap(x as Map<String, dynamic>),
+        ),
+      ),
+      baseExercises: List<BaseExercise>.from(
+        (map['baseExercises'] as List<int>).map<BaseExercise>(
+          (x) => BaseExercise.fromMap(x as Map<String, dynamic>),
+        ),
+      ),
+    );
   }
 
-  static List<WeekDay>? jsonToEnumList(String? json) {
-    if (json == null) return null;
-    return (jsonDecode(json) as List<dynamic>)
-        .map((e) => WeekDay.values[e as int])
-        .toList();
-  }
+  String toJson() => json.encode(toMap());
+
+  factory Training.fromJson(String source) =>
+      Training.fromMap(json.decode(source) as Map<String, dynamic>);
 }

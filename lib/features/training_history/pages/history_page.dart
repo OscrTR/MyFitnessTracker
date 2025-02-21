@@ -189,7 +189,8 @@ class _HistoryPageState extends State<HistoryPage> {
     final displayedEntries = hasSelectedTypes
         ? _historyTrainings!
             .where((entry) =>
-                state.selectedTrainingTypes[entry.training.type] ?? false)
+                state.selectedTrainingTypes[entry.training.trainingType] ??
+                false)
             .toList()
         : _historyTrainings!;
 
@@ -243,7 +244,7 @@ class _HistoryPageState extends State<HistoryPage> {
                           child: Text(
                             displayedEntries[index]
                                 .training
-                                .type!
+                                .trainingType
                                 .translate(context.locale.languageCode),
                             style: Theme.of(context).textTheme.bodySmall,
                           ),

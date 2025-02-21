@@ -13,12 +13,14 @@ class TrainingManagementLoaded extends TrainingManagementState {
   final List<Training> trainings;
   final Training? selectedTraining;
   final Training? activeTraining;
+  final int? activeTrainingMostRecentVersionId;
   final Map<int, int?> daysSinceLastTraining;
 
   const TrainingManagementLoaded({
     this.trainings = const [],
     this.activeTraining,
     this.selectedTraining,
+    this.activeTrainingMostRecentVersionId,
     this.daysSinceLastTraining = const {},
   });
 
@@ -29,8 +31,9 @@ class TrainingManagementLoaded extends TrainingManagementState {
     bool? isSelected,
     String? name,
     TrainingType? type,
-    List<TrainingExercise>? trainingExercises,
+    List<Exercise>? exercises,
     List<Multiset>? multisets,
+    int? activeTrainingMostRecentVersionId,
     Map<int, int?>? daysSinceLastTraining,
     bool resetSelectedTraining = false,
   }) {
@@ -39,15 +42,18 @@ class TrainingManagementLoaded extends TrainingManagementState {
       daysSinceLastTraining:
           daysSinceLastTraining ?? this.daysSinceLastTraining,
       activeTraining: activeTraining ?? this.activeTraining,
+      activeTrainingMostRecentVersionId: activeTrainingMostRecentVersionId ??
+          this.activeTrainingMostRecentVersionId,
       selectedTraining: resetSelectedTraining
           ? null
           : (selectedTraining ?? this.selectedTraining)?.copyWith(
               name: selectedTraining?.name ?? this.selectedTraining?.name,
-              type: selectedTraining?.type ?? this.selectedTraining?.type,
-              trainingExercises: selectedTraining?.trainingExercises ??
+              trainingType: selectedTraining?.trainingType ??
+                  this.selectedTraining?.trainingType,
+              exercises: selectedTraining?.exercises ??
                   this
                       .selectedTraining
-                      ?.trainingExercises
+                      ?.exercises
                       .map((e) => e.copyWith())
                       .toList(),
               multisets: selectedTraining?.multisets ??
@@ -60,28 +66,12 @@ class TrainingManagementLoaded extends TrainingManagementState {
     );
   }
 
-  bool get hasExercisesOrMultisets {
-    if (selectedTraining == null) {
-      return false;
-    }
-    // Check if trainingExercises is not empty
-    if (selectedTraining!.trainingExercises.isNotEmpty) {
-      return true;
-    }
-    // Check if at least one multiset has non-empty trainingExercises
-    for (final multiset in selectedTraining!.multisets) {
-      if (multiset.trainingExercises.isNotEmpty) {
-        return true;
-      }
-    }
-    return false;
-  }
-
   @override
   List<Object?> get props => [
         trainings,
         selectedTraining,
         activeTraining,
         daysSinceLastTraining,
+        activeTrainingMostRecentVersionId
       ];
 }

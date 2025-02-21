@@ -43,7 +43,7 @@ class TimerWidgetState extends State<TimerWidget> {
           isAutostart: false,
           exerciseGlobalKey: GlobalKey(),
           trainingId: -1,
-          tExerciseId: -1,
+          exerciseId: -1,
           setNumber: -1,
           trainingVersionId: 0,
           intervalNumber: null,

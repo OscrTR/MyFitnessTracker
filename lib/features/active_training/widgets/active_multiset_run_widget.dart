@@ -3,13 +3,12 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../app_colors.dart';
-import '../../../core/database/object_box.dart';
 import '../../../core/enums/enums.dart';
 import '../../../helper_functions.dart';
 import '../../../injection_container.dart';
 import '../../training_management/bloc/training_management_bloc.dart';
 import '../../training_management/models/multiset.dart';
-import '../../training_management/models/training_exercise.dart';
+import '../../training_management/models/exercise.dart';
 import '../bloc/active_training_bloc.dart';
 import 'distance_widget.dart';
 import 'duration_timer_widget.dart';
@@ -17,17 +16,20 @@ import 'pace_widget.dart';
 
 class ActiveMultisetRunWidget extends StatefulWidget {
   final Multiset multiset;
-  final TrainingExercise tExercise;
+  final Exercise exercise;
   final int multisetIndex;
   final int multisetExerciseIndex;
   final bool isLast;
-  const ActiveMultisetRunWidget(
-      {super.key,
-      required this.multiset,
-      required this.tExercise,
-      required this.isLast,
-      required this.multisetIndex,
-      required this.multisetExerciseIndex});
+  final int lastTrainingVersionId;
+  const ActiveMultisetRunWidget({
+    super.key,
+    required this.multiset,
+    required this.exercise,
+    required this.isLast,
+    required this.multisetIndex,
+    required this.multisetExerciseIndex,
+    required this.lastTrainingVersionId,
+  });
 
   @override
   State<ActiveMultisetRunWidget> createState() =>
@@ -38,14 +40,10 @@ class _ActiveMultisetRunWidgetState extends State<ActiveMultisetRunWidget> {
   final training =
       (sl<TrainingManagementBloc>().state as TrainingManagementLoaded)
           .activeTraining!;
-  late final int lastTrainingVersionId;
 
   @override
   void initState() {
     super.initState();
-    lastTrainingVersionId = sl<ObjectBox>()
-        .getMostRecentTrainingVersionForTrainingId(training.id)!
-        .id;
   }
 
   @override
@@ -71,7 +69,14 @@ class _ActiveMultisetRunWidgetState extends State<ActiveMultisetRunWidget> {
               }
             }
 
-            final bool isInterval = widget.tExercise.sets > 1;
+            final List<Exercise> multisetExercises =
+                (sl<TrainingManagementBloc>().state as TrainingManagementLoaded)
+                    .activeTraining!
+                    .exercises
+                    .where((e) => e.multisetId == widget.multiset.id)
+                    .toList();
+
+            final bool isInterval = widget.exercise.sets > 1;
 
             return Container(
               margin: const EdgeInsets.only(top: 20),
@@ -91,10 +96,9 @@ class _ActiveMultisetRunWidgetState extends State<ActiveMultisetRunWidget> {
                   const SizedBox(height: 10),
                   isInterval ? buildIntervalText() : buildRunExerciseText(),
                   const SizedBox(height: 10),
-                  if (widget.tExercise.specialInstructions != null &&
-                      widget.tExercise.specialInstructions != '')
-                    Text('${widget.tExercise.specialInstructions}'),
-                  if (widget.tExercise.objectives != null)
+                  if (widget.exercise.specialInstructions.isNotEmpty)
+                    Text(widget.exercise.specialInstructions),
+                  if (widget.exercise.objectives.isNotEmpty)
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -102,7 +106,7 @@ class _ActiveMultisetRunWidgetState extends State<ActiveMultisetRunWidget> {
                           '${tr('global_objectives')}: ',
                           style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
-                        Text('${widget.tExercise.objectives}'),
+                        Text(widget.exercise.objectives),
                       ],
                     ),
                   const SizedBox(height: 10),
@@ -115,31 +119,32 @@ class _ActiveMultisetRunWidgetState extends State<ActiveMultisetRunWidget> {
                         if (!isInterval) {
                           return DistanceOrDurationRun(
                             multiset: widget.multiset,
-                            tExercise: widget.tExercise,
+                            exercise: widget.exercise,
                             isLastSet: widget.multiset.sets == index + 1,
-                            isLastMultisetExercise:
-                                widget.multiset.trainingExercises.length ==
-                                    widget.tExercise.position! + 1,
+                            isLastMultisetExercise: multisetExercises.length ==
+                                widget.exercise.position! + 1,
                             multisetIndex: widget.multisetIndex,
                             multisetExerciseIndex: widget.multisetExerciseIndex,
                             setIndex: index,
                             exerciseGlobalKey: widget.key! as GlobalKey,
-                            lastTrainingVersionId: lastTrainingVersionId,
+                            lastTrainingVersionId: widget.lastTrainingVersionId,
                           );
                         } else if (isInterval) {
                           return IntervalWidget(
-                            tExercise: widget.tExercise,
-                            multiset: widget.multiset,
-                            isLastSet: widget.multiset.sets == index + 1,
-                            isLastMultisetExercise:
-                                widget.multiset.trainingExercises.length ==
-                                    widget.tExercise.position! + 1,
-                            multisetIndex: widget.multisetIndex,
-                            multisetExerciseIndex: widget.multisetExerciseIndex,
-                            setIndex: index,
-                            exerciseGlobalKey: widget.key! as GlobalKey,
-                            lastTrainingVersionId: lastTrainingVersionId,
-                          );
+                              exercise: widget.exercise,
+                              multiset: widget.multiset,
+                              isLastSet: widget.multiset.sets == index + 1,
+                              isLastMultisetExercise:
+                                  multisetExercises.length ==
+                                      widget.exercise.position! + 1,
+                              multisetIndex: widget.multisetIndex,
+                              multisetExerciseIndex:
+                                  widget.multisetExerciseIndex,
+                              setIndex: index,
+                              exerciseGlobalKey: widget.key! as GlobalKey,
+                              lastTrainingVersionId:
+                                  widget.lastTrainingVersionId,
+                              multisetExercises: multisetExercises);
                         }
                         return const SizedBox();
                       }),
@@ -169,9 +174,8 @@ class _ActiveMultisetRunWidgetState extends State<ActiveMultisetRunWidget> {
           if (!widget.isLast) const SizedBox(width: 5),
           if (!widget.isLast)
             Text(
-              widget.tExercise.exerciseRest != null
-                  ? formatDurationToMinutesSeconds(
-                      widget.tExercise.exerciseRest)
+              widget.exercise.exerciseRest != 0
+                  ? formatDurationToMinutesSeconds(widget.exercise.exerciseRest)
                   : '0:00',
             ),
         ],
@@ -180,24 +184,24 @@ class _ActiveMultisetRunWidgetState extends State<ActiveMultisetRunWidget> {
   }
 
   Text buildRunExerciseText() {
-    final targetDistance = widget.tExercise.targetDistance != null
-        ? '${(widget.tExercise.targetDistance! / 1000).toStringAsFixed(1)}km'
+    final targetDistance = widget.exercise.targetDistance != 0
+        ? '${(widget.exercise.targetDistance / 1000).toStringAsFixed(1)}km'
         : '';
-    final targetDuration = widget.tExercise.targetDuration != null
-        ? formatDurationToHoursMinutesSeconds(widget.tExercise.targetDuration!)
+    final targetDuration = widget.exercise.targetDuration != 0
+        ? formatDurationToHoursMinutesSeconds(widget.exercise.targetDuration)
         : '';
-    final targetPace = widget.tExercise.isTargetPaceSelected == true
-        ? ' at ${formatPace(widget.tExercise.targetPace!)}'
+    final targetPace = widget.exercise.isTargetPaceSelected == true
+        ? ' at ${formatPace(widget.exercise.targetPace)}'
         : '';
 
-    if (widget.tExercise.runType == RunType.distance) {
+    if (widget.exercise.runType == RunType.distance) {
       return Text(
         '${tr('active_training_running')}  $targetDistance$targetPace',
         style: Theme.of(context).textTheme.titleMedium,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
       );
-    } else if (widget.tExercise.runType == RunType.duration) {
+    } else if (widget.exercise.runType == RunType.duration) {
       return Text(
         '${tr('active_training_running')}  $targetDuration$targetPace',
         style: Theme.of(context).textTheme.titleMedium,
@@ -215,19 +219,19 @@ class _ActiveMultisetRunWidgetState extends State<ActiveMultisetRunWidget> {
   }
 
   Text buildIntervalText() {
-    final tExercise = widget.tExercise;
-    final targetDistance = tExercise.targetDistance != null
-        ? '${(tExercise.targetDistance! / 1000).toStringAsFixed(1)}km'
+    final exercise = widget.exercise;
+    final targetDistance = exercise.targetDistance != 0
+        ? '${(exercise.targetDistance / 1000).toStringAsFixed(1)}km'
         : '';
-    final targetDuration = tExercise.targetDuration != null
-        ? formatDurationToHoursMinutesSeconds(tExercise.targetDuration!)
+    final targetDuration = exercise.targetDuration != 0
+        ? formatDurationToHoursMinutesSeconds(exercise.targetDuration)
         : '';
-    final targetPace = tExercise.isTargetPaceSelected == true
-        ? ' at ${formatPace(tExercise.targetPace!)}'
+    final targetPace = exercise.isTargetPaceSelected == true
+        ? ' at ${formatPace(exercise.targetPace)}'
         : '';
-    final intervals = tExercise.sets;
+    final intervals = exercise.sets;
 
-    if (tExercise.runType == RunType.distance) {
+    if (exercise.runType == RunType.distance) {
       return Text(
         '${tr('active_training_running_interval')} ${'$intervals'}x$targetDistance$targetPace',
         style: Theme.of(context).textTheme.titleMedium,
@@ -247,7 +251,7 @@ class _ActiveMultisetRunWidgetState extends State<ActiveMultisetRunWidget> {
 
 class DistanceOrDurationRun extends StatelessWidget {
   final Multiset multiset;
-  final TrainingExercise tExercise;
+  final Exercise exercise;
   final bool isLastSet;
   final bool isLastMultisetExercise;
   final int multisetIndex;
@@ -259,7 +263,7 @@ class DistanceOrDurationRun extends StatelessWidget {
   const DistanceOrDurationRun({
     super.key,
     required this.multiset,
-    required this.tExercise,
+    required this.exercise,
     required this.isLastSet,
     required this.isLastMultisetExercise,
     required this.multisetIndex,
@@ -283,20 +287,17 @@ class DistanceOrDurationRun extends StatelessWidget {
             isRunTimer: true,
             isCountDown: false,
             timerValue: 0,
-            targetDistance: tExercise.runType == RunType.distance
-                ? tExercise.targetDistance ?? 0
+            targetDistance: exercise.runType == RunType.distance
+                ? exercise.targetDistance
                 : 0,
-            targetDuration: tExercise.runType == RunType.duration
-                ? tExercise.targetDuration ?? 0
+            targetDuration: exercise.runType == RunType.duration
+                ? exercise.targetDuration
                 : 0,
-            targetPace: tExercise.isTargetPaceSelected != null &&
-                    tExercise.isTargetPaceSelected!
-                ? tExercise.targetPace ?? 0
-                : 0,
-            isAutostart: tExercise.isAutoStart,
+            targetPace: exercise.isTargetPaceSelected ? exercise.targetPace : 0,
+            isAutostart: exercise.isAutoStart,
             exerciseGlobalKey: exerciseGlobalKey,
-            trainingId: tExercise.linkedTrainingId!,
-            tExerciseId: tExercise.id,
+            trainingId: exercise.trainingId!,
+            exerciseId: exercise.id!,
             setNumber: 0,
             trainingVersionId: lastTrainingVersionId,
             intervalNumber: null,
@@ -314,12 +315,12 @@ class DistanceOrDurationRun extends StatelessWidget {
                 ? isLastSet
                     ? multiset.multisetRest
                     : multiset.setRest
-                : tExercise.exerciseRest ?? 0,
+                : exercise.exerciseRest,
             isCountDown: true,
             isAutostart: true,
             exerciseGlobalKey: exerciseGlobalKey,
-            trainingId: tExercise.linkedTrainingId!,
-            tExerciseId: tExercise.id,
+            trainingId: exercise.trainingId!,
+            exerciseId: exercise.id!,
             setNumber: 0,
             trainingVersionId: lastTrainingVersionId,
             intervalNumber: null,
@@ -399,7 +400,7 @@ class DistanceOrDurationRun extends StatelessWidget {
 }
 
 class IntervalWidget extends StatelessWidget {
-  final TrainingExercise tExercise;
+  final Exercise exercise;
   final Multiset multiset;
   final bool isLastSet;
   final bool isLastMultisetExercise;
@@ -408,10 +409,11 @@ class IntervalWidget extends StatelessWidget {
   final int setIndex;
   final GlobalKey exerciseGlobalKey;
   final int lastTrainingVersionId;
+  final List<Exercise> multisetExercises;
 
   const IntervalWidget({
     super.key,
-    required this.tExercise,
+    required this.exercise,
     required this.multiset,
     required this.isLastSet,
     required this.isLastMultisetExercise,
@@ -420,11 +422,12 @@ class IntervalWidget extends StatelessWidget {
     required this.setIndex,
     required this.exerciseGlobalKey,
     required this.lastTrainingVersionId,
+    required this.multisetExercises,
   });
 
   @override
   Widget build(BuildContext context) {
-    final intervals = tExercise.sets;
+    final intervals = exercise.sets;
 
     return Column(
       children: [
@@ -436,13 +439,13 @@ class IntervalWidget extends StatelessWidget {
               final bool isLastInterval = intervalIndex + 1 == intervals;
 
               return IntervalRun(
-                tExercise: tExercise,
+                exercise: exercise,
                 isLastInterval: isLastInterval,
                 intervalIndex: intervalIndex,
                 multiset: multiset,
                 isLastSet: multiset.sets == setIndex + 1,
-                isLastMultisetExercise: multiset.trainingExercises.length ==
-                    tExercise.position! + 1,
+                isLastMultisetExercise:
+                    multisetExercises.length == exercise.position! + 1,
                 multisetIndex: multisetIndex,
                 multisetExerciseIndex: multisetExerciseIndex,
                 setIndex: setIndex,
@@ -497,7 +500,7 @@ class IntervalWidget extends StatelessWidget {
 }
 
 class IntervalRun extends StatelessWidget {
-  final TrainingExercise tExercise;
+  final Exercise exercise;
   final int intervalIndex;
   final bool isLastInterval;
   final Multiset multiset;
@@ -511,7 +514,7 @@ class IntervalRun extends StatelessWidget {
 
   const IntervalRun({
     super.key,
-    required this.tExercise,
+    required this.exercise,
     required this.isLastInterval,
     required this.intervalIndex,
     required this.multiset,
@@ -538,20 +541,17 @@ class IntervalRun extends StatelessWidget {
           isRunTimer: true,
           timerValue: 0,
           isCountDown: false,
-          targetDistance: tExercise.runType == RunType.distance
-              ? tExercise.targetDistance ?? 0
+          targetDistance: exercise.runType == RunType.distance
+              ? exercise.targetDistance
               : 0,
-          targetDuration: tExercise.runType == RunType.duration
+          targetDuration: exercise.runType == RunType.duration
               ? 0
-              : tExercise.targetDuration ?? 0,
-          targetPace: tExercise.isTargetPaceSelected != null &&
-                  tExercise.isTargetPaceSelected!
-              ? tExercise.targetPace ?? 0
-              : 0,
-          isAutostart: intervalIndex == 0 ? tExercise.isAutoStart : true,
+              : exercise.targetDuration,
+          targetPace: exercise.isTargetPaceSelected ? exercise.targetPace : 0,
+          isAutostart: intervalIndex == 0 ? exercise.isAutoStart : true,
           exerciseGlobalKey: exerciseGlobalKey,
-          trainingId: tExercise.linkedTrainingId!,
-          tExerciseId: tExercise.id,
+          trainingId: exercise.trainingId!,
+          exerciseId: exercise.id!,
           setNumber: intervalIndex,
           trainingVersionId: lastTrainingVersionId,
           intervalNumber: intervalIndex,
@@ -570,12 +570,12 @@ class IntervalRun extends StatelessWidget {
                   ? isLastSet
                       ? multiset.multisetRest
                       : multiset.setRest
-                  : tExercise.exerciseRest ?? 0
-              : tExercise.setRest ?? 0,
+                  : exercise.exerciseRest
+              : exercise.setRest,
           isAutostart: true,
           exerciseGlobalKey: exerciseGlobalKey,
-          trainingId: tExercise.linkedTrainingId!,
-          tExerciseId: tExercise.id,
+          trainingId: exercise.trainingId!,
+          exerciseId: exercise.id!,
           setNumber: intervalIndex,
           trainingVersionId: lastTrainingVersionId,
           intervalNumber: intervalIndex,
@@ -628,9 +628,9 @@ class IntervalRun extends StatelessWidget {
                     ),
                     const SizedBox(width: 5),
                     Text(
-                      tExercise.setRest != null
+                      exercise.setRest != 0
                           ? formatDurationToHoursMinutesSeconds(
-                              tExercise.setRest!)
+                              exercise.setRest)
                           : '0:00',
                       style: const TextStyle(color: AppColors.frenchGray),
                     ),

@@ -4,23 +4,23 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app_colors.dart';
-import '../bloc/exercise_management_bloc.dart';
+import '../bloc/base_exercise_management_bloc.dart';
 
-class ExerciseListItemOptionsMenu extends StatelessWidget {
+class BaseExerciseListItemOptionsMenu extends StatelessWidget {
   final int exerciseId;
 
-  const ExerciseListItemOptionsMenu({super.key, required this.exerciseId});
+  const BaseExerciseListItemOptionsMenu({super.key, required this.exerciseId});
 
   @override
   Widget build(BuildContext context) {
     return PopupMenuButton(
       onSelected: (value) {
-        final bloc = BlocProvider.of<ExerciseManagementBloc>(context);
+        final bloc = BlocProvider.of<BaseExerciseManagementBloc>(context);
         if (value == 'edit') {
-          bloc.add(GetExerciseEvent(exerciseId));
+          bloc.add(GetBaseExerciseEvent(exerciseId));
           GoRouter.of(context).push('/exercise_detail');
         } else if (value == 'delete') {
-          bloc.add(DeleteExerciseEvent(exerciseId));
+          bloc.add(DeleteBaseExerciseEvent(exerciseId));
         }
       },
       itemBuilder: (BuildContext context) => [

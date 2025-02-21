@@ -52,13 +52,15 @@ class PeriodStats extends Equatable {
 
   factory PeriodStats.fromTrainings(List<HistoryTraining> trainings) {
     // Filtrer les entraînements par type
-    final runTrainings =
-        trainings.where((t) => t.training.type == TrainingType.run).toList();
-    final workoutTrainings = trainings
-        .where((t) => t.training.type == TrainingType.workout)
+    final runTrainings = trainings
+        .where((t) => t.training.trainingType == TrainingType.run)
         .toList();
-    final yogaTrainings =
-        trainings.where((t) => t.training.type == TrainingType.yoga).toList();
+    final workoutTrainings = trainings
+        .where((t) => t.training.trainingType == TrainingType.workout)
+        .toList();
+    final yogaTrainings = trainings
+        .where((t) => t.training.trainingType == TrainingType.yoga)
+        .toList();
 
     // Calculer les nombres d'entraînements
     final totalTrainingsCount = trainings.length;

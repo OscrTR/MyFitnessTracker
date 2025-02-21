@@ -1,32 +1,50 @@
-import 'dart:convert';
-
-import 'package:objectbox/objectbox.dart';
+import 'package:equatable/equatable.dart';
 
 import '../../training_management/models/training.dart';
 
-@Entity()
-class TrainingVersion {
-  @Id()
-  int id = 0;
+class TrainingVersion extends Equatable {
+  final int? id;
+  final int trainingId;
+  final String jsonRepresentation; // Snapshot complet sérialisé en JSON
 
-  final training = ToOne<Training>();
+  const TrainingVersion({
+    this.id,
+    required this.trainingId,
+    required this.jsonRepresentation,
+  });
 
-  @Index()
-  int? linkedTrainingId; // Id du [Training] associé
+  @override
+  List<Object?> get props => [id, trainingId, jsonRepresentation];
 
-  String? jsonRepresentation; // Snapshot complet sérialisé en JSON
+  /// Getter pour convertir le `jsonRepresentation` en un objet `Training`
+  Training get training => Training.fromJson(jsonRepresentation);
 
-  // Default constructor (used by ObjectBox)
-  TrainingVersion(this.linkedTrainingId, this.jsonRepresentation);
+  /// Setter pour sérialiser un `Training` en JSON et mettre à jour `jsonRepresentation`
+  factory TrainingVersion.fromTraining({
+    int? id,
+    required int trainingId,
+    required Training training,
+  }) {
+    return TrainingVersion(
+      id: id,
+      trainingId: trainingId,
+      jsonRepresentation: training.toJson(), // Sérialise le training en JSON
+    );
+  }
 
-  // Construction depuis un Training
-  TrainingVersion.fromTraining(Training training)
-      : linkedTrainingId = training.id,
-        jsonRepresentation = jsonEncode(training.toJson());
+  Map<String, dynamic> toMap() {
+    return <String, dynamic>{
+      'id': id,
+      'trainingId': trainingId,
+      'jsonRepresentation': jsonRepresentation,
+    };
+  }
 
-  // Désérialisation pour recréer un Training complet
-  Training? toTraining() {
-    if (jsonRepresentation == null) return null;
-    return Training.fromJson(jsonDecode(jsonRepresentation!));
+  factory TrainingVersion.fromMap(Map<String, dynamic> map) {
+    return TrainingVersion(
+      id: map['id'] != null ? map['id'] as int : null,
+      trainingId: map['trainingId'] as int,
+      jsonRepresentation: map['jsonRepresentation'] as String,
+    );
   }
 }

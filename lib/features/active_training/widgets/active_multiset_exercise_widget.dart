@@ -5,7 +5,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../core/database/object_box.dart';
 import '../../../helper_functions.dart';
 import '../../../injection_container.dart';
 import '../../training_history/models/history_entry.dart';
@@ -15,24 +14,27 @@ import '../bloc/active_training_bloc.dart';
 import '../../training_management/models/multiset.dart';
 
 import '../../../app_colors.dart';
-import '../../exercise_management/models/exercise.dart';
-import '../../exercise_management/bloc/exercise_management_bloc.dart';
-import '../../training_management/models/training_exercise.dart';
+import '../../base_exercise_management/models/base_exercise.dart';
+import '../../base_exercise_management/bloc/base_exercise_management_bloc.dart';
+import '../../training_management/models/exercise.dart';
 import '../../../core/widgets/small_text_field_widget.dart';
 
 class ActiveMultisetExerciseWidget extends StatefulWidget {
   final Multiset multiset;
-  final TrainingExercise tExercise;
+  final Exercise exercise;
   final int multisetIndex;
   final int multisetExerciseIndex;
   final bool isLast;
-  const ActiveMultisetExerciseWidget(
-      {super.key,
-      required this.multiset,
-      required this.tExercise,
-      required this.isLast,
-      required this.multisetIndex,
-      required this.multisetExerciseIndex});
+  final int lastTrainingVersionId;
+  const ActiveMultisetExerciseWidget({
+    super.key,
+    required this.multiset,
+    required this.exercise,
+    required this.isLast,
+    required this.multisetIndex,
+    required this.multisetExerciseIndex,
+    required this.lastTrainingVersionId,
+  });
 
   @override
   State<ActiveMultisetExerciseWidget> createState() =>
@@ -47,14 +49,11 @@ class _ActiveMultisetExerciseWidgetState
   final training =
       (sl<TrainingManagementBloc>().state as TrainingManagementLoaded)
           .activeTraining!;
-  late final int lastTrainingVersionId;
 
   @override
   void initState() {
     super.initState();
-    lastTrainingVersionId = sl<ObjectBox>()
-        .getMostRecentTrainingVersionForTrainingId(training.id)!
-        .id;
+
     _initializeControllers();
   }
 
@@ -73,7 +72,7 @@ class _ActiveMultisetExerciseWidgetState
     if (historyBlocState is TrainingHistoryLoaded) {
       final entries = historyBlocState.historyTrainings
           .where((trainingHistory) =>
-              trainingHistory.training.id == widget.tExercise.linkedTrainingId)
+              trainingHistory.training.id == widget.exercise.trainingId)
           .toList()
           .sortedBy((entry) => entry.date)
           .lastOrNull
@@ -83,7 +82,7 @@ class _ActiveMultisetExerciseWidgetState
         for (int i = 1; i <= sets; i++) ...{
           'idSet$i': entries
               ?.where((entry) =>
-                  entry.linkedTrainingExerciseId == widget.tExercise.id &&
+                  entry.exerciseId == widget.exercise.id &&
                   entry.setNumber == i - 1)
               .toList()
               .sortedBy((entry) => entry.date)
@@ -98,15 +97,14 @@ class _ActiveMultisetExerciseWidgetState
             text: entries != null
                 ? entries
                         .where((entry) =>
-                            entry.linkedTrainingExerciseId ==
-                                widget.tExercise.id &&
+                            entry.exerciseId == widget.exercise.id &&
                             entry.setNumber == i - 1 &&
-                            entry.weight != null)
+                            entry.weight != 0)
                         .toList()
                         .sortedBy((entry) => entry.date)
                         .lastOrNull
                         ?.weight
-                        ?.toString() ??
+                        .toString() ??
                     ''
                 : '',
           ),
@@ -114,15 +112,14 @@ class _ActiveMultisetExerciseWidgetState
             text: entries != null
                 ? entries
                         .where((entry) =>
-                            entry.linkedTrainingExerciseId ==
-                                widget.tExercise.id &&
+                            entry.exerciseId == widget.exercise.id &&
                             entry.setNumber == i - 1 &&
-                            entry.reps != null)
+                            entry.reps != 0)
                         .toList()
                         .sortedBy((entry) => entry.date)
                         .lastOrNull
                         ?.reps
-                        ?.toString() ??
+                        .toString() ??
                     ''
                 : '',
           ),
@@ -151,7 +148,7 @@ class _ActiveMultisetExerciseWidgetState
           }
         }
 
-        final isSetsInReps = widget.tExercise.isSetsInReps;
+        final isSetsInReps = widget.exercise.isSetsInReps;
 
         return Column(
           children: [
@@ -167,13 +164,13 @@ class _ActiveMultisetExerciseWidgetState
                         : AppColors.timberwolf),
                 borderRadius: BorderRadius.circular(15),
               ),
-              child:
-                  BlocBuilder<ExerciseManagementBloc, ExerciseManagementState>(
-                      builder: (context, exerciseBlocState) {
+              child: BlocBuilder<BaseExerciseManagementBloc,
+                      BaseExerciseManagementState>(
+                  builder: (context, exerciseBlocState) {
                 final matchingExercise =
-                    exerciseBlocState is ExerciseManagementLoaded
-                        ? exerciseBlocState.exercises.firstWhereOrNull(
-                            (e) => e.id == widget.tExercise.exercise.targetId)
+                    exerciseBlocState is BaseExerciseManagementLoaded
+                        ? exerciseBlocState.baseExercises.firstWhereOrNull(
+                            (e) => e.id == widget.exercise.baseExerciseId)
                         : null;
 
                 return Column(
@@ -188,8 +185,7 @@ class _ActiveMultisetExerciseWidgetState
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           if (matchingExercise != null &&
-                              matchingExercise.description != null &&
-                              matchingExercise.description!.isNotEmpty)
+                              matchingExercise.description.isNotEmpty)
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -199,7 +195,7 @@ class _ActiveMultisetExerciseWidgetState
                                       fontWeight: FontWeight.bold),
                                 ),
                                 Text(
-                                  matchingExercise.description!,
+                                  matchingExercise.description,
                                   style: Theme.of(context)
                                       .textTheme
                                       .bodySmall!
@@ -207,7 +203,7 @@ class _ActiveMultisetExerciseWidgetState
                                 ),
                               ],
                             ),
-                          if (widget.tExercise.objectives != null)
+                          if (widget.exercise.objectives.isNotEmpty)
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -216,7 +212,7 @@ class _ActiveMultisetExerciseWidgetState
                                   style: const TextStyle(
                                       fontWeight: FontWeight.bold),
                                 ),
-                                Text('${widget.tExercise.objectives}'),
+                                Text(widget.exercise.objectives),
                               ],
                             ),
                         ],
@@ -262,7 +258,7 @@ class _ActiveMultisetExerciseWidgetState
                 );
               }),
             ),
-            if (!widget.isLast && widget.tExercise.exerciseRest != null)
+            if (!widget.isLast && widget.exercise.exerciseRest != 0)
               _buildExerciseRest(),
           ],
         );
@@ -285,9 +281,8 @@ class _ActiveMultisetExerciseWidgetState
           if (!widget.isLast) const SizedBox(width: 5),
           if (!widget.isLast)
             Text(
-              widget.tExercise.exerciseRest != null
-                  ? formatDurationToMinutesSeconds(
-                      widget.tExercise.exerciseRest)
+              widget.exercise.exerciseRest != 0
+                  ? formatDurationToMinutesSeconds(widget.exercise.exerciseRest)
                   : '0:00',
             ),
         ],
@@ -296,15 +291,13 @@ class _ActiveMultisetExerciseWidgetState
   }
 
   Widget _buildExpandableHeader(
-      Exercise? exercise, BuildContext context, bool isSetsInReps) {
+      BaseExercise? baseExercise, BuildContext context, bool isSetsInReps) {
     return Builder(builder: (context) {
       final controller = ExpandableController.of(context);
       return Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (exercise != null &&
-              exercise.imagePath != null &&
-              exercise.imagePath!.isNotEmpty)
+          if (baseExercise != null && baseExercise.imagePath.isNotEmpty)
             Column(
               children: [
                 SizedBox(
@@ -313,7 +306,7 @@ class _ActiveMultisetExerciseWidgetState
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(15),
                     child: Image.file(
-                      File(exercise.imagePath!),
+                      File(baseExercise.imagePath),
                       width: MediaQuery.of(context).size.width - 40,
                       fit: BoxFit.cover,
                       alignment: Alignment.bottomCenter,
@@ -322,9 +315,7 @@ class _ActiveMultisetExerciseWidgetState
                 ),
               ],
             ),
-          if (exercise != null &&
-              exercise.imagePath != null &&
-              exercise.imagePath!.isNotEmpty)
+          if (baseExercise != null && baseExercise.imagePath.isNotEmpty)
             const SizedBox(width: 10),
           Expanded(
             child: Column(
@@ -335,7 +326,7 @@ class _ActiveMultisetExerciseWidgetState
                   children: [
                     Expanded(
                       child: Text(
-                        exercise?.name ?? tr('global_exercise_unknown'),
+                        baseExercise?.name ?? tr('global_exercise_unknown'),
                         style: Theme.of(context).textTheme.titleMedium,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -350,15 +341,15 @@ class _ActiveMultisetExerciseWidgetState
                 ),
                 if (isSetsInReps)
                   Text(
-                      '${widget.tExercise.minReps ?? 0}-${widget.tExercise.maxReps ?? 0} ${tr('active_training_reps')}')
+                      '${widget.exercise.minReps}-${widget.exercise.maxReps} ${tr('active_training_reps')}')
                 else
                   Text(
-                      '${widget.tExercise.duration} ${tr('active_training_seconds')}'),
+                      '${widget.exercise.duration} ${tr('active_training_seconds')}'),
                 Text(
-                  '${widget.tExercise.setRest != null ? formatDurationToMinutesSeconds(widget.tExercise.setRest) : '0:00'} ${tr('active_training_rest')}',
+                  '${widget.exercise.setRest != 0 ? formatDurationToMinutesSeconds(widget.exercise.setRest) : '0:00'} ${tr('active_training_rest')}',
                 ),
-                if (widget.tExercise.specialInstructions != null)
-                  Text('${widget.tExercise.specialInstructions}'),
+                if (widget.exercise.specialInstructions.isNotEmpty)
+                  Text(widget.exercise.specialInstructions),
               ],
             ),
           )
@@ -368,7 +359,14 @@ class _ActiveMultisetExerciseWidgetState
   }
 
   ListView _buildSets() {
-    final isSetsInReps = widget.tExercise.isSetsInReps;
+    final isSetsInReps = widget.exercise.isSetsInReps;
+
+    final List<Exercise> multisetExercises =
+        (sl<TrainingManagementBloc>().state as TrainingManagementLoaded)
+            .activeTraining!
+            .exercises
+            .where((e) => e.multisetId == widget.multiset.id)
+            .toList();
 
     return ListView.builder(
       shrinkWrap: true,
@@ -390,29 +388,27 @@ class _ActiveMultisetExerciseWidgetState
                       weightController: _controllers['weightSet${index + 1}']!,
                       repsController: _controllers['repsSet${index + 1}']!,
                       multiset: widget.multiset,
-                      tExercise: widget.tExercise,
+                      exercise: widget.exercise,
                       isLastSet: widget.multiset.sets == index + 1,
-                      isLastMultisetExercise:
-                          widget.multiset.trainingExercises.length ==
-                              widget.tExercise.position! + 1,
+                      isLastMultisetExercise: multisetExercises.length ==
+                          widget.exercise.position! + 1,
                       multisetIndex: widget.multisetIndex,
                       multisetExerciseIndex: widget.multisetExerciseIndex,
                       setIndex: index,
                       exerciseGlobalKey: widget.key! as GlobalKey,
-                      lastTrainingVersionId: lastTrainingVersionId,
+                      lastTrainingVersionId: widget.lastTrainingVersionId,
                     )
                   : ActiveExerciseDurationRow(
-                      tExercise: widget.tExercise,
+                      exercise: widget.exercise,
                       multiset: widget.multiset,
                       isLastSet: widget.multiset.sets == index + 1,
-                      isLastMultisetExercise:
-                          widget.multiset.trainingExercises.length ==
-                              widget.tExercise.position! + 1,
+                      isLastMultisetExercise: multisetExercises.length ==
+                          widget.exercise.position! + 1,
                       multisetIndex: widget.multisetIndex,
                       multisetExerciseIndex: widget.multisetExerciseIndex,
                       setIndex: index,
                       exerciseGlobalKey: widget.key! as GlobalKey,
-                      lastTrainingVersionId: lastTrainingVersionId,
+                      lastTrainingVersionId: widget.lastTrainingVersionId,
                     )
             ],
           ),
@@ -425,7 +421,7 @@ class _ActiveMultisetExerciseWidgetState
 class ActiveExerciseRow extends StatefulWidget {
   final int? historyEntryId;
   final Multiset multiset;
-  final TrainingExercise tExercise;
+  final Exercise exercise;
   final bool isLastSet;
   final bool isLastMultisetExercise;
   final TextEditingController weightController;
@@ -440,7 +436,7 @@ class ActiveExerciseRow extends StatefulWidget {
     super.key,
     required this.historyEntryId,
     required this.multiset,
-    required this.tExercise,
+    required this.exercise,
     required this.weightController,
     required this.repsController,
     required this.isLastSet,
@@ -476,12 +472,12 @@ class _ActiveExerciseRowState extends State<ActiveExerciseRow> {
                   ? widget.isLastSet
                       ? widget.multiset.multisetRest
                       : widget.multiset.setRest
-                  : widget.tExercise.exerciseRest ?? 0,
+                  : widget.exercise.exerciseRest,
               isCountDown: true,
               isAutostart: false,
               exerciseGlobalKey: widget.exerciseGlobalKey,
-              trainingId: widget.tExercise.linkedTrainingId!,
-              tExerciseId: widget.tExercise.id,
+              trainingId: widget.exercise.trainingId!,
+              exerciseId: widget.exercise.id!,
               setNumber: widget.setIndex,
               trainingVersionId: widget.lastTrainingVersionId,
               intervalNumber: null,
@@ -516,29 +512,33 @@ class _ActiveExerciseRowState extends State<ActiveExerciseRow> {
               onTap: () {
                 int cals = 0;
 
-                if (widget.tExercise.isSetsInReps) {
+                if (widget.exercise.isSetsInReps) {
                   cals = getCalories(
-                      intensity: widget.tExercise.intensity,
+                      intensity: widget.exercise.intensity,
                       reps: int.tryParse(widget.repsController.text));
                 } else {
                   cals = getCalories(
-                      intensity: widget.tExercise.intensity,
-                      duration: widget.tExercise.duration);
+                      intensity: widget.exercise.intensity,
+                      duration: widget.exercise.duration);
                 }
 
                 context.read<TrainingHistoryBloc>().add(
                       CreateOrUpdateHistoryEntry(
                         historyEntry: HistoryEntry(
-                          id: widget.historyEntryId!,
-                          linkedTrainingId: widget.tExercise.linkedTrainingId!,
-                          linkedTrainingExerciseId: widget.tExercise.id,
+                          id: widget.historyEntryId ?? 0,
+                          trainingId: widget.exercise.trainingId!,
+                          exerciseId: widget.exercise.id!,
                           setNumber: widget.setIndex,
                           date: DateTime.now(),
-                          reps: int.tryParse(widget.repsController.text),
-                          weight: int.tryParse(widget.weightController.text),
+                          reps: int.tryParse(widget.repsController.text) ?? 0,
+                          weight:
+                              int.tryParse(widget.weightController.text) ?? 0,
                           calories: cals,
-                          linkedTrainingVersionId: widget.lastTrainingVersionId,
+                          trainingVersionId: widget.lastTrainingVersionId,
                           intervalNumber: null,
+                          duration: 0,
+                          distance: 0,
+                          pace: 0,
                         ),
                       ),
                     );
@@ -573,7 +573,7 @@ class _ActiveExerciseRowState extends State<ActiveExerciseRow> {
 
 class ActiveExerciseDurationRow extends StatelessWidget {
   final Multiset multiset;
-  final TrainingExercise tExercise;
+  final Exercise exercise;
   final bool isLastSet;
   final bool isLastMultisetExercise;
   final int multisetIndex;
@@ -585,7 +585,7 @@ class ActiveExerciseDurationRow extends StatelessWidget {
   const ActiveExerciseDurationRow({
     super.key,
     required this.multiset,
-    required this.tExercise,
+    required this.exercise,
     required this.isLastSet,
     required this.isLastMultisetExercise,
     required this.multisetIndex,
@@ -609,12 +609,12 @@ class ActiveExerciseDurationRow extends StatelessWidget {
             isStarted: false,
             isRunTimer: false,
             timerValue: 0,
-            countDownValue: tExercise.duration ?? 0,
+            countDownValue: exercise.duration,
             isCountDown: true,
-            isAutostart: tExercise.isAutoStart,
+            isAutostart: exercise.isAutoStart,
             exerciseGlobalKey: exerciseGlobalKey,
-            trainingId: tExercise.linkedTrainingId!,
-            tExerciseId: tExercise.id,
+            trainingId: exercise.trainingId!,
+            exerciseId: exercise.id!,
             setNumber: setIndex,
             trainingVersionId: lastTrainingVersionId,
             intervalNumber: null,
@@ -632,12 +632,12 @@ class ActiveExerciseDurationRow extends StatelessWidget {
                 ? isLastSet
                     ? multiset.multisetRest
                     : multiset.setRest
-                : tExercise.exerciseRest ?? 0,
+                : exercise.exerciseRest,
             isCountDown: true,
             isAutostart: true,
             exerciseGlobalKey: exerciseGlobalKey,
-            trainingId: tExercise.linkedTrainingId!,
-            tExerciseId: tExercise.id,
+            trainingId: exercise.trainingId!,
+            exerciseId: exercise.id!,
             setNumber: setIndex,
             trainingVersionId: lastTrainingVersionId,
             intervalNumber: null,
@@ -669,8 +669,8 @@ class ActiveExerciseDurationRow extends StatelessWidget {
                 borderRadius: const BorderRadius.all(Radius.circular(10))),
             child: Text(
               isStarted
-                  ? '${tr('global_done')} ${formatDurationToMinutesSeconds(tExercise.duration ?? 0)}'
-                  : '${tr('global_start')} ${formatDurationToHoursMinutesSeconds(tExercise.duration ?? 0)}',
+                  ? '${tr('global_done')} ${formatDurationToMinutesSeconds(exercise.duration)}'
+                  : '${tr('global_start')} ${formatDurationToHoursMinutesSeconds(exercise.duration)}',
               style: TextStyle(
                   color: isStarted ? AppColors.frenchGray : AppColors.white),
             ),

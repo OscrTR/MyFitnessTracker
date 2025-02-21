@@ -1,45 +1,42 @@
-import 'package:objectbox/objectbox.dart';
+import 'package:equatable/equatable.dart';
 
-@Entity()
-class RunLocation {
-  @Id()
-  int id = 0;
-  @Index()
-  int linkedTrainingId;
-  int linkedTrainingExerciseId;
-  int setNumber;
-  double latitude;
-  double longitude;
-  double altitude;
-  int timestamp;
-  double accuracy;
-  double speed;
+class RunLocation extends Equatable {
+  final int? id;
+  final int trainingId;
+  final int exerciseId;
+  final int trainingVersionId;
+  final int setNumber;
+  final double latitude;
+  final double longitude;
+  final double altitude;
+  final int date;
+  final double accuracy;
+  final double speed;
 
-  RunLocation({
-    required this.id,
-    required this.linkedTrainingId,
-    required this.linkedTrainingExerciseId,
+  const RunLocation({
+    this.id,
+    required this.trainingId,
+    required this.exerciseId,
+    required this.trainingVersionId,
     required this.setNumber,
     required this.latitude,
     required this.longitude,
     required this.altitude,
-    required this.timestamp,
+    required this.date,
     required this.accuracy,
     required this.speed,
   });
 
-  static int calculateTotalDrop(List<RunLocation> locations) {
+  static int calculateTotalElevation(List<RunLocation> locations) {
     if (locations.isEmpty) return 0;
 
-    // Trier les locations par timestamp pour assurer l'ordre chronologique
-    final sortedLocations = List<RunLocation>.from(locations)
-      ..sort((a, b) => a.timestamp.compareTo(b.timestamp));
+    locations.sort((a, b) => a.date.compareTo(b.date));
 
     double totalAscent = 0;
     double totalDescent = 0;
     double? previousAltitude;
 
-    for (var location in sortedLocations) {
+    for (var location in locations) {
       if (previousAltitude != null) {
         final altitudeDifference = location.altitude - previousAltitude;
 
@@ -67,5 +64,54 @@ class RunLocation {
         longitude >= -180 &&
         longitude <= 180 &&
         accuracy <= 20.0; // 20 mètres de précision maximum
+  }
+
+  @override
+  List<Object?> get props {
+    return [
+      id,
+      exerciseId,
+      trainingId,
+      trainingVersionId,
+      setNumber,
+      latitude,
+      longitude,
+      altitude,
+      date,
+      accuracy,
+      speed,
+    ];
+  }
+
+  Map<String, dynamic> toMap() {
+    return <String, dynamic>{
+      'id': id,
+      'trainingId': trainingId,
+      'exerciseId': exerciseId,
+      'trainingVersionId': trainingVersionId,
+      'setNumber': setNumber,
+      'latitude': latitude,
+      'longitude': longitude,
+      'altitude': altitude,
+      'date': date,
+      'accuracy': accuracy,
+      'speed': speed,
+    };
+  }
+
+  factory RunLocation.fromMap(Map<String, dynamic> map) {
+    return RunLocation(
+      id: map['id'] != null ? map['id'] as int : null,
+      trainingId: map['trainingId'] as int,
+      exerciseId: map['exerciseId'] as int,
+      trainingVersionId: map['trainingVersionId'] as int,
+      setNumber: map['setNumber'] as int,
+      latitude: map['latitude'] as double,
+      longitude: map['longitude'] as double,
+      altitude: map['altitude'] as double,
+      date: map['date'] as int,
+      accuracy: map['accuracy'] as double,
+      speed: map['speed'] as double,
+    );
   }
 }

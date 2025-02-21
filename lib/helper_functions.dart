@@ -3,8 +3,9 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/widgets.dart';
 
 import 'core/enums/enums.dart';
-import 'features/exercise_management/bloc/exercise_management_bloc.dart';
-import 'features/training_management/models/training_exercise.dart';
+
+import 'features/base_exercise_management/bloc/base_exercise_management_bloc.dart';
+import 'features/training_management/models/exercise.dart';
 import 'injection_container.dart';
 
 String formatDurationToMinutesSeconds(int? seconds) {
@@ -67,42 +68,38 @@ class _IntensityData {
   });
 }
 
-String findExerciseName(TrainingExercise tExercise) {
+String findExerciseName(Exercise exercise) {
   String exerciseName = '';
-  if (tExercise.type == TrainingExerciseType.run) {
-    final targetPace = tExercise.isTargetPaceSelected == true
-        ? ' at ${formatPace(tExercise.targetPace ?? 0)}'
+  if (exercise.exerciseType == ExerciseType.run) {
+    final targetPace = exercise.isTargetPaceSelected == true
+        ? ' at ${formatPace(exercise.targetPace)}'
         : '';
-    final intervals = tExercise.sets;
+    final intervals = exercise.sets;
     final targetDistance =
-        tExercise.targetDistance != null && tExercise.targetDistance! > 0
-            ? '${(tExercise.targetDistance! / 1000).toStringAsFixed(1)}km'
-            : '';
-    final targetDuration = tExercise.targetDuration != null
-        ? formatDurationToHoursMinutesSeconds(tExercise.targetDuration!)
-        : '';
+        '${(exercise.targetDistance / 1000).toStringAsFixed(1)}km';
+    final targetDuration =
+        formatDurationToHoursMinutesSeconds(exercise.targetDuration);
 
     if (intervals > 1) {
-      if (tExercise.runType == RunType.distance) {
+      if (exercise.runType == RunType.distance) {
         exerciseName =
             '${tr('active_training_running_interval')} ${'$intervals'}x$targetDistance$targetPace';
       } else {
         exerciseName =
             '${tr('active_training_running_interval')} ${'$intervals'}x$targetDuration$targetPace';
       }
-    } else if (tExercise.runType == RunType.distance) {
+    } else if (exercise.runType == RunType.distance) {
       exerciseName =
           '${tr('active_training_running')} $targetDistance$targetPace';
-    } else if (tExercise.runType == RunType.duration) {
+    } else if (exercise.runType == RunType.duration) {
       exerciseName =
           '${tr('active_training_running')} $targetDuration$targetPace';
     }
   } else {
     exerciseName =
-        (sl<ExerciseManagementBloc>().state as ExerciseManagementLoaded)
-                .exercises
-                .firstWhereOrNull(
-                    (exercise) => exercise.id == tExercise.exercise.targetId)
+        (sl<BaseExerciseManagementBloc>().state as BaseExerciseManagementLoaded)
+                .baseExercises
+                .firstWhereOrNull((b) => b.id == exercise.baseExerciseId)
                 ?.name ??
             'Deleted exercise';
   }

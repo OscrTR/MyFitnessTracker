@@ -22,7 +22,7 @@ import '../widgets/active_multiset_widget.dart';
 import '../widgets/active_run_widget.dart';
 import '../widgets/timer_widget.dart';
 
-import '../../training_management/models/training_exercise.dart';
+import '../../training_management/models/exercise.dart';
 import '../../training_management/bloc/training_management_bloc.dart';
 
 import '../../training_management/models/multiset.dart';
@@ -180,13 +180,8 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage>
                         state.activeTraining != null) {
                       bool isVerified = false;
 
-                      bool hasRunExercise = state
-                              .activeTraining!.trainingExercises
-                              .any((el) =>
-                                  el.type == TrainingExerciseType.run) ||
-                          state.activeTraining!.multisets.any((multiset) =>
-                              multiset.trainingExercises.any(
-                                  (el) => el.type == TrainingExerciseType.run));
+                      bool hasRunExercise = state.activeTraining!.exercises
+                          .any((e) => e.exerciseType == ExerciseType.run);
 
                       if (hasRunExercise) {
                         if (isLocationPermissionGrantedAlways &&
@@ -206,7 +201,7 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage>
                         final sortedItems = _getSortedTrainingItems(state);
 
                         final exercisesAndMultisetsList = [
-                          ...state.activeTraining!.trainingExercises
+                          ...state.activeTraining!.exercises
                               .map((e) => {'type': 'exercise', 'data': e}),
                           ...state.activeTraining!.multisets
                               .map((m) => {'type': 'multiset', 'data': m}),
@@ -243,11 +238,8 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage>
                     state.activeTraining != null) {
                   bool isVerified = false;
 
-                  bool hasRunExercise = state.activeTraining!.trainingExercises
-                          .any((el) => el.type == TrainingExerciseType.run) ||
-                      state.activeTraining!.multisets.any((multiset) => multiset
-                          .trainingExercises
-                          .any((el) => el.type == TrainingExerciseType.run));
+                  bool hasRunExercise = state.activeTraining!.exercises
+                      .any((e) => e.exerciseType == ExerciseType.run);
 
                   if (hasRunExercise) {
                     if (isLocationPermissionGrantedAlways &&
@@ -295,32 +287,26 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage>
                       .firstWhere((timer) =>
                           timer.timerId == activeState.lastStartedTimerId);
 
-                  final registeredId = (sl<TrainingHistoryBloc>().state
-                          as TrainingHistoryLoaded)
-                      .historyEntries
-                      .firstWhereOrNull((el) =>
-                          el.linkedTrainingExerciseId ==
-                              currentTimerState.tExerciseId &&
-                          el.setNumber == currentTimerState.setNumber &&
-                          el.linkedTrainingId == currentTimerState.trainingId)
-                      ?.id;
+                  final registeredId =
+                      (sl<TrainingHistoryBloc>().state as TrainingHistoryLoaded)
+                          .historyEntries
+                          .firstWhereOrNull((h) =>
+                              h.exerciseId == currentTimerState.exerciseId &&
+                              h.setNumber == currentTimerState.setNumber &&
+                              h.trainingId == currentTimerState.trainingId)
+                          ?.id;
 
                   int cals = 0;
 
                   final trainingManagementState = (sl<TrainingManagementBloc>()
                       .state as TrainingManagementLoaded);
 
-                  final listOfTExercises = [
-                    ...trainingManagementState.activeTraining!.trainingExercises
-                  ];
-                  for (var multiset
-                      in trainingManagementState.activeTraining!.multisets) {
-                    listOfTExercises.addAll([...multiset.trainingExercises]);
-                  }
+                  final listOfTExercises =
+                      trainingManagementState.activeTraining!.exercises;
 
                   final matchingTExercise = listOfTExercises.firstWhere(
-                      (tExercise) =>
-                          tExercise.id == currentTimerState.tExerciseId);
+                      (exercise) =>
+                          exercise.id == currentTimerState.exerciseId);
 
                   final duration = currentTimerState.isCountDown
                       ? currentTimerState.countDownValue -
@@ -338,18 +324,19 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage>
                       CreateOrUpdateHistoryEntry(
                         historyEntry: HistoryEntry(
                           id: registeredId ?? 0,
-                          linkedTrainingId: currentTimerState.trainingId,
-                          linkedTrainingExerciseId:
-                              currentTimerState.tExerciseId,
+                          trainingId: currentTimerState.trainingId,
+                          exerciseId: currentTimerState.exerciseId,
                           setNumber: currentTimerState.setNumber,
                           date: DateTime.now(),
                           duration: duration,
                           distance: currentTimerState.distance.toInt(),
                           pace: currentTimerState.pace.toInt(),
                           calories: cals,
-                          linkedTrainingVersionId:
-                              currentTimerState.trainingVersionId,
                           intervalNumber: currentTimerState.intervalNumber,
+                          trainingVersionId:
+                              currentTimerState.trainingVersionId,
+                          reps: 0,
+                          weight: 0,
                         ),
                       ),
                     );
@@ -552,7 +539,7 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage>
   List<Map<String, dynamic>> _getSortedTrainingItems(
       TrainingManagementLoaded state) {
     final items = [
-      ...state.activeTraining!.trainingExercises
+      ...state.activeTraining!.exercises
           .map((e) => {'type': 'exercise', 'data': e}),
       ...state.activeTraining!.multisets
           .map((m) => {'type': 'multiset', 'data': m}),
@@ -569,6 +556,9 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage>
       List<Map<String, dynamic>> items,
       BuildContext context,
       List<Map<String, Object>> exercisesAndMultisetsList) {
+    final lastTrainingVersionId =
+        (sl<TrainingManagementBloc>().state as TrainingManagementLoaded)
+            .activeTrainingMostRecentVersionId!;
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -576,7 +566,7 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage>
       itemBuilder: (context, index) {
         final item = items[index];
         if (item['type'] == 'exercise') {
-          final exercise = item['data'] as TrainingExercise;
+          final exercise = item['data'] as Exercise;
           final isLast = index == items.length - 1;
 
           return BlocListener<ActiveTrainingBloc, ActiveTrainingState>(
@@ -598,26 +588,36 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage>
                   }
                 }
               },
-              child: exercise.type == TrainingExerciseType.run
+              child: exercise.exerciseType == ExerciseType.run
                   ? ActiveRunWidget(
-                      tExercise: exercise,
+                      exercise: exercise,
                       isLast: isLast,
                       exerciseIndex: index,
                       key: GlobalKey(),
+                      lastTrainingVersionId: lastTrainingVersionId,
                     )
                   : ActiveExerciseWidget(
-                      tExercise: exercise,
+                      exercise: exercise,
                       isLast: isLast,
                       exerciseIndex: index,
                       key: GlobalKey(),
+                      lastTrainingVersionId: lastTrainingVersionId,
                     ));
         } else if (item['type'] == 'multiset') {
           final multiset = item['data'] as Multiset;
           final isLast = index == items.length - 1;
+          final List<Exercise> multisetExercises =
+              (sl<TrainingManagementBloc>().state as TrainingManagementLoaded)
+                  .activeTraining!
+                  .exercises
+                  .where((e) => e.multisetId == multiset.id)
+                  .toList();
           return ActiveMultisetWidget(
             isLast: isLast,
             multiset: multiset,
             multisetIndex: index,
+            lastTrainingVersionId: lastTrainingVersionId,
+            multisetExercises: multisetExercises,
           );
         }
         return const SizedBox.shrink();

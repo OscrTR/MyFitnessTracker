@@ -10,9 +10,9 @@ class PaceChart extends StatelessWidget {
 
   const PaceChart({super.key, required this.locations});
 
-  String _formatTimestamp(int timestamp) {
-    final date = DateTime.fromMillisecondsSinceEpoch(timestamp);
-    return '${date.hour}:${date.minute.toString().padLeft(2, '0')}:${date.second.toString().padLeft(2, '0')}';
+  String _formatDate(int date) {
+    final formattedDate = DateTime.fromMillisecondsSinceEpoch(date);
+    return '${formattedDate.hour}:${formattedDate.minute.toString().padLeft(2, '0')}:${formattedDate.second.toString().padLeft(2, '0')}';
   }
 
   @override
@@ -82,7 +82,7 @@ class PaceChart extends StatelessWidget {
             LineChartBarData(
               spots: locations.map((loc) {
                 final double pace = loc.speed > 0 ? 1000 / loc.speed / 60 : 0;
-                return FlSpot(loc.timestamp.toDouble(), pace);
+                return FlSpot(loc.date.toDouble(), pace);
               }).toList(),
               isCurved: true,
               color: AppColors.folly,
@@ -100,11 +100,11 @@ class PaceChart extends StatelessWidget {
                 return touchedSpots.map((LineBarSpot touchedSpot) {
                   final index = touchedSpot.spotIndex;
                   final location = locations[index];
-                  final timestamp = _formatTimestamp(location.timestamp);
+                  final date = _formatDate(location.date);
                   final pace = formatPace(touchedSpot.y.toInt());
 
                   return LineTooltipItem(
-                    'Pace: $pace\nTime: $timestamp',
+                    'Pace: $pace\nTime: $date',
                     const TextStyle(color: Colors.white),
                   );
                 }).toList();

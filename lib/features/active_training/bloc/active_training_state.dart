@@ -1,4 +1,3 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 part of 'active_training_bloc.dart';
 
 abstract class ActiveTrainingState extends Equatable {
@@ -54,7 +53,7 @@ class TimerState extends Equatable {
   final int nextKmMarker;
   final GlobalKey exerciseGlobalKey;
   final int trainingId;
-  final int tExerciseId;
+  final int exerciseId;
   final int setNumber;
   final int? intervalNumber;
   final int trainingVersionId;
@@ -69,7 +68,7 @@ class TimerState extends Equatable {
     required this.isAutostart,
     required this.exerciseGlobalKey,
     required this.trainingId,
-    required this.tExerciseId,
+    required this.exerciseId,
     required this.setNumber,
     required this.intervalNumber,
     required this.trainingVersionId,
@@ -99,7 +98,7 @@ class TimerState extends Equatable {
     int? nextKmMarker,
     GlobalKey? exerciseGlobalKey,
     int? trainingId,
-    int? tExerciseId,
+    int? exerciseId,
     int? setNumber,
     int? intervalNumber,
     int? trainingVersionId,
@@ -121,7 +120,7 @@ class TimerState extends Equatable {
       nextKmMarker: nextKmMarker ?? this.nextKmMarker,
       exerciseGlobalKey: exerciseGlobalKey ?? this.exerciseGlobalKey,
       trainingId: trainingId ?? this.trainingId,
-      tExerciseId: tExerciseId ?? this.tExerciseId,
+      exerciseId: exerciseId ?? this.exerciseId,
       setNumber: setNumber ?? this.setNumber,
       intervalNumber: intervalNumber ?? this.intervalNumber,
       trainingVersionId: trainingVersionId ?? this.trainingVersionId,
@@ -147,7 +146,7 @@ class TimerState extends Equatable {
       nextKmMarker,
       exerciseGlobalKey,
       trainingId,
-      tExerciseId,
+      exerciseId,
       setNumber,
       intervalNumber,
       trainingVersionId,

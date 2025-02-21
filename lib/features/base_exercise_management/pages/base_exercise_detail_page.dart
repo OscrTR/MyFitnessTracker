@@ -13,19 +13,19 @@ import '../../../app_colors.dart';
 import '../../../core/enums/enums.dart';
 import '../../../core/widgets/custom_text_field_widget.dart';
 import '../../../injection_container.dart';
-import '../models/exercise.dart';
-import '../bloc/exercise_management_bloc.dart';
-import '../widgets/exercise_detail_image_picker_widget.dart';
+import '../models/base_exercise.dart';
+import '../bloc/base_exercise_management_bloc.dart';
+import '../widgets/image_picker_widget.dart';
 
-class ExerciseDetailPage extends StatefulWidget {
+class BaseExerciseDetailPage extends StatefulWidget {
   final bool fromTrainingCreation;
-  const ExerciseDetailPage({super.key, required this.fromTrainingCreation});
+  const BaseExerciseDetailPage({super.key, required this.fromTrainingCreation});
 
   @override
-  State<ExerciseDetailPage> createState() => _ExerciseDetailPageState();
+  State<BaseExerciseDetailPage> createState() => _BaseExerciseDetailPageState();
 }
 
-class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
+class _BaseExerciseDetailPageState extends State<BaseExerciseDetailPage> {
   final _nameController = TextEditingController();
   final _descriptionController = TextEditingController();
   File? _image;
@@ -65,19 +65,18 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
   }
 
   void _initType() {
-    final exercise =
-        (sl<ExerciseManagementBloc>().state as ExerciseManagementLoaded)
-            .selectedExercise;
-    _selectedExerciseType = exercise?.type ?? ExerciseType.workout;
+    final baseExercise =
+        (sl<BaseExerciseManagementBloc>().state as BaseExerciseManagementLoaded)
+            .selectedBaseExercise;
 
     // Réinitialiser la map avant de la remplir
     _selectedMuscleGroups = {}; // Ou créez une nouvelle map
 
-    if (exercise != null) {
+    if (baseExercise != null) {
       // Remplir avec tous les muscle groups en une fois
       _selectedMuscleGroups = Map.fromEntries(MuscleGroup.values.map(
-          (muscleGroup) => MapEntry(muscleGroup,
-              exercise.muscleGroups?.contains(muscleGroup) ?? false)));
+          (muscleGroup) => MapEntry(
+              muscleGroup, baseExercise.muscleGroups.contains(muscleGroup))));
     } else {
       // Initialiser tous à false en une fois
       _selectedMuscleGroups = Map.fromEntries(MuscleGroup.values
@@ -104,25 +103,24 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
         SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.all(20),
-            child: BlocBuilder<ExerciseManagementBloc, ExerciseManagementState>(
-                builder: (context, state) {
-              if (state is ExerciseManagementLoaded) {
-                final exercise = state.selectedExercise;
+            child: BlocBuilder<BaseExerciseManagementBloc,
+                BaseExerciseManagementState>(builder: (context, state) {
+              if (state is BaseExerciseManagementLoaded) {
+                final baseExercise = state.selectedBaseExercise;
 
-                if (exercise != null && !_isDataInitialized) {
-                  _nameController.text = exercise.name;
-                  _descriptionController.text = exercise.description ?? '';
-                  _image =
-                      exercise.imagePath != null && exercise.imagePath != ''
-                          ? File(exercise.imagePath!)
-                          : null;
+                if (baseExercise != null && !_isDataInitialized) {
+                  _nameController.text = baseExercise.name;
+                  _descriptionController.text = baseExercise.description;
+                  _image = baseExercise.imagePath.isNotEmpty
+                      ? File(baseExercise.imagePath)
+                      : null;
                   _isDataInitialized = true;
                 }
 
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildHeader(context, exercise),
+                    _buildHeader(context, baseExercise),
                     const SizedBox(height: 30),
                     CustomTextField(
                       controller: _nameController,
@@ -242,13 +240,12 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
                   if (_imageToDelete != null) {
                     _deleteImageFile();
                   }
-                  context.read<ExerciseManagementBloc>().add(
-                        CreateOrUpdateExerciseEvent(
-                          Exercise.create(
+                  context.read<BaseExerciseManagementBloc>().add(
+                        CreateOrUpdateBaseExerciseEvent(
+                          BaseExercise(
                             name: _nameController.text,
                             description: _descriptionController.text,
                             imagePath: _image?.path ?? '',
-                            type: _selectedExerciseType,
                             muscleGroups: _selectedMuscleGroups.entries
                                 .where((el) => el.value == true)
                                 .map((el) => el.key)
@@ -259,8 +256,8 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
                   widget.fromTrainingCreation
                       ? GoRouter.of(context).push('/training_detail')
                       : GoRouter.of(context).push('/trainings');
-                  BlocProvider.of<ExerciseManagementBloc>(context)
-                      .add(const ClearSelectedExerciseEvent());
+                  BlocProvider.of<BaseExerciseManagementBloc>(context)
+                      .add(ClearSelectedBaseExerciseEvent());
                 },
                 child: Container(
                   decoration: BoxDecoration(
@@ -395,7 +392,7 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
     );
   }
 
-  SizedBox _buildHeader(BuildContext context, Exercise? exercise) {
+  SizedBox _buildHeader(BuildContext context, BaseExercise? baseExercise) {
     return SizedBox(
       height: 40,
       child: Stack(
@@ -408,8 +405,8 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
                 widget.fromTrainingCreation
                     ? GoRouter.of(context).push('/training_detail')
                     : GoRouter.of(context).push('/trainings');
-                BlocProvider.of<ExerciseManagementBloc>(context)
-                    .add(const ClearSelectedExerciseEvent());
+                BlocProvider.of<BaseExerciseManagementBloc>(context)
+                    .add(ClearSelectedBaseExerciseEvent());
               },
               child: const Icon(
                 Icons.arrow_back_ios,
@@ -419,21 +416,21 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
           ),
           Center(
             child: Text(
-              context.tr(exercise == null
+              context.tr(baseExercise == null
                   ? 'exercise_detail_page_title_create'
                   : 'exercise_detail_page_title_edit'),
               style: Theme.of(context).textTheme.titleLarge,
             ),
           ),
-          if (exercise != null)
+          if (baseExercise != null)
             Positioned(
               top: 0,
               bottom: 0,
               right: 0,
               child: GestureDetector(
                 onTap: () {
-                  sl<ExerciseManagementBloc>()
-                      .add(DeleteExerciseEvent(exercise.id));
+                  sl<BaseExerciseManagementBloc>()
+                      .add(DeleteBaseExerciseEvent(baseExercise.id!));
                   GoRouter.of(context).push('/trainings');
                 },
                 child: const Icon(

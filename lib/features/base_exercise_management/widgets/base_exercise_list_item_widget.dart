@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 
 import '../../../app_colors.dart';
-import 'exercise_list_item_option_menu_widget.dart';
+import 'base_exercises_list_item_option_menu_widget.dart';
 
-class ExerciseListItem extends StatelessWidget {
+class BaseExercisesListItem extends StatelessWidget {
   final int exerciseId;
   final String exerciseName;
   final String? exerciseImagePath;
   final String? exerciseDescription;
 
-  const ExerciseListItem({
+  const BaseExercisesListItem({
     super.key,
     required this.exerciseName,
     required this.exerciseId,
@@ -30,7 +30,7 @@ class ExerciseListItem extends StatelessWidget {
           exerciseName,
           style: Theme.of(context).textTheme.titleMedium,
         ),
-        trailing: ExerciseListItemOptionsMenu(exerciseId: exerciseId),
+        trailing: BaseExerciseListItemOptionsMenu(exerciseId: exerciseId),
       ),
     );
   }

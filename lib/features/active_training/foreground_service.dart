@@ -1,10 +1,11 @@
 import 'package:fl_location/fl_location.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
-import 'bloc/active_training_bloc.dart';
+
 import '../../core/messages/bloc/message_bloc.dart';
-import 'foreground_task_handler.dart';
 import '../../injection_container.dart';
+import 'bloc/active_training_bloc.dart';
+import 'foreground_task_handler.dart';
 
 typedef LocationChanged = void Function(Location location);
 

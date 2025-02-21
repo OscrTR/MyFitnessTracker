@@ -1,8 +1,6 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
-
-import 'package:my_fitness_tracker/core/database/object_box.dart';
+import '../../../core/database/database_service.dart';
 
 import '../../../core/enums/enums.dart';
 import '../../../injection_container.dart';
@@ -12,9 +10,9 @@ import 'history_run_location.dart';
 
 class HistoryTraining extends Equatable {
   final Training training;
+  final int trainingVersionId;
   final List<HistoryEntry> historyEntries;
   final List<RunLocation> locations;
-  final int linkedTrainingVersionId;
   final int duration;
   final int distance;
   final int calories;
@@ -29,9 +27,9 @@ class HistoryTraining extends Equatable {
 
   const HistoryTraining({
     required this.training,
+    required this.trainingVersionId,
     required this.historyEntries,
     required this.locations,
-    required this.linkedTrainingVersionId,
     required this.duration,
     required this.distance,
     required this.calories,
@@ -51,7 +49,6 @@ class HistoryTraining extends Equatable {
       training,
       historyEntries,
       locations,
-      linkedTrainingVersionId,
       duration,
       distance,
       calories,
@@ -66,18 +63,23 @@ class HistoryTraining extends Equatable {
     ];
   }
 
-  static List<HistoryTraining> fromHistoryEntries(
+  static Future<List<HistoryTraining>> fromHistoryEntries(
     List<HistoryEntry> entries, {
-    Map<int, List<RunLocation>>? locationsBylinkedTrainingId,
-  }) {
-    final sortedEntries = entries..sort((a, b) => a.date.compareTo(b.date));
+    Map<int, List<RunLocation>>? locationsByTrainingId,
+  }) async {
+    // Trier les entrées par date
+    final sortedEntries = [...entries]
+      ..sort((a, b) => a.date.compareTo(b.date));
+    // Grouper les entrées par session d'entraînement
     final groupedEntries = groupEntriesByTrainingSession(sortedEntries);
-    return groupedEntries.map((group) {
-      final linkedTrainingId = group.first.linkedTrainingId;
-      final locations = locationsBylinkedTrainingId?[linkedTrainingId];
-
+    // Résoudre les Futures pour chaque groupe
+    final historyTrainings =
+        await Future.wait(groupedEntries.map((group) async {
+      final trainingId = group.first.trainingId;
+      final locations = locationsByTrainingId?[trainingId];
       return _convertGroupToHistoryTraining(group, locations: locations);
-    }).toList();
+    }));
+    return historyTrainings;
   }
 
   static List<List<HistoryEntry>> groupEntriesByTrainingSession(
@@ -94,7 +96,7 @@ class HistoryTraining extends Equatable {
       final lastEntry = currentGroup.last;
       final timeDifference = entry.date.difference(lastEntry.date).inHours;
 
-      if (lastEntry.linkedTrainingId == entry.linkedTrainingId &&
+      if (lastEntry.trainingId == entry.trainingId &&
           lastEntry.date.year == entry.date.year &&
           lastEntry.date.month == entry.date.month &&
           lastEntry.date.day == entry.date.day &&
@@ -113,32 +115,30 @@ class HistoryTraining extends Equatable {
     return groups;
   }
 
-  static HistoryTraining _convertGroupToHistoryTraining(
+  static Future<HistoryTraining> _convertGroupToHistoryTraining(
     List<HistoryEntry> group, {
     List<RunLocation>? locations,
-  }) {
+  }) async {
     final firstEntry = group.first;
 
-    final Training? matchingTraining = sl<ObjectBox>()
-        .getMostRecentTrainingVersionForTrainingId(firstEntry.linkedTrainingId)
-        ?.toTraining();
+    final matchingTraining = (await sl<DatabaseService>()
+        .getTrainingByVersionId(firstEntry.trainingVersionId));
 
     // Calculer les statistiques agrégées
     final totalDuration = _calculateDuration(group);
     final totalDistance =
-        group.fold<int>(0, (sum, entry) => sum + (entry.distance ?? 0));
+        group.fold<int>(0, (sum, entry) => sum + entry.distance);
     final totalCalories =
-        group.fold<int>(0, (sum, entry) => sum + (entry.calories ?? 0));
+        group.fold<int>(0, (sum, entry) => sum + entry.calories);
 
     // Calculer le dénivelé si des locations sont disponibles
     final totalDrop =
-        locations != null ? RunLocation.calculateTotalDrop(locations) : 0;
+        locations != null ? RunLocation.calculateTotalElevation(locations) : 0;
 
-    final uniqueExercises =
-        group.map((e) => e.linkedTrainingExerciseId).toSet().length;
+    final uniqueExercises = group.map((e) => e.exerciseId).toSet().length;
 
-    final totalLoad = group.fold<int>(
-        0, (sum, entry) => sum + ((entry.weight ?? 0) * (entry.reps ?? 1)));
+    final totalLoad =
+        group.fold<int>(0, (sum, entry) => sum + (entry.weight * entry.reps));
 
     final totalSets = group.map((e) => e.setNumber).nonNulls.length;
 
@@ -166,34 +166,22 @@ class HistoryTraining extends Equatable {
       exercisesCount: uniqueExercises,
       meditationDuration: meditationDuration,
       date: firstEntry.date,
-      linkedTrainingVersionId: firstEntry.linkedTrainingVersionId,
+      trainingVersionId: firstEntry.trainingVersionId,
     );
   }
 
   static int _calculateMeditationDuration(
       List<HistoryEntry> group, Training training) {
-    final multisetTExercisesList = training.multisets
-        .expand((multiset) => multiset.trainingExercises)
+    final List<int> meditationExercisesIds = training.exercises
+        .where((exercise) => exercise.exerciseType == ExerciseType.meditation)
+        .map((exercise) => exercise.id!)
         .toList();
 
-    final allTExercisesList = [
-      ...training.trainingExercises,
-      ...multisetTExercisesList,
-    ];
-
-    final List<int> meditationTExercisesId = allTExercisesList
-        .where((t) => t.type == TrainingExerciseType.meditation)
-        .map((t) => t.id)
-        .toList();
-
-    if (meditationTExercisesId.isEmpty) {
-      return 0;
-    }
+    if (meditationExercisesIds.isEmpty) return 0;
 
     return group
-        .where((entry) =>
-            meditationTExercisesId.contains(entry.linkedTrainingExerciseId))
-        .fold<int>(0, (sum, entry) => sum + (entry.duration ?? 0));
+        .where((entry) => meditationExercisesIds.contains(entry.exerciseId))
+        .fold<int>(0, (sum, entry) => sum + entry.duration);
   }
 
   static int _calculateDuration(List<HistoryEntry> group) {
@@ -204,12 +192,12 @@ class HistoryTraining extends Equatable {
     final initialTime = firstEntry.date;
     DateTime correctedInitialTime = initialTime;
 
-    if (firstEntry.reps != null) {
+    if (firstEntry.reps != 0) {
       correctedInitialTime =
-          initialTime.subtract(Duration(seconds: firstEntry.reps! * 3));
-    } else if (firstEntry.duration != null) {
+          initialTime.subtract(Duration(seconds: firstEntry.reps * 3));
+    } else if (firstEntry.duration != 0) {
       correctedInitialTime =
-          initialTime.subtract(Duration(seconds: firstEntry.duration!));
+          initialTime.subtract(Duration(seconds: firstEntry.duration));
     }
 
     totalTrainingTime =
@@ -227,12 +215,12 @@ class HistoryTraining extends Equatable {
     final initialTime = firstEntry.date;
     DateTime correctedInitialTime = initialTime;
 
-    if (firstEntry.reps != null) {
+    if (firstEntry.reps != 0) {
       correctedInitialTime =
-          initialTime.subtract(Duration(seconds: firstEntry.reps! * 3));
-    } else if (firstEntry.duration != null) {
+          initialTime.subtract(Duration(seconds: firstEntry.reps * 3));
+    } else if (firstEntry.duration != 0) {
       correctedInitialTime =
-          initialTime.subtract(Duration(seconds: firstEntry.duration!));
+          initialTime.subtract(Duration(seconds: firstEntry.duration));
     }
 
     totalTrainingTime =
@@ -240,10 +228,10 @@ class HistoryTraining extends Equatable {
 
     // Calculer le temps total d'entraînement effectif
     for (var entry in group) {
-      if (entry.duration != null && entry.duration! > 0) {
-        totalEffectiveTime += entry.duration!;
-      } else if (entry.reps != null) {
-        totalEffectiveTime += entry.reps! * 3;
+      if (entry.duration != 0 && entry.duration > 0) {
+        totalEffectiveTime += entry.duration;
+      } else if (entry.reps != 0) {
+        totalEffectiveTime += entry.reps * 3;
       }
     }
 

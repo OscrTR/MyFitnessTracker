@@ -6,11 +6,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../core/enums/enums.dart';
-import '../models/training_exercise.dart';
+import '../models/exercise.dart';
 import '../../../app_colors.dart';
 import '../../../helper_functions.dart';
 import '../../../injection_container.dart';
-import '../../exercise_management/bloc/exercise_management_bloc.dart';
+import '../../base_exercise_management/bloc/base_exercise_management_bloc.dart';
 import '../bloc/training_management_bloc.dart';
 import '../models/training.dart';
 
@@ -72,7 +72,7 @@ class _TrainingsPageState extends State<TrainingsPage> {
         final List<Training> displayedTrainings = hasSelectedTypes
             ? state.trainings
                 .where((training) =>
-                    _selectedTrainingTypes[training.type] ?? false)
+                    _selectedTrainingTypes[training.trainingType] ?? false)
                 .toList()
             : state.trainings;
 
@@ -95,12 +95,11 @@ class _TrainingsPageState extends State<TrainingsPage> {
     });
   }
 
-  BlocBuilder<ExerciseManagementBloc, ExerciseManagementState>
-      _buildExercisesList() {
-    return BlocBuilder<ExerciseManagementBloc, ExerciseManagementState>(
+  Widget _buildExercisesList() {
+    return BlocBuilder<BaseExerciseManagementBloc, BaseExerciseManagementState>(
         builder: (context, state) {
-      if (state is ExerciseManagementLoaded) {
-        final displayedExercises = state.exercises;
+      if (state is BaseExerciseManagementLoaded) {
+        final displayedExercises = state.baseExercises;
 
         if (displayedExercises.isEmpty) {
           return SizedBox(
@@ -129,8 +128,7 @@ class _TrainingsPageState extends State<TrainingsPage> {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (exercise.imagePath != null &&
-                      exercise.imagePath!.isNotEmpty)
+                  if (exercise.imagePath.isNotEmpty)
                     Column(
                       children: [
                         SizedBox(
@@ -139,7 +137,7 @@ class _TrainingsPageState extends State<TrainingsPage> {
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(15),
                             child: Image.file(
-                              File(exercise.imagePath!),
+                              File(exercise.imagePath),
                               width: MediaQuery.of(context).size.width - 40,
                               fit: BoxFit.cover,
                               alignment: Alignment.bottomCenter,
@@ -162,8 +160,8 @@ class _TrainingsPageState extends State<TrainingsPage> {
                       GestureDetector(
                         onTap: () {
                           context
-                              .read<ExerciseManagementBloc>()
-                              .add(GetExerciseEvent(exercise.id));
+                              .read<BaseExerciseManagementBloc>()
+                              .add(GetBaseExerciseEvent(exercise.id!));
                           GoRouter.of(context).push('/exercise_detail');
                         },
                         child: Container(
@@ -200,8 +198,7 @@ class _TrainingsPageState extends State<TrainingsPage> {
       itemBuilder: (context, index) {
         final training = displayedTrainings.elementAt(index);
         final exercisesAndMultisetsList = [
-          ...training.trainingExercises
-              .map((e) => {'type': 'exercise', 'data': e}),
+          ...training.exercises.map((e) => {'type': 'exercise', 'data': e}),
           ...training.multisets.map((m) => {'type': 'multiset', 'data': m}),
         ];
         exercisesAndMultisetsList.sort((a, b) {
@@ -263,7 +260,7 @@ class _TrainingsPageState extends State<TrainingsPage> {
                 onTap: () {
                   context
                       .read<TrainingManagementBloc>()
-                      .add(GetTrainingEvent(id: training.id));
+                      .add(GetTrainingEvent(id: training.id!));
                   GoRouter.of(context).push('/training_detail');
                 },
                 child: Container(
@@ -285,7 +282,7 @@ class _TrainingsPageState extends State<TrainingsPage> {
                 onTap: () {
                   context
                       .read<TrainingManagementBloc>()
-                      .add(StartTrainingEvent(training.id));
+                      .add(StartTrainingEvent(training.id!));
                   GoRouter.of(context).push('/active_training');
                 },
                 child: Container(
@@ -439,12 +436,12 @@ class _TrainingsPageState extends State<TrainingsPage> {
               color: AppColors.parchment,
               borderRadius: BorderRadius.circular(5)),
           child: Text(
-            training.type!.translate(context.locale.languageCode),
+            training.trainingType.translate(context.locale.languageCode),
             style: Theme.of(context).textTheme.bodySmall,
           ),
         ),
-        if (training.trainingDays != null)
-          if (training.trainingDays!.length == 7)
+        if (training.trainingDays.isNotEmpty)
+          if (training.trainingDays.length == 7)
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
               decoration: BoxDecoration(
@@ -456,7 +453,7 @@ class _TrainingsPageState extends State<TrainingsPage> {
               ),
             )
           else
-            ...training.trainingDays!.map((day) => Container(
+            ...training.trainingDays.map((day) => Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
                   decoration: BoxDecoration(
@@ -562,49 +559,27 @@ int calculateTrainingDuration(Training training) {
   }
 
   // Traitement des exercices individuels
-  for (TrainingExercise exercise in training.trainingExercises) {
-    if (exercise.duration != null) {
+  for (Exercise exercise in training.exercises) {
+    if (exercise.duration != 0) {
       // Si l'exercice a une durée explicite
-      totalSeconds += exercise.duration!;
+      totalSeconds += exercise.duration;
     } else if (exercise.isSetsInReps) {
       // Calcul basé sur les répétitions
-      int avgReps = ((exercise.minReps ?? 0) + (exercise.maxReps ?? 0)) ~/ 2;
+      int avgReps = (exercise.minReps + exercise.maxReps) ~/ 2;
       totalSeconds += repsToSeconds(avgReps) * exercise.sets;
     }
 
     // Ajout des temps de repos
-    totalSeconds += (exercise.setRest ?? 0) * (exercise.sets);
-    totalSeconds += (exercise.exerciseRest ?? 0);
+    totalSeconds += exercise.setRest * (exercise.sets);
+    totalSeconds += exercise.exerciseRest;
 
     // Gestion des intervalles
     if (exercise.sets > 1) {
-      totalSeconds += (exercise.setRest ?? 0) * (exercise.sets - 1);
-      if (exercise.targetDuration != null) {
-        totalSeconds += exercise.targetDuration! * exercise.sets;
+      totalSeconds += exercise.setRest * (exercise.sets - 1);
+      if (exercise.targetDuration != 0) {
+        totalSeconds += exercise.targetDuration * exercise.sets;
       }
     }
-  }
-
-  // Traitement des multisets
-  for (var multiset in training.multisets) {
-    int multisetTotalSeconds = 0;
-
-    for (TrainingExercise exercise in multiset.trainingExercises) {
-      if (exercise.duration != null) {
-        multisetTotalSeconds += exercise.duration!;
-      } else if (exercise.isSetsInReps) {
-        int avgReps = ((exercise.minReps ?? 0) + (exercise.maxReps ?? 0)) ~/ 2;
-        multisetTotalSeconds += repsToSeconds(avgReps) * exercise.sets;
-      }
-      multisetTotalSeconds += (exercise.setRest ?? 0) * exercise.sets;
-    }
-
-    // Multiplie par le nombre de sets du multiset
-    totalSeconds += multisetTotalSeconds * multiset.sets;
-    // Ajoute le repos entre les sets du multiset
-    totalSeconds += multiset.setRest * (multiset.sets - 1);
-    // Ajoute le repos final du multiset
-    totalSeconds += multiset.multisetRest;
   }
 
   return totalSeconds;

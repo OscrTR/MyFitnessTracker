@@ -15,7 +15,8 @@ dependencies:
   bloc: ^9.0.0
   collection: ^1.18.0
   cupertino_icons: ^1.0.8
-  dartz: ^0.10.1
+  dio_cache_interceptor: ^3.5.1
+  dio_cache_interceptor_file_store: ^1.2.3
   easy_localization: ^3.0.7
   equatable: ^2.0.5
   expandable: ^5.0.1
@@ -25,11 +26,10 @@ dependencies:
     sdk: flutter
   flutter_advanced_switch: ^3.1.0
   flutter_bloc: ^9.0.0
-  flutter_cache_manager: ^3.4.1
   flutter_foreground_task: ^8.17.0
   flutter_local_notifications: ^18.0.1
   flutter_map: ^8.0.0
-  flutter_map_tile_caching: ^10.1.0
+  flutter_map_cache: ^1.5.2
   flutter_svg: ^2.0.10+1
   flutter_tts: ^4.2.0
   get_it: ^8.0.0
@@ -38,8 +38,6 @@ dependencies:
   latlong2: ^0.9.1
   lottie: ^3.1.2
   lucide_icons_flutter: ^1.2.6
-  objectbox: ^4.0.3
-  objectbox_flutter_libs: any
   package_info_plus: ^8.0.2
   path: ^1.9.0
   path_provider: ^2.1.4
@@ -47,17 +45,18 @@ dependencies:
   permission_handler: ^11.3.1
   searchfield: ^1.2.4
   shared_preferences: ^2.3.5
+  sqlite3_flutter_libs: ^0.5.30
+  sqlite_async: ^0.11.4
   toggle_switch: ^2.3.0
   top_snackbar_flutter: ^3.1.0
   uuid: ^4.5.1
 
 dev_dependencies:
-  build_runner: ^2.0.0
+  build_runner: ^2.4.13
   flutter_lints: ^5.0.0
   flutter_test:
     sdk: flutter
   mocktail: ^1.0.4
-  objectbox_generator: any
 
 flutter:
   uses-material-design: true

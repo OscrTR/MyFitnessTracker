@@ -1,7 +1,9 @@
 import 'package:bloc/bloc.dart';
 import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
-import '../../../core/database/object_box.dart';
+import '../../../core/database/database_service.dart';
+import '../models/history_run_location.dart';
+
 import '../models/history_training.dart';
 import '../../../core/enums/enums.dart';
 import '../../../injection_container.dart';
@@ -28,17 +30,18 @@ class TrainingHistoryBloc
             .subtract(Duration(days: DateTime.now().weekday - 1))
             .add(const Duration(days: 6));
 
-        final fetchedEntries =
-            sl<ObjectBox>().getHistoryEntriesForPeriod(startDate, endDate);
-        final fetchedRunLocations =
-            sl<ObjectBox>().getRunLocationsForPeriod(startDate, endDate);
+        final List<HistoryEntry> fetchedEntries = await sl<DatabaseService>()
+            .getHistoryEntriesForPeriod(startDate, endDate);
+        final List<RunLocation> fetchedRunLocations =
+            await sl<DatabaseService>()
+                .getRunLocationsForPeriod(startDate, endDate);
 
         final locationsByTrainingId =
-            groupBy(fetchedRunLocations, (loc) => loc.linkedTrainingId);
+            groupBy(fetchedRunLocations, (loc) => loc.trainingId);
 
-        final historyTrainings = HistoryTraining.fromHistoryEntries(
+        final historyTrainings = await HistoryTraining.fromHistoryEntries(
           fetchedEntries,
-          locationsBylinkedTrainingId: locationsByTrainingId,
+          locationsByTrainingId: locationsByTrainingId,
         );
 
         if (state is TrainingHistoryLoaded) {
@@ -69,14 +72,14 @@ class TrainingHistoryBloc
         final isUpdate = event.historyEntry.id != 0;
 
         if (isUpdate) {
-          hasRecentEntry = sl<ObjectBox>()
-              .checkIfTrainingHasRecentEntry(event.historyEntry.id);
+          hasRecentEntry = await sl<DatabaseService>()
+              .checkIfTrainingHasRecentEntry(event.historyEntry.id!);
         }
 
         if (isUpdate || hasRecentEntry) {
-          sl<ObjectBox>().updateHistoryEntry(event.historyEntry);
+          sl<DatabaseService>().updateHistoryEntry(event.historyEntry);
         } else {
-          sl<ObjectBox>().createHistoryEntry(event.historyEntry);
+          sl<DatabaseService>().createHistoryEntry(event.historyEntry);
         }
 
         add(FetchHistoryEntriesEvent());
@@ -89,7 +92,7 @@ class TrainingHistoryBloc
     on<DeleteHistoryEntryEvent>((event, emit) async {
       if (state is! TrainingHistoryLoaded) return;
       try {
-        sl<ObjectBox>().deleteHistoryEntry(event.id);
+        await sl<DatabaseService>().deleteHistoryEntry(event.id);
         add(FetchHistoryEntriesEvent());
       } catch (e) {
         messageBloc.add(AddMessageEvent(
@@ -101,7 +104,8 @@ class TrainingHistoryBloc
       if (state is! TrainingHistoryLoaded) return;
 
       try {
-        sl<ObjectBox>().deleteHistoryEntriesForTrainingId(event.trainingId);
+        await sl<DatabaseService>()
+            .deleteHistoryEntriesByTrainingId(event.trainingId);
         add(FetchHistoryEntriesEvent());
       } catch (e) {
         messageBloc.add(AddMessageEvent(
@@ -124,17 +128,19 @@ class TrainingHistoryBloc
             : DateTime(startDate.year, startDate.month + 1, 1)
                 .subtract(const Duration(seconds: 1));
 
-        final fetchedEntries =
-            sl<ObjectBox>().getHistoryEntriesForPeriod(startDate, endDate);
-        final fetchedRunLocations =
-            sl<ObjectBox>().getRunLocationsForPeriod(startDate, endDate);
+        final List<HistoryEntry> fetchedEntries = await sl<DatabaseService>()
+            .getHistoryEntriesForPeriod(startDate, endDate);
+
+        final List<RunLocation> fetchedRunLocations =
+            await sl<DatabaseService>()
+                .getRunLocationsForPeriod(startDate, endDate);
 
         final locationsByTrainingId =
-            groupBy(fetchedRunLocations, (loc) => loc.linkedTrainingId);
+            groupBy(fetchedRunLocations, (loc) => loc.trainingId);
 
-        final historyTrainings = HistoryTraining.fromHistoryEntries(
+        final historyTrainings = await HistoryTraining.fromHistoryEntries(
           fetchedEntries,
-          locationsBylinkedTrainingId: locationsByTrainingId,
+          locationsByTrainingId: locationsByTrainingId,
         );
 
         emit(currentState.copyWith(
