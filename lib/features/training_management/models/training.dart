@@ -71,7 +71,7 @@ class Training extends Equatable {
       'name': name,
       'trainingType': trainingType.toMap(),
       'objectives': objectives,
-      'trainingDays': trainingDays.map((x) => x.toMap()).toList(),
+      'trainingDays': TrainingDay.listToMap(trainingDays),
     };
   }
 

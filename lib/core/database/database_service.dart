@@ -187,8 +187,11 @@ class DatabaseService {
   }
 
   Future<int> insert(String tableName, Map<String, dynamic> fields) async {
-    final sql = generateInsertSQL(tableName, fields);
-    await _db.execute(sql, fields.values.toList());
+    // Exclut "id" car auto incrémenté
+    final cleanFields = Map.of(fields)..remove('id');
+
+    final sql = generateInsertSQL(tableName, cleanFields);
+    await _db.execute(sql, cleanFields.values.toList());
     final result = await _db.execute('SELECT last_insert_rowid()');
     return result.first.values.first as int;
   }
@@ -252,7 +255,7 @@ class DatabaseService {
     }
 
     final TrainingVersion trainingVersion = TrainingVersion.fromTraining(
-        trainingId: trainingId, training: training);
+        trainingId: trainingId, training: training.copyWith(id: trainingId));
     await createTrainingVersion(trainingVersion);
 
     return trainingId;
@@ -417,6 +420,8 @@ class DatabaseService {
   Future<Training?> getTrainingByVersionId(int versionId) async {
     final Map<String, dynamic> result = await _db
         .get('SELECT * FROM training_versions WHERE id = ?', [versionId]);
+
+    print(result);
 
     if (result.isEmpty) return null;
     final trainingVersion = TrainingVersion.fromMap(result);

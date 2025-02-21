@@ -63,6 +63,7 @@ class TrainingHistoryBloc
       } catch (e) {
         messageBloc.add(AddMessageEvent(
             message: 'An error occurred: ${e.toString()}', isError: true));
+        rethrow;
       }
     });
 
@@ -86,6 +87,7 @@ class TrainingHistoryBloc
       } catch (e) {
         messageBloc.add(AddMessageEvent(
             message: 'An error occurred: ${e.toString()}', isError: true));
+        rethrow;
       }
     });
 
@@ -97,6 +99,7 @@ class TrainingHistoryBloc
       } catch (e) {
         messageBloc.add(AddMessageEvent(
             message: 'An error occurred: ${e.toString()}', isError: true));
+        rethrow;
       }
     });
 
@@ -110,6 +113,7 @@ class TrainingHistoryBloc
       } catch (e) {
         messageBloc.add(AddMessageEvent(
             message: 'An error occurred: ${e.toString()}', isError: true));
+        rethrow;
       }
     });
 
@@ -152,6 +156,7 @@ class TrainingHistoryBloc
       } catch (e) {
         messageBloc.add(AddMessageEvent(
             message: 'An error occurred: ${e.toString()}', isError: true));
+        rethrow;
       }
     });
 
@@ -168,6 +173,8 @@ class TrainingHistoryBloc
     on<SelectHistoryTrainingEntryEvent>((event, emit) async {
       if (state is! TrainingHistoryLoaded) return;
       final currentState = state as TrainingHistoryLoaded;
+
+      print(event.historyTraining);
 
       emit(currentState.copyWith(selectedTrainingEntry: event.historyTraining));
     });
