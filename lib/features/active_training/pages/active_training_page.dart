@@ -198,10 +198,9 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage>
                       }
 
                       if (isVerified) {
-                        final sortedItems = _getSortedTrainingItems(state);
-
                         final exercisesAndMultisetsList = [
                           ...state.activeTraining!.exercises
+                              .where((e) => e.multisetId == null)
                               .map((e) => {'type': 'exercise', 'data': e}),
                           ...state.activeTraining!.multisets
                               .map((m) => {'type': 'multiset', 'data': m}),
@@ -213,7 +212,11 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage>
                               (b['data'] as dynamic).position ?? 0;
                           return aPosition.compareTo(bPosition);
                         });
-                        return _buildPageContent(state, context, sortedItems,
+
+                        return _buildPageContent(
+                            state,
+                            context,
+                            exercisesAndMultisetsList,
                             exercisesAndMultisetsList);
                       } else {
                         return SizedBox(
@@ -534,22 +537,6 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage>
         ),
       ],
     );
-  }
-
-  List<Map<String, dynamic>> _getSortedTrainingItems(
-      TrainingManagementLoaded state) {
-    final items = [
-      ...state.activeTraining!.exercises
-          .map((e) => {'type': 'exercise', 'data': e}),
-      ...state.activeTraining!.multisets
-          .map((m) => {'type': 'multiset', 'data': m}),
-    ];
-    items.sort((a, b) {
-      final aPos = (a['data'] as dynamic).position ?? 0;
-      final bPos = (b['data'] as dynamic).position ?? 0;
-      return aPos.compareTo(bPos);
-    });
-    return items;
   }
 
   Widget _buildTrainingItemList(

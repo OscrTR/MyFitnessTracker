@@ -344,10 +344,9 @@ class TrainingManagementBloc
         currentState.selectedTraining.exercises,
       );
 
-      final multisetExercises = List<Exercise>.from(currentState
-          .selectedTraining.exercises
+      final multisetExercises = currentState.selectedTraining.exercises
           .where((e) => e.multisetKey == event.multisetKey)
-          .toList());
+          .toList();
 
       // Add
       if (event.exercise.multisetKey == null) {
@@ -398,10 +397,13 @@ class TrainingManagementBloc
       if (state is! TrainingManagementLoaded) return;
       final currentState = state as TrainingManagementLoaded;
 
-      final multisetExercises = List<Exercise>.from(
-        currentState.selectedTraining.exercises
-            .where((e) => e.multisetKey == event.multisetKey),
-      );
+      final updatedExercises = currentState.selectedTraining.exercises
+          .where((e) => e.multisetKey != event.multisetKey)
+          .toList();
+
+      final multisetExercises = currentState.selectedTraining.exercises
+          .where((e) => e.multisetKey == event.multisetKey)
+          .toList();
 
       multisetExercises
           .removeWhere((exercise) => exercise.widgetKey == event.exerciseKey);
@@ -409,17 +411,9 @@ class TrainingManagementBloc
       final updatedMultisetExercises = multisetExercises.map((item) {
         final newPosition = multisetExercises.indexOf(item);
         return item.copyWith(position: newPosition);
-      }).toList();
+      });
 
-      final updatedExercises =
-          currentState.selectedTraining.exercises.map((exercise) {
-        if (exercise.multisetKey == event.multisetKey) {
-          // Remplacer tout exercice lié au multisetKey par la version mise à jour
-          return updatedMultisetExercises
-              .firstWhere((updated) => updated.widgetKey == exercise.widgetKey);
-        }
-        return exercise;
-      }).toList();
+      updatedExercises.addAll(updatedMultisetExercises);
 
       final updatedTraining = currentState.selectedTraining.copyWith(
         exercises: updatedExercises,

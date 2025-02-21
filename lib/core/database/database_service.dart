@@ -490,6 +490,9 @@ class DatabaseService {
     // Récupérer l'ensemble des multisets existants pour cet entraînement
     final existingMultisets = await getMultisetsByTrainingId(training.id!);
 
+    // Récupérer tous les exercices existants pour cet entraînement
+    final existingExercises = await getExercisesByTrainingId(training.id!);
+
     // Mettre à jour ou insérer chaque multiset
     for (var multiset in training.multisets) {
       if (existingMultisets.any((m) => m.id == multiset.id)) {
@@ -500,11 +503,48 @@ class DatabaseService {
           'id = ?',
           [multiset.id],
         );
+
+        // Ajouter ou mettre à jour les exercises associés à ce multiset
+        final matchingExercises = training.exercises
+            .where((e) => e.multisetKey == multiset.widgetKey)
+            .toList();
+
+        for (var exercise in matchingExercises) {
+          if (exercise.id != null &&
+              existingExercises.any((e) => e.id == exercise.id)) {
+            // Cas mise à jour
+            await update(
+              'exercises',
+              exercise.toMap(),
+              'id = ?',
+              [exercise.id],
+            );
+          } else {
+            // Cas ajout (nouvel exercice)
+            await insert(
+                'exercises',
+                exercise
+                    .copyWith(trainingId: training.id, multisetId: multiset.id)
+                    .toMap());
+          }
+        }
       } else {
         // Cas ajout (nouveau multiset)
         final multisetWithTrainingId =
             multiset.copyWith(trainingId: training.id);
-        await insert('multisets', multisetWithTrainingId.toMap());
+        final multisetId =
+            await insert('multisets', multisetWithTrainingId.toMap());
+
+        // Ajout des exercices associés à ce multiset
+        final matchingExercises = training.exercises
+            .where((e) => e.multisetKey == multiset.widgetKey)
+            .toList();
+
+        for (var exercise in matchingExercises) {
+          final exerciseWithMultisetId = exercise.copyWith(
+              trainingId: training.id, multisetId: multisetId);
+          await insert('exercises', exerciseWithMultisetId.toMap());
+        }
       }
     }
 
@@ -518,11 +558,11 @@ class DatabaseService {
       await deleteMultiset(multisetToDelete.id!);
     }
 
-    // Récupérer tous les exercices existants pour cet entraînement
-    final existingExercises = await getExercisesByTrainingId(training.id!);
+    final exercisesWithoutMultisets =
+        training.exercises.where((e) => e.multisetKey == null).toList();
 
-    // Mettre à jour, insérer ou supprimer les exercices liés
-    for (var exercise in training.exercises) {
+    // Mettre à jour, insérer ou supprimer les exercices liés non associés à des multisets
+    for (var exercise in exercisesWithoutMultisets) {
       if (exercise.id != null &&
           existingExercises.any((e) => e.id == exercise.id)) {
         // Cas mise à jour

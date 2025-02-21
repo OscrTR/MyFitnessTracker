@@ -331,7 +331,7 @@ class ActiveTrainingBloc
               trainingVersionId: timerState.trainingVersionId,
             );
 
-            sl<DatabaseService>().createRunLocation(runLocation);
+            await sl<DatabaseService>().createRunLocation(runLocation);
           }
         }
       }
