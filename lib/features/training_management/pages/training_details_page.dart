@@ -10,7 +10,6 @@ import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../core/enums/enums.dart';
 import '../../base_exercise_management/bloc/base_exercise_management_bloc.dart';
-import '../models/training.dart';
 
 import '../../../app_colors.dart';
 import '../../../helper_functions.dart';
@@ -112,8 +111,8 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
         (sl<TrainingManagementBloc>().state as TrainingManagementLoaded)
             .selectedTraining;
 
-    _controllers['trainingName']!.text = training?.name ?? '';
-    _controllers['trainingObjectives']!.text = training?.objectives ?? '';
+    _controllers['trainingName']!.text = training.name;
+    _controllers['trainingObjectives']!.text = training.objectives;
   }
 
   void initializeExerciseControllers(String key) {
@@ -121,10 +120,10 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
     final currentState = bloc.state;
 
     if (currentState is TrainingManagementLoaded) {
-      final exercises = currentState.selectedTraining?.exercises;
+      final exercises = currentState.selectedTraining.exercises;
 
       final Exercise exercise =
-          exercises!.firstWhere((exercise) => exercise.widgetKey == key);
+          exercises.firstWhere((exercise) => exercise.widgetKey == key);
 
       _tExerciseToCreateOrEdit = _tExerciseToCreateOrEdit.copyWith(
         id: exercise.id,
@@ -201,8 +200,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
     final currentState = bloc.state;
 
     if (currentState is TrainingManagementLoaded) {
-      final List<Multiset> multisets =
-          currentState.selectedTraining?.multisets ?? [];
+      final List<Multiset> multisets = currentState.selectedTraining.multisets;
       final Multiset multiset =
           multisets.firstWhere((multiset) => multiset.widgetKey == key);
 
@@ -279,16 +277,8 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
 
     if (key == 'trainingName' || key == 'trainingObjectives') {
       final training = (context.read<TrainingManagementBloc>().state
-                  as TrainingManagementLoaded)
-              .selectedTraining ??
-          Training(
-              name: '',
-              trainingType: TrainingType.workout,
-              exercises: [],
-              multisets: [],
-              objectives: '',
-              trainingDays: [],
-              baseExercises: []);
+              as TrainingManagementLoaded)
+          .selectedTraining;
 
       final trainingToCreateOrEdit = training.copyWith(
           name: _controllers['trainingName']!.text.trim(),
@@ -441,26 +431,26 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
       body: BlocBuilder<TrainingManagementBloc, TrainingManagementState>(
         builder: (context, state) {
           if (state is TrainingManagementLoaded) {
-            final training = state.selectedTraining;
             List<Map<String, Object>> exercisesAndMultisetsList = [];
 
-            if (training != null) {
-              if (!_isDataInitialized) {
-                _initializeTrainingGeneralInfo();
-                _isDataInitialized = true;
-              }
-              exercisesAndMultisetsList = [
-                ...state.selectedTraining!.exercises
-                    .map((e) => {'type': 'exercise', 'data': e}),
-                ...state.selectedTraining!.multisets
-                    .map((m) => {'type': 'multiset', 'data': m}),
-              ];
-              exercisesAndMultisetsList.sort((a, b) {
-                final aPosition = (a['data'] as dynamic).position ?? 0;
-                final bPosition = (b['data'] as dynamic).position ?? 0;
-                return aPosition.compareTo(bPosition);
-              });
+            if (!_isDataInitialized &&
+                state.selectedTraining !=
+                    TrainingManagementLoaded.emptyTraining) {
+              _initializeTrainingGeneralInfo();
+              _isDataInitialized = true;
             }
+            exercisesAndMultisetsList = [
+              ...state.selectedTraining.exercises
+                  .where((e) => e.multisetKey == null)
+                  .map((e) => {'type': 'exercise', 'data': e}),
+              ...state.selectedTraining.multisets
+                  .map((m) => {'type': 'multiset', 'data': m}),
+            ];
+            exercisesAndMultisetsList.sort((a, b) {
+              final aPosition = (a['data'] as dynamic).position ?? 0;
+              final bPosition = (b['data'] as dynamic).position ?? 0;
+              return aPosition.compareTo(bPosition);
+            });
 
             return Stack(
               children: [
@@ -473,7 +463,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                         const SizedBox(height: 30),
                         _buildTrainingGeneralInfo(context),
                         _buildReorderableListview(
-                            exercisesAndMultisetsList, context),
+                            exercisesAndMultisetsList, context, state),
                         const SizedBox(height: 20),
                         _buildAddButtons(context),
                         const SizedBox(height: 70),
@@ -504,17 +494,8 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
         child: GestureDetector(
           onTap: () {
             final training = (context.read<TrainingManagementBloc>().state
-                        as TrainingManagementLoaded)
-                    .selectedTraining ??
-                Training(
-                  name: '',
-                  trainingType: TrainingType.workout,
-                  exercises: [],
-                  multisets: [],
-                  objectives: '',
-                  trainingDays: [],
-                  baseExercises: [],
-                );
+                    as TrainingManagementLoaded)
+                .selectedTraining;
             final bloc = context.read<TrainingManagementBloc>();
             bloc.add(CreateOrUpdateTrainingEvent(training));
             GoRouter.of(context).push('/trainings');
@@ -524,8 +505,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                 color: AppColors.folly, borderRadius: BorderRadius.circular(5)),
             child: Center(
               child: Text(
-                state.selectedTraining == null ||
-                        state.selectedTraining!.id == 0
+                state.selectedTraining.id == null
                     ? tr('global_create')
                     : tr('global_save'),
                 style: const TextStyle(color: AppColors.white),
@@ -539,7 +519,8 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
 
   ReorderableListView _buildReorderableListview(
       List<Map<String, Object>> exercisesAndMultisetsList,
-      BuildContext context) {
+      BuildContext context,
+      TrainingManagementLoaded state) {
     return ReorderableListView(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -574,6 +555,9 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
           final newPosition = combinedList.indexOf(item);
           return multiset.copyWith(position: newPosition);
         }).toList();
+
+        updatedExercises.addAll(state.selectedTraining.exercises
+            .where((e) => e.multisetKey != null));
 
         // Dispatch the updated training exercises to the bloc
         context.read<TrainingManagementBloc>().add(
@@ -841,6 +825,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
       key: ValueKey(multiset.widgetKey),
       margin: const EdgeInsets.only(top: 20),
       decoration: BoxDecoration(
+          color: AppColors.white,
           border: Border.all(color: AppColors.timberwolf),
           borderRadius: BorderRadius.circular(10)),
       padding: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
@@ -939,9 +924,9 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
   Widget _buildExercisesList(Multiset multiset) {
     final List<Exercise> multisetExercises =
         (sl<TrainingManagementBloc>().state as TrainingManagementLoaded)
-            .activeTraining!
+            .selectedTraining
             .exercises
-            .where((e) => e.multisetId == multiset.id)
+            .where((e) => e.multisetKey == multiset.widgetKey)
             .toList();
 
     return ListView.builder(
@@ -1212,18 +1197,9 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                 GestureDetector(
                   onTap: () {
                     final training = (context
-                                .read<TrainingManagementBloc>()
-                                .state as TrainingManagementLoaded)
-                            .selectedTraining ??
-                        Training(
-                          name: '',
-                          trainingType: TrainingType.workout,
-                          exercises: [],
-                          multisets: [],
-                          objectives: '',
-                          trainingDays: [],
-                          baseExercises: [],
-                        );
+                            .read<TrainingManagementBloc>()
+                            .state as TrainingManagementLoaded)
+                        .selectedTraining;
 
                     sl<TrainingManagementBloc>().add(
                         CreateOrUpdateMultisetEvent(
@@ -1467,17 +1443,9 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                             multisetKey: multiset.widgetKey!));
                   } else {
                     final training = (context
-                                .read<TrainingManagementBloc>()
-                                .state as TrainingManagementLoaded)
-                            .selectedTraining ??
-                        Training(
-                            name: '',
-                            trainingType: TrainingType.workout,
-                            exercises: [],
-                            multisets: [],
-                            objectives: '',
-                            trainingDays: [],
-                            baseExercises: []);
+                            .read<TrainingManagementBloc>()
+                            .state as TrainingManagementLoaded)
+                        .selectedTraining;
 
                     sl<TrainingManagementBloc>().add(
                         CreateOrUpdateExerciseEvent(
@@ -1982,17 +1950,8 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
 
   Container _buildTrainingGeneralInfo(BuildContext context) {
     final training = (context.read<TrainingManagementBloc>().state
-                as TrainingManagementLoaded)
-            .selectedTraining ??
-        Training(
-          name: '',
-          trainingType: TrainingType.workout,
-          exercises: [],
-          multisets: [],
-          objectives: '',
-          trainingDays: [],
-          baseExercises: [],
-        );
+            as TrainingManagementLoaded)
+        .selectedTraining;
 
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
@@ -2054,17 +2013,8 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
             },
             onChanged: (value) {
               final training = (context.read<TrainingManagementBloc>().state
-                          as TrainingManagementLoaded)
-                      .selectedTraining ??
-                  Training(
-                    name: '',
-                    trainingType: TrainingType.workout,
-                    exercises: [],
-                    multisets: [],
-                    objectives: '',
-                    trainingDays: [],
-                    baseExercises: [],
-                  );
+                      as TrainingManagementLoaded)
+                  .selectedTraining;
 
               sl<TrainingManagementBloc>().add(
                   CreateOrUpdateSelectedTrainingEvent(
@@ -2096,18 +2046,9 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                       }
                       setState(() {
                         final training = (context
-                                    .read<TrainingManagementBloc>()
-                                    .state as TrainingManagementLoaded)
-                                .selectedTraining ??
-                            Training(
-                              name: '',
-                              trainingType: TrainingType.workout,
-                              exercises: [],
-                              multisets: [],
-                              objectives: '',
-                              baseExercises: [],
-                              trainingDays: [],
-                            );
+                                .read<TrainingManagementBloc>()
+                                .state as TrainingManagementLoaded)
+                            .selectedTraining;
 
                         sl<TrainingManagementBloc>().add(
                           CreateOrUpdateSelectedTrainingEvent(
@@ -2182,14 +2123,14 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
               (context.read<TrainingManagementBloc>().state
                               as TrainingManagementLoaded)
                           .selectedTraining
-                          ?.id !=
+                          .id !=
                       null
                   ? context.tr('training_detail_page_title_edit')
                   : context.tr('training_detail_page_title_create'),
               style: Theme.of(context).textTheme.titleLarge,
             ),
           ),
-          if (state.selectedTraining != null && state.selectedTraining!.id != 0)
+          if (state.selectedTraining.id != null)
             Positioned(
               top: 0,
               bottom: 0,
@@ -2197,7 +2138,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
               child: GestureDetector(
                 onTap: () {
                   sl<TrainingManagementBloc>()
-                      .add(DeleteTrainingEvent(state.selectedTraining!.id!));
+                      .add(DeleteTrainingEvent(state.selectedTraining.id!));
                   GoRouter.of(context).push('/trainings');
                 },
                 child: const Icon(

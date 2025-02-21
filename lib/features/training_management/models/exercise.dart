@@ -185,7 +185,7 @@ class Exercise extends Equatable {
           (map['isTargetPaceSelected'] as int) == 1 ? true : false,
       targetPace: map['targetPace'] as int,
       sets: map['sets'] as int,
-      isSetsInReps: map['isSetsInReps'] as bool,
+      isSetsInReps: (map['isSetsInReps'] as int) == 1 ? true : false,
       minReps: map['minReps'] as int,
       maxReps: map['maxReps'] as int,
       duration: map['duration'] as int,

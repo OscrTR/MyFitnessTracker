@@ -38,7 +38,7 @@ class DeleteTrainingEvent extends TrainingManagementEvent {
 }
 
 class GetTrainingEvent extends TrainingManagementEvent {
-  final int id;
+  final int? id;
 
   const GetTrainingEvent({required this.id});
 

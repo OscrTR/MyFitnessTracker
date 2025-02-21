@@ -11,15 +11,33 @@ class TrainingManagementInitial extends TrainingManagementState {}
 
 class TrainingManagementLoaded extends TrainingManagementState {
   final List<Training> trainings;
-  final Training? selectedTraining;
+  final Training selectedTraining;
   final Training? activeTraining;
   final int? activeTrainingMostRecentVersionId;
   final Map<int, int?> daysSinceLastTraining;
 
+  static const emptyTraining = Training(
+    name: '',
+    trainingType: TrainingType.workout,
+    objectives: '',
+    trainingDays: [],
+    exercises: [],
+    multisets: [],
+    baseExercises: [],
+  );
+
   const TrainingManagementLoaded({
     this.trainings = const [],
     this.activeTraining,
-    this.selectedTraining,
+    this.selectedTraining = const Training(
+      name: '',
+      trainingType: TrainingType.workout,
+      objectives: '',
+      trainingDays: [],
+      exercises: [],
+      multisets: [],
+      baseExercises: [],
+    ),
     this.activeTrainingMostRecentVersionId,
     this.daysSinceLastTraining = const {},
   });
@@ -45,21 +63,29 @@ class TrainingManagementLoaded extends TrainingManagementState {
       activeTrainingMostRecentVersionId: activeTrainingMostRecentVersionId ??
           this.activeTrainingMostRecentVersionId,
       selectedTraining: resetSelectedTraining
-          ? null
-          : (selectedTraining ?? this.selectedTraining)?.copyWith(
-              name: selectedTraining?.name ?? this.selectedTraining?.name,
+          ? Training(
+              name: '',
+              trainingType: TrainingType.workout,
+              objectives: '',
+              trainingDays: [],
+              exercises: [],
+              multisets: [],
+              baseExercises: [],
+            )
+          : (selectedTraining ?? this.selectedTraining).copyWith(
+              name: selectedTraining?.name ?? this.selectedTraining.name,
               trainingType: selectedTraining?.trainingType ??
-                  this.selectedTraining?.trainingType,
+                  this.selectedTraining.trainingType,
               exercises: selectedTraining?.exercises ??
                   this
                       .selectedTraining
-                      ?.exercises
+                      .exercises
                       .map((e) => e.copyWith())
                       .toList(),
               multisets: selectedTraining?.multisets ??
                   this
                       .selectedTraining
-                      ?.multisets
+                      .multisets
                       .map((e) => e.copyWith())
                       .toList(),
             ),

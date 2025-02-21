@@ -871,7 +871,12 @@ Widget _buildTrainingsList(BuildContext context) {
               Row(
                 children: [
                   GestureDetector(
-                    onTap: () => GoRouter.of(context).push('/training_detail'),
+                    onTap: () {
+                      context
+                          .read<TrainingManagementBloc>()
+                          .add(GetTrainingEvent(id: null));
+                      GoRouter.of(context).push('/training_detail');
+                    },
                     child: Container(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 15, vertical: 7),

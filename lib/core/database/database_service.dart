@@ -56,7 +56,7 @@ class DatabaseService {
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     trainingId INTEGER,
     multisetId INTEGER,
-    exerciseId INTEGER,
+    baseExerciseId INTEGER,
     exerciseType TEXT NOT NULL,
     runType TEXT NOT NULL,
     specialInstructions TEXT NOT NULL,
@@ -76,9 +76,10 @@ class DatabaseService {
     position INTEGER,
     intensity INTEGER NOT NULL,
     widgetKey TEXT,
+    multisetKey TEXT,
     FOREIGN KEY (trainingId) REFERENCES trainings (id),
     FOREIGN KEY (multisetId) REFERENCES multisets (id),
-    FOREIGN KEY (exerciseId) REFERENCES base_exercises (id)
+    FOREIGN KEY (baseExerciseId) REFERENCES base_exercises (id)
   )
   ''');
 
@@ -145,6 +146,10 @@ class DatabaseService {
 
       await tx.execute('''
   CREATE INDEX idx_exercises_trainingId ON exercises(trainingId)
+  ''');
+
+      await tx.execute('''
+  CREATE INDEX idx_multisets_trainingId ON multisets(trainingId)
   ''');
 
       await tx.execute('''
@@ -216,7 +221,35 @@ class DatabaseService {
   }
 
   Future<int> createTraining(Training training) async {
+    // Insert training
     final trainingId = await insert('trainings', training.toMap());
+
+    // Insert multisets
+    for (var multiset in training.multisets) {
+      final multisetWithTrainingId = multiset.copyWith(trainingId: trainingId);
+      final multisetId =
+          await insert('multisets', multisetWithTrainingId.toMap());
+
+      // Insert multiset exercises
+      final matchingExercises = training.exercises
+          .where((e) => e.multisetKey == multiset.widgetKey)
+          .toList();
+
+      for (var exercise in matchingExercises) {
+        final exerciseWithMultisetId =
+            exercise.copyWith(trainingId: trainingId, multisetId: multisetId);
+        await insert('exercises', exerciseWithMultisetId.toMap());
+      }
+    }
+
+    final exercisesWithoutMultiset =
+        training.exercises.where((e) => e.multisetKey == null).toList();
+
+    // Insert exercises not linked to a multiset
+    for (var exercise in exercisesWithoutMultiset) {
+      final exerciseWithTrainingId = exercise.copyWith(trainingId: trainingId);
+      await insert('exercises', exerciseWithTrainingId.toMap());
+    }
 
     final TrainingVersion trainingVersion = TrainingVersion.fromTraining(
         trainingId: trainingId, training: training);
@@ -261,26 +294,91 @@ class DatabaseService {
 
   Future<Training?> getTrainingById(int trainingId) async {
     final Map<String, dynamic> result =
-        await _db.get('SELECT * FROM trainings');
+        await _db.get('SELECT * FROM trainings WHERE id = ?', [trainingId]);
 
     if (result.isEmpty) return null;
 
-    final Training training = Training.fromMap(result);
+    Training training = Training.fromMap(result);
+
+    final multisets = await getMultisetsByTrainingId(training.id!);
+
+    final exercises = await getExercisesByTrainingId(training.id!);
+
+    List<BaseExercise> baseExercises = [];
+
+    for (var exercise in exercises) {
+      if (exercise.baseExerciseId != null) {
+        final baseExercise =
+            await getBaseExerciseById(exercise.baseExerciseId!);
+        baseExercises.add(baseExercise!);
+      }
+    }
+
+    training = training.copyWith(
+      multisets: multisets,
+      exercises: exercises,
+      baseExercises: baseExercises,
+    );
 
     return training;
   }
 
   Future<List<Training>> getAllTrainings() async {
-    final List<Map<String, dynamic>> result =
+    final List<Map<String, dynamic>> trainingsResult =
         await _db.getAll('SELECT * FROM trainings');
 
-    final List<Training> trainings =
-        result.map((row) => Training.fromMap(row)).toList();
+    final List<Training> trainings = [];
+
+    for (var row in trainingsResult) {
+      final training = Training.fromMap(row);
+
+      final multisets = await getMultisetsByTrainingId(training.id!);
+
+      final exercises = await getExercisesByTrainingId(training.id!);
+
+      List<BaseExercise> baseExercises = [];
+
+      for (var exercise in exercises) {
+        if (exercise.baseExerciseId != null) {
+          final baseExercise =
+              await getBaseExerciseById(exercise.baseExerciseId!);
+          baseExercises.add(baseExercise!);
+        }
+      }
+
+      trainings.add(
+        training.copyWith(
+          multisets: multisets,
+          exercises: exercises,
+          baseExercises: baseExercises,
+        ),
+      );
+    }
 
     return trainings;
   }
 
-  Future<List<HistoryEntry>> getAllHistoryEntriesByTrainingId(
+  Future<List<Multiset>> getMultisetsByTrainingId(int trainingId) async {
+    final List<Map<String, dynamic>> result = await _db
+        .getAll('SELECT * FROM multisets WHERE trainingId = ?', [trainingId]);
+
+    final List<Multiset> multisets =
+        result.map((row) => Multiset.fromMap(row)).toList();
+
+    return multisets;
+  }
+
+  Future<List<Exercise>> getExercisesByTrainingId(int trainingId) async {
+    final List<Map<String, dynamic>> result = await _db
+        .getAll('SELECT * FROM exercises WHERE trainingId = ?', [trainingId]);
+
+    final List<Exercise> exercises =
+        result.map((row) => Exercise.fromMap(row)).toList();
+
+    return exercises;
+  }
+
+  Future<List<HistoryEntry>> getHistoryEntriesByTrainingId(
       int trainingId) async {
     final List<Map<String, dynamic>> result = await _db.getAll(
         'SELECT * FROM history_entries WHERE trainingId = ?', [trainingId]);
@@ -297,7 +395,7 @@ class DatabaseService {
     final trainings = await getAllTrainings();
 
     for (var training in trainings) {
-      final allEntries = await getAllHistoryEntriesByTrainingId(training.id!);
+      final allEntries = await getHistoryEntriesByTrainingId(training.id!);
       final lastEntry = allEntries.isNotEmpty ? allEntries.last : null;
 
       if (lastEntry != null) {
@@ -386,9 +484,75 @@ class DatabaseService {
   }
 
   Future<void> updateTraining(Training training) async {
-    await update('trainings', training.toMap(), 'id = ?', [training.id!]);
+    // Update the main training table
+    await update('trainings', training.toMap(), 'id = ?', [training.id]);
+
+    // Récupérer l'ensemble des multisets existants pour cet entraînement
+    final existingMultisets = await getMultisetsByTrainingId(training.id!);
+
+    // Mettre à jour ou insérer chaque multiset
+    for (var multiset in training.multisets) {
+      if (existingMultisets.any((m) => m.id == multiset.id)) {
+        // Cas mise à jour
+        await update(
+          'multisets',
+          multiset.toMap(),
+          'id = ?',
+          [multiset.id],
+        );
+      } else {
+        // Cas ajout (nouveau multiset)
+        final multisetWithTrainingId =
+            multiset.copyWith(trainingId: training.id);
+        await insert('multisets', multisetWithTrainingId.toMap());
+      }
+    }
+
+    // Supprimer les multisets qui ne sont plus dans `training.multisets`
+    final multisetIdsToKeep =
+        training.multisets.map((m) => m.id).whereType<int>().toList();
+    final multisetIdsToDelete =
+        existingMultisets.where((m) => !multisetIdsToKeep.contains(m.id));
+
+    for (var multisetToDelete in multisetIdsToDelete) {
+      await deleteMultiset(multisetToDelete.id!);
+    }
+
+    // Récupérer tous les exercices existants pour cet entraînement
+    final existingExercises = await getExercisesByTrainingId(training.id!);
+
+    // Mettre à jour, insérer ou supprimer les exercices liés
+    for (var exercise in training.exercises) {
+      if (exercise.id != null &&
+          existingExercises.any((e) => e.id == exercise.id)) {
+        // Cas mise à jour
+        await update(
+          'exercises',
+          exercise.toMap(),
+          'id = ?',
+          [exercise.id],
+        );
+      } else {
+        // Cas ajout (nouvel exercice)
+        await insert(
+            'exercises', exercise.copyWith(trainingId: training.id).toMap());
+      }
+    }
+
+    // Supprimer les exercices qui ne sont plus dans `training.exercises`
+    final exerciseIdsToKeep =
+        training.exercises.map((e) => e.id).whereType<int>().toList();
+    final exercisesToDelete =
+        existingExercises.where((e) => !exerciseIdsToKeep.contains(e.id));
+
+    for (var exerciseToDelete in exercisesToDelete) {
+      await deleteExercise(exerciseToDelete.id!);
+    }
+
     final TrainingVersion trainingVersion = TrainingVersion.fromTraining(
-        trainingId: training.id!, training: training);
+      trainingId: training.id!,
+      training: training,
+    );
     await createTrainingVersion(trainingVersion);
   }
 
@@ -428,7 +592,7 @@ class DatabaseService {
   }
 
   Future<void> deleteHistoryEntriesByTrainingId(int trainingId) async {
-    final entriesToDelete = await getAllHistoryEntriesByTrainingId(trainingId);
+    final entriesToDelete = await getHistoryEntriesByTrainingId(trainingId);
 
     for (var entry in entriesToDelete) {
       await _db.execute('DELETE FROM history_entries WHERE id = ?', [entry.id]);

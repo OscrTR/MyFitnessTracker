@@ -195,7 +195,7 @@ class _BaseExerciseDetailPageState extends State<BaseExerciseDetailPage> {
                         context.read<BaseExerciseManagementBloc>().add(
                               CreateOrUpdateBaseExerciseEvent(
                                 BaseExercise(
-                                  id: baseExercise!.id,
+                                  id: baseExercise?.id,
                                   name: _nameController.text,
                                   description: _descriptionController.text,
                                   imagePath: _image?.path ?? '',

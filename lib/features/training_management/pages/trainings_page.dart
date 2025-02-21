@@ -35,8 +35,6 @@ class _TrainingsPageState extends State<TrainingsPage> {
 
   @override
   Widget build(BuildContext context) {
-    // print(
-    //     'Found base exercises : ${(sl<BaseExerciseManagementBloc>().state as BaseExerciseManagementLoaded).baseExercises.map((b) => b.name).toList()}');
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(20),
@@ -510,6 +508,9 @@ void _showNewDialog(BuildContext context) {
           const SizedBox(height: 20),
           GestureDetector(
             onTap: () {
+              context
+                  .read<TrainingManagementBloc>()
+                  .add(GetTrainingEvent(id: null));
               GoRouter.of(context).push(
                 '/training_detail',
               );

@@ -72,9 +72,6 @@ class Training extends Equatable {
       'trainingType': trainingType.toMap(),
       'objectives': objectives,
       'trainingDays': trainingDays.map((x) => x.toMap()).toList(),
-      'multisets': multisets.map((x) => x.toMap()).toList(),
-      'exercises': exercises.map((x) => x.toMap()).toList(),
-      'baseExercises': baseExercises.map((x) => x.toMap()).toList(),
     };
   }
 
@@ -84,26 +81,10 @@ class Training extends Equatable {
       name: map['name'] as String,
       trainingType: TrainingType.fromMap(map['trainingType']),
       objectives: map['objectives'] as String,
-      trainingDays: List<TrainingDay>.from(
-        (map['trainingDays'] as List<int>).map<TrainingDay>(
-          (x) => TrainingDay.fromMap(x as String),
-        ),
-      ),
-      multisets: List<Multiset>.from(
-        (map['multisets'] as List<int>).map<Multiset>(
-          (x) => Multiset.fromMap(x as Map<String, dynamic>),
-        ),
-      ),
-      exercises: List<Exercise>.from(
-        (map['exercises'] as List<int>).map<Exercise>(
-          (x) => Exercise.fromMap(x as Map<String, dynamic>),
-        ),
-      ),
-      baseExercises: List<BaseExercise>.from(
-        (map['baseExercises'] as List<int>).map<BaseExercise>(
-          (x) => BaseExercise.fromMap(x as Map<String, dynamic>),
-        ),
-      ),
+      trainingDays: TrainingDay.listFromMap(map['trainingDays']),
+      multisets: [],
+      exercises: [],
+      baseExercises: [],
     );
   }
 
