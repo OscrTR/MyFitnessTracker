@@ -197,15 +197,6 @@ class _TrainingsPageState extends State<TrainingsPage> {
       itemCount: displayedTrainings.length,
       itemBuilder: (context, index) {
         final training = displayedTrainings.elementAt(index);
-        final exercisesAndMultisetsList = [
-          ...training.exercises.map((e) => {'type': 'exercise', 'data': e}),
-          ...training.multisets.map((m) => {'type': 'multiset', 'data': m}),
-        ];
-        exercisesAndMultisetsList.sort((a, b) {
-          final aPosition = (a['data'] as dynamic).position ?? 0;
-          final bPosition = (b['data'] as dynamic).position ?? 0;
-          return aPosition.compareTo(bPosition);
-        });
 
         final daysSinceTraining =
             (sl<TrainingManagementBloc>().state as TrainingManagementLoaded)
@@ -240,7 +231,7 @@ class _TrainingsPageState extends State<TrainingsPage> {
                 ),
                 const SizedBox(width: 5),
                 Text(tr('training_page_exercises_count',
-                    args: ['${exercisesAndMultisetsList.length}']))
+                    args: ['${training.exercises.length}']))
               ]),
               Row(children: [
                 const Icon(
