@@ -1,2 +1,0 @@
-/Users/oscar/Documents/GitHub/my_fitness_tracker/android/app/.cxx/Debug/2z3k344t/arm64-v8a/CMakeFiles/edit_cache.dir
-/Users/oscar/Documents/GitHub/my_fitness_tracker/android/app/.cxx/Debug/2z3k344t/arm64-v8a/CMakeFiles/rebuild_cache.dir
