@@ -122,6 +122,7 @@ class DatabaseService {
     exerciseId INTEGER NOT NULL,
     trainingVersionId INTEGER NOT NULL,
     setNumber INTEGER NOT NULL,
+    intervalNumber INTEGER,
     latitude REAL NOT NULL,
     longitude REAL NOT NULL,
     altitude REAL NOT NULL,
@@ -723,10 +724,9 @@ class DatabaseService {
   }
 
   Future<void> deleteHistoryEntriesByTrainingId(int trainingId) async {
-    final entriesToDelete = await getHistoryEntriesByTrainingId(trainingId);
-
-    for (var entry in entriesToDelete) {
-      await _db.execute('DELETE FROM history_entries WHERE id = ?', [entry.id]);
-    }
+    await _db.execute(
+        'DELETE FROM history_entries WHERE trainingId = ?', [trainingId]);
+    await _db.execute(
+        'DELETE FROM run_locations WHERE trainingId = ?', [trainingId]);
   }
 }

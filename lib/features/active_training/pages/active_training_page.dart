@@ -603,7 +603,6 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage>
           return ActiveMultisetWidget(
             isLast: isLast,
             multiset: multiset,
-            multisetIndex: index,
             lastTrainingVersionId: lastTrainingVersionId,
             multisetExercises: multisetExercises,
           );

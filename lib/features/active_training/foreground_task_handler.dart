@@ -25,16 +25,13 @@ class MyTaskHandler extends TaskHandler {
   double totalDistance = 0.0;
 
   @override
-  Future<void> onStart(DateTime timestamp, TaskStarter starter) async {
-    print('onStart(starter: ${starter.name})');
-  }
+  Future<void> onStart(DateTime timestamp, TaskStarter starter) async {}
 
   @override
   void onRepeatEvent(DateTime timestamp) {}
 
   @override
   Future<void> onDestroy(DateTime timestamp) async {
-    print('onDestroy');
     _stopLocationTracking();
   }
 
@@ -76,7 +73,6 @@ class MyTaskHandler extends TaskHandler {
         _updateLocationAndDistance(location);
       },
       onError: (error) {
-        print('Location tracking error: $error');
         _stopLocationTracking();
       },
     );

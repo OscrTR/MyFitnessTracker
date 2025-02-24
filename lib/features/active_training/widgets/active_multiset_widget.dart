@@ -14,7 +14,6 @@ class ActiveMultisetWidget extends StatefulWidget {
   final Multiset multiset;
   final List<Exercise> multisetExercises;
   final bool isLast;
-  final int multisetIndex;
   final int lastTrainingVersionId;
 
   const ActiveMultisetWidget({
@@ -22,7 +21,6 @@ class ActiveMultisetWidget extends StatefulWidget {
     required this.isLast,
     required this.multiset,
     required this.multisetExercises,
-    required this.multisetIndex,
     required this.lastTrainingVersionId,
   });
 
@@ -126,8 +124,6 @@ class _ActiveMultisetWidgetState extends State<ActiveMultisetWidget> {
                 multiset: widget.multiset,
                 exercise: exercise,
                 isLast: isLast,
-                multisetIndex: widget.multisetIndex,
-                multisetExerciseIndex: index,
                 key: GlobalKey(),
                 lastTrainingVersionId: widget.lastTrainingVersionId,
               )
@@ -135,8 +131,6 @@ class _ActiveMultisetWidgetState extends State<ActiveMultisetWidget> {
                 multiset: widget.multiset,
                 exercise: exercise,
                 isLast: isLast,
-                multisetIndex: widget.multisetIndex,
-                multisetExerciseIndex: index,
                 key: GlobalKey(),
                 lastTrainingVersionId: widget.lastTrainingVersionId,
               );

@@ -17,7 +17,7 @@ class HistoryTraining extends Equatable {
   final int distance;
   final int calories;
   final int pace;
-  final int drop;
+  final int elevation;
   final int load;
   final int sets;
   final int rest;
@@ -34,7 +34,7 @@ class HistoryTraining extends Equatable {
     required this.distance,
     required this.calories,
     required this.pace,
-    required this.drop,
+    required this.elevation,
     required this.load,
     required this.sets,
     required this.rest,
@@ -53,7 +53,7 @@ class HistoryTraining extends Equatable {
       distance,
       calories,
       pace,
-      drop,
+      elevation,
       load,
       sets,
       rest,
@@ -159,7 +159,7 @@ class HistoryTraining extends Equatable {
       distance: totalDistance,
       calories: totalCalories,
       pace: averagePace,
-      drop: totalDrop,
+      elevation: totalDrop,
       load: totalLoad,
       sets: totalSets,
       rest: totalRest,

@@ -22,17 +22,14 @@ import '../../../core/widgets/small_text_field_widget.dart';
 class ActiveMultisetExerciseWidget extends StatefulWidget {
   final Multiset multiset;
   final Exercise exercise;
-  final int multisetIndex;
-  final int multisetExerciseIndex;
   final bool isLast;
   final int lastTrainingVersionId;
+
   const ActiveMultisetExerciseWidget({
     super.key,
     required this.multiset,
     required this.exercise,
     required this.isLast,
-    required this.multisetIndex,
-    required this.multisetExerciseIndex,
     required this.lastTrainingVersionId,
   });
 
@@ -138,11 +135,11 @@ class _ActiveMultisetExerciseWidgetState
 
         if (lastStartedTimerId != null) {
           final isStartTimerSameBeginning = lastStartedTimerId.startsWith(
-              '${widget.multisetIndex < 10 ? 0 : ''}${widget.multisetIndex}');
+              '${widget.multiset.position! < 10 ? 0 : ''}${widget.multiset.position}');
           final isStartTimerSameEnding = (lastStartedTimerId.endsWith(
-                  '${widget.multisetExerciseIndex < 10 ? 0 : ''}${widget.multisetExerciseIndex}') ||
+                  '${widget.exercise.position! < 10 ? 0 : ''}${widget.exercise.position}') ||
               lastStartedTimerId.endsWith(
-                  '${widget.multisetExerciseIndex < 10 ? 0 : ''}${widget.multisetExerciseIndex}-rest'));
+                  '${widget.exercise.position! < 10 ? 0 : ''}${widget.exercise.position}-rest'));
           if (isStartTimerSameBeginning && isStartTimerSameEnding) {
             isActiveExercise = true;
           }
@@ -372,41 +369,38 @@ class _ActiveMultisetExerciseWidgetState
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: widget.multiset.sets,
-      itemBuilder: (context, index) {
+      itemBuilder: (context, setIndex) {
         return Container(
           margin: const EdgeInsets.only(top: 10),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                '${index + 1}',
+                '${setIndex + 1}',
                 style: const TextStyle(color: AppColors.taupeGray),
               ),
               isSetsInReps
                   ? ActiveExerciseRow(
-                      historyEntryId: _setHistoryIds['idSet${index + 1}'],
-                      weightController: _controllers['weightSet${index + 1}']!,
-                      repsController: _controllers['repsSet${index + 1}']!,
+                      historyEntryId: _setHistoryIds['idSet${setIndex + 1}'],
+                      weightController:
+                          _controllers['weightSet${setIndex + 1}']!,
+                      repsController: _controllers['repsSet${setIndex + 1}']!,
                       multiset: widget.multiset,
                       exercise: widget.exercise,
-                      isLastSet: widget.multiset.sets == index + 1,
+                      isLastSet: widget.multiset.sets == setIndex + 1,
                       isLastMultisetExercise: multisetExercises.length ==
                           widget.exercise.position! + 1,
-                      multisetIndex: widget.multisetIndex,
-                      multisetExerciseIndex: widget.multisetExerciseIndex,
-                      setIndex: index,
+                      setIndex: setIndex,
                       exerciseGlobalKey: widget.key! as GlobalKey,
                       lastTrainingVersionId: widget.lastTrainingVersionId,
                     )
                   : ActiveExerciseDurationRow(
                       exercise: widget.exercise,
                       multiset: widget.multiset,
-                      isLastSet: widget.multiset.sets == index + 1,
+                      isLastSet: widget.multiset.sets == setIndex + 1,
                       isLastMultisetExercise: multisetExercises.length ==
                           widget.exercise.position! + 1,
-                      multisetIndex: widget.multisetIndex,
-                      multisetExerciseIndex: widget.multisetExerciseIndex,
-                      setIndex: index,
+                      setIndex: setIndex,
                       exerciseGlobalKey: widget.key! as GlobalKey,
                       lastTrainingVersionId: widget.lastTrainingVersionId,
                     )
@@ -426,8 +420,6 @@ class ActiveExerciseRow extends StatefulWidget {
   final bool isLastMultisetExercise;
   final TextEditingController weightController;
   final TextEditingController repsController;
-  final int multisetIndex;
-  final int multisetExerciseIndex;
   final int setIndex;
   final GlobalKey exerciseGlobalKey;
   final int lastTrainingVersionId;
@@ -441,8 +433,6 @@ class ActiveExerciseRow extends StatefulWidget {
     required this.repsController,
     required this.isLastSet,
     required this.isLastMultisetExercise,
-    required this.multisetIndex,
-    required this.multisetExerciseIndex,
     required this.setIndex,
     required this.exerciseGlobalKey,
     required this.lastTrainingVersionId,
@@ -458,7 +448,7 @@ class _ActiveExerciseRowState extends State<ActiveExerciseRow> {
   @override
   Widget build(BuildContext context) {
     final restTimerId =
-        '${widget.multisetIndex < 10 ? 0 : ''}${widget.multisetIndex}-${widget.setIndex < 10 ? 0 : ''}${widget.setIndex}-${widget.multisetExerciseIndex < 10 ? 0 : ''}${widget.multisetExerciseIndex}-rest';
+        '${widget.multiset.position! < 10 ? 0 : ''}${widget.multiset.position!}-${widget.setIndex < 10 ? 0 : ''}${widget.setIndex}-${widget.exercise.position! < 10 ? 0 : ''}${widget.exercise.position!}-rest';
 
     context.read<ActiveTrainingBloc>().add(
           CreateTimer(
@@ -576,8 +566,6 @@ class ActiveExerciseDurationRow extends StatelessWidget {
   final Exercise exercise;
   final bool isLastSet;
   final bool isLastMultisetExercise;
-  final int multisetIndex;
-  final int multisetExerciseIndex;
   final int setIndex;
   final GlobalKey exerciseGlobalKey;
   final int lastTrainingVersionId;
@@ -588,8 +576,6 @@ class ActiveExerciseDurationRow extends StatelessWidget {
     required this.exercise,
     required this.isLastSet,
     required this.isLastMultisetExercise,
-    required this.multisetIndex,
-    required this.multisetExerciseIndex,
     required this.setIndex,
     required this.exerciseGlobalKey,
     required this.lastTrainingVersionId,
@@ -598,9 +584,9 @@ class ActiveExerciseDurationRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final timerId =
-        '${multisetIndex < 10 ? 0 : ''}$multisetIndex-${setIndex < 10 ? 0 : ''}$setIndex-${multisetExerciseIndex < 10 ? 0 : ''}$multisetExerciseIndex';
+        '${multiset.position! < 10 ? 0 : ''}${multiset.position!}-${setIndex < 10 ? 0 : ''}$setIndex-${exercise.position! < 10 ? 0 : ''}${exercise.position!}';
     final restTimerId =
-        '${multisetIndex < 10 ? 0 : ''}$multisetIndex-${setIndex < 10 ? 0 : ''}$setIndex-${multisetExerciseIndex < 10 ? 0 : ''}$multisetExerciseIndex-rest';
+        '${multiset.position! < 10 ? 0 : ''}${multiset.position!}-${setIndex < 10 ? 0 : ''}$setIndex-${exercise.position! < 10 ? 0 : ''}${exercise.position!}-rest';
 
     context.read<ActiveTrainingBloc>().add(CreateTimer(
           timerState: TimerState(

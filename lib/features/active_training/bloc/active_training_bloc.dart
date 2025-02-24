@@ -57,7 +57,8 @@ class ActiveTrainingBloc
         final registeredId = entries
             ?.where((entry) =>
                 entry.exerciseId == currentTimerState.exerciseId &&
-                entry.setNumber == currentTimerState.setNumber)
+                entry.setNumber == currentTimerState.setNumber &&
+                entry.intervalNumber == currentTimerState.intervalNumber)
             .toList()
             .sortedBy((entry) => entry.date)
             .lastOrNull
@@ -321,6 +322,7 @@ class ActiveTrainingBloc
               trainingId: timerState.trainingId,
               exerciseId: timerState.exerciseId,
               setNumber: timerState.setNumber,
+              intervalNumber: timerState.intervalNumber,
               latitude: event.locationData!.latitude,
               longitude: event.locationData!.longitude,
               altitude: event.locationData!.altitude,

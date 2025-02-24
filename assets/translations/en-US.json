@@ -96,7 +96,7 @@
   "home_page_distance": "Distance",
   "home_page_calories": "Calories",
   "home_page_pace": "Average pace",
-  "home_page_drop": "Drop",
+  "home_page_drop": "Elevation",
   "home_page_load": "Load",
   "home_page_sets": "Sets",
   "home_page_rest": "Rest",
@@ -165,7 +165,7 @@
   "history_page_duration": "Duration",
   "history_page_pace": "Pace",
   "history_page_trace": "Trace",
-  "history_page_drop": "Drop",
+  "history_page_drop": "Elevation",
   "history_page_interval": "Interval",
 
   "stats_page_title": "Stats",

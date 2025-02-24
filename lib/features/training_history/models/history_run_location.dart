@@ -6,6 +6,7 @@ class RunLocation extends Equatable {
   final int exerciseId;
   final int trainingVersionId;
   final int setNumber;
+  final int? intervalNumber;
   final double latitude;
   final double longitude;
   final double altitude;
@@ -19,6 +20,7 @@ class RunLocation extends Equatable {
     required this.exerciseId,
     required this.trainingVersionId,
     required this.setNumber,
+    required this.intervalNumber,
     required this.latitude,
     required this.longitude,
     required this.altitude,
@@ -74,6 +76,7 @@ class RunLocation extends Equatable {
       trainingId,
       trainingVersionId,
       setNumber,
+      intervalNumber,
       latitude,
       longitude,
       altitude,
@@ -90,6 +93,7 @@ class RunLocation extends Equatable {
       'exerciseId': exerciseId,
       'trainingVersionId': trainingVersionId,
       'setNumber': setNumber,
+      'intervalNumber': intervalNumber,
       'latitude': latitude,
       'longitude': longitude,
       'altitude': altitude,
@@ -106,6 +110,7 @@ class RunLocation extends Equatable {
       exerciseId: map['exerciseId'] as int,
       trainingVersionId: map['trainingVersionId'] as int,
       setNumber: map['setNumber'] as int,
+      intervalNumber: map['intervalNumber'] as int,
       latitude: map['latitude'] as double,
       longitude: map['longitude'] as double,
       altitude: map['altitude'] as double,

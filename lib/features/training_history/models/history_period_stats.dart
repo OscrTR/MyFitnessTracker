@@ -71,7 +71,8 @@ class PeriodStats extends Equatable {
     // Calculer les statistiques de course
     final runTotalDistance =
         runTrainings.fold<int>(0, (sum, t) => sum + t.distance);
-    final runTotalDrop = runTrainings.fold<int>(0, (sum, t) => sum + t.drop);
+    final runTotalDrop =
+        runTrainings.fold<int>(0, (sum, t) => sum + t.elevation);
     final runTotalDuration =
         runTrainings.fold<int>(0, (sum, t) => sum + t.duration);
 

@@ -86,32 +86,20 @@ class HistoryDetailsPage extends StatelessWidget {
         if (item['type'] == 'exercise') {
           final exercise = item['data'] as Exercise;
 
-          final baseExercise = training.baseExercises
-              .firstWhereOrNull((b) => b.id == exercise.baseExerciseId);
-
           final entries = state.selectedTrainingEntry!.historyEntries
               .where((entry) => entry.exerciseId == exercise.id)
-              .toList();
-
-          final locations = state.selectedTrainingEntry!.locations
-              .where((location) => location.exerciseId == exercise.id)
               .toList();
 
           return exercise.exerciseType == ExerciseType.run && entries.isNotEmpty
               ? exercise.sets > 1
                   ? IntervalExercise(
                       exercise: exercise,
-                      historyEntries: entries,
-                      locationsList: locations,
                     )
                   : RunExercise(
-                      historyEntries: entries,
-                      runLocations: locations,
                       exercise: exercise,
                     )
               : ExerciseSetForm(
                   exercise: exercise,
-                  baseExercise: baseExercise,
                   historyState: state,
                   training: training,
                   multiset: null,
@@ -201,15 +189,11 @@ class HistoryDetailsPage extends StatelessWidget {
 
 class IntervalExercise extends StatelessWidget {
   final Exercise exercise;
-  final List<HistoryEntry> historyEntries;
-  final List<RunLocation> locationsList;
   final int? multisetSetIndex;
 
   const IntervalExercise({
     super.key,
     required this.exercise,
-    required this.historyEntries,
-    required this.locationsList,
     this.multisetSetIndex,
   });
 
@@ -219,24 +203,13 @@ class IntervalExercise extends StatelessWidget {
       shrinkWrap: true,
       physics: NeverScrollableScrollPhysics(),
       itemCount: exercise.sets,
-      itemBuilder: (context, index) {
-        final entries = historyEntries
-            .where((entry) =>
-                entry.exerciseId == exercise.id && entry.setNumber == index)
-            .toList();
-
-        final locations = locationsList
-            .where((location) =>
-                location.exerciseId == exercise.id &&
-                location.setNumber == index)
-            .toList();
-
+      itemBuilder: (context, intervalIndex) {
         return RunExercise(
-          historyEntries: entries,
-          runLocations: locations,
           exercise: exercise,
+          multisetSetIndex: multisetSetIndex,
+          intervalIndex: intervalIndex,
           subtitle:
-              '${multisetSetIndex != null ? 'Set ${multisetSetIndex! + 1} - ' : ''} ${tr('history_page_interval')} ${index + 1}',
+              '${multisetSetIndex != null ? 'Set ${multisetSetIndex! + 1} - ' : ''} ${tr('history_page_interval')} ${intervalIndex + 1}',
         );
       },
     );
@@ -244,16 +217,16 @@ class IntervalExercise extends StatelessWidget {
 }
 
 class RunExercise extends StatefulWidget {
-  final List<HistoryEntry> historyEntries;
-  final List<RunLocation> runLocations;
   final Exercise exercise;
+  final int? multisetSetIndex;
+  final int? intervalIndex;
   final String? subtitle;
 
   const RunExercise({
     super.key,
-    required this.historyEntries,
-    required this.runLocations,
     required this.exercise,
+    this.multisetSetIndex,
+    this.intervalIndex,
     this.subtitle,
   });
 
@@ -266,9 +239,22 @@ class _RunExerciseState extends State<RunExercise> {
 
   @override
   Widget build(BuildContext context) {
-    final drop = RunLocation.calculateTotalElevation(widget.runLocations);
-    final entry =
-        widget.historyEntries.isNotEmpty ? widget.historyEntries.first : null;
+    final state = sl<TrainingHistoryBloc>().state as TrainingHistoryLoaded;
+
+    final entry = state.selectedTrainingEntry!.historyEntries.firstWhereOrNull(
+        (location) =>
+            location.exerciseId == widget.exercise.id &&
+            location.setNumber == widget.multisetSetIndex &&
+            location.intervalNumber == widget.intervalIndex);
+
+    final locations = state.selectedTrainingEntry!.locations
+        .where((location) =>
+            location.exerciseId == widget.exercise.id &&
+            location.setNumber == widget.multisetSetIndex &&
+            location.intervalNumber == widget.intervalIndex)
+        .toList();
+
+    final elevation = RunLocation.calculateTotalElevation(locations);
     final name = findExerciseName(widget.exercise);
 
     return Container(
@@ -320,7 +306,7 @@ class _RunExerciseState extends State<RunExercise> {
           const SizedBox(height: 10),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [Text(tr('history_page_drop')), Text('${drop}m')],
+            children: [Text(tr('history_page_drop')), Text('${elevation}m')],
           ),
           const SizedBox(height: 20),
           ToggleSwitch(
@@ -345,10 +331,9 @@ class _RunExerciseState extends State<RunExercise> {
             },
           ),
           const SizedBox(height: 10),
-          if (selectedOption == 0) RunMapView(locations: widget.runLocations),
-          if (selectedOption == 1) PaceChart(locations: widget.runLocations),
-          if (selectedOption == 2)
-            AltitudeChart(locations: widget.runLocations),
+          if (selectedOption == 0) RunMapView(locations: locations),
+          if (selectedOption == 1) PaceChart(locations: locations),
+          if (selectedOption == 2) AltitudeChart(locations: locations),
         ],
       ),
     );
@@ -358,7 +343,6 @@ class _RunExerciseState extends State<RunExercise> {
 class ExerciseSetForm extends StatefulWidget {
   final Multiset? multiset;
   final Exercise exercise;
-  final BaseExercise? baseExercise;
   final TrainingHistoryLoaded historyState;
   final Training training;
   final int trainingVersionId;
@@ -366,7 +350,6 @@ class ExerciseSetForm extends StatefulWidget {
   const ExerciseSetForm({
     required this.multiset,
     required this.exercise,
-    required this.baseExercise,
     required this.historyState,
     required this.training,
     required this.trainingVersionId,
@@ -498,6 +481,9 @@ class _ExerciseSetFormState extends State<ExerciseSetForm> {
 
   @override
   Widget build(BuildContext context) {
+    final baseExercise = widget.training.baseExercises
+        .firstWhereOrNull((b) => b.id == widget.exercise.baseExerciseId);
+
     return Container(
       margin: const EdgeInsets.only(top: 20),
       padding: const EdgeInsets.all(10),
@@ -510,7 +496,7 @@ class _ExerciseSetFormState extends State<ExerciseSetForm> {
         children: [
           _buildExerciseHeader(
             widget.exercise,
-            widget.baseExercise,
+            baseExercise,
             context,
             isSetInReps,
           ),
@@ -739,18 +725,9 @@ class HistoryMultisetWidget extends StatelessWidget {
               itemBuilder: (context, index) {
                 final exercise = multisetExercises[index];
 
-                final baseExercise = training.baseExercises
-                    .firstWhereOrNull((b) => b.id == exercise.baseExerciseId);
-
-                final entries = historyState
-                    .selectedTrainingEntry!.historyEntries
-                    .where((h) => h.exerciseId == exercise.id)
-                    .toList();
-
                 if (exercise.exerciseType != ExerciseType.run) {
                   return ExerciseSetForm(
                     exercise: exercise,
-                    baseExercise: baseExercise,
                     historyState: historyState,
                     training: training,
                     multiset: multiset,
@@ -762,30 +739,13 @@ class HistoryMultisetWidget extends StatelessWidget {
                       physics: const NeverScrollableScrollPhysics(),
                       itemCount: multiset.sets,
                       itemBuilder: (context, multisetSetindex) {
-                        final locations = historyState
-                            .selectedTrainingEntry!.locations
-                            .where((location) =>
-                                location.exerciseId == exercise.id &&
-                                location.setNumber == multisetSetindex)
-                            .toList();
-
-                        final intervalEntries = historyState
-                            .selectedTrainingEntry!.historyEntries
-                            .where((entry) =>
-                                entry.exerciseId == exercise.id &&
-                                entry.setNumber == multisetSetindex)
-                            .toList();
-
                         return exercise.sets > 1
                             ? IntervalExercise(
                                 exercise: exercise,
                                 multisetSetIndex: multisetSetindex,
-                                historyEntries: intervalEntries,
-                                locationsList: locations,
                               )
                             : RunExercise(
-                                historyEntries: entries,
-                                runLocations: locations,
+                                multisetSetIndex: multisetSetindex,
                                 exercise: exercise,
                                 subtitle: '(set ${multisetSetindex + 1})',
                               );
