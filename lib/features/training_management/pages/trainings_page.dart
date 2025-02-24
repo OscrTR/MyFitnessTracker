@@ -220,7 +220,7 @@ class _TrainingsPageState extends State<TrainingsPage> {
                   size: 16,
                 ),
                 const SizedBox(width: 5),
-                Text(formatDurationToHoursMinutesSeconds(
+                Text(formatDurationToApproximativeHoursMinutes(
                     calculateTrainingDuration(training)))
               ]),
               Row(children: [
@@ -554,26 +554,39 @@ int calculateTrainingDuration(Training training) {
 
   // Traitement des exercices individuels
   for (Exercise exercise in training.exercises) {
-    if (exercise.duration != 0) {
-      // Si l'exercice a une durée explicite
-      totalSeconds += exercise.duration;
-    } else if (exercise.isSetsInReps) {
-      // Calcul basé sur les répétitions
-      int avgReps = (exercise.minReps + exercise.maxReps) ~/ 2;
-      totalSeconds += repsToSeconds(avgReps) * exercise.sets;
+    int multisetSets = 1;
+    if (exercise.multisetKey != null) {
+      multisetSets = training.multisets
+          .firstWhere((m) => m.widgetKey == exercise.multisetKey)
+          .sets;
+    }
+    // Pour les exercices de yoga ou de renforcement
+    if (exercise.exerciseType != ExerciseType.run) {
+      if (!exercise.isSetsInReps) {
+        // Si l'exercice a une durée explicite
+        totalSeconds += exercise.duration * exercise.sets * multisetSets;
+      } else {
+        // Calcul basé sur les répétitions
+        int avgReps = (exercise.minReps + exercise.maxReps) ~/ 2;
+        totalSeconds += repsToSeconds(avgReps) * exercise.sets * multisetSets;
+      }
+    } else {
+      // Si la durée est explicite
+      if (exercise.runType == RunType.duration) {
+        totalSeconds += exercise.targetDuration * exercise.sets * multisetSets;
+      } else if (exercise.runType == RunType.distance) {
+        int avgPace = 360; // 6 min / km
+        totalSeconds += (avgPace *
+                (exercise.targetDistance / 1000) *
+                exercise.sets *
+                multisetSets)
+            .round();
+      }
     }
 
     // Ajout des temps de repos
-    totalSeconds += exercise.setRest * (exercise.sets);
+    totalSeconds += exercise.setRest * (exercise.sets - 1);
     totalSeconds += exercise.exerciseRest;
-
-    // Gestion des intervalles
-    if (exercise.sets > 1) {
-      totalSeconds += exercise.setRest * (exercise.sets - 1);
-      if (exercise.targetDuration != 0) {
-        totalSeconds += exercise.targetDuration * exercise.sets;
-      }
-    }
   }
 
   return totalSeconds;

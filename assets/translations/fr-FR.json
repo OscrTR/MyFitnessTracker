@@ -26,6 +26,8 @@
   "global_deleted": "Supprimé",
   "global_week": "Semaine",
   "global_month": "Mois",
+  "global_hours": "Heure(s)",
+  "global_minutes": "Minute(s)",
 
   "nav_home": "Accueil",
   "nav_trainings": "Entraînements",

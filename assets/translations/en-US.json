@@ -26,6 +26,8 @@
   "global_deleted": "Deleted",
   "global_week": "Week",
   "global_month": "Month",
+  "global_hours": "Hours(s)",
+  "global_minutes": "Minute(s)",
 
   "nav_home": "Home",
   "nav_trainings": "Trainings",
