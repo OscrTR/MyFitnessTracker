@@ -491,7 +491,7 @@ class _ActiveExerciseRowState extends State<ActiveExerciseRow> {
                 context.read<TrainingHistoryBloc>().add(
                       CreateOrUpdateHistoryEntry(
                         historyEntry: HistoryEntry(
-                          id: widget.historyEntryId ?? 0,
+                          id: widget.historyEntryId,
                           trainingId: widget.exercise.trainingId!,
                           exerciseId: widget.exercise.id!,
                           setNumber: widget.setIndex,

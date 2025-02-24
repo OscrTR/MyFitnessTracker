@@ -172,7 +172,7 @@ class Exercise extends Equatable {
 
   factory Exercise.fromMap(Map<String, dynamic> map) {
     return Exercise(
-      id: map['id'] != null ? map['id'] as int : null,
+      id: map['id'] as int?,
       trainingId: map['trainingId'] != null ? map['trainingId'] as int : null,
       multisetId: map['multisetId'] != null ? map['multisetId'] as int : null,
       baseExerciseId:

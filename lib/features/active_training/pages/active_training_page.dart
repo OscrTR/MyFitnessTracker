@@ -290,43 +290,44 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage>
                       .firstWhere((timer) =>
                           timer.timerId == activeState.lastStartedTimerId);
 
-                  final registeredId =
-                      (sl<TrainingHistoryBloc>().state as TrainingHistoryLoaded)
-                          .historyEntries
-                          .firstWhereOrNull((h) =>
-                              h.exerciseId == currentTimerState.exerciseId &&
-                              h.setNumber == currentTimerState.setNumber &&
-                              h.trainingId == currentTimerState.trainingId)
-                          ?.id;
-
-                  int cals = 0;
-
-                  final trainingManagementState = (sl<TrainingManagementBloc>()
-                      .state as TrainingManagementLoaded);
-
-                  final listOfTExercises =
-                      trainingManagementState.activeTraining!.exercises;
-
-                  final matchingTExercise = listOfTExercises.firstWhere(
-                      (exercise) =>
-                          exercise.id == currentTimerState.exerciseId);
-
-                  final duration = currentTimerState.isCountDown
-                      ? currentTimerState.countDownValue -
-                          currentTimerState.timerValue
-                      : currentTimerState.timerValue;
-
-                  cals = getCalories(
-                      intensity: matchingTExercise.intensity,
-                      duration: duration);
-
                   if (currentTimerState.timerId != 'primaryTimer' &&
                       currentTimerState.isActive &&
                       !currentTimerState.timerId.contains('rest')) {
+                    final registeredId = (sl<TrainingHistoryBloc>().state
+                            as TrainingHistoryLoaded)
+                        .historyEntries
+                        .firstWhereOrNull((h) =>
+                            h.exerciseId == currentTimerState.exerciseId &&
+                            h.setNumber == currentTimerState.setNumber &&
+                            h.trainingId == currentTimerState.trainingId)
+                        ?.id;
+
+                    int cals = 0;
+
+                    final trainingManagementState =
+                        (sl<TrainingManagementBloc>().state
+                            as TrainingManagementLoaded);
+
+                    final listOfExercises =
+                        trainingManagementState.activeTraining!.exercises;
+
+                    final matchingExercise = listOfExercises.firstWhere(
+                        (exercise) =>
+                            exercise.id == currentTimerState.exerciseId);
+
+                    final duration = currentTimerState.isCountDown
+                        ? currentTimerState.countDownValue -
+                            currentTimerState.timerValue
+                        : currentTimerState.timerValue;
+
+                    cals = getCalories(
+                        intensity: matchingExercise.intensity,
+                        duration: duration);
+
                     sl<TrainingHistoryBloc>().add(
                       CreateOrUpdateHistoryEntry(
                         historyEntry: HistoryEntry(
-                          id: registeredId ?? 0,
+                          id: registeredId,
                           trainingId: currentTimerState.trainingId,
                           exerciseId: currentTimerState.exerciseId,
                           setNumber: currentTimerState.setNumber,

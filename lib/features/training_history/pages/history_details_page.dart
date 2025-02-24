@@ -39,6 +39,7 @@ class HistoryDetailsPage extends StatelessWidget {
             state.selectedTrainingEntry != null) {
           final selectedTrainingEntry = state.selectedTrainingEntry!;
 
+          // Récupérer le bon training
           final Training training =
               state.selectedTraining ?? selectedTrainingEntry.training;
 
@@ -114,7 +115,6 @@ class HistoryDetailsPage extends StatelessWidget {
                   historyState: state,
                   training: training,
                   multiset: null,
-                  historyEntriesList: entries,
                   trainingVersionId: trainingVersionId,
                 );
         } else if (item['type'] == 'multiset') {
@@ -362,7 +362,6 @@ class ExerciseSetForm extends StatefulWidget {
   final TrainingHistoryLoaded historyState;
   final Training training;
   final int trainingVersionId;
-  final List<HistoryEntry> historyEntriesList;
 
   const ExerciseSetForm({
     required this.multiset,
@@ -371,7 +370,6 @@ class ExerciseSetForm extends StatefulWidget {
     required this.historyState,
     required this.training,
     required this.trainingVersionId,
-    required this.historyEntriesList,
     super.key,
   });
 
@@ -393,7 +391,7 @@ class _ExerciseSetFormState extends State<ExerciseSetForm> {
     _initializeControllers();
   }
 
-  void _initializeControllers() {
+  void _initializeControllers() async {
     final setsCount = widget.multiset?.sets ?? widget.exercise.sets;
 
     List<TextEditingController> createControllers(
@@ -478,7 +476,7 @@ class _ExerciseSetFormState extends State<ExerciseSetForm> {
     context.read<TrainingHistoryBloc>().add(
           CreateOrUpdateHistoryEntry(
             historyEntry: HistoryEntry(
-              id: historyEntry?.id ?? 0,
+              id: historyEntry?.id,
               trainingId:
                   historyEntry?.trainingId ?? widget.exercise.trainingId!,
               exerciseId: historyEntry?.exerciseId ?? widget.exercise.id!,
@@ -756,7 +754,6 @@ class HistoryMultisetWidget extends StatelessWidget {
                     historyState: historyState,
                     training: training,
                     multiset: multiset,
-                    historyEntriesList: entries,
                     trainingVersionId: trainingVersionId,
                   );
                 } else {

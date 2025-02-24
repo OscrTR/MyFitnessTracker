@@ -218,8 +218,11 @@ class DatabaseService {
 
   Future<void> update(String tableName, Map<String, dynamic> fields,
       String whereClause, List<Object?> whereArgs) async {
-    final sql = generateUpdateSQL(tableName, fields, whereClause);
-    final allArgs = [...fields.values, ...whereArgs];
+    // Exclut "id" car auto incrémenté
+    final cleanFields = Map.of(fields)..remove('id');
+
+    final sql = generateUpdateSQL(tableName, cleanFields, whereClause);
+    final allArgs = [...cleanFields.values, ...whereArgs];
     await _db.execute(sql, allArgs);
   }
 
@@ -279,8 +282,6 @@ class DatabaseService {
           .add(exercise.copyWith(id: exerciseId, trainingId: trainingId));
     }
 
-    print(training.baseExercises);
-
     final TrainingVersion trainingVersion = TrainingVersion.fromTraining(
         trainingId: trainingId,
         training: training.copyWith(
@@ -294,12 +295,20 @@ class DatabaseService {
     return await insert('training_versions', trainingVersion.toMap());
   }
 
-  Future<int> createHistoryEntry(HistoryEntry historyEntry) async {
-    return await insert('history_entries', historyEntry.toMap());
+  Future<void> createHistoryEntry(HistoryEntry historyEntry) async {
+    try {
+      await insert('history_entries', historyEntry.toMap());
+    } catch (e) {
+      print('Database error : ${e.toString()}');
+    }
   }
 
-  Future<int> createRunLocation(RunLocation runLocation) async {
-    return await insert('run_locations', runLocation.toMap());
+  Future<void> createRunLocation(RunLocation runLocation) async {
+    try {
+      await insert('run_locations', runLocation.toMap());
+    } catch (e) {
+      print('Database error : ${e.toString()}');
+    }
   }
 
   //! Read operations
@@ -668,14 +677,19 @@ class DatabaseService {
 
     final TrainingVersion trainingVersion = TrainingVersion.fromTraining(
       trainingId: training.id!,
-      training: training,
+      training:
+          training.copyWith(multisets: newMultisets, exercises: newExercises),
     );
     await createTrainingVersion(trainingVersion);
   }
 
   Future<void> updateHistoryEntry(HistoryEntry historyEntry) async {
-    await update(
-        'history_entries', historyEntry.toMap(), 'id = ?', [historyEntry.id!]);
+    try {
+      await update('history_entries', historyEntry.toMap(), 'id = ?',
+          [historyEntry.id!]);
+    } catch (e) {
+      print('Database error : ${e.toString()}');
+    }
   }
 
   //! Delete operations

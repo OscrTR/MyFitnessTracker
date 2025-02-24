@@ -318,7 +318,6 @@ class ActiveTrainingBloc
 
           if (timerState != null) {
             final runLocation = RunLocation(
-              id: 0,
               trainingId: timerState.trainingId,
               exerciseId: timerState.exerciseId,
               setNumber: timerState.setNumber,
