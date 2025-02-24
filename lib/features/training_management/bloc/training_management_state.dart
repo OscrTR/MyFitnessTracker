@@ -12,8 +12,6 @@ class TrainingManagementInitial extends TrainingManagementState {}
 class TrainingManagementLoaded extends TrainingManagementState {
   final List<Training> trainings;
   final Training selectedTraining;
-  final Training? activeTraining;
-  final int? activeTrainingMostRecentVersionId;
   final Map<int, int?> daysSinceLastTraining;
 
   static const emptyTraining = Training(
@@ -28,7 +26,6 @@ class TrainingManagementLoaded extends TrainingManagementState {
 
   const TrainingManagementLoaded({
     this.trainings = const [],
-    this.activeTraining,
     this.selectedTraining = const Training(
       name: '',
       trainingType: TrainingType.workout,
@@ -38,20 +35,17 @@ class TrainingManagementLoaded extends TrainingManagementState {
       multisets: [],
       baseExercises: [],
     ),
-    this.activeTrainingMostRecentVersionId,
     this.daysSinceLastTraining = const {},
   });
 
   TrainingManagementLoaded copyWith({
     List<Training>? trainings,
     Training? selectedTraining,
-    Training? activeTraining,
     bool? isSelected,
     String? name,
     TrainingType? type,
     List<Exercise>? exercises,
     List<Multiset>? multisets,
-    int? activeTrainingMostRecentVersionId,
     Map<int, int?>? daysSinceLastTraining,
     bool resetSelectedTraining = false,
   }) {
@@ -59,9 +53,6 @@ class TrainingManagementLoaded extends TrainingManagementState {
       trainings: trainings ?? this.trainings,
       daysSinceLastTraining:
           daysSinceLastTraining ?? this.daysSinceLastTraining,
-      activeTraining: activeTraining ?? this.activeTraining,
-      activeTrainingMostRecentVersionId: activeTrainingMostRecentVersionId ??
-          this.activeTrainingMostRecentVersionId,
       selectedTraining: resetSelectedTraining
           ? Training(
               name: '',
@@ -96,8 +87,6 @@ class TrainingManagementLoaded extends TrainingManagementState {
   List<Object?> get props => [
         trainings,
         selectedTraining,
-        activeTraining,
         daysSinceLastTraining,
-        activeTrainingMostRecentVersionId
       ];
 }

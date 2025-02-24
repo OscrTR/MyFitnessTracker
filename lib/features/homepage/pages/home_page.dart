@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:my_fitness_tracker/features/active_training/bloc/active_training_bloc.dart';
 import '../../training_history/models/history_period_stats.dart';
 import '../../training_history/models/history_training.dart';
 import '../../training_history/bloc/training_history_bloc.dart';
@@ -970,9 +971,9 @@ Widget _buildTrainingsList(BuildContext context) {
                           children: [
                             GestureDetector(
                               onTap: () {
-                                context
-                                    .read<TrainingManagementBloc>()
-                                    .add(StartTrainingEvent(training.id!));
+                                context.read<ActiveTrainingBloc>().add(
+                                    StartActiveTraining(
+                                        trainingId: training.id!));
                                 GoRouter.of(context).push('/active_training');
                               },
                               child: Container(

@@ -83,32 +83,6 @@ class TrainingManagementBloc
       }
     });
 
-    on<StartTrainingEvent>((event, emit) async {
-      if (state is! TrainingManagementLoaded) return;
-      final currentState = state as TrainingManagementLoaded;
-
-      try {
-        final training =
-            await sl<DatabaseService>().getTrainingById(event.trainingId);
-        if (training == null) return;
-
-        final lastTrainingVersion = await sl<DatabaseService>()
-            .getMostRecentTrainingVersionForTrainingId(training.id!);
-
-        final lastTrainingVersionId = lastTrainingVersion.id!;
-
-        emit(currentState.copyWith(
-            activeTraining: training,
-            activeTrainingMostRecentVersionId: lastTrainingVersionId));
-      } catch (e) {
-        messageBloc.add(AddMessageEvent(
-          message: 'An error occurred: ${e.toString()}',
-          isError: true,
-        ));
-        rethrow;
-      }
-    });
-
     on<ClearSelectedTrainingEvent>((event, emit) {
       if (state is! TrainingManagementLoaded) return;
       final currentState = state as TrainingManagementLoaded;

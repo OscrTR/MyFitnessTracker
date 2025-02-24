@@ -105,12 +105,12 @@ class RunLocation extends Equatable {
 
   factory RunLocation.fromMap(Map<String, dynamic> map) {
     return RunLocation(
-      id: map['id'] != null ? map['id'] as int : null,
+      id: map['id'] as int?,
       trainingId: map['trainingId'] as int,
       exerciseId: map['exerciseId'] as int,
       trainingVersionId: map['trainingVersionId'] as int,
       setNumber: map['setNumber'] as int,
-      intervalNumber: map['intervalNumber'] as int,
+      intervalNumber: map['intervalNumber'] as int?,
       latitude: map['latitude'] as double,
       longitude: map['longitude'] as double,
       altitude: map['altitude'] as double,

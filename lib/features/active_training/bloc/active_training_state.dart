@@ -10,19 +10,29 @@ abstract class ActiveTrainingState extends Equatable {
 class ActiveTrainingInitial extends ActiveTrainingState {}
 
 class ActiveTrainingLoaded extends ActiveTrainingState {
+  final Training? activeTraining;
+  final int? activeTrainingMostRecentVersionId;
   final String? lastStartedTimerId;
+
   final List<TimerState> timersStateList;
 
   const ActiveTrainingLoaded({
     this.lastStartedTimerId,
-    required this.timersStateList,
+    this.activeTraining,
+    this.activeTrainingMostRecentVersionId,
+    this.timersStateList = const [],
   });
 
   ActiveTrainingLoaded copyWith({
+    Training? activeTraining,
+    int? activeTrainingMostRecentVersionId,
     String? lastStartedTimerId,
     List<TimerState>? timersStateList,
   }) {
     return ActiveTrainingLoaded(
+      activeTraining: activeTraining ?? this.activeTraining,
+      activeTrainingMostRecentVersionId: activeTrainingMostRecentVersionId ??
+          this.activeTrainingMostRecentVersionId,
       lastStartedTimerId: lastStartedTimerId ?? this.lastStartedTimerId,
       timersStateList: timersStateList != null
           ? List.unmodifiable(
@@ -33,7 +43,12 @@ class ActiveTrainingLoaded extends ActiveTrainingState {
   }
 
   @override
-  List<Object?> get props => [lastStartedTimerId, timersStateList];
+  List<Object?> get props => [
+        activeTraining,
+        activeTrainingMostRecentVersionId,
+        lastStartedTimerId,
+        timersStateList
+      ];
 }
 
 class TimerState extends Equatable {
@@ -78,7 +93,7 @@ class TimerState extends Equatable {
     this.targetPace = 0,
     this.distance = 0,
     this.pace = 0,
-    this.nextKmMarker = 0,
+    this.nextKmMarker = 1,
   });
 
   TimerState copyWith({

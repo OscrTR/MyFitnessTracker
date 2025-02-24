@@ -23,7 +23,6 @@ import '../widgets/active_run_widget.dart';
 import '../widgets/timer_widget.dart';
 
 import '../../training_management/models/exercise.dart';
-import '../../training_management/bloc/training_management_bloc.dart';
 
 import '../../training_management/models/multiset.dart';
 import '../widgets/active_exercise_widget.dart';
@@ -174,9 +173,9 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage>
             SingleChildScrollView(
               child: Column(
                 children: [
-                  BlocBuilder<TrainingManagementBloc, TrainingManagementState>(
+                  BlocBuilder<ActiveTrainingBloc, ActiveTrainingState>(
                       builder: (context, state) {
-                    if (state is TrainingManagementLoaded &&
+                    if (state is ActiveTrainingLoaded &&
                         state.activeTraining != null) {
                       bool isVerified = false;
 
@@ -234,10 +233,9 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage>
               bottom: 0,
               right: 0,
               left: 0,
-              child:
-                  BlocBuilder<TrainingManagementBloc, TrainingManagementState>(
-                      builder: (context, state) {
-                if (state is TrainingManagementLoaded &&
+              child: BlocBuilder<ActiveTrainingBloc, ActiveTrainingState>(
+                  builder: (context, state) {
+                if (state is ActiveTrainingLoaded &&
                     state.activeTraining != null) {
                   bool isVerified = false;
 
@@ -268,7 +266,7 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage>
   }
 
   Column _buildPageContent(
-      TrainingManagementLoaded state,
+      ActiveTrainingLoaded state,
       BuildContext context,
       List<Map<String, dynamic>> sortedItems,
       List<Map<String, Object>> exercisesAndMultisetsList) {
@@ -280,15 +278,12 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage>
             children: [
               _buildHeader(state, context),
               _buildTrainingItemList(
-                  sortedItems, context, exercisesAndMultisetsList),
+                  sortedItems, context, exercisesAndMultisetsList, state),
               const SizedBox(height: 30),
               GestureDetector(
                 onTap: () {
-                  final activeState =
-                      sl<ActiveTrainingBloc>().state as ActiveTrainingLoaded;
-                  final currentTimerState = activeState.timersStateList
-                      .firstWhere((timer) =>
-                          timer.timerId == activeState.lastStartedTimerId);
+                  final currentTimerState = state.timersStateList.firstWhere(
+                      (timer) => timer.timerId == state.lastStartedTimerId);
 
                   if (currentTimerState.timerId != 'primaryTimer' &&
                       currentTimerState.isActive &&
@@ -304,12 +299,7 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage>
 
                     int cals = 0;
 
-                    final trainingManagementState =
-                        (sl<TrainingManagementBloc>().state
-                            as TrainingManagementLoaded);
-
-                    final listOfExercises =
-                        trainingManagementState.activeTraining!.exercises;
+                    final listOfExercises = state.activeTraining!.exercises;
 
                     final matchingExercise = listOfExercises.firstWhere(
                         (exercise) =>
@@ -494,7 +484,7 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage>
     );
   }
 
-  Widget _buildHeader(TrainingManagementLoaded state, BuildContext context) {
+  Widget _buildHeader(ActiveTrainingLoaded state, BuildContext context) {
     return Stack(
       children: [
         Positioned(
@@ -541,12 +531,12 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage>
   }
 
   Widget _buildTrainingItemList(
-      List<Map<String, dynamic>> items,
-      BuildContext context,
-      List<Map<String, Object>> exercisesAndMultisetsList) {
-    final lastTrainingVersionId =
-        (sl<TrainingManagementBloc>().state as TrainingManagementLoaded)
-            .activeTrainingMostRecentVersionId!;
+    List<Map<String, dynamic>> items,
+    BuildContext context,
+    List<Map<String, Object>> exercisesAndMultisetsList,
+    ActiveTrainingLoaded state,
+  ) {
+    final lastTrainingVersionId = state.activeTrainingMostRecentVersionId!;
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -594,12 +584,10 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage>
         } else if (item['type'] == 'multiset') {
           final multiset = item['data'] as Multiset;
           final isLast = index == items.length - 1;
-          final List<Exercise> multisetExercises =
-              (sl<TrainingManagementBloc>().state as TrainingManagementLoaded)
-                  .activeTraining!
-                  .exercises
-                  .where((e) => e.multisetId == multiset.id)
-                  .toList();
+          final List<Exercise> multisetExercises = state
+              .activeTraining!.exercises
+              .where((e) => e.multisetId == multiset.id)
+              .toList();
           return ActiveMultisetWidget(
             isLast: isLast,
             multiset: multiset,

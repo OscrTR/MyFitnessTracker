@@ -5,8 +5,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../app_colors.dart';
 import '../../../core/enums/enums.dart';
 import '../../../helper_functions.dart';
-import '../../../injection_container.dart';
-import '../../training_management/bloc/training_management_bloc.dart';
 import '../../training_management/models/multiset.dart';
 import '../../training_management/models/exercise.dart';
 import '../bloc/active_training_bloc.dart';
@@ -34,10 +32,6 @@ class ActiveMultisetRunWidget extends StatefulWidget {
 }
 
 class _ActiveMultisetRunWidgetState extends State<ActiveMultisetRunWidget> {
-  final training =
-      (sl<TrainingManagementBloc>().state as TrainingManagementLoaded)
-          .activeTraining!;
-
   @override
   void initState() {
     super.initState();
@@ -66,12 +60,10 @@ class _ActiveMultisetRunWidgetState extends State<ActiveMultisetRunWidget> {
               }
             }
 
-            final List<Exercise> multisetExercises =
-                (sl<TrainingManagementBloc>().state as TrainingManagementLoaded)
-                    .activeTraining!
-                    .exercises
-                    .where((e) => e.multisetId == widget.multiset.id)
-                    .toList();
+            final List<Exercise> multisetExercises = state
+                .activeTraining!.exercises
+                .where((e) => e.multisetId == widget.multiset.id)
+                .toList();
 
             final bool isInterval = widget.exercise.sets > 1;
 

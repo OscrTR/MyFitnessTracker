@@ -7,8 +7,6 @@ import '../../training_management/models/exercise.dart';
 import '../../../app_colors.dart';
 import '../../../core/enums/enums.dart';
 import '../../../helper_functions.dart';
-import '../../../injection_container.dart';
-import '../../training_management/bloc/training_management_bloc.dart';
 import '../bloc/active_training_bloc.dart';
 import 'distance_widget.dart';
 import 'duration_timer_widget.dart';
@@ -33,10 +31,6 @@ class ActiveRunWidget extends StatefulWidget {
 }
 
 class _ActiveRunWidgetState extends State<ActiveRunWidget> {
-  final training =
-      (sl<TrainingManagementBloc>().state as TrainingManagementLoaded)
-          .activeTraining!;
-
   @override
   void initState() {
     super.initState();

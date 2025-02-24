@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../base_exercise_management/bloc/base_exercise_management_bloc.dart';
 import '../../base_exercise_management/models/base_exercise.dart';
-import '../../training_management/bloc/training_management_bloc.dart';
 import '../../../injection_container.dart';
 import '../../training_history/models/history_entry.dart';
 import '../../training_history/bloc/training_history_bloc.dart';
@@ -37,10 +36,6 @@ class ActiveExerciseWidget extends StatefulWidget {
 class _ActiveExerciseWidgetState extends State<ActiveExerciseWidget> {
   late final Map<String, TextEditingController>? _controllers;
   late final Map<String, int?> _setHistoryIds;
-
-  final training =
-      (sl<TrainingManagementBloc>().state as TrainingManagementLoaded)
-          .activeTraining!;
 
   @override
   void initState() {

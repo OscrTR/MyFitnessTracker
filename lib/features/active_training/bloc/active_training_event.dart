@@ -7,7 +7,14 @@ abstract class ActiveTrainingEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-class LoadDefaultActiveTraining extends ActiveTrainingEvent {}
+class StartActiveTraining extends ActiveTrainingEvent {
+  final int trainingId;
+
+  const StartActiveTraining({required this.trainingId});
+
+  @override
+  List<Object> get props => [trainingId];
+}
 
 class GenerateActiveTrainingTimers extends ActiveTrainingEvent {
   final List<Map<String, Object>> exercisesAndMultisetsList;
@@ -60,14 +67,6 @@ class TickTimer extends ActiveTrainingEvent {
 class PauseTimer extends ActiveTrainingEvent {}
 
 class ClearTimers extends ActiveTrainingEvent {}
-
-class ResetTimer extends ActiveTrainingEvent {
-  final String timerId;
-
-  const ResetTimer({required this.timerId});
-  @override
-  List<Object?> get props => [timerId];
-}
 
 class UpdateDistance extends ActiveTrainingEvent {
   final String timerId;

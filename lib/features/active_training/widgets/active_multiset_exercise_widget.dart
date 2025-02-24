@@ -9,7 +9,6 @@ import '../../../helper_functions.dart';
 import '../../../injection_container.dart';
 import '../../training_history/models/history_entry.dart';
 import '../../training_history/bloc/training_history_bloc.dart';
-import '../../training_management/bloc/training_management_bloc.dart';
 import '../bloc/active_training_bloc.dart';
 import '../../training_management/models/multiset.dart';
 
@@ -42,10 +41,6 @@ class _ActiveMultisetExerciseWidgetState
     extends State<ActiveMultisetExerciseWidget> {
   late final Map<String, TextEditingController> _controllers;
   late final Map<String, int?> _setHistoryIds;
-
-  final training =
-      (sl<TrainingManagementBloc>().state as TrainingManagementLoaded)
-          .activeTraining!;
 
   @override
   void initState() {
@@ -250,7 +245,7 @@ class _ActiveMultisetExerciseWidgetState
                         )
                       ],
                     ),
-                    _buildSets(),
+                    _buildSets(state),
                   ],
                 );
               }),
@@ -355,15 +350,12 @@ class _ActiveMultisetExerciseWidgetState
     });
   }
 
-  ListView _buildSets() {
+  ListView _buildSets(ActiveTrainingLoaded state) {
     final isSetsInReps = widget.exercise.isSetsInReps;
 
-    final List<Exercise> multisetExercises =
-        (sl<TrainingManagementBloc>().state as TrainingManagementLoaded)
-            .activeTraining!
-            .exercises
-            .where((e) => e.multisetId == widget.multiset.id)
-            .toList();
+    final List<Exercise> multisetExercises = state.activeTraining!.exercises
+        .where((e) => e.multisetId == widget.multiset.id)
+        .toList();
 
     return ListView.builder(
       shrinkWrap: true,

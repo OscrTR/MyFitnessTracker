@@ -56,8 +56,7 @@ class MyApp extends StatelessWidget {
           lazy: false,
         ),
         BlocProvider<ActiveTrainingBloc>(
-          create: (_) =>
-              di.sl<ActiveTrainingBloc>()..add(LoadDefaultActiveTraining()),
+          create: (_) => di.sl<ActiveTrainingBloc>(),
           lazy: false,
         ),
         BlocProvider<TrainingHistoryBloc>(

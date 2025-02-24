@@ -7,15 +7,6 @@ abstract class TrainingManagementEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-class StartTrainingEvent extends TrainingManagementEvent {
-  final int trainingId;
-
-  const StartTrainingEvent(this.trainingId);
-
-  @override
-  List<Object> get props => [trainingId];
-}
-
 //! Trainings
 class FetchTrainingsEvent extends TrainingManagementEvent {
   final bool hasToResetSelectedTraining;

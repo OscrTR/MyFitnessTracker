@@ -7,10 +7,11 @@ import 'package:equatable/equatable.dart';
 import 'package:fl_location/fl_location.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:my_fitness_tracker/core/messages/bloc/message_bloc.dart';
 import '../../../core/database/database_service.dart';
 
 import '../../training_history/models/history_run_location.dart';
-import '../../training_management/bloc/training_management_bloc.dart';
+import '../../training_management/models/training.dart';
 import '../foreground_service.dart';
 import 'package:uuid/uuid.dart';
 
@@ -30,6 +31,7 @@ class ActiveTrainingBloc
     final AudioPlayer audioPlayer = AudioPlayer();
     final FlutterTts flutterTts = FlutterTts();
     int? lastTimerValue;
+    bool halfRunDone = false;
 
     Future<void> playCountdown() async {
       await audioPlayer.play(AssetSource('sounds/countdown.mp3'));
@@ -66,11 +68,10 @@ class ActiveTrainingBloc
 
         int cals = 0;
 
-        final trainingManagementState =
-            (sl<TrainingManagementBloc>().state as TrainingManagementLoaded);
+        final activeState =
+            (sl<ActiveTrainingBloc>().state as ActiveTrainingLoaded);
 
-        final listOfExercises =
-            trainingManagementState.activeTraining!.exercises;
+        final listOfExercises = activeState.activeTraining!.exercises;
 
         final matchingExercise = listOfExercises.firstWhere(
             (exercise) => exercise.id == currentTimerState.exerciseId);
@@ -105,13 +106,40 @@ class ActiveTrainingBloc
       }
     }
 
-    on<LoadDefaultActiveTraining>((event, emit) async {
-      emit(const ActiveTrainingLoaded(timersStateList: []));
+    on<StartActiveTraining>((event, emit) async {
+      try {
+        final training =
+            await sl<DatabaseService>().getTrainingById(event.trainingId);
+        if (training == null) return;
+
+        final lastTrainingVersion = await sl<DatabaseService>()
+            .getMostRecentTrainingVersionForTrainingId(training.id!);
+
+        final lastTrainingVersionId = lastTrainingVersion.id!;
+        if (state is ActiveTrainingLoaded) {
+          final currentState = state as ActiveTrainingLoaded;
+          emit(currentState.copyWith(
+            activeTraining: training,
+            activeTrainingMostRecentVersionId: lastTrainingVersionId,
+          ));
+        } else {
+          emit(ActiveTrainingLoaded(
+            activeTraining: training,
+            activeTrainingMostRecentVersionId: lastTrainingVersionId,
+          ));
+        }
+      } catch (e) {
+        sl<MessageBloc>().add(AddMessageEvent(
+          message: 'An error occurred: ${e.toString()}',
+          isError: true,
+        ));
+        rethrow;
+      }
     });
 
     on<ClearTimers>((event, emit) async {
       await sl<ForegroundService>().stopService();
-      emit(const ActiveTrainingLoaded(timersStateList: []));
+      emit(ActiveTrainingInitial());
     });
 
     on<UpdateTimer>((event, emit) async {
@@ -173,73 +201,91 @@ class ActiveTrainingBloc
         } else {
           final currentDistance = currentTimerState.distance;
           final nextKmMarker = currentTimerState.nextKmMarker;
-          int paceMinutes = 0;
-          int paceSeconds = 0;
-          double pace = 0;
-          if (currentDistance > 0) {
-            pace = currentTimerValue / 60 / (currentDistance / 1000);
-            paceMinutes = pace.floor();
-            paceSeconds = ((pace - paceMinutes) * 60).round();
-          }
 
-          // Check pace every 30 seconds if pace is tracked
-          if (currentTimerState.targetPace > 0 && currentTimerValue % 30 == 0) {
-            // Check if 5% slower
-            if (pace <
-                currentTimerState.targetPace -
-                    (currentTimerState.targetPace * 0.05)) {
-              speak(tr('active_training_pace_faster', args: [
-                '$paceMinutes',
-                '$paceSeconds',
-                '$targetPaceMinutes',
-                '$targetPaceSeconds'
-              ]));
-            }
-            if (pace >
-                currentTimerState.targetPace +
-                    (currentTimerState.targetPace * 0.05)) {
-              speak(tr('active_training_pace_slower', args: [
-                '$paceMinutes',
-                '$paceSeconds',
-                '$targetPaceMinutes',
-                '$targetPaceSeconds'
-              ]));
+          // Calculate pace if distance > 0
+          final isDistanceValid = currentDistance > 0;
+          final pace = isDistanceValid
+              ? currentTimerValue / 60 / (currentDistance / 1000)
+              : 0;
+          final paceMinutes = pace.floor();
+          final paceSeconds = ((pace - paceMinutes) * 60).round();
+
+          void checkPace() {
+            if (currentTimerValue % 30 == 0 &&
+                currentTimerState.targetPace > 0) {
+              final targetPaceMargin = currentTimerState.targetPace * 0.05;
+              if (pace < currentTimerState.targetPace - targetPaceMargin) {
+                speak(tr('active_training_pace_faster', args: [
+                  '$paceMinutes',
+                  '$paceSeconds',
+                  '$targetPaceMinutes',
+                  '$targetPaceSeconds'
+                ]));
+              } else if (pace >
+                  currentTimerState.targetPace + targetPaceMargin) {
+                speak(tr('active_training_pace_slower', args: [
+                  '$paceMinutes',
+                  '$paceSeconds',
+                  '$targetPaceMinutes',
+                  '$targetPaceSeconds'
+                ]));
+              }
             }
           }
 
-          // NOTIFY EVERY KM
-          if (currentDistance > 0 && currentDistance / 1000 >= nextKmMarker) {
-            speak(tr('active_training_pace',
-                args: ['$nextKmMarker', '$paceMinutes', '$paceSeconds']));
-            add(UpdateNextKmMarker(
-                timerId: timerId, nextKmMarker: nextKmMarker + 1));
+          void checkHalfRun() {
+            final targetDistance = currentTimerState.targetDistance;
+            final targetDuration = currentTimerState.targetDuration;
+
+            if (!halfRunDone &&
+                targetDistance > 0 &&
+                currentDistance >= targetDistance / 2) {
+              speak(tr('active_training_half_training'));
+              halfRunDone = true;
+            } else if (!halfRunDone &&
+                targetDistance == 0 &&
+                currentTimerValue >= targetDuration / 2) {
+              speak(tr('active_training_half_training'));
+              halfRunDone = true;
+            }
+          }
+
+          void notifyKmProgress() {
+            if (currentDistance > 0 && currentDistance / 1000 >= nextKmMarker) {
+              speak(tr('active_training_pace',
+                  args: ['$nextKmMarker', '$paceMinutes', '$paceSeconds']));
+              add(UpdateNextKmMarker(
+                  timerId: timerId, nextKmMarker: nextKmMarker + 1));
+            }
+          }
+
+          void handleTimerCompletion() {
+            sl<ForegroundService>().cancelTimer(timerId);
+            add(UpdateDistance(timerId: timerId, distance: currentDistance));
+            saveTrainingHistory(currentTimerState);
+
+            if (nextTimerId != null &&
+                currentState
+                    .timersStateList[currentTimerIndex + 1].isAutostart) {
+              add(StartTimer(timerId: nextTimerId));
+            } else {
+              add(PauseTimer());
+            }
           }
 
           // RUN DISTANCE
           if (currentState.timersStateList[currentTimerIndex].distance > 0) {
-            // Check if the current distance equals the objective distance
-            if (currentTimerState.targetDistance > 0 &&
-                currentDistance >= currentTimerState.targetDistance) {
-              sl<ForegroundService>().cancelTimer(timerId);
-
-              if (currentTimerState.isRunTimer) {
-                add(UpdateDistance(
-                    timerId: timerId, distance: currentDistance));
-                saveTrainingHistory(currentTimerState);
-              }
-
-              // Start next timer if autostart
-              if (nextTimerId != null) {
-                final autostart = currentState
-                    .timersStateList[currentTimerIndex + 1].isAutostart;
-
-                if (autostart) {
-                  add(StartTimer(timerId: nextTimerId));
-                }
-              } else {
-                add(PauseTimer());
-              }
+            // Check if the current distance equals the objective distance or
+            if ((currentTimerState.targetDistance > 0 &&
+                    currentDistance >= currentTimerState.targetDistance) ||
+                (currentTimerState.targetDuration > 0 &&
+                    currentTimerValue >= currentTimerState.targetDuration)) {
+              handleTimerCompletion();
             } else {
+              checkPace();
+              checkHalfRun();
+              notifyKmProgress();
+
               if (currentTimerState.isRunTimer) {
                 add(TickTimer(
                     timerId: timerId,
@@ -250,26 +296,20 @@ class ActiveTrainingBloc
               }
             }
           }
-          // RUN DURATION
+          // DURATION TIMER
           else {
             // Check if the current duration equals the objective duration
             if (currentTimerState.targetDuration > 0 &&
                 currentTimerValue >= currentTimerState.targetDuration) {
-              sl<ForegroundService>().cancelTimer(timerId);
-
-              saveTrainingHistory(currentTimerState);
-
-              // Start next timer if autostart
-              if (nextTimerId != null) {
-                final autostart = currentState
-                    .timersStateList[currentTimerIndex + 1].isAutostart;
-                if (autostart) {
-                  add(StartTimer(timerId: nextTimerId));
-                }
-              } else {
-                add(PauseTimer());
-              }
+              handleTimerCompletion();
             } else {
+              if (currentState.timersStateList[currentTimerIndex].distance >
+                      0 &&
+                  currentTimerState.targetDuration > 0) {
+                checkPace();
+                checkHalfRun();
+                notifyKmProgress();
+              }
               if (currentTimerState.isRunTimer) {
                 add(TickTimer(
                     timerId: timerId,
