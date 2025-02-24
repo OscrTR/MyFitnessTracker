@@ -103,22 +103,22 @@ class UpdateSelectedTrainingProperty extends TrainingManagementEvent {
 //! Training exercises
 class CreateOrUpdateExerciseEvent extends TrainingManagementEvent {
   final Exercise exercise;
-  final Training training;
+  final BaseExercise? baseExercise;
 
   const CreateOrUpdateExerciseEvent(
-      {required this.exercise, required this.training});
+      {required this.exercise, required this.baseExercise});
 
   @override
-  List<Object> get props => [exercise, training];
+  List<Object?> get props => [exercise, baseExercise];
 }
 
 class RemoveExerciseEvent extends TrainingManagementEvent {
-  final String exerciseKey;
+  final Exercise exercise;
 
-  const RemoveExerciseEvent(this.exerciseKey);
+  const RemoveExerciseEvent(this.exercise);
 
   @override
-  List<Object> get props => [exerciseKey];
+  List<Object> get props => [exercise];
 }
 
 //! Multiset
@@ -133,24 +133,35 @@ class CreateOrUpdateMultisetEvent extends TrainingManagementEvent {
   List<Object> get props => [multiset, training];
 }
 
+class RemoveMultisetEvent extends TrainingManagementEvent {
+  final Multiset multiset;
+
+  const RemoveMultisetEvent({required this.multiset});
+
+  @override
+  List<Object> get props => [multiset];
+}
+
 class CreateOrUpdateMultisetExerciseEvent extends TrainingManagementEvent {
   final String multisetKey;
   final Exercise exercise;
+  final BaseExercise? baseExercise;
 
-  const CreateOrUpdateMultisetExerciseEvent(
-      {required this.multisetKey, required this.exercise});
+  const CreateOrUpdateMultisetExerciseEvent({
+    required this.multisetKey,
+    required this.exercise,
+    required this.baseExercise,
+  });
 
   @override
-  List<Object> get props => [multisetKey, exercise];
+  List<Object?> get props => [multisetKey, exercise, baseExercise];
 }
 
 class RemoveMultisetExerciseEvent extends TrainingManagementEvent {
-  final String multisetKey;
-  final String exerciseKey;
+  final Exercise exercise;
 
-  const RemoveMultisetExerciseEvent(
-      {required this.multisetKey, required this.exerciseKey});
+  const RemoveMultisetExerciseEvent({required this.exercise});
 
   @override
-  List<Object> get props => [multisetKey, exerciseKey];
+  List<Object> get props => [exercise];
 }

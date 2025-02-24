@@ -19,6 +19,8 @@ class TrainingVersion extends Equatable {
   /// Getter pour convertir le `jsonRepresentation` en un objet `Training`
   Training get training => Training.fromJson(jsonRepresentation);
 
+  Training get fullTraining => Training.fromFullJson(jsonRepresentation);
+
   /// Setter pour sérialiser un `Training` en JSON et mettre à jour `jsonRepresentation`
   factory TrainingVersion.fromTraining({
     int? id,

@@ -149,6 +149,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
         position: exercise.position,
         intensity: exercise.intensity,
         widgetKey: exercise.widgetKey,
+        multisetKey: exercise.multisetKey,
       );
 
       _controllers['sets']?.text = exercise.sets.toString();
@@ -693,11 +694,9 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                                       context);
                               if (multiset != null) {
                                 bloc.add(RemoveMultisetExerciseEvent(
-                                    multisetKey: multiset.widgetKey!,
-                                    exerciseKey: exercise.widgetKey!));
+                                    exercise: exercise));
                               } else {
-                                bloc.add(
-                                    RemoveExerciseEvent(exercise.widgetKey!));
+                                bloc.add(RemoveExerciseEvent(exercise));
                               }
                             }
                           },
@@ -786,7 +785,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                       } else if (value == 'delete') {
                         final bloc =
                             BlocProvider.of<TrainingManagementBloc>(context);
-                        bloc.add(RemoveExerciseEvent(exercise.widgetKey!));
+                        bloc.add(RemoveExerciseEvent(exercise));
                       }
                     },
                     itemBuilder: (BuildContext context) => [
@@ -861,7 +860,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                       } else if (value == 'delete') {
                         final bloc =
                             BlocProvider.of<TrainingManagementBloc>(context);
-                        bloc.add(RemoveExerciseEvent(multiset.widgetKey!));
+                        bloc.add(RemoveMultisetEvent(multiset: multiset));
                       }
                     },
                     itemBuilder: (BuildContext context) => [
@@ -1436,21 +1435,25 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
             actions: [
               GestureDetector(
                 onTap: () {
+                  final baseExercise = (context
+                          .read<BaseExerciseManagementBloc>()
+                          .state as BaseExerciseManagementLoaded)
+                      .baseExercises
+                      .firstWhereOrNull((b) =>
+                          b.id == _tExerciseToCreateOrEdit.baseExerciseId);
+
                   if (multiset != null) {
                     sl<TrainingManagementBloc>().add(
                         CreateOrUpdateMultisetExerciseEvent(
                             exercise: _tExerciseToCreateOrEdit,
-                            multisetKey: multiset.widgetKey!));
+                            multisetKey: multiset.widgetKey!,
+                            baseExercise: baseExercise));
                   } else {
-                    final training = (context
-                            .read<TrainingManagementBloc>()
-                            .state as TrainingManagementLoaded)
-                        .selectedTraining;
-
-                    sl<TrainingManagementBloc>().add(
-                        CreateOrUpdateExerciseEvent(
-                            exercise: _tExerciseToCreateOrEdit,
-                            training: training));
+                    sl<TrainingManagementBloc>()
+                        .add(CreateOrUpdateExerciseEvent(
+                      exercise: _tExerciseToCreateOrEdit,
+                      baseExercise: baseExercise,
+                    ));
                   }
 
                   _resetData();

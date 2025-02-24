@@ -2,6 +2,7 @@ import 'package:bloc/bloc.dart';
 import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
 import '../../../core/database/database_service.dart';
+import '../../training_management/models/training.dart';
 import '../models/history_run_location.dart';
 
 import '../models/history_training.dart';
@@ -32,6 +33,7 @@ class TrainingHistoryBloc
 
         final List<HistoryEntry> fetchedEntries = await sl<DatabaseService>()
             .getHistoryEntriesForPeriod(startDate, endDate);
+
         final List<RunLocation> fetchedRunLocations =
             await sl<DatabaseService>()
                 .getRunLocationsForPeriod(startDate, endDate);
@@ -70,7 +72,7 @@ class TrainingHistoryBloc
     on<CreateOrUpdateHistoryEntry>((event, emit) async {
       try {
         bool hasRecentEntry = false;
-        final isUpdate = event.historyEntry.id != 0;
+        final isUpdate = event.historyEntry.id != null;
 
         if (isUpdate) {
           hasRecentEntry = await sl<DatabaseService>()
@@ -78,9 +80,9 @@ class TrainingHistoryBloc
         }
 
         if (isUpdate || hasRecentEntry) {
-          sl<DatabaseService>().updateHistoryEntry(event.historyEntry);
+          await sl<DatabaseService>().updateHistoryEntry(event.historyEntry);
         } else {
-          sl<DatabaseService>().createHistoryEntry(event.historyEntry);
+          await sl<DatabaseService>().createHistoryEntry(event.historyEntry);
         }
 
         add(FetchHistoryEntriesEvent());
@@ -174,9 +176,12 @@ class TrainingHistoryBloc
       if (state is! TrainingHistoryLoaded) return;
       final currentState = state as TrainingHistoryLoaded;
 
-      print(event.historyTraining);
+      final selectedTraining = await sl<DatabaseService>()
+          .getFullTrainingByVersionId(event.historyTraining.trainingVersionId);
 
-      emit(currentState.copyWith(selectedTrainingEntry: event.historyTraining));
+      emit(currentState.copyWith(
+          selectedTrainingEntry: event.historyTraining,
+          selectedTraining: selectedTraining));
     });
   }
 }

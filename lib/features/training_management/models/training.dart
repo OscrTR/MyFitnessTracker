@@ -88,8 +88,37 @@ class Training extends Equatable {
     );
   }
 
-  String toJson() => json.encode(toMap());
+  Map<String, dynamic> toFullMap() {
+    return <String, dynamic>{
+      'id': id,
+      'name': name,
+      'trainingType': trainingType.toMap(),
+      'objectives': objectives,
+      'trainingDays': TrainingDay.listToMap(trainingDays),
+      'multisets': Multiset.listToMap(multisets),
+      'exercises': Exercise.listToMap(exercises),
+      'baseExercises': BaseExercise.listToMap(baseExercises),
+    };
+  }
+
+  factory Training.fromFullMap(Map<String, dynamic> map) {
+    return Training(
+      id: map['id'] != null ? map['id'] as int : null,
+      name: map['name'] as String,
+      trainingType: TrainingType.fromMap(map['trainingType']),
+      objectives: map['objectives'] as String,
+      trainingDays: TrainingDay.listFromMap(map['trainingDays']),
+      multisets: Multiset.listFromMap(map['multisets']),
+      exercises: Exercise.listFromMap(map['exercises']),
+      baseExercises: BaseExercise.listFromMap(map['baseExercises']),
+    );
+  }
+
+  String toJson() => json.encode(toFullMap());
 
   factory Training.fromJson(String source) =>
       Training.fromMap(json.decode(source) as Map<String, dynamic>);
+
+  factory Training.fromFullJson(String source) =>
+      Training.fromFullMap(json.decode(source) as Map<String, dynamic>);
 }

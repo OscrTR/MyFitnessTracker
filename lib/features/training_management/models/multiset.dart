@@ -92,6 +92,16 @@ class Multiset extends Equatable {
     );
   }
 
+  static String listToMap(List<Multiset> multisetList) {
+    return jsonEncode(
+        multisetList.map((multiset) => multiset.toMap()).toList());
+  }
+
+  static List<Multiset> listFromMap(String jsonString) {
+    final List<dynamic> decodedList = jsonDecode(jsonString);
+    return decodedList.map((value) => Multiset.fromMap(value)).toList();
+  }
+
   String toJson() => json.encode(toMap());
 
   factory Multiset.fromJson(String source) =>

@@ -20,6 +20,7 @@ class TrainingHistoryLoaded extends TrainingHistoryState {
   final List<DateTime> weeksList;
   final List<DateTime> monthsList;
   final HistoryTraining? selectedTrainingEntry;
+  final Training? selectedTraining;
   final Map<TrainingType, bool> selectedTrainingTypes;
 
   const TrainingHistoryLoaded({
@@ -31,6 +32,7 @@ class TrainingHistoryLoaded extends TrainingHistoryState {
     this.weeksList = const [],
     this.monthsList = const [],
     this.selectedTrainingEntry,
+    this.selectedTraining,
     this.selectedTrainingTypes = const {},
   });
 
@@ -41,6 +43,7 @@ class TrainingHistoryLoaded extends TrainingHistoryState {
     required DateTime endDate,
     bool isWeekSelected = true,
     HistoryTraining? selectedTrainingEntry,
+    Training? selectedTraining,
     Map<TrainingType, bool> selectedTrainingTypes = const {},
   }) {
     return TrainingHistoryLoaded(
@@ -54,6 +57,7 @@ class TrainingHistoryLoaded extends TrainingHistoryState {
       selectedTrainingEntry: selectedTrainingEntry,
       selectedTrainingTypes: Map.fromEntries(
           TrainingType.values.map((type) => MapEntry(type, false))),
+      selectedTraining: selectedTraining,
     );
   }
 
@@ -63,6 +67,7 @@ class TrainingHistoryLoaded extends TrainingHistoryState {
     DateTime? startDate,
     DateTime? endDate,
     HistoryTraining? selectedTrainingEntry,
+    Training? selectedTraining,
     bool? isWeekSelected,
     Map<TrainingType, bool>? selectedTrainingTypes,
   }) {
@@ -73,6 +78,7 @@ class TrainingHistoryLoaded extends TrainingHistoryState {
       endDate: endDate ?? this.endDate,
       selectedTrainingEntry:
           selectedTrainingEntry ?? this.selectedTrainingEntry,
+      selectedTraining: selectedTraining ?? this.selectedTraining,
       isWeekSelected: isWeekSelected ?? this.isWeekSelected,
       weeksList: weeksList,
       monthsList: monthsList,
@@ -92,6 +98,7 @@ class TrainingHistoryLoaded extends TrainingHistoryState {
         selectedTrainingTypes,
         weeksList,
         monthsList,
+        selectedTraining,
       ];
 
   static List<DateTime> _generateWeeklyRanges() {

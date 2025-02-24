@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:equatable/equatable.dart';
 
 import '../../../core/enums/enums.dart';
@@ -62,5 +64,15 @@ class BaseExercise extends Equatable {
       description: map['description'] as String,
       muscleGroups: MuscleGroup.listFromMap(map['muscleGroups']),
     );
+  }
+
+  static String listToMap(List<BaseExercise> baseExercises) {
+    return jsonEncode(
+        baseExercises.map((baseExercise) => baseExercise.toMap()).toList());
+  }
+
+  static List<BaseExercise> listFromMap(String jsonString) {
+    final List<dynamic> decodedList = jsonDecode(jsonString);
+    return decodedList.map((value) => BaseExercise.fromMap(value)).toList();
   }
 }

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:equatable/equatable.dart';
 
 import '../../../core/enums/enums.dart';
@@ -151,7 +153,7 @@ class Exercise extends Equatable {
       'objectives': objectives,
       'targetDistance': targetDistance,
       'targetDuration': targetDuration,
-      'isTargetPaceSelected': isTargetPaceSelected,
+      'isTargetPaceSelected': isTargetPaceSelected ? 1 : 0,
       'targetPace': targetPace,
       'sets': sets,
       'isSetsInReps': isSetsInReps ? 1 : 0,
@@ -198,5 +200,14 @@ class Exercise extends Equatable {
       multisetKey:
           map['multisetKey'] != null ? map['multisetKey'] as String : null,
     );
+  }
+
+  static String listToMap(List<Exercise> exercises) {
+    return jsonEncode(exercises.map((exercise) => exercise.toMap()).toList());
+  }
+
+  static List<Exercise> listFromMap(String jsonString) {
+    final List<dynamic> decodedList = jsonDecode(jsonString);
+    return decodedList.map((value) => Exercise.fromMap(value)).toList();
   }
 }

@@ -1,3 +1,4 @@
+import 'package:my_fitness_tracker/core/messages/bloc/message_bloc.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -10,6 +11,7 @@ import 'package:sqlite_async/sqlite_async.dart';
 import '../../features/training_history/models/training_version.dart';
 import '../../features/training_management/models/exercise.dart';
 import '../../features/training_management/models/training.dart';
+import '../../injection_container.dart';
 
 class DatabaseService {
   late final SqliteDatabase _db;
@@ -120,12 +122,12 @@ class DatabaseService {
     exerciseId INTEGER NOT NULL,
     trainingVersionId INTEGER NOT NULL,
     setNumber INTEGER NOT NULL,
-    latitude INTEGER NOT NULL,
-    longitude INTEGER NOT NULL,
-    altitude INTEGER NOT NULL,
+    latitude REAL NOT NULL,
+    longitude REAL NOT NULL,
+    altitude REAL NOT NULL,
     date INTEGER NOT NULL,
-    accuracy INTEGER NOT NULL,
-    speed INTEGER NOT NULL,
+    accuracy REAL NOT NULL,
+    speed REAL NOT NULL,
     FOREIGN KEY (trainingId) REFERENCES trainings (id),
     FOREIGN KEY (exerciseId) REFERENCES exercises (id),
     FOREIGN KEY (trainingVersionId) REFERENCES training_versions (id)
@@ -166,18 +168,30 @@ class DatabaseService {
     }));
 
   Future<void> performMaintenance() async {
-    await _db.execute("VACUUM;");
-    await _db.execute("ANALYZE;");
+    try {
+      await _db.execute("VACUUM;");
+      await _db.execute("ANALYZE;");
+    } catch (e) {
+      sl<MessageBloc>().add(AddMessageEvent(
+          message: 'Database error : ${e.toString()}', isError: true));
+      print('Database error : ${e.toString()}');
+    }
   }
 
   // Initialisation de la base de données
   Future<void> init() async {
-    final directory = await getApplicationDocumentsDirectory();
-    final dbPath = join(directory.path, 'mft.db');
+    try {
+      final directory = await getApplicationDocumentsDirectory();
+      final dbPath = join(directory.path, 'mft.db');
 
-    _db = SqliteDatabase(path: dbPath);
+      _db = SqliteDatabase(path: dbPath);
 
-    await migrations.migrate(_db);
+      await migrations.migrate(_db);
+    } catch (e) {
+      sl<MessageBloc>().add(AddMessageEvent(
+          message: 'Database error : ${e.toString()}', isError: true));
+      print('Database error : ${e.toString()}');
+    }
   }
 
   String generateInsertSQL(String tableName, Map<String, dynamic> map) {
@@ -227,11 +241,16 @@ class DatabaseService {
     // Insert training
     final trainingId = await insert('trainings', training.toMap());
 
+    final List<Multiset> newMultisets = [];
+    final List<Exercise> newExercises = [];
+
     // Insert multisets
     for (var multiset in training.multisets) {
       final multisetWithTrainingId = multiset.copyWith(trainingId: trainingId);
       final multisetId =
           await insert('multisets', multisetWithTrainingId.toMap());
+      newMultisets
+          .add(multiset.copyWith(id: multisetId, trainingId: trainingId));
 
       // Insert multiset exercises
       final matchingExercises = training.exercises
@@ -241,7 +260,10 @@ class DatabaseService {
       for (var exercise in matchingExercises) {
         final exerciseWithMultisetId =
             exercise.copyWith(trainingId: trainingId, multisetId: multisetId);
-        await insert('exercises', exerciseWithMultisetId.toMap());
+        final exerciseId =
+            await insert('exercises', exerciseWithMultisetId.toMap());
+        newExercises.add(exercise.copyWith(
+            id: exerciseId, trainingId: trainingId, multisetId: multisetId));
       }
     }
 
@@ -251,11 +273,18 @@ class DatabaseService {
     // Insert exercises not linked to a multiset
     for (var exercise in exercisesWithoutMultiset) {
       final exerciseWithTrainingId = exercise.copyWith(trainingId: trainingId);
-      await insert('exercises', exerciseWithTrainingId.toMap());
+      final exerciseId =
+          await insert('exercises', exerciseWithTrainingId.toMap());
+      newExercises
+          .add(exercise.copyWith(id: exerciseId, trainingId: trainingId));
     }
 
+    print(training.baseExercises);
+
     final TrainingVersion trainingVersion = TrainingVersion.fromTraining(
-        trainingId: trainingId, training: training.copyWith(id: trainingId));
+        trainingId: trainingId,
+        training: training.copyWith(
+            id: trainingId, multisets: newMultisets, exercises: newExercises));
     await createTrainingVersion(trainingVersion);
 
     return trainingId;
@@ -296,34 +325,42 @@ class DatabaseService {
   }
 
   Future<Training?> getTrainingById(int trainingId) async {
-    final Map<String, dynamic> result =
-        await _db.get('SELECT * FROM trainings WHERE id = ?', [trainingId]);
+    try {
+      final Map<String, dynamic> result =
+          await _db.get('SELECT * FROM trainings WHERE id = ?', [trainingId]);
 
-    if (result.isEmpty) return null;
+      Training training = Training.fromMap(result);
 
-    Training training = Training.fromMap(result);
+      final multisets = await getMultisetsByTrainingId(training.id!);
 
-    final multisets = await getMultisetsByTrainingId(training.id!);
+      final exercises = await getExercisesByTrainingId(training.id!);
 
-    final exercises = await getExercisesByTrainingId(training.id!);
+      List<BaseExercise> baseExercises = [];
 
-    List<BaseExercise> baseExercises = [];
-
-    for (var exercise in exercises) {
-      if (exercise.baseExerciseId != null) {
-        final baseExercise =
-            await getBaseExerciseById(exercise.baseExerciseId!);
-        baseExercises.add(baseExercise!);
+      for (var exercise in exercises) {
+        if (exercise.baseExerciseId != null) {
+          final baseExercise =
+              await getBaseExerciseById(exercise.baseExerciseId!);
+          baseExercises.add(baseExercise!);
+        }
       }
+
+      training = training.copyWith(
+        multisets: multisets,
+        exercises: exercises,
+        baseExercises: baseExercises,
+      );
+
+      return training;
+    } catch (e) {
+      if (e.toString().contains('No element')) {
+        print('No training found for ID: $trainingId');
+        return null;
+      }
+      // Si l'exception est inattendue, on la log et la laisse remonter
+      print('Unhandled error: $e');
+      rethrow;
     }
-
-    training = training.copyWith(
-      multisets: multisets,
-      exercises: exercises,
-      baseExercises: baseExercises,
-    );
-
-    return training;
   }
 
   Future<List<Training>> getAllTrainings() async {
@@ -365,6 +402,8 @@ class DatabaseService {
     final List<Map<String, dynamic>> result = await _db
         .getAll('SELECT * FROM multisets WHERE trainingId = ?', [trainingId]);
 
+    if (result.isEmpty) return [];
+
     final List<Multiset> multisets =
         result.map((row) => Multiset.fromMap(row)).toList();
 
@@ -374,6 +413,8 @@ class DatabaseService {
   Future<List<Exercise>> getExercisesByTrainingId(int trainingId) async {
     final List<Map<String, dynamic>> result = await _db
         .getAll('SELECT * FROM exercises WHERE trainingId = ?', [trainingId]);
+
+    if (result.isEmpty) return [];
 
     final List<Exercise> exercises =
         result.map((row) => Exercise.fromMap(row)).toList();
@@ -417,15 +458,26 @@ class DatabaseService {
     return daysSinceTrainings;
   }
 
-  Future<Training?> getTrainingByVersionId(int versionId) async {
+  Future<Training?> getBaseTrainingByVersionId(int versionId) async {
     final Map<String, dynamic> result = await _db
         .get('SELECT * FROM training_versions WHERE id = ?', [versionId]);
-
-    print(result);
 
     if (result.isEmpty) return null;
     final trainingVersion = TrainingVersion.fromMap(result);
     final training = trainingVersion.training;
+
+    return training;
+  }
+
+  Future<Training?> getFullTrainingByVersionId(int versionId) async {
+    final Map<String, dynamic> result = await _db
+        .get('SELECT * FROM training_versions WHERE id = ?', [versionId]);
+
+    if (result.isEmpty) return null;
+
+    final trainingVersion = TrainingVersion.fromMap(result);
+
+    final training = trainingVersion.fullTraining;
 
     return training;
   }
@@ -492,6 +544,9 @@ class DatabaseService {
     // Update the main training table
     await update('trainings', training.toMap(), 'id = ?', [training.id]);
 
+    final List<Multiset> newMultisets = [];
+    final List<Exercise> newExercises = [];
+
     // Récupérer l'ensemble des multisets existants pour cet entraînement
     final existingMultisets = await getMultisetsByTrainingId(training.id!);
 
@@ -508,6 +563,7 @@ class DatabaseService {
           'id = ?',
           [multiset.id],
         );
+        newMultisets.add(multiset);
 
         // Ajouter ou mettre à jour les exercises associés à ce multiset
         final matchingExercises = training.exercises
@@ -524,13 +580,19 @@ class DatabaseService {
               'id = ?',
               [exercise.id],
             );
+            newExercises.add(exercise);
           } else {
             // Cas ajout (nouvel exercice)
-            await insert(
-                'exercises',
-                exercise
-                    .copyWith(trainingId: training.id, multisetId: multiset.id)
-                    .toMap());
+            final exerciseId = await insert(
+              'exercises',
+              exercise
+                  .copyWith(trainingId: training.id, multisetId: multiset.id)
+                  .toMap(),
+            );
+            newExercises.add(exercise.copyWith(
+                id: exerciseId,
+                trainingId: training.id,
+                multisetId: multiset.id));
           }
         }
       } else {
@@ -539,6 +601,8 @@ class DatabaseService {
             multiset.copyWith(trainingId: training.id);
         final multisetId =
             await insert('multisets', multisetWithTrainingId.toMap());
+        newMultisets
+            .add(multiset.copyWith(id: multisetId, trainingId: training.id));
 
         // Ajout des exercices associés à ce multiset
         final matchingExercises = training.exercises
@@ -548,7 +612,12 @@ class DatabaseService {
         for (var exercise in matchingExercises) {
           final exerciseWithMultisetId = exercise.copyWith(
               trainingId: training.id, multisetId: multisetId);
-          await insert('exercises', exerciseWithMultisetId.toMap());
+          final exerciseId =
+              await insert('exercises', exerciseWithMultisetId.toMap());
+          newExercises.add(exercise.copyWith(
+              id: exerciseId,
+              trainingId: training.id,
+              multisetId: multiset.id));
         }
       }
     }
@@ -577,10 +646,13 @@ class DatabaseService {
           'id = ?',
           [exercise.id],
         );
+        newExercises.add(exercise);
       } else {
         // Cas ajout (nouvel exercice)
-        await insert(
+        final exerciseId = await insert(
             'exercises', exercise.copyWith(trainingId: training.id).toMap());
+        newExercises
+            .add(exercise.copyWith(id: exerciseId, trainingId: training.id));
       }
     }
 

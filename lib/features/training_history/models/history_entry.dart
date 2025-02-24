@@ -104,13 +104,12 @@ class HistoryEntry extends Equatable {
 
   factory HistoryEntry.fromMap(Map<String, dynamic> map) {
     return HistoryEntry(
-      id: map['id'] != null ? map['id'] as int : null,
+      id: map['id'] as int?,
       trainingId: map['trainingId'] as int,
       exerciseId: map['exerciseId'] as int,
       trainingVersionId: map['trainingVersionId'] as int,
       setNumber: map['setNumber'] as int,
-      intervalNumber:
-          map['intervalNumber'] != null ? map['intervalNumber'] as int : null,
+      intervalNumber: map['intervalNumber'] as int?,
       date: DateTime.fromMillisecondsSinceEpoch(map['date'] as int),
       reps: map['reps'] as int,
       weight: map['weight'] as int,
