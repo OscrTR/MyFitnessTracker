@@ -515,8 +515,8 @@ class IntervalRun extends StatelessWidget {
               ? exercise.targetDistance
               : 0,
           targetDuration: exercise.runType == RunType.duration
-              ? 0
-              : exercise.targetDuration,
+              ? exercise.targetDuration
+              : 0,
           targetPace: exercise.isTargetPaceSelected ? exercise.targetPace : 0,
           isAutostart: intervalIndex == 0 ? exercise.isAutoStart : true,
           exerciseGlobalKey: exerciseGlobalKey,

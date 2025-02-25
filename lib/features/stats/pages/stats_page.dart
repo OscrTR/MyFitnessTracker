@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:my_fitness_tracker/features/base_exercise_management/bloc/base_exercise_management_bloc.dart';
+import 'package:my_fitness_tracker/features/settings/widgets/training_duration_chart_widget.dart';
 import 'package:my_fitness_tracker/features/training_management/bloc/training_management_bloc.dart';
 import 'package:my_fitness_tracker/features/training_management/models/training.dart';
 import 'package:toggle_switch/toggle_switch.dart';
@@ -249,6 +250,11 @@ class _StatsPageState extends State<StatsPage> {
                             icon: Icon(LucideIcons.rotateCcw))
                       ],
                     ),
+                  const SizedBox(height: 30),
+                  TrainingDurationChart(
+                      trainings: state.historyTrainings,
+                      startDate: state.startDate,
+                      endDate: state.endDate)
                 ],
               );
             }
