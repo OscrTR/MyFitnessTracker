@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
+import 'package:my_fitness_tracker/features/base_exercise_management/models/base_exercise.dart';
 import '../../../core/database/database_service.dart';
 import '../../../helper_functions.dart';
 import '../../training_management/models/training.dart';
@@ -175,6 +176,20 @@ class TrainingHistoryBloc
           isExercisesSelected: false));
     });
 
+    on<SelectHistoryTrainingEntryEvent>((event, emit) async {
+      if (state is! TrainingHistoryLoaded) return;
+      final currentState = state as TrainingHistoryLoaded;
+
+      final selectedTraining = await sl<DatabaseService>()
+          .getFullTrainingByVersionId(event.historyTraining.trainingVersionId);
+
+      emit(currentState.copyWith(
+          selectedTrainingEntry: event.historyTraining,
+          selectedTraining: selectedTraining));
+    });
+
+    //! Stats
+
     on<SelectExercisesEvent>((event, emit) async {
       if (state is! TrainingHistoryLoaded) return;
       final currentState = state as TrainingHistoryLoaded;
@@ -187,16 +202,24 @@ class TrainingHistoryBloc
           isExercisesSelected: !currentState.isExercisesSelected));
     });
 
-    on<SelectHistoryTrainingEntryEvent>((event, emit) async {
+    on<SelectBaseExerciseEvent>((event, emit) async {
       if (state is! TrainingHistoryLoaded) return;
       final currentState = state as TrainingHistoryLoaded;
 
-      final selectedTraining = await sl<DatabaseService>()
-          .getFullTrainingByVersionId(event.historyTraining.trainingVersionId);
+      emit(currentState.copyWith(
+        selectedStatsBaseExercise: event.baseExercise,
+        resetSelectedStatsBaseExercise: event.baseExercise == null,
+      ));
+    });
+
+    on<SelectTrainingEvent>((event, emit) async {
+      if (state is! TrainingHistoryLoaded) return;
+      final currentState = state as TrainingHistoryLoaded;
 
       emit(currentState.copyWith(
-          selectedTrainingEntry: event.historyTraining,
-          selectedTraining: selectedTraining));
+        selectedStatsTraining: event.training,
+        resetSelectedStatsTraining: event.training == null,
+      ));
     });
   }
 }

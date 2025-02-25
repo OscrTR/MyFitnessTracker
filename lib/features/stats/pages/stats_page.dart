@@ -1,10 +1,16 @@
+import 'package:animated_custom_dropdown/custom_dropdown.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:my_fitness_tracker/features/base_exercise_management/bloc/base_exercise_management_bloc.dart';
+import 'package:my_fitness_tracker/features/training_management/bloc/training_management_bloc.dart';
+import 'package:my_fitness_tracker/features/training_management/models/training.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 
 import '../../../app_colors.dart';
 import '../../../helper_functions.dart';
+import '../../base_exercise_management/models/base_exercise.dart';
 import '../../training_history/bloc/training_history_bloc.dart';
 
 class StatsPage extends StatefulWidget {
@@ -42,7 +48,7 @@ class _StatsPageState extends State<StatsPage> {
                   _buildDateTypeSelection(context, state),
                   const SizedBox(height: 10),
                   _buildDatesList(state),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 10),
                   Wrap(
                     spacing: 4,
                     children: [
@@ -111,6 +117,138 @@ class _StatsPageState extends State<StatsPage> {
                       )
                     ],
                   ),
+                  SizedBox(height: 10),
+                  if (state.isExercisesSelected)
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        SizedBox(
+                          width: MediaQuery.of(context).size.width - 40 - 60,
+                          child: CustomDropdown<BaseExercise>.search(
+                            closedHeaderPadding: EdgeInsets.symmetric(
+                                horizontal: 15, vertical: 10),
+                            items: (context
+                                    .read<BaseExerciseManagementBloc>()
+                                    .state as BaseExerciseManagementLoaded)
+                                .baseExercises,
+                            hintText: tr('exercise_search'),
+                            initialItem: state.selectedStatsBaseExercise,
+                            decoration: CustomDropdownDecoration(
+                              closedBorderRadius: BorderRadius.circular(10),
+                              expandedBorderRadius: BorderRadius.circular(10),
+                              closedErrorBorderRadius:
+                                  BorderRadius.circular(10),
+                              listItemStyle: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium!
+                                  .copyWith(color: AppColors.timberwolf),
+                              headerStyle: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium!
+                                  .copyWith(color: AppColors.licorice),
+                              closedSuffixIcon: const Icon(
+                                Icons.keyboard_arrow_down_rounded,
+                                size: 20,
+                                color: AppColors.timberwolf,
+                              ),
+                              expandedSuffixIcon: const Icon(
+                                Icons.keyboard_arrow_up_rounded,
+                                size: 20,
+                                color: AppColors.timberwolf,
+                              ),
+                              closedBorder:
+                                  Border.all(color: AppColors.timberwolf),
+                              expandedBorder:
+                                  Border.all(color: AppColors.timberwolf),
+                            ),
+                            headerBuilder: (context, selectedItem, enabled) {
+                              return Text(selectedItem.name);
+                            },
+                            listItemBuilder:
+                                (context, item, isSelected, onItemSelect) {
+                              return Text(item.name);
+                            },
+                            onChanged: (value) {
+                              context
+                                  .read<TrainingHistoryBloc>()
+                                  .add(SelectBaseExerciseEvent(value));
+                            },
+                          ),
+                        ),
+                        IconButton(
+                            onPressed: () {
+                              context
+                                  .read<TrainingHistoryBloc>()
+                                  .add(SelectBaseExerciseEvent(null));
+                            },
+                            icon: Icon(LucideIcons.rotateCcw))
+                      ],
+                    )
+                  else
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        SizedBox(
+                          width: MediaQuery.of(context).size.width - 40 - 60,
+                          child: CustomDropdown<Training>.search(
+                            closedHeaderPadding: EdgeInsets.symmetric(
+                                horizontal: 15, vertical: 10),
+                            items: (context.read<TrainingManagementBloc>().state
+                                    as TrainingManagementLoaded)
+                                .trainings,
+                            hintText: tr('stats_page_training_search'),
+                            initialItem: state.selectedStatsTraining,
+                            decoration: CustomDropdownDecoration(
+                              closedBorderRadius: BorderRadius.circular(10),
+                              expandedBorderRadius: BorderRadius.circular(10),
+                              closedErrorBorderRadius:
+                                  BorderRadius.circular(10),
+                              listItemStyle: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium!
+                                  .copyWith(color: AppColors.timberwolf),
+                              headerStyle: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium!
+                                  .copyWith(color: AppColors.licorice),
+                              closedSuffixIcon: const Icon(
+                                Icons.keyboard_arrow_down_rounded,
+                                size: 20,
+                                color: AppColors.timberwolf,
+                              ),
+                              expandedSuffixIcon: const Icon(
+                                Icons.keyboard_arrow_up_rounded,
+                                size: 20,
+                                color: AppColors.timberwolf,
+                              ),
+                              closedBorder:
+                                  Border.all(color: AppColors.timberwolf),
+                              expandedBorder:
+                                  Border.all(color: AppColors.timberwolf),
+                            ),
+                            headerBuilder: (context, selectedItem, enabled) {
+                              return Text(selectedItem.name);
+                            },
+                            listItemBuilder:
+                                (context, item, isSelected, onItemSelect) {
+                              return Text(item.name);
+                            },
+                            onChanged: (value) {
+                              context
+                                  .read<TrainingHistoryBloc>()
+                                  .add(SelectTrainingEvent(value));
+                            },
+                          ),
+                        ),
+                        IconButton(
+                            onPressed: () {
+                              context
+                                  .read<TrainingHistoryBloc>()
+                                  .add(SelectTrainingEvent(null));
+                            },
+                            icon: Icon(LucideIcons.rotateCcw))
+                      ],
+                    ),
                 ],
               );
             }
