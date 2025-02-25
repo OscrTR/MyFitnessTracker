@@ -130,9 +130,8 @@
   "training_detail_page_title_create": "Create training",
   "training_detail_page_title_edit": "Edit training",
   "training_detail_page_training_type": "Training type",
-  "training_detail_page_add_exercise": "Add exercise",
-  "training_detail_page_add_run": "Add run",
-  "training_detail_page_add_multiset": "Add multiset",
+  "training_detail_page_add_exercise": "+ Exercise",
+  "training_detail_page_add_multiset": "+ Multiset",
   "training_detail_page_edit_multiset": "Edit multiset",
 
   "training_detail_page_autostart": "Auto start",

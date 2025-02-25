@@ -50,18 +50,16 @@ class StartTimer extends ActiveTrainingEvent {
 class TickTimer extends ActiveTrainingEvent {
   final String timerId;
   final bool isCountDown;
-  final bool isRunTimer;
   final double totalDistance;
 
   const TickTimer({
     required this.timerId,
     this.isCountDown = false,
-    this.isRunTimer = false,
     this.totalDistance = 0,
   });
 
   @override
-  List<Object?> get props => [timerId, isCountDown, isRunTimer, totalDistance];
+  List<Object?> get props => [timerId, isCountDown, totalDistance];
 }
 
 class PauseTimer extends ActiveTrainingEvent {}

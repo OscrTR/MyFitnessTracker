@@ -28,14 +28,12 @@ const uuid = Uuid();
 class ActiveTrainingBloc
     extends Bloc<ActiveTrainingEvent, ActiveTrainingState> {
   ActiveTrainingBloc() : super(ActiveTrainingInitial()) {
-    final AudioPlayer audioPlayer = AudioPlayer();
+    final AudioPlayer audioPlayer = AudioPlayer()
+      ..setSource(AssetSource('sounds/countdown.mp3'));
+
     final FlutterTts flutterTts = FlutterTts();
     int? lastTimerValue;
     bool halfRunDone = false;
-
-    Future<void> playCountdown() async {
-      await audioPlayer.play(AssetSource('sounds/countdown.mp3'));
-    }
 
     Future<void> speak(String string) async {
       await flutterTts.speak(string);
@@ -170,17 +168,13 @@ class ActiveTrainingBloc
         if (currentTimerState.isCountDown) {
           if (currentTimerValue > 0) {
             if (currentTimerValue == 2) {
-              await playCountdown();
+              // await playCountdown();
             }
-            if (currentTimerState.isRunTimer) {
-              add(TickTimer(
-                  timerId: timerId,
-                  isCountDown: true,
-                  isRunTimer: true,
-                  totalDistance: event.runDistance));
-            } else {
-              add(TickTimer(timerId: timerId, isCountDown: true));
-            }
+
+            add(TickTimer(
+                timerId: timerId,
+                isCountDown: true,
+                totalDistance: event.runDistance));
           } else {
             saveTrainingHistory(currentTimerState);
 
@@ -273,7 +267,7 @@ class ActiveTrainingBloc
             }
           }
 
-          // RUN DISTANCE
+          // DISTANCE TIMER
           if (currentState.timersStateList[currentTimerIndex].distance > 0) {
             // Check if the current distance equals the objective distance or
             if ((currentTimerState.targetDistance > 0 &&
@@ -286,14 +280,8 @@ class ActiveTrainingBloc
               checkHalfRun();
               notifyKmProgress();
 
-              if (currentTimerState.isRunTimer) {
-                add(TickTimer(
-                    timerId: timerId,
-                    isRunTimer: true,
-                    totalDistance: event.runDistance));
-              } else {
-                add(TickTimer(timerId: timerId));
-              }
+              add(TickTimer(
+                  timerId: timerId, totalDistance: event.runDistance));
             }
           }
           // DURATION TIMER
@@ -310,14 +298,9 @@ class ActiveTrainingBloc
                 checkHalfRun();
                 notifyKmProgress();
               }
-              if (currentTimerState.isRunTimer) {
-                add(TickTimer(
-                    timerId: timerId,
-                    isRunTimer: true,
-                    totalDistance: event.runDistance));
-              } else {
-                add(TickTimer(timerId: timerId));
-              }
+
+              add(TickTimer(
+                  timerId: timerId, totalDistance: event.runDistance));
             }
           }
         }
@@ -380,6 +363,9 @@ class ActiveTrainingBloc
 
     on<StartTimer>((event, emit) async {
       final timerId = event.timerId;
+
+      await audioPlayer.pause();
+      audioPlayer.seek(const Duration(milliseconds: 0));
 
       if (state is ActiveTrainingLoaded) {
         final currentState = state as ActiveTrainingLoaded;
@@ -485,48 +471,53 @@ class ActiveTrainingBloc
     });
 
     on<TickTimer>((event, emit) {
-      if (state is ActiveTrainingLoaded) {
-        final currentState = state as ActiveTrainingLoaded;
+      if (state is! ActiveTrainingLoaded) return;
+      final currentState = state as ActiveTrainingLoaded;
 
-        final currentTimersStateList =
-            List<TimerState>.from(currentState.timersStateList);
+      final currentTimersStateList =
+          List<TimerState>.from(currentState.timersStateList);
 
-        final currentTimerState = currentTimersStateList
-            .firstWhere((e) => e.timerId == event.timerId);
+      final timerIndex =
+          currentTimersStateList.indexWhere((e) => e.timerId == event.timerId);
 
-        lastTimerValue = currentState.timersStateList
-            .firstWhereOrNull(
-                (el) => el.timerId == currentState.lastStartedTimerId)
-            ?.timerValue;
+      final currentTimerState = currentTimersStateList[timerIndex];
 
-        final newTimerValue = event.isCountDown
-            ? currentTimerState.timerValue - 1
-            : currentTimerState.timerValue + 1;
+      lastTimerValue = currentState.timersStateList
+          .firstWhereOrNull(
+              (el) => el.timerId == currentState.lastStartedTimerId)
+          ?.timerValue;
 
-        final double newDistance = event.totalDistance;
+      final newTimerValue = event.isCountDown
+          ? currentTimerState.timerValue - 1
+          : currentTimerState.timerValue + 1;
 
-        final double newPace =
-            newDistance > 0 ? newTimerValue * 1000 / newDistance : 0;
-
-        sl<ForegroundService>().updateNotificationText(
-          'Timer: ${formatDurationToMinutesSeconds(lastTimerValue)}${event.totalDistance > 0 ? '\nDistance : ${event.totalDistance.floor()}m' : ''} ',
-        );
-
-        final updatedTimerState = currentTimerState.copyWith(
-          timerValue: newTimerValue,
-          distance: newDistance,
-          pace: newPace,
-        );
-
-        currentTimersStateList[currentTimersStateList.indexOf(
-            currentTimersStateList.firstWhere(
-                (e) => e.timerId == event.timerId))] = updatedTimerState;
-        emit(
-          currentState.copyWith(
-            timersStateList: currentTimersStateList,
-          ),
-        );
+      if (event.isCountDown && newTimerValue == 2) {
+        // audioPlayer.pause();
+        // audioPlayer.seek(const Duration(milliseconds: 0));
+        audioPlayer.resume();
       }
+
+      final double newDistance = event.totalDistance;
+      final double newPace =
+          newDistance > 0 ? newTimerValue * 1000 / newDistance : 0;
+
+      sl<ForegroundService>().updateNotificationText(
+        'Timer: ${formatDurationToMinutesSeconds(lastTimerValue)}${event.totalDistance > 0 ? '\nDistance : ${event.totalDistance.floor()}m' : ''} ',
+      );
+
+      final updatedTimerState = currentTimerState.copyWith(
+        timerValue: newTimerValue,
+        distance: newDistance,
+        pace: newPace,
+      );
+
+      currentTimersStateList[timerIndex] = updatedTimerState;
+
+      emit(
+        currentState.copyWith(
+          timersStateList: currentTimersStateList,
+        ),
+      );
     });
 
     on<PauseTimer>((event, emit) {

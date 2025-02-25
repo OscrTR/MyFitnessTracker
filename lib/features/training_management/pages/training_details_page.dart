@@ -429,55 +429,57 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: BlocBuilder<TrainingManagementBloc, TrainingManagementState>(
-        builder: (context, state) {
-          if (state is TrainingManagementLoaded) {
-            List<Map<String, Object>> exercisesAndMultisetsList = [];
+      body: SizedBox.expand(
+        child: BlocBuilder<TrainingManagementBloc, TrainingManagementState>(
+          builder: (context, state) {
+            if (state is TrainingManagementLoaded) {
+              List<Map<String, Object>> exercisesAndMultisetsList = [];
 
-            if (!_isDataInitialized &&
-                state.selectedTraining !=
-                    TrainingManagementLoaded.emptyTraining) {
-              _initializeTrainingGeneralInfo();
-              _isDataInitialized = true;
-            }
-            exercisesAndMultisetsList = [
-              ...state.selectedTraining.exercises
-                  .where((e) => e.multisetKey == null)
-                  .map((e) => {'type': 'exercise', 'data': e}),
-              ...state.selectedTraining.multisets
-                  .map((m) => {'type': 'multiset', 'data': m}),
-            ];
-            exercisesAndMultisetsList.sort((a, b) {
-              final aPosition = (a['data'] as dynamic).position ?? 0;
-              final bPosition = (b['data'] as dynamic).position ?? 0;
-              return aPosition.compareTo(bPosition);
-            });
+              if (!_isDataInitialized &&
+                  state.selectedTraining !=
+                      TrainingManagementLoaded.emptyTraining) {
+                _initializeTrainingGeneralInfo();
+                _isDataInitialized = true;
+              }
+              exercisesAndMultisetsList = [
+                ...state.selectedTraining.exercises
+                    .where((e) => e.multisetKey == null)
+                    .map((e) => {'type': 'exercise', 'data': e}),
+                ...state.selectedTraining.multisets
+                    .map((m) => {'type': 'multiset', 'data': m}),
+              ];
+              exercisesAndMultisetsList.sort((a, b) {
+                final aPosition = (a['data'] as dynamic).position ?? 0;
+                final bPosition = (b['data'] as dynamic).position ?? 0;
+                return aPosition.compareTo(bPosition);
+              });
 
-            return Stack(
-              children: [
-                SingleChildScrollView(
-                  child: Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: Column(
-                      children: [
-                        _buildHeader(context, state),
-                        const SizedBox(height: 30),
-                        _buildTrainingGeneralInfo(context),
-                        _buildReorderableListview(
-                            exercisesAndMultisetsList, context, state),
-                        const SizedBox(height: 20),
-                        _buildAddButtons(context),
-                        const SizedBox(height: 70),
-                      ],
+              return Stack(
+                children: [
+                  SingleChildScrollView(
+                    child: Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Column(
+                        children: [
+                          _buildHeader(context, state),
+                          const SizedBox(height: 30),
+                          _buildTrainingGeneralInfo(context),
+                          _buildReorderableListview(
+                              exercisesAndMultisetsList, context, state),
+                          const SizedBox(height: 20),
+                          _buildAddButtons(context),
+                          const SizedBox(height: 70),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-                _buildCreateButton(context, state),
-              ],
-            );
-          }
-          return Center(child: Text(context.tr('error_state')));
-        },
+                  _buildCreateButton(context, state),
+                ],
+              );
+            }
+            return Center(child: Text(context.tr('error_state')));
+          },
+        ),
       ),
     );
   }
