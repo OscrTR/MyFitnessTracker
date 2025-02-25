@@ -22,6 +22,7 @@ class TrainingHistoryLoaded extends TrainingHistoryState {
   final HistoryTraining? selectedTrainingEntry;
   final Training? selectedTraining;
   final Map<TrainingType, bool> selectedTrainingTypes;
+  final bool isExercisesSelected;
 
   const TrainingHistoryLoaded({
     required this.historyEntries,
@@ -34,6 +35,7 @@ class TrainingHistoryLoaded extends TrainingHistoryState {
     this.selectedTrainingEntry,
     this.selectedTraining,
     this.selectedTrainingTypes = const {},
+    this.isExercisesSelected = false,
   });
 
   factory TrainingHistoryLoaded.withDefaultLists({
@@ -55,8 +57,7 @@ class TrainingHistoryLoaded extends TrainingHistoryState {
       weeksList: _generateWeeklyRanges(),
       monthsList: _generateMonthlyRanges(),
       selectedTrainingEntry: selectedTrainingEntry,
-      selectedTrainingTypes: Map.fromEntries(
-          TrainingType.values.map((type) => MapEntry(type, false))),
+      selectedTrainingTypes: createMapWithDefaultValues(TrainingType.values),
       selectedTraining: selectedTraining,
     );
   }
@@ -70,6 +71,7 @@ class TrainingHistoryLoaded extends TrainingHistoryState {
     Training? selectedTraining,
     bool? isWeekSelected,
     Map<TrainingType, bool>? selectedTrainingTypes,
+    bool? isExercisesSelected,
   }) {
     return TrainingHistoryLoaded(
       historyEntries: historyEntries ?? this.historyEntries,
@@ -84,6 +86,7 @@ class TrainingHistoryLoaded extends TrainingHistoryState {
       monthsList: monthsList,
       selectedTrainingTypes:
           selectedTrainingTypes ?? this.selectedTrainingTypes,
+      isExercisesSelected: isExercisesSelected ?? this.isExercisesSelected,
     );
   }
 
@@ -99,6 +102,7 @@ class TrainingHistoryLoaded extends TrainingHistoryState {
         weeksList,
         monthsList,
         selectedTraining,
+        isExercisesSelected,
       ];
 
   static List<DateTime> _generateWeeklyRanges() {

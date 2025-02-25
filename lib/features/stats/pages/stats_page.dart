@@ -44,7 +44,7 @@ class _StatsPageState extends State<StatsPage> {
                   _buildDatesList(state),
                   const SizedBox(height: 20),
                   Wrap(
-                    spacing: 10,
+                    spacing: 4,
                     children: [
                       ...state.selectedTrainingTypes.keys.map(
                         (e) => FilterChip(
@@ -74,6 +74,41 @@ class _StatsPageState extends State<StatsPage> {
                           },
                         ),
                       ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4),
+                        child: Container(
+                          margin: const EdgeInsets.symmetric(horizontal: 4),
+                          height: 40,
+                          width: 1,
+                          color: AppColors.licorice,
+                        ),
+                      ),
+                      FilterChip(
+                        side: BorderSide(
+                            color: state.isExercisesSelected
+                                ? AppColors.white
+                                : AppColors.timberwolf),
+                        label: Text(
+                          tr('exercise_page_exercises'),
+                        ),
+                        labelStyle: TextStyle(
+                          color: state.isExercisesSelected
+                              ? AppColors.white
+                              : AppColors.licorice,
+                        ),
+                        showCheckmark: true,
+                        selectedColor: AppColors.licorice,
+                        checkmarkColor: AppColors.white,
+                        backgroundColor: AppColors.white,
+                        selected: state.isExercisesSelected,
+                        onSelected: (bool value) {
+                          setState(() {
+                            context
+                                .read<TrainingHistoryBloc>()
+                                .add(SelectExercisesEvent(value));
+                          });
+                        },
+                      )
                     ],
                   ),
                 ],

@@ -70,3 +70,12 @@ class SelectTrainingTypeEvent extends TrainingHistoryEvent {
   @override
   List<Object> get props => [trainingType, isSelected];
 }
+
+class SelectExercisesEvent extends TrainingHistoryEvent {
+  final bool isExercisesSelected;
+
+  const SelectExercisesEvent(this.isExercisesSelected);
+
+  @override
+  List<Object> get props => [isExercisesSelected];
+}

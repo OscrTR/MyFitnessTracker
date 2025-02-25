@@ -2,6 +2,7 @@ import 'package:bloc/bloc.dart';
 import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
 import '../../../core/database/database_service.dart';
+import '../../../helper_functions.dart';
 import '../../training_management/models/training.dart';
 import '../models/history_run_location.dart';
 
@@ -169,7 +170,21 @@ class TrainingHistoryBloc
       final selectedTrainingTypes = currentState.selectedTrainingTypes;
       selectedTrainingTypes[event.trainingType] = event.isSelected;
 
-      emit(currentState.copyWith(selectedTrainingTypes: selectedTrainingTypes));
+      emit(currentState.copyWith(
+          selectedTrainingTypes: selectedTrainingTypes,
+          isExercisesSelected: false));
+    });
+
+    on<SelectExercisesEvent>((event, emit) async {
+      if (state is! TrainingHistoryLoaded) return;
+      final currentState = state as TrainingHistoryLoaded;
+
+      final selectedTrainingTypes =
+          createMapWithDefaultValues(TrainingType.values);
+
+      emit(currentState.copyWith(
+          selectedTrainingTypes: selectedTrainingTypes,
+          isExercisesSelected: !currentState.isExercisesSelected));
     });
 
     on<SelectHistoryTrainingEntryEvent>((event, emit) async {
