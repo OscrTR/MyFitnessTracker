@@ -113,7 +113,7 @@ class ActiveTrainingBloc
         final lastTrainingVersion = await sl<DatabaseService>()
             .getMostRecentTrainingVersionForTrainingId(training.id!);
 
-        final lastTrainingVersionId = lastTrainingVersion.id!;
+        final lastTrainingVersionId = lastTrainingVersion?.id!;
         if (state is ActiveTrainingLoaded) {
           final currentState = state as ActiveTrainingLoaded;
           emit(currentState.copyWith(

@@ -191,7 +191,6 @@ class DatabaseService {
     } catch (e) {
       sl<MessageBloc>().add(AddMessageEvent(
           message: 'Database error : ${e.toString()}', isError: true));
-      print('Database error : ${e.toString()}');
     }
   }
 
@@ -207,7 +206,6 @@ class DatabaseService {
     } catch (e) {
       sl<MessageBloc>().add(AddMessageEvent(
           message: 'Database error : ${e.toString()}', isError: true));
-      print('Database error : ${e.toString()}');
     }
   }
 
@@ -218,13 +216,19 @@ class DatabaseService {
   }
 
   Future<int> insert(String tableName, Map<String, dynamic> fields) async {
-    // Exclut "id" car auto incrémenté
-    final cleanFields = Map.of(fields)..remove('id');
+    try {
+      // Exclut "id" car auto incrémenté
+      final cleanFields = Map.of(fields)..remove('id');
 
-    final sql = generateInsertSQL(tableName, cleanFields);
-    await _db.execute(sql, cleanFields.values.toList());
-    final result = await _db.execute('SELECT last_insert_rowid()');
-    return result.first.values.first as int;
+      final sql = generateInsertSQL(tableName, cleanFields);
+      await _db.execute(sql, cleanFields.values.toList());
+      final result = await _db.execute('SELECT last_insert_rowid()');
+      return result.first.values.first as int;
+    } catch (e) {
+      sl<MessageBloc>().add(AddMessageEvent(
+          message: 'Database error : ${e.toString()}', isError: true));
+      return -1;
+    }
   }
 
   String generateUpdateSQL(
@@ -235,93 +239,133 @@ class DatabaseService {
 
   Future<void> update(String tableName, Map<String, dynamic> fields,
       String whereClause, List<Object?> whereArgs) async {
-    // Exclut "id" car auto incrémenté
-    final cleanFields = Map.of(fields)..remove('id');
+    try {
+      // Exclut "id" car auto incrémenté
+      final cleanFields = Map.of(fields)..remove('id');
 
-    final sql = generateUpdateSQL(tableName, cleanFields, whereClause);
-    final allArgs = [...cleanFields.values, ...whereArgs];
-    await _db.execute(sql, allArgs);
+      final sql = generateUpdateSQL(tableName, cleanFields, whereClause);
+      final allArgs = [...cleanFields.values, ...whereArgs];
+      await _db.execute(sql, allArgs);
+    } catch (e) {
+      sl<MessageBloc>().add(AddMessageEvent(
+          message: 'Database error : ${e.toString()}', isError: true));
+    }
   }
 
   //! Create operations
 
   Future<int> createBaseExercise(BaseExercise baseExercise) async {
-    return await insert('base_exercises', baseExercise.toMap());
+    try {
+      return await insert('base_exercises', baseExercise.toMap());
+    } catch (e) {
+      sl<MessageBloc>().add(AddMessageEvent(
+          message: 'Database error : ${e.toString()}', isError: true));
+      return -1;
+    }
   }
 
   Future<int> createExercise(Exercise exercise) async {
-    return await insert('exercises', exercise.toMap());
+    try {
+      return await insert('exercises', exercise.toMap());
+    } catch (e) {
+      sl<MessageBloc>().add(AddMessageEvent(
+          message: 'Database error : ${e.toString()}', isError: true));
+      return -1;
+    }
   }
 
   Future<int> createMultiset(Multiset multiset) async {
-    return await insert('multisets', multiset.toMap());
+    try {
+      return await insert('multisets', multiset.toMap());
+    } catch (e) {
+      sl<MessageBloc>().add(AddMessageEvent(
+          message: 'Database error : ${e.toString()}', isError: true));
+      return -1;
+    }
   }
 
   Future<int> createTraining(Training training) async {
-    // Insert training
-    final trainingId = await insert('trainings', training.toMap());
+    try {
+      // Insert training
+      final trainingId = await insert('trainings', training.toMap());
 
-    final List<Multiset> newMultisets = [];
-    final List<Exercise> newExercises = [];
+      final List<Multiset> newMultisets = [];
+      final List<Exercise> newExercises = [];
 
-    // Insert multisets
-    for (var multiset in training.multisets) {
-      final multisetWithTrainingId = multiset.copyWith(trainingId: trainingId);
-      final multisetId =
-          await insert('multisets', multisetWithTrainingId.toMap());
-      newMultisets
-          .add(multiset.copyWith(id: multisetId, trainingId: trainingId));
+      // Insert multisets
+      for (var multiset in training.multisets) {
+        final multisetWithTrainingId =
+            multiset.copyWith(trainingId: trainingId);
+        final multisetId =
+            await insert('multisets', multisetWithTrainingId.toMap());
+        newMultisets
+            .add(multiset.copyWith(id: multisetId, trainingId: trainingId));
 
-      // Insert multiset exercises
-      final matchingExercises = training.exercises
-          .where((e) => e.multisetKey == multiset.widgetKey)
-          .toList();
+        // Insert multiset exercises
+        final matchingExercises = training.exercises
+            .where((e) => e.multisetKey == multiset.widgetKey)
+            .toList();
 
-      for (var exercise in matchingExercises) {
-        final exerciseWithMultisetId =
-            exercise.copyWith(trainingId: trainingId, multisetId: multisetId);
-        final exerciseId =
-            await insert('exercises', exerciseWithMultisetId.toMap());
-        newExercises.add(exercise.copyWith(
-            id: exerciseId, trainingId: trainingId, multisetId: multisetId));
+        for (var exercise in matchingExercises) {
+          final exerciseWithMultisetId =
+              exercise.copyWith(trainingId: trainingId, multisetId: multisetId);
+          final exerciseId =
+              await insert('exercises', exerciseWithMultisetId.toMap());
+          newExercises.add(exercise.copyWith(
+              id: exerciseId, trainingId: trainingId, multisetId: multisetId));
+        }
       }
+
+      final exercisesWithoutMultiset =
+          training.exercises.where((e) => e.multisetKey == null).toList();
+
+      // Insert exercises not linked to a multiset
+      for (var exercise in exercisesWithoutMultiset) {
+        final exerciseWithTrainingId =
+            exercise.copyWith(trainingId: trainingId);
+        final exerciseId =
+            await insert('exercises', exerciseWithTrainingId.toMap());
+        newExercises
+            .add(exercise.copyWith(id: exerciseId, trainingId: trainingId));
+      }
+
+      final TrainingVersion trainingVersion = TrainingVersion.fromTraining(
+          trainingId: trainingId,
+          training: training.copyWith(
+              id: trainingId,
+              multisets: newMultisets,
+              exercises: newExercises));
+      await createTrainingVersion(trainingVersion);
+
+      return trainingId;
+    } catch (e) {
+      sl<MessageBloc>().add(AddMessageEvent(
+          message: 'Database error : ${e.toString()}', isError: true));
+      return -1;
     }
-
-    final exercisesWithoutMultiset =
-        training.exercises.where((e) => e.multisetKey == null).toList();
-
-    // Insert exercises not linked to a multiset
-    for (var exercise in exercisesWithoutMultiset) {
-      final exerciseWithTrainingId = exercise.copyWith(trainingId: trainingId);
-      final exerciseId =
-          await insert('exercises', exerciseWithTrainingId.toMap());
-      newExercises
-          .add(exercise.copyWith(id: exerciseId, trainingId: trainingId));
-    }
-
-    final TrainingVersion trainingVersion = TrainingVersion.fromTraining(
-        trainingId: trainingId,
-        training: training.copyWith(
-            id: trainingId, multisets: newMultisets, exercises: newExercises));
-    await createTrainingVersion(trainingVersion);
-
-    return trainingId;
   }
 
   Future<int> createTrainingVersion(TrainingVersion trainingVersion) async {
-    await _db.execute('''DELETE FROM training_versions WHERE id NOT IN (
+    try {
+      await _db.execute('''DELETE FROM training_versions WHERE id NOT IN (
       SELECT DISTINCT trainingVersionId FROM history_entries
       UNION
       SELECT DISTINCT trainingVersionId FROM run_locations
     )''');
-    return await insert('training_versions', trainingVersion.toMap());
+      return await insert('training_versions', trainingVersion.toMap());
+    } catch (e) {
+      sl<MessageBloc>().add(AddMessageEvent(
+          message: 'Database error : ${e.toString()}', isError: true));
+      return -1;
+    }
   }
 
   Future<void> createHistoryEntry(HistoryEntry historyEntry) async {
     try {
       await insert('history_entries', historyEntry.toMap());
     } catch (e) {
-      print('Database error : ${e.toString()}');
+      sl<MessageBloc>().add(AddMessageEvent(
+          message: 'Database error : ${e.toString()}', isError: true));
     }
   }
 
@@ -329,7 +373,8 @@ class DatabaseService {
     try {
       await insert('run_locations', runLocation.toMap());
     } catch (e) {
-      print('Database error : ${e.toString()}');
+      sl<MessageBloc>().add(AddMessageEvent(
+          message: 'Database error : ${e.toString()}', isError: true));
     }
   }
 
@@ -337,20 +382,22 @@ class DatabaseService {
     try {
       await insert('reminders', reminder.toMap());
     } catch (e) {
-      print('Database error : ${e.toString()}');
+      sl<MessageBloc>().add(AddMessageEvent(
+          message: 'Database error : ${e.toString()}', isError: true));
     }
   }
 
   Future<void> savePreferences(bool isReminderActive) async {
-    // Supprime tout enregistrement pour maintenir une seule préférence.
-    await _db.execute('DELETE FROM preferences');
+    try {
+      // Supprime tout enregistrement pour maintenir une seule préférence.
+      await _db.execute('DELETE FROM preferences');
 
-    await insert(
-      'preferences',
-      {
-        'isReminderActive': isReminderActive ? 1 : 0, // Stockage bool en entier
-      },
-    );
+      await insert(
+          'preferences', {'isReminderActive': isReminderActive ? 1 : 0});
+    } catch (e) {
+      sl<MessageBloc>().add(AddMessageEvent(
+          message: 'Database error : ${e.toString()}', isError: true));
+    }
   }
 
   //! Read operations
@@ -365,29 +412,42 @@ class DatabaseService {
 
       return baseExercise;
     } catch (e) {
-      print('No base exercise found for id: $baseExerciseId');
+      sl<MessageBloc>().add(AddMessageEvent(
+          message: 'Database error : ${e.toString()}', isError: true));
       return null;
     }
   }
 
   Future<List<BaseExercise>> getAllBaseExercises() async {
-    final List<Map<String, dynamic>> result =
-        await _db.getAll('SELECT * FROM base_exercises');
+    try {
+      final List<Map<String, dynamic>> result =
+          await _db.getAll('SELECT * FROM base_exercises');
 
-    final List<BaseExercise> baseExercises =
-        result.map((row) => BaseExercise.fromMap(row)).toList();
+      final List<BaseExercise> baseExercises =
+          result.map((row) => BaseExercise.fromMap(row)).toList();
 
-    return baseExercises;
+      return baseExercises;
+    } catch (e) {
+      sl<MessageBloc>().add(AddMessageEvent(
+          message: 'Database error : ${e.toString()}', isError: true));
+      return [];
+    }
   }
 
   Future<List<TrainingVersion>> getAllTrainingVersions() async {
-    final List<Map<String, dynamic>> result =
-        await _db.getAll('SELECT * FROM training_versions');
+    try {
+      final List<Map<String, dynamic>> result =
+          await _db.getAll('SELECT * FROM training_versions');
 
-    final List<TrainingVersion> trainingVersions =
-        result.map((row) => TrainingVersion.fromMap(row)).toList();
+      final List<TrainingVersion> trainingVersions =
+          result.map((row) => TrainingVersion.fromMap(row)).toList();
 
-    return trainingVersions;
+      return trainingVersions;
+    } catch (e) {
+      sl<MessageBloc>().add(AddMessageEvent(
+          message: 'Database error : ${e.toString()}', isError: true));
+      return [];
+    }
   }
 
   Future<Training?> getTrainingById(int trainingId) async {
@@ -419,109 +479,135 @@ class DatabaseService {
 
       return training;
     } catch (e) {
-      if (e.toString().contains('No element')) {
-        print('No training found for ID: $trainingId');
-        return null;
-      }
-      // Si l'exception est inattendue, on la log et la laisse remonter
-      print('Unhandled error: $e');
-      rethrow;
+      sl<MessageBloc>().add(AddMessageEvent(
+          message: 'Database error : ${e.toString()}', isError: true));
+      return null;
     }
   }
 
   Future<List<Training>> getAllTrainings() async {
-    final List<Map<String, dynamic>> trainingsResult =
-        await _db.getAll('SELECT * FROM trainings');
+    try {
+      final List<Map<String, dynamic>> trainingsResult =
+          await _db.getAll('SELECT * FROM trainings');
 
-    final List<Training> trainings = [];
+      final List<Training> trainings = [];
 
-    for (var row in trainingsResult) {
-      final training = Training.fromMap(row);
+      for (var row in trainingsResult) {
+        final training = Training.fromMap(row);
 
-      final multisets = await getMultisetsByTrainingId(training.id!);
+        final multisets = await getMultisetsByTrainingId(training.id!);
 
-      final exercises = await getExercisesByTrainingId(training.id!);
+        final exercises = await getExercisesByTrainingId(training.id!);
 
-      List<BaseExercise> baseExercises = [];
+        List<BaseExercise> baseExercises = [];
 
-      for (var exercise in exercises) {
-        if (exercise.baseExerciseId != null) {
-          final baseExercise =
-              await getBaseExerciseById(exercise.baseExerciseId!);
-          baseExercises.add(baseExercise!);
+        for (var exercise in exercises) {
+          if (exercise.baseExerciseId != null) {
+            final baseExercise =
+                await getBaseExerciseById(exercise.baseExerciseId!);
+            baseExercises.add(baseExercise!);
+          }
         }
+
+        trainings.add(
+          training.copyWith(
+            multisets: multisets,
+            exercises: exercises,
+            baseExercises: baseExercises,
+          ),
+        );
       }
 
-      trainings.add(
-        training.copyWith(
-          multisets: multisets,
-          exercises: exercises,
-          baseExercises: baseExercises,
-        ),
-      );
+      return trainings;
+    } catch (e) {
+      sl<MessageBloc>().add(AddMessageEvent(
+          message: 'Database error : ${e.toString()}', isError: true));
+      return [];
     }
-
-    return trainings;
   }
 
   Future<List<Multiset>> getMultisetsByTrainingId(int trainingId) async {
-    final List<Map<String, dynamic>> result = await _db
-        .getAll('SELECT * FROM multisets WHERE trainingId = ?', [trainingId]);
+    try {
+      final List<Map<String, dynamic>> result = await _db
+          .getAll('SELECT * FROM multisets WHERE trainingId = ?', [trainingId]);
 
-    if (result.isEmpty) return [];
+      if (result.isEmpty) return [];
 
-    final List<Multiset> multisets =
-        result.map((row) => Multiset.fromMap(row)).toList();
+      final List<Multiset> multisets =
+          result.map((row) => Multiset.fromMap(row)).toList();
 
-    return multisets;
+      return multisets;
+    } catch (e) {
+      sl<MessageBloc>().add(AddMessageEvent(
+          message: 'Database error : ${e.toString()}', isError: true));
+      return [];
+    }
   }
 
   Future<List<Exercise>> getExercisesByTrainingId(int trainingId) async {
-    final List<Map<String, dynamic>> result = await _db
-        .getAll('SELECT * FROM exercises WHERE trainingId = ?', [trainingId]);
+    try {
+      final List<Map<String, dynamic>> result = await _db
+          .getAll('SELECT * FROM exercises WHERE trainingId = ?', [trainingId]);
 
-    if (result.isEmpty) return [];
+      if (result.isEmpty) return [];
 
-    final List<Exercise> exercises =
-        result.map((row) => Exercise.fromMap(row)).toList();
+      final List<Exercise> exercises =
+          result.map((row) => Exercise.fromMap(row)).toList();
 
-    return exercises;
+      return exercises;
+    } catch (e) {
+      sl<MessageBloc>().add(AddMessageEvent(
+          message: 'Database error : ${e.toString()}', isError: true));
+      return [];
+    }
   }
 
   Future<List<HistoryEntry>> getHistoryEntriesByTrainingId(
       int trainingId) async {
-    final List<Map<String, dynamic>> result = await _db.getAll(
-        'SELECT * FROM history_entries WHERE trainingId = ?', [trainingId]);
+    try {
+      final List<Map<String, dynamic>> result = await _db.getAll(
+          'SELECT * FROM history_entries WHERE trainingId = ?', [trainingId]);
 
-    final List<HistoryEntry> historyEntries =
-        result.map((row) => HistoryEntry.fromMap(row)).toList();
+      final List<HistoryEntry> historyEntries =
+          result.map((row) => HistoryEntry.fromMap(row)).toList();
 
-    return historyEntries;
+      return historyEntries;
+    } catch (e) {
+      sl<MessageBloc>().add(AddMessageEvent(
+          message: 'Database error : ${e.toString()}', isError: true));
+      return [];
+    }
   }
 
   Future<Map<int, int?>> getDaysSinceTraining() async {
-    Map<int, int?> daysSinceTrainings = {};
+    try {
+      Map<int, int?> daysSinceTrainings = {};
 
-    final trainings = await getAllTrainings();
+      final trainings = await getAllTrainings();
 
-    for (var training in trainings) {
-      final allEntries = await getHistoryEntriesByTrainingId(training.id!);
-      final lastEntry = allEntries.isNotEmpty ? allEntries.last : null;
+      for (var training in trainings) {
+        final allEntries = await getHistoryEntriesByTrainingId(training.id!);
+        final lastEntry = allEntries.isNotEmpty ? allEntries.last : null;
 
-      if (lastEntry != null) {
-        final date = lastEntry.date;
-        final now = DateTime.now();
-        final differenceInDays = now.difference(date).inDays;
+        if (lastEntry != null) {
+          final date = lastEntry.date;
+          final now = DateTime.now();
+          final differenceInDays = now.difference(date).inDays;
 
-        // Ajouter la valeur à la map
-        daysSinceTrainings[training.id!] = differenceInDays;
-      } else {
-        // Si aucun résultat n'existe pour le training, on met `null` dans la map
-        daysSinceTrainings[training.id!] = null;
+          // Ajouter la valeur à la map
+          daysSinceTrainings[training.id!] = differenceInDays;
+        } else {
+          // Si aucun résultat n'existe pour le training, on met `null` dans la map
+          daysSinceTrainings[training.id!] = null;
+        }
       }
-    }
 
-    return daysSinceTrainings;
+      return daysSinceTrainings;
+    } catch (e) {
+      sl<MessageBloc>().add(AddMessageEvent(
+          message: 'Database error : ${e.toString()}', isError: true));
+      return {};
+    }
   }
 
   Future<Training?> getBaseTrainingByVersionId(int versionId) async {
@@ -534,7 +620,8 @@ class DatabaseService {
 
       return training;
     } catch (e) {
-      print('No base training found for version ID: $versionId');
+      sl<MessageBloc>().add(AddMessageEvent(
+          message: 'Database error : ${e.toString()}', isError: true));
       return null;
     }
   }
@@ -549,52 +636,77 @@ class DatabaseService {
 
       return training;
     } catch (e) {
-      print('No full training found for version ID: $versionId');
+      sl<MessageBloc>().add(AddMessageEvent(
+          message: 'Database error : ${e.toString()}', isError: true));
       return null;
     }
   }
 
-  Future<TrainingVersion> getMostRecentTrainingVersionForTrainingId(
+  Future<TrainingVersion?> getMostRecentTrainingVersionForTrainingId(
       int trainingId) async {
-    final List<Map<String, dynamic>> result = await _db.getAll(
-        'SELECT * FROM training_versions WHERE trainingId = ?', [trainingId]);
+    try {
+      final List<Map<String, dynamic>> result = await _db.getAll(
+          'SELECT * FROM training_versions WHERE trainingId = ?', [trainingId]);
 
-    final TrainingVersion trainingVersion =
-        TrainingVersion.fromMap(result.last);
+      final TrainingVersion trainingVersion =
+          TrainingVersion.fromMap(result.last);
 
-    return trainingVersion;
+      return trainingVersion;
+    } catch (e) {
+      sl<MessageBloc>().add(AddMessageEvent(
+          message: 'Database error : ${e.toString()}', isError: true));
+      return null;
+    }
   }
 
   Future<List<HistoryEntry>> getHistoryEntriesForPeriod(
       DateTime startDate, DateTime endDate) async {
-    final results = await _db.execute(
-      'SELECT * FROM history_entries WHERE date BETWEEN ? AND ?',
-      [startDate.millisecondsSinceEpoch, endDate.millisecondsSinceEpoch],
-    );
+    try {
+      final results = await _db.execute(
+        'SELECT * FROM history_entries WHERE date BETWEEN ? AND ?',
+        [startDate.millisecondsSinceEpoch, endDate.millisecondsSinceEpoch],
+      );
 
-    return results.map((row) => HistoryEntry.fromMap(row)).toList();
+      return results.map((row) => HistoryEntry.fromMap(row)).toList();
+    } catch (e) {
+      sl<MessageBloc>().add(AddMessageEvent(
+          message: 'Database error : ${e.toString()}', isError: true));
+      return [];
+    }
   }
 
   Future<List<RunLocation>> getRunLocationsForPeriod(
       DateTime startDate, DateTime endDate) async {
-    final results = await _db.execute(
-      'SELECT * FROM run_locations WHERE date BETWEEN ? AND ?',
-      [startDate.millisecondsSinceEpoch, endDate.millisecondsSinceEpoch],
-    );
+    try {
+      final results = await _db.execute(
+        'SELECT * FROM run_locations WHERE date BETWEEN ? AND ?',
+        [startDate.millisecondsSinceEpoch, endDate.millisecondsSinceEpoch],
+      );
 
-    return results.map((row) => RunLocation.fromMap(row)).toList();
+      return results.map((row) => RunLocation.fromMap(row)).toList();
+    } catch (e) {
+      sl<MessageBloc>().add(AddMessageEvent(
+          message: 'Database error : ${e.toString()}', isError: true));
+      return [];
+    }
   }
 
-  Future<bool> checkIfTrainingHasRecentEntry(int exerciseId) async {
-    final now = DateTime.now();
-    final twoHoursAgo = now.subtract(const Duration(hours: 2));
+  Future<bool?> checkIfTrainingHasRecentEntry(int exerciseId) async {
+    try {
+      final now = DateTime.now();
+      final twoHoursAgo = now.subtract(const Duration(hours: 2));
 
-    final result = await _db.execute(
-      'SELECT 1 FROM history_entries WHERE date > ? AND trainingId = ? LIMIT 1',
-      [twoHoursAgo.millisecondsSinceEpoch, exerciseId],
-    );
+      final result = await _db.execute(
+        'SELECT 1 FROM history_entries WHERE date > ? AND trainingId = ? LIMIT 1',
+        [twoHoursAgo.millisecondsSinceEpoch, exerciseId],
+      );
 
-    return result.isNotEmpty;
+      return result.isNotEmpty;
+    } catch (e) {
+      sl<MessageBloc>().add(AddMessageEvent(
+          message: 'Database error : ${e.toString()}', isError: true));
+      return null;
+    }
   }
 
   Future<Map<String, dynamic>?> getPreferences() async {
@@ -607,168 +719,195 @@ class DatabaseService {
             result['isReminderActive'] == 1, // Convertir entier en bool
       };
     } catch (e) {
-      print('No preferences found.');
+      sl<MessageBloc>().add(AddMessageEvent(
+          message: 'Database error : ${e.toString()}', isError: true));
       return null;
     }
   }
 
   Future<List<Reminder>> getAllReminders() async {
-    final List<Map<String, dynamic>> result =
-        await _db.getAll('SELECT * FROM reminders');
+    try {
+      final List<Map<String, dynamic>> result =
+          await _db.getAll('SELECT * FROM reminders');
 
-    final List<Reminder> reminders =
-        result.map((row) => Reminder.fromMap(row)).toList();
+      final List<Reminder> reminders =
+          result.map((row) => Reminder.fromMap(row)).toList();
 
-    return reminders;
+      return reminders;
+    } catch (e) {
+      sl<MessageBloc>().add(AddMessageEvent(
+          message: 'Database error : ${e.toString()}', isError: true));
+      return [];
+    }
   }
 
   //! Update operations
 
   Future<void> updateBaseExercise(BaseExercise baseExercise) async {
-    await update(
-        'base_exercises', baseExercise.toMap(), 'id = ?', [baseExercise.id!]);
+    try {
+      await update(
+          'base_exercises', baseExercise.toMap(), 'id = ?', [baseExercise.id!]);
+    } catch (e) {
+      sl<MessageBloc>().add(AddMessageEvent(
+          message: 'Database error : ${e.toString()}', isError: true));
+    }
   }
 
   Future<void> updateExercise(Exercise exercise) async {
-    await update('exercises', exercise.toMap(), 'id = ?', [exercise.id!]);
+    try {
+      await update('exercises', exercise.toMap(), 'id = ?', [exercise.id!]);
+    } catch (e) {
+      sl<MessageBloc>().add(AddMessageEvent(
+          message: 'Database error : ${e.toString()}', isError: true));
+    }
   }
 
   Future<void> updateMultiset(Multiset multiset) async {
-    await update('multisets', multiset.toMap(), 'id = ?', [multiset.id!]);
+    try {
+      await update('multisets', multiset.toMap(), 'id = ?', [multiset.id!]);
+    } catch (e) {
+      sl<MessageBloc>().add(AddMessageEvent(
+          message: 'Database error : ${e.toString()}', isError: true));
+    }
   }
 
   Future<void> updateTraining(Training training) async {
-    // Update the main training table
-    await update('trainings', training.toMap(), 'id = ?', [training.id]);
+    try {
+      // Update the main training table
+      await update('trainings', training.toMap(), 'id = ?', [training.id]);
 
-    final List<Multiset> newMultisets = [];
-    final List<Exercise> newExercises = [];
+      final List<Multiset> newMultisets = [];
+      final List<Exercise> newExercises = [];
 
-    // Récupérer l'ensemble des multisets existants pour cet entraînement
-    final existingMultisets = await getMultisetsByTrainingId(training.id!);
+      // Récupérer l'ensemble des multisets existants pour cet entraînement
+      final existingMultisets = await getMultisetsByTrainingId(training.id!);
 
-    // Récupérer tous les exercices existants pour cet entraînement
-    final existingExercises = await getExercisesByTrainingId(training.id!);
+      // Récupérer tous les exercices existants pour cet entraînement
+      final existingExercises = await getExercisesByTrainingId(training.id!);
 
-    // Mettre à jour ou insérer chaque multiset
-    for (var multiset in training.multisets) {
-      if (existingMultisets.any((m) => m.id == multiset.id)) {
-        // Cas mise à jour
-        await update(
-          'multisets',
-          multiset.toMap(),
-          'id = ?',
-          [multiset.id],
-        );
-        newMultisets.add(multiset);
+      // Mettre à jour ou insérer chaque multiset
+      for (var multiset in training.multisets) {
+        if (existingMultisets.any((m) => m.id == multiset.id)) {
+          // Cas mise à jour
+          await update(
+            'multisets',
+            multiset.toMap(),
+            'id = ?',
+            [multiset.id],
+          );
+          newMultisets.add(multiset);
 
-        // Ajouter ou mettre à jour les exercises associés à ce multiset
-        final matchingExercises = training.exercises
-            .where((e) => e.multisetKey == multiset.widgetKey)
-            .toList();
+          // Ajouter ou mettre à jour les exercises associés à ce multiset
+          final matchingExercises = training.exercises
+              .where((e) => e.multisetKey == multiset.widgetKey)
+              .toList();
 
-        for (var exercise in matchingExercises) {
-          if (exercise.id != null &&
-              existingExercises.any((e) => e.id == exercise.id)) {
-            // Cas mise à jour
-            await update(
-              'exercises',
-              exercise.toMap(),
-              'id = ?',
-              [exercise.id],
-            );
-            newExercises.add(exercise);
-          } else {
-            // Cas ajout (nouvel exercice)
-            final exerciseId = await insert(
-              'exercises',
-              exercise
-                  .copyWith(trainingId: training.id, multisetId: multiset.id)
-                  .toMap(),
-            );
+          for (var exercise in matchingExercises) {
+            if (exercise.id != null &&
+                existingExercises.any((e) => e.id == exercise.id)) {
+              // Cas mise à jour
+              await update(
+                'exercises',
+                exercise.toMap(),
+                'id = ?',
+                [exercise.id],
+              );
+              newExercises.add(exercise);
+            } else {
+              // Cas ajout (nouvel exercice)
+              final exerciseId = await insert(
+                'exercises',
+                exercise
+                    .copyWith(trainingId: training.id, multisetId: multiset.id)
+                    .toMap(),
+              );
+              newExercises.add(exercise.copyWith(
+                  id: exerciseId,
+                  trainingId: training.id,
+                  multisetId: multiset.id));
+            }
+          }
+        } else {
+          // Cas ajout (nouveau multiset)
+          final multisetWithTrainingId =
+              multiset.copyWith(trainingId: training.id);
+          final multisetId =
+              await insert('multisets', multisetWithTrainingId.toMap());
+          newMultisets
+              .add(multiset.copyWith(id: multisetId, trainingId: training.id));
+
+          // Ajout des exercices associés à ce multiset
+          final matchingExercises = training.exercises
+              .where((e) => e.multisetKey == multiset.widgetKey)
+              .toList();
+
+          for (var exercise in matchingExercises) {
+            final exerciseWithMultisetId = exercise.copyWith(
+                trainingId: training.id, multisetId: multisetId);
+            final exerciseId =
+                await insert('exercises', exerciseWithMultisetId.toMap());
             newExercises.add(exercise.copyWith(
                 id: exerciseId,
                 trainingId: training.id,
                 multisetId: multiset.id));
           }
         }
-      } else {
-        // Cas ajout (nouveau multiset)
-        final multisetWithTrainingId =
-            multiset.copyWith(trainingId: training.id);
-        final multisetId =
-            await insert('multisets', multisetWithTrainingId.toMap());
-        newMultisets
-            .add(multiset.copyWith(id: multisetId, trainingId: training.id));
+      }
 
-        // Ajout des exercices associés à ce multiset
-        final matchingExercises = training.exercises
-            .where((e) => e.multisetKey == multiset.widgetKey)
-            .toList();
+      // Supprimer les multisets qui ne sont plus dans `training.multisets`
+      final multisetIdsToKeep =
+          training.multisets.map((m) => m.id).whereType<int>().toList();
+      final multisetIdsToDelete =
+          existingMultisets.where((m) => !multisetIdsToKeep.contains(m.id));
 
-        for (var exercise in matchingExercises) {
-          final exerciseWithMultisetId = exercise.copyWith(
-              trainingId: training.id, multisetId: multisetId);
-          final exerciseId =
-              await insert('exercises', exerciseWithMultisetId.toMap());
-          newExercises.add(exercise.copyWith(
-              id: exerciseId,
-              trainingId: training.id,
-              multisetId: multiset.id));
+      for (var multisetToDelete in multisetIdsToDelete) {
+        await deleteMultiset(multisetToDelete.id!);
+      }
+
+      final exercisesWithoutMultisets =
+          training.exercises.where((e) => e.multisetKey == null).toList();
+
+      // Mettre à jour, insérer ou supprimer les exercices liés non associés à des multisets
+      for (var exercise in exercisesWithoutMultisets) {
+        if (exercise.id != null &&
+            existingExercises.any((e) => e.id == exercise.id)) {
+          // Cas mise à jour
+          await update(
+            'exercises',
+            exercise.toMap(),
+            'id = ?',
+            [exercise.id],
+          );
+          newExercises.add(exercise);
+        } else {
+          // Cas ajout (nouvel exercice)
+          final exerciseId = await insert(
+              'exercises', exercise.copyWith(trainingId: training.id).toMap());
+          newExercises
+              .add(exercise.copyWith(id: exerciseId, trainingId: training.id));
         }
       }
-    }
 
-    // Supprimer les multisets qui ne sont plus dans `training.multisets`
-    final multisetIdsToKeep =
-        training.multisets.map((m) => m.id).whereType<int>().toList();
-    final multisetIdsToDelete =
-        existingMultisets.where((m) => !multisetIdsToKeep.contains(m.id));
+      // Supprimer les exercices qui ne sont plus dans `training.exercises`
+      final exerciseIdsToKeep =
+          training.exercises.map((e) => e.id).whereType<int>().toList();
+      final exercisesToDelete =
+          existingExercises.where((e) => !exerciseIdsToKeep.contains(e.id));
 
-    for (var multisetToDelete in multisetIdsToDelete) {
-      await deleteMultiset(multisetToDelete.id!);
-    }
-
-    final exercisesWithoutMultisets =
-        training.exercises.where((e) => e.multisetKey == null).toList();
-
-    // Mettre à jour, insérer ou supprimer les exercices liés non associés à des multisets
-    for (var exercise in exercisesWithoutMultisets) {
-      if (exercise.id != null &&
-          existingExercises.any((e) => e.id == exercise.id)) {
-        // Cas mise à jour
-        await update(
-          'exercises',
-          exercise.toMap(),
-          'id = ?',
-          [exercise.id],
-        );
-        newExercises.add(exercise);
-      } else {
-        // Cas ajout (nouvel exercice)
-        final exerciseId = await insert(
-            'exercises', exercise.copyWith(trainingId: training.id).toMap());
-        newExercises
-            .add(exercise.copyWith(id: exerciseId, trainingId: training.id));
+      for (var exerciseToDelete in exercisesToDelete) {
+        await deleteExercise(exerciseToDelete.id!);
       }
+
+      final TrainingVersion trainingVersion = TrainingVersion.fromTraining(
+        trainingId: training.id!,
+        training:
+            training.copyWith(multisets: newMultisets, exercises: newExercises),
+      );
+      await createTrainingVersion(trainingVersion);
+    } catch (e) {
+      sl<MessageBloc>().add(AddMessageEvent(
+          message: 'Database error : ${e.toString()}', isError: true));
     }
-
-    // Supprimer les exercices qui ne sont plus dans `training.exercises`
-    final exerciseIdsToKeep =
-        training.exercises.map((e) => e.id).whereType<int>().toList();
-    final exercisesToDelete =
-        existingExercises.where((e) => !exerciseIdsToKeep.contains(e.id));
-
-    for (var exerciseToDelete in exercisesToDelete) {
-      await deleteExercise(exerciseToDelete.id!);
-    }
-
-    final TrainingVersion trainingVersion = TrainingVersion.fromTraining(
-      trainingId: training.id!,
-      training:
-          training.copyWith(multisets: newMultisets, exercises: newExercises),
-    );
-    await createTrainingVersion(trainingVersion);
   }
 
   Future<void> updateHistoryEntry(HistoryEntry historyEntry) async {
@@ -776,45 +915,76 @@ class DatabaseService {
       await update('history_entries', historyEntry.toMap(), 'id = ?',
           [historyEntry.id!]);
     } catch (e) {
-      print('Database error : ${e.toString()}');
+      sl<MessageBloc>().add(AddMessageEvent(
+          message: 'Database error : ${e.toString()}', isError: true));
     }
   }
 
   //! Delete operations
 
   Future<void> deleteBaseExercise(int baseExerciseId) async {
-    await _db
-        .execute('DELETE FROM base_exercises WHERE id = ?', [baseExerciseId]);
+    try {
+      await _db
+          .execute('DELETE FROM base_exercises WHERE id = ?', [baseExerciseId]);
+    } catch (e) {
+      sl<MessageBloc>().add(AddMessageEvent(
+          message: 'Database error : ${e.toString()}', isError: true));
+    }
   }
 
   Future<void> deleteExercise(int exerciseId) async {
-    await _db.execute('DELETE FROM exercises WHERE id = ?', [exerciseId]);
+    try {
+      await _db.execute('DELETE FROM exercises WHERE id = ?', [exerciseId]);
+    } catch (e) {
+      sl<MessageBloc>().add(AddMessageEvent(
+          message: 'Database error : ${e.toString()}', isError: true));
+    }
   }
 
   Future<void> deleteMultiset(int multisetId) async {
-    await _db
-        .execute('DELETE FROM exercises WHERE multisetId = ?', [multisetId]);
-    await _db.execute('DELETE FROM multisets WHERE id = ?', [multisetId]);
+    try {
+      await _db
+          .execute('DELETE FROM exercises WHERE multisetId = ?', [multisetId]);
+      await _db.execute('DELETE FROM multisets WHERE id = ?', [multisetId]);
+    } catch (e) {
+      sl<MessageBloc>().add(AddMessageEvent(
+          message: 'Database error : ${e.toString()}', isError: true));
+    }
   }
 
   Future<void> deleteTraining(int trainingId) async {
-    await _db
-        .execute('DELETE FROM exercises WHERE trainingId = ?', [trainingId]);
-    await _db
-        .execute('DELETE FROM multisets WHERE trainingId = ?', [trainingId]);
-    await _db.execute('DELETE FROM trainings WHERE id = ?', [trainingId]);
+    try {
+      await _db
+          .execute('DELETE FROM exercises WHERE trainingId = ?', [trainingId]);
+      await _db
+          .execute('DELETE FROM multisets WHERE trainingId = ?', [trainingId]);
+      await _db.execute('DELETE FROM trainings WHERE id = ?', [trainingId]);
+    } catch (e) {
+      sl<MessageBloc>().add(AddMessageEvent(
+          message: 'Database error : ${e.toString()}', isError: true));
+    }
   }
 
   Future<void> deleteHistoryEntry(int historyEntryId) async {
-    await _db
-        .execute('DELETE FROM history_entries WHERE id = ?', [historyEntryId]);
+    try {
+      await _db.execute(
+          'DELETE FROM history_entries WHERE id = ?', [historyEntryId]);
+    } catch (e) {
+      sl<MessageBloc>().add(AddMessageEvent(
+          message: 'Database error : ${e.toString()}', isError: true));
+    }
   }
 
   Future<void> deleteHistoryEntriesByTrainingId(int trainingId) async {
-    await _db.execute(
-        'DELETE FROM history_entries WHERE trainingId = ?', [trainingId]);
-    await _db.execute(
-        'DELETE FROM run_locations WHERE trainingId = ?', [trainingId]);
+    try {
+      await _db.execute(
+          'DELETE FROM history_entries WHERE trainingId = ?', [trainingId]);
+      await _db.execute(
+          'DELETE FROM run_locations WHERE trainingId = ?', [trainingId]);
+    } catch (e) {
+      sl<MessageBloc>().add(AddMessageEvent(
+          message: 'Database error : ${e.toString()}', isError: true));
+    }
   }
 
   Future<void> deleteReminder(int notificationId) async {
@@ -822,7 +992,8 @@ class DatabaseService {
       await _db.execute(
           'DELETE FROM reminders WHERE notificationId = ?', [notificationId]);
     } catch (e) {
-      print('Database error : ${e.toString()}');
+      sl<MessageBloc>().add(AddMessageEvent(
+          message: 'Database error : ${e.toString()}', isError: true));
     }
   }
 }

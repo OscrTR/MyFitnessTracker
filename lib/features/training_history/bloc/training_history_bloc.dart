@@ -78,7 +78,8 @@ class TrainingHistoryBloc
 
         if (isUpdate) {
           hasRecentEntry = await sl<DatabaseService>()
-              .checkIfTrainingHasRecentEntry(event.historyEntry.id!);
+                  .checkIfTrainingHasRecentEntry(event.historyEntry.id!) ??
+              false;
         }
 
         if (isUpdate || hasRecentEntry) {
