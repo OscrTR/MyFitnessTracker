@@ -4,17 +4,16 @@ abstract class SettingsEvent extends Equatable {
   const SettingsEvent();
 
   @override
-  List<Object> get props => [];
+  List<Object?> get props => [];
 }
 
 class LoadSettings extends SettingsEvent {}
 
-class SetReminderNotificationSettings extends SettingsEvent {
-  final bool isReminderNotificationActive;
+class UpdateSettings extends SettingsEvent {
+  final bool isReminderActive;
 
-  const SetReminderNotificationSettings(
-      {required this.isReminderNotificationActive});
+  const UpdateSettings({required this.isReminderActive});
 
   @override
-  List<Object> get props => [isReminderNotificationActive];
+  List<Object> get props => [isReminderActive];
 }

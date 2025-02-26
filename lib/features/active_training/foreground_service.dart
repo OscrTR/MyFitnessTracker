@@ -1,6 +1,7 @@
 import 'package:fl_location/fl_location.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
+import 'package:my_fitness_tracker/app_colors.dart';
 
 import '../../core/messages/bloc/message_bloc.dart';
 import '../../injection_container.dart';
@@ -67,7 +68,8 @@ class ForegroundService {
         notificationTitle: 'Timer update',
         notificationText: 'Tap to return to the app',
         notificationIcon: NotificationIcon(
-            metaDataName: 'dev.oscarthiebaut.my_fitness_tracker.NOTIF_ICON'),
+            metaDataName: 'dev.oscarthiebaut.my_fitness_tracker.NOTIF_ICON',
+            backgroundColor: AppColors.folly),
         notificationInitialRoute: '/active_training',
         callback: startCallback,
       );

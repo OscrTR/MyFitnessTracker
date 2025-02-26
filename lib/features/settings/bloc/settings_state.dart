@@ -10,16 +10,18 @@ abstract class SettingsState extends Equatable {
 class SettingsInitial extends SettingsState {}
 
 class SettingsLoaded extends SettingsState {
-  final bool isReminderNotificationActive;
+  final bool isReminderActive;
 
-  const SettingsLoaded({required this.isReminderNotificationActive});
+  const SettingsLoaded({required this.isReminderActive});
 
-  SettingsLoaded copyWith({bool? isReminderNotificationActive}) {
+  SettingsLoaded copyWith({
+    bool? isReminderActive,
+  }) {
     return SettingsLoaded(
-        isReminderNotificationActive:
-            isReminderNotificationActive ?? this.isReminderNotificationActive);
+      isReminderActive: isReminderActive ?? this.isReminderActive,
+    );
   }
 
   @override
-  List<Object> get props => [isReminderNotificationActive];
+  List<Object> get props => [isReminderActive];
 }

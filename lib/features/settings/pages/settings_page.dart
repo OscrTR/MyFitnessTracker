@@ -59,7 +59,7 @@ class _SettingsPageState extends State<SettingsPage> {
         child:
             BlocBuilder<SettingsBloc, SettingsState>(builder: (context, state) {
           if (state is SettingsLoaded) {
-            final isReminderActive = state.isReminderNotificationActive;
+            final isReminderActive = state.isReminderActive;
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -138,11 +138,9 @@ class _SettingsPageState extends State<SettingsPage> {
                   inactiveColor: AppColors.timberwolf,
                   activeColor: AppColors.folly,
                   onChanged: (value) {
-                    context.read<SettingsBloc>().add(
-                          SetReminderNotificationSettings(
-                            isReminderNotificationActive: value,
-                          ),
-                        );
+                    context
+                        .read<SettingsBloc>()
+                        .add(UpdateSettings(isReminderActive: value));
                   },
                 ),
               ],

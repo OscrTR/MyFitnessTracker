@@ -45,7 +45,6 @@ dependencies:
   pausable_timer: ^3.1.0+3
   permission_handler: ^11.3.1
   searchfield: ^1.2.4
-  shared_preferences: ^2.3.5
   sqlite3_flutter_libs: ^0.5.30
   sqlite_async: ^0.11.4
   toggle_switch: ^2.3.0

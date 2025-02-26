@@ -2,13 +2,16 @@ import 'package:bloc/bloc.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import '../../../core/database/database_service.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../core/enums/enums.dart';
 import '../../../core/messages/bloc/message_bloc.dart';
+import '../../../core/notification_service.dart';
 import '../../../injection_container.dart';
 import '../../base_exercise_management/models/base_exercise.dart';
+import '../../settings/bloc/settings_bloc.dart';
 import '../models/multiset.dart';
 import '../models/training.dart';
 import '../models/exercise.dart';
@@ -53,6 +56,7 @@ class TrainingManagementBloc
       final currentState = state as TrainingManagementLoaded;
       try {
         await sl<DatabaseService>().deleteTraining(event.id);
+        await _compareTrainingDays();
         emit(currentState.copyWith(resetSelectedTraining: true));
         messageBloc.add(AddMessageEvent(
             message: tr('message_training_deletion_success'), isError: false));
@@ -134,6 +138,8 @@ class TrainingManagementBloc
           messageBloc.add(const AddMessageEvent(
               message: 'Training created successfully.', isError: false));
         }
+
+        await _compareTrainingDays();
 
         add(FetchTrainingsEvent(true));
       } catch (e) {
@@ -531,5 +537,47 @@ class TrainingManagementBloc
 
       emit(currentState.copyWith(selectedTraining: updatedTraining));
     });
+  }
+}
+
+Future<void> _compareTrainingDays() async {
+  if ((sl<SettingsBloc>().state as SettingsLoaded).isReminderActive) {
+    final reminders = await sl<DatabaseService>().getAllReminders();
+    final trainings = await sl<DatabaseService>().getAllTrainings();
+
+    final trainingDays = <Day>{};
+    for (final training in trainings) {
+      for (final trainingDay in training.trainingDays) {
+        trainingDays.add(Day.values.firstWhere(
+          (day) => day.name == trainingDay.name,
+          orElse: () => throw Exception('Invalid training day'),
+        ));
+      }
+    }
+
+    final reminderDays = reminders.map((reminder) => reminder.day).toSet();
+
+    // Trouver les jours présents dans trainingDays mais absents dans reminderDays
+    final daysToCreate = trainingDays.difference(reminderDays);
+
+    // Trouver les jours présents dans reminderDays mais absents dans trainingDays
+    final daysToDelete = reminderDays.difference(trainingDays);
+
+    // Créer des reminders pour les jours manquants
+    for (final day in daysToCreate) {
+      if (!reminders.any((d) => d.day == day)) {
+        NotificationService.scheduleWeeklyNotification(day: day);
+      }
+    }
+
+    // Supprimer les reminders pour les jours obsolètes
+    for (final day in daysToDelete) {
+      for (var reminder in reminders) {
+        if (reminder.day == day) {
+          await sl<DatabaseService>().deleteReminder(reminder.notificationId);
+          await NotificationService.deleteNotification(reminder.notificationId);
+        }
+      }
+    }
   }
 }

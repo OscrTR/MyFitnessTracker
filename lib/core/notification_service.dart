@@ -1,7 +1,11 @@
-import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/material.dart';
+// ignore_for_file: depend_on_referenced_packages
+
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
+import 'package:my_fitness_tracker/app_colors.dart';
+import 'package:my_fitness_tracker/core/database/database_service.dart';
+import 'package:my_fitness_tracker/features/training_management/models/reminder.dart';
+import 'package:my_fitness_tracker/injection_container.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest_all.dart' as tz;
 
@@ -18,49 +22,61 @@ class NotificationService {
       android: initializationSettingsAndroid,
     );
 
-    await FlutterLocalNotificationsPlugin().initialize(initializationSettings);
+    await sl<FlutterLocalNotificationsPlugin>()
+        .initialize(initializationSettings);
     askNotificationPermission();
   }
 
   static Future<void> askNotificationPermission() async {
-    FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-        FlutterLocalNotificationsPlugin();
-    await flutterLocalNotificationsPlugin
+    await sl<FlutterLocalNotificationsPlugin>()
         .resolvePlatformSpecificImplementation<
             AndroidFlutterLocalNotificationsPlugin>()
         ?.requestNotificationsPermission();
   }
 
   static Future<void> deleteNotification(id) async {
-    await FlutterLocalNotificationsPlugin().cancel(id);
+    await sl<FlutterLocalNotificationsPlugin>().cancel(id);
   }
 
-  static Future<void> scheduleDailyNotification(
-      TimeOfDay scheduledTime, int id) async {
-    final now = tz.TZDateTime.now(tz.local);
-    final time = tz.TZDateTime(tz.local, now.year, now.month, now.day,
-        scheduledTime.hour, scheduledTime.minute);
+  static Future<void> scheduleWeeklyNotification({required Day day}) async {
+    // Obtenir la prochaine instance d'un jour spécifique de la semaine
+    tz.TZDateTime nextInstanceOfWeekday(Day day) {
+      final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
+      tz.TZDateTime scheduledDate = tz.TZDateTime(
+        tz.local,
+        now.year,
+        now.month,
+        now.day,
+        8,
+        0,
+      );
 
-    await FlutterLocalNotificationsPlugin().zonedSchedule(
-      id,
-      tr('notification_title'),
-      tr('notification_description'),
-      time,
+      return scheduledDate;
+    }
+
+    final notificationId =
+        DateTime.now().millisecondsSinceEpoch.remainder(100000);
+
+    await sl<FlutterLocalNotificationsPlugin>().zonedSchedule(
+      notificationId,
+      'Training planned today!',
+      "Don't forget to train.",
+      nextInstanceOfWeekday(day),
       const NotificationDetails(
-          android: AndroidNotificationDetails(
-        'daily_notifications',
-        'Daily notifications',
-        importance: Importance.max,
-        priority: Priority.high,
-        playSound: true,
-        enableVibration: true,
-        showWhen: false,
-      )),
-      payload: 'Daily notification payload',
+        android: AndroidNotificationDetails(
+            'weekly_channel_id', 'Weekly Notifications',
+            channelDescription: 'This channel is for weekly notifications',
+            importance: Importance.max,
+            priority: Priority.high,
+            color: AppColors.folly),
+        iOS: DarwinNotificationDetails(),
+      ),
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
       uiLocalNotificationDateInterpretation:
           UILocalNotificationDateInterpretation.absoluteTime,
-      matchDateTimeComponents: DateTimeComponents.time,
-      androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+      matchDateTimeComponents: DateTimeComponents.dayOfWeekAndTime,
     );
+    final reminder = Reminder(notificationId: notificationId, day: day);
+    await sl<DatabaseService>().createReminder(reminder);
   }
 }

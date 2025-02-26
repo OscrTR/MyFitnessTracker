@@ -1,4 +1,5 @@
 import 'package:my_fitness_tracker/core/messages/bloc/message_bloc.dart';
+import 'package:my_fitness_tracker/features/training_management/models/reminder.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -18,6 +19,21 @@ class DatabaseService {
 
   final migrations = SqliteMigrations()
     ..add(SqliteMigration(1, (tx) async {
+      await tx.execute('''
+  CREATE TABLE IF NOT EXISTS reminders (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    notificationId INTEGER NOT NULL,
+    day INTEGER NOT NULL
+  )
+  ''');
+
+      await tx.execute('''
+  CREATE TABLE IF NOT EXISTS preferences (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    isReminderActive INTEGER NOT NULL
+  )
+  ''');
+
       await tx.execute('''
   CREATE TABLE IF NOT EXISTS base_exercises (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -312,16 +328,41 @@ class DatabaseService {
     }
   }
 
+  Future<void> createReminder(Reminder reminder) async {
+    try {
+      await insert('reminders', reminder.toMap());
+    } catch (e) {
+      print('Database error : ${e.toString()}');
+    }
+  }
+
+  Future<void> savePreferences(bool isReminderActive) async {
+    // Supprime tout enregistrement pour maintenir une seule préférence.
+    await _db.execute('DELETE FROM preferences');
+
+    await insert(
+      'preferences',
+      {
+        'isReminderActive': isReminderActive ? 1 : 0, // Stockage bool en entier
+      },
+    );
+  }
+
   //! Read operations
 
   Future<BaseExercise?> getBaseExerciseById(int baseExerciseId) async {
-    final Map<String, dynamic> result = await _db
-        .get('SELECT * FROM base_exercises WHERE id = ?', [baseExerciseId]);
+    try {
+      final Map<String, dynamic> result = await _db
+          .get('SELECT * FROM base_exercises WHERE id = ?', [baseExerciseId]);
 
-    if (result.isEmpty) return null;
-    final baseExercise = BaseExercise.fromMap(result);
+      if (result.isEmpty) return null;
+      final baseExercise = BaseExercise.fromMap(result);
 
-    return baseExercise;
+      return baseExercise;
+    } catch (e) {
+      print('No base exercise found for id: $baseExerciseId');
+      return null;
+    }
   }
 
   Future<List<BaseExercise>> getAllBaseExercises() async {
@@ -469,27 +510,33 @@ class DatabaseService {
   }
 
   Future<Training?> getBaseTrainingByVersionId(int versionId) async {
-    final Map<String, dynamic> result = await _db
-        .get('SELECT * FROM training_versions WHERE id = ?', [versionId]);
+    try {
+      final Map<String, dynamic> result = await _db
+          .get('SELECT * FROM training_versions WHERE id = ?', [versionId]);
 
-    if (result.isEmpty) return null;
-    final trainingVersion = TrainingVersion.fromMap(result);
-    final training = trainingVersion.training;
+      final trainingVersion = TrainingVersion.fromMap(result);
+      final training = trainingVersion.training;
 
-    return training;
+      return training;
+    } catch (e) {
+      print('No base training found for version ID: $versionId');
+      return null;
+    }
   }
 
   Future<Training?> getFullTrainingByVersionId(int versionId) async {
-    final Map<String, dynamic> result = await _db
-        .get('SELECT * FROM training_versions WHERE id = ?', [versionId]);
+    try {
+      final Map<String, dynamic> result = await _db
+          .get('SELECT * FROM training_versions WHERE id = ?', [versionId]);
 
-    if (result.isEmpty) return null;
+      final trainingVersion = TrainingVersion.fromMap(result);
+      final training = trainingVersion.fullTraining;
 
-    final trainingVersion = TrainingVersion.fromMap(result);
-
-    final training = trainingVersion.fullTraining;
-
-    return training;
+      return training;
+    } catch (e) {
+      print('No full training found for version ID: $versionId');
+      return null;
+    }
   }
 
   Future<TrainingVersion> getMostRecentTrainingVersionForTrainingId(
@@ -533,6 +580,31 @@ class DatabaseService {
     );
 
     return result.isNotEmpty;
+  }
+
+  Future<Map<String, dynamic>?> getPreferences() async {
+    try {
+      final Map<String, dynamic> result =
+          await _db.get('SELECT * FROM preferences');
+
+      return {
+        'isReminderActive':
+            result['isReminderActive'] == 1, // Convertir entier en bool
+      };
+    } catch (e) {
+      print('No preferences found.');
+      return null;
+    }
+  }
+
+  Future<List<Reminder>> getAllReminders() async {
+    final List<Map<String, dynamic>> result =
+        await _db.getAll('SELECT * FROM reminders');
+
+    final List<Reminder> reminders =
+        result.map((row) => Reminder.fromMap(row)).toList();
+
+    return reminders;
   }
 
   //! Update operations
@@ -728,5 +800,14 @@ class DatabaseService {
         'DELETE FROM history_entries WHERE trainingId = ?', [trainingId]);
     await _db.execute(
         'DELETE FROM run_locations WHERE trainingId = ?', [trainingId]);
+  }
+
+  Future<void> deleteReminder(int notificationId) async {
+    try {
+      await _db.execute(
+          'DELETE FROM reminders WHERE notificationId = ?', [notificationId]);
+    } catch (e) {
+      print('Database error : ${e.toString()}');
+    }
   }
 }

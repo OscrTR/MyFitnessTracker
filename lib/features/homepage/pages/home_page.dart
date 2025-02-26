@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:my_fitness_tracker/core/database/database_service.dart';
 import 'package:my_fitness_tracker/features/active_training/bloc/active_training_bloc.dart';
 import '../../training_history/models/history_period_stats.dart';
 import '../../training_history/models/history_training.dart';
