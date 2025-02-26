@@ -62,7 +62,7 @@ class TimerState extends Equatable {
   final int countDownValue;
   final int targetDistance;
   final int targetDuration;
-  final int targetPace;
+  final double targetSpeed;
   final double distance;
   final double pace;
   final int nextKmMarker;
@@ -90,7 +90,7 @@ class TimerState extends Equatable {
     this.countDownValue = 0,
     this.targetDistance = 0,
     this.targetDuration = 0,
-    this.targetPace = 0,
+    this.targetSpeed = 0,
     this.distance = 0,
     this.pace = 0,
     this.nextKmMarker = 1,
@@ -107,7 +107,7 @@ class TimerState extends Equatable {
     int? countDownValue,
     int? targetDistance,
     int? targetDuration,
-    int? targetPace,
+    double? targetSpeed,
     double? distance,
     double? pace,
     int? nextKmMarker,
@@ -129,7 +129,7 @@ class TimerState extends Equatable {
       countDownValue: countDownValue ?? this.countDownValue,
       targetDistance: targetDistance ?? this.targetDistance,
       targetDuration: targetDuration ?? this.targetDuration,
-      targetPace: targetPace ?? this.targetPace,
+      targetSpeed: targetSpeed ?? this.targetSpeed,
       distance: distance ?? this.distance,
       pace: pace ?? this.pace,
       nextKmMarker: nextKmMarker ?? this.nextKmMarker,
@@ -155,7 +155,7 @@ class TimerState extends Equatable {
       countDownValue,
       targetDistance,
       targetDuration,
-      targetPace,
+      targetSpeed,
       distance,
       pace,
       nextKmMarker,

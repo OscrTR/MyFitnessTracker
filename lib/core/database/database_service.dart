@@ -1,5 +1,5 @@
-import 'package:my_fitness_tracker/core/messages/bloc/message_bloc.dart';
-import 'package:my_fitness_tracker/features/training_management/models/reminder.dart';
+import '../messages/bloc/message_bloc.dart';
+import '../../features/training_management/models/reminder.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -82,7 +82,7 @@ class DatabaseService {
     targetDistance INTEGER NOT NULL,
     targetDuration INTEGER NOT NULL,
     isTargetPaceSelected INTEGER NOT NULL,
-    targetPace INTEGER NOT NULL,
+    targetSpeed REAL NOT NULL,
     sets INTEGER NOT NULL,
     isSetsInReps INTEGER NOT NULL,
     minReps INTEGER NOT NULL,
@@ -227,6 +227,7 @@ class DatabaseService {
     } catch (e) {
       sl<MessageBloc>().add(AddMessageEvent(
           message: 'Database error : ${e.toString()}', isError: true));
+
       return -1;
     }
   }
@@ -260,6 +261,7 @@ class DatabaseService {
     } catch (e) {
       sl<MessageBloc>().add(AddMessageEvent(
           message: 'Database error : ${e.toString()}', isError: true));
+
       return -1;
     }
   }
@@ -270,6 +272,7 @@ class DatabaseService {
     } catch (e) {
       sl<MessageBloc>().add(AddMessageEvent(
           message: 'Database error : ${e.toString()}', isError: true));
+
       return -1;
     }
   }
@@ -280,6 +283,7 @@ class DatabaseService {
     } catch (e) {
       sl<MessageBloc>().add(AddMessageEvent(
           message: 'Database error : ${e.toString()}', isError: true));
+
       return -1;
     }
   }
@@ -341,6 +345,7 @@ class DatabaseService {
     } catch (e) {
       sl<MessageBloc>().add(AddMessageEvent(
           message: 'Database error : ${e.toString()}', isError: true));
+
       return -1;
     }
   }
@@ -356,6 +361,7 @@ class DatabaseService {
     } catch (e) {
       sl<MessageBloc>().add(AddMessageEvent(
           message: 'Database error : ${e.toString()}', isError: true));
+
       return -1;
     }
   }
@@ -404,16 +410,17 @@ class DatabaseService {
 
   Future<BaseExercise?> getBaseExerciseById(int baseExerciseId) async {
     try {
-      final Map<String, dynamic> result = await _db
-          .get('SELECT * FROM base_exercises WHERE id = ?', [baseExerciseId]);
+      final List<Map<String, dynamic>> result = await _db.getAll(
+          'SELECT * FROM base_exercises WHERE id = ?', [baseExerciseId]);
 
       if (result.isEmpty) return null;
-      final baseExercise = BaseExercise.fromMap(result);
+      final baseExercise = BaseExercise.fromMap(result.first);
 
       return baseExercise;
     } catch (e) {
       sl<MessageBloc>().add(AddMessageEvent(
           message: 'Database error : ${e.toString()}', isError: true));
+
       return null;
     }
   }
@@ -430,6 +437,7 @@ class DatabaseService {
     } catch (e) {
       sl<MessageBloc>().add(AddMessageEvent(
           message: 'Database error : ${e.toString()}', isError: true));
+
       return [];
     }
   }
@@ -446,16 +454,18 @@ class DatabaseService {
     } catch (e) {
       sl<MessageBloc>().add(AddMessageEvent(
           message: 'Database error : ${e.toString()}', isError: true));
+
       return [];
     }
   }
 
   Future<Training?> getTrainingById(int trainingId) async {
     try {
-      final Map<String, dynamic> result =
-          await _db.get('SELECT * FROM trainings WHERE id = ?', [trainingId]);
+      final List<Map<String, dynamic>> result = await _db
+          .getAll('SELECT * FROM trainings WHERE id = ?', [trainingId]);
 
-      Training training = Training.fromMap(result);
+      if (result.isEmpty) return null;
+      Training training = Training.fromMap(result.first);
 
       final multisets = await getMultisetsByTrainingId(training.id!);
 
@@ -481,6 +491,7 @@ class DatabaseService {
     } catch (e) {
       sl<MessageBloc>().add(AddMessageEvent(
           message: 'Database error : ${e.toString()}', isError: true));
+
       return null;
     }
   }
@@ -522,6 +533,7 @@ class DatabaseService {
     } catch (e) {
       sl<MessageBloc>().add(AddMessageEvent(
           message: 'Database error : ${e.toString()}', isError: true));
+
       return [];
     }
   }
@@ -540,6 +552,7 @@ class DatabaseService {
     } catch (e) {
       sl<MessageBloc>().add(AddMessageEvent(
           message: 'Database error : ${e.toString()}', isError: true));
+
       return [];
     }
   }
@@ -558,6 +571,7 @@ class DatabaseService {
     } catch (e) {
       sl<MessageBloc>().add(AddMessageEvent(
           message: 'Database error : ${e.toString()}', isError: true));
+
       return [];
     }
   }
@@ -575,6 +589,7 @@ class DatabaseService {
     } catch (e) {
       sl<MessageBloc>().add(AddMessageEvent(
           message: 'Database error : ${e.toString()}', isError: true));
+
       return [];
     }
   }
@@ -606,38 +621,44 @@ class DatabaseService {
     } catch (e) {
       sl<MessageBloc>().add(AddMessageEvent(
           message: 'Database error : ${e.toString()}', isError: true));
+
       return {};
     }
   }
 
   Future<Training?> getBaseTrainingByVersionId(int versionId) async {
     try {
-      final Map<String, dynamic> result = await _db
-          .get('SELECT * FROM training_versions WHERE id = ?', [versionId]);
+      final List<Map<String, dynamic>> result = await _db
+          .getAll('SELECT * FROM training_versions WHERE id = ?', [versionId]);
 
-      final trainingVersion = TrainingVersion.fromMap(result);
+      if (result.isEmpty) return null;
+      final trainingVersion = TrainingVersion.fromMap(result.first);
       final training = trainingVersion.training;
 
       return training;
     } catch (e) {
       sl<MessageBloc>().add(AddMessageEvent(
           message: 'Database error : ${e.toString()}', isError: true));
+
       return null;
     }
   }
 
   Future<Training?> getFullTrainingByVersionId(int versionId) async {
     try {
-      final Map<String, dynamic> result = await _db
-          .get('SELECT * FROM training_versions WHERE id = ?', [versionId]);
+      final List<Map<String, dynamic>> result = await _db
+          .getAll('SELECT * FROM training_versions WHERE id = ?', [versionId]);
 
-      final trainingVersion = TrainingVersion.fromMap(result);
+      if (result.isEmpty) return null;
+
+      final trainingVersion = TrainingVersion.fromMap(result.first);
       final training = trainingVersion.fullTraining;
 
       return training;
     } catch (e) {
       sl<MessageBloc>().add(AddMessageEvent(
           message: 'Database error : ${e.toString()}', isError: true));
+
       return null;
     }
   }
@@ -655,6 +676,7 @@ class DatabaseService {
     } catch (e) {
       sl<MessageBloc>().add(AddMessageEvent(
           message: 'Database error : ${e.toString()}', isError: true));
+
       return null;
     }
   }
@@ -671,6 +693,7 @@ class DatabaseService {
     } catch (e) {
       sl<MessageBloc>().add(AddMessageEvent(
           message: 'Database error : ${e.toString()}', isError: true));
+
       return [];
     }
   }
@@ -687,6 +710,7 @@ class DatabaseService {
     } catch (e) {
       sl<MessageBloc>().add(AddMessageEvent(
           message: 'Database error : ${e.toString()}', isError: true));
+
       return [];
     }
   }
@@ -705,22 +729,26 @@ class DatabaseService {
     } catch (e) {
       sl<MessageBloc>().add(AddMessageEvent(
           message: 'Database error : ${e.toString()}', isError: true));
+
       return null;
     }
   }
 
   Future<Map<String, dynamic>?> getPreferences() async {
     try {
-      final Map<String, dynamic> result =
-          await _db.get('SELECT * FROM preferences');
+      final List<Map<String, dynamic>> result =
+          await _db.getAll('SELECT * FROM preferences');
+
+      if (result.isEmpty) return null;
 
       return {
         'isReminderActive':
-            result['isReminderActive'] == 1, // Convertir entier en bool
+            result.first['isReminderActive'] == 1, // Convertir entier en bool
       };
     } catch (e) {
       sl<MessageBloc>().add(AddMessageEvent(
           message: 'Database error : ${e.toString()}', isError: true));
+
       return null;
     }
   }
@@ -737,6 +765,7 @@ class DatabaseService {
     } catch (e) {
       sl<MessageBloc>().add(AddMessageEvent(
           message: 'Database error : ${e.toString()}', isError: true));
+
       return [];
     }
   }

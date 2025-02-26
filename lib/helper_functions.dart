@@ -3,7 +3,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/widgets.dart';
 
 import 'core/enums/enums.dart';
-
 import 'features/base_exercise_management/bloc/base_exercise_management_bloc.dart';
 import 'features/training_management/models/exercise.dart';
 import 'injection_container.dart';
@@ -27,17 +26,24 @@ String formatDurationToApproximativeHoursMinutes(int seconds) {
   return '~${hours > 0 ? '$hours ${tr('global_hours')}' : ''}${minutes > 0 ? '${minutes.toString().padLeft(2, '0')} ${tr('global_minutes')}' : ''}';
 }
 
-String formatPace(int seconds) {
-  final minutes = seconds ~/ 60;
-  final secs = seconds % 60;
-  return '$minutes:${secs.toString().padLeft(2, '0')}/km';
+String formatPace(double speed) {
+  if (speed <= 0) {
+    return '00:00/km';
+  }
+  final double paceInMinutes = (1000 / speed) / 60;
+  final int minutes = paceInMinutes.floor();
+  final int seconds = ((paceInMinutes - minutes) * 60).round();
+
+  // Formater les secondes pour toujours afficher deux chiffres.
+  final String secondsStr = seconds.toString().padLeft(2, '0');
+  return '$minutes:$secondsStr/km';
 }
 
 int getCalories({required int intensity, int? reps, int? duration}) {
   double caloriesDuringExercise = 0;
   double caloriesAfterBurn = 0;
   double totalCalories = 0;
-  int effectiveDuration = 0;
+  double effectiveDuration = 0;
 
   const double standardWeight = 70.0;
 
@@ -49,15 +55,13 @@ int getCalories({required int intensity, int? reps, int? duration}) {
     4: _IntensityData(met: 9.0, epocFactor: 0.20),
   };
 
-  effectiveDuration = duration ?? (reps ?? 0 * 3);
+  effectiveDuration = (duration ?? (reps ?? 0 * 3)) / 3600;
 
-  caloriesDuringExercise = intensityLevels[intensity]!.met *
-      standardWeight *
-      (effectiveDuration / 60);
+  caloriesDuringExercise =
+      intensityLevels[intensity]!.met * standardWeight * effectiveDuration;
 
-  caloriesAfterBurn = caloriesDuringExercise *
-      intensityLevels[intensity]!.epocFactor *
-      (effectiveDuration / 30);
+  caloriesAfterBurn =
+      caloriesDuringExercise * intensityLevels[intensity]!.epocFactor;
 
   totalCalories = caloriesDuringExercise + caloriesAfterBurn;
 
@@ -76,9 +80,9 @@ class _IntensityData {
 
 String findExerciseName(Exercise exercise) {
   String exerciseName = '';
-  if (exercise.exerciseType == ExerciseType.run) {
-    final targetPace = exercise.isTargetPaceSelected == true
-        ? ' at ${formatPace(exercise.targetPace)}'
+  if (exercise.exerciseType == ExerciseType.running) {
+    final targetSpeed = exercise.isTargetPaceSelected == true
+        ? ' at ${formatPace(exercise.targetSpeed)}'
         : '';
     final intervals = exercise.sets;
     final targetDistance =
@@ -89,17 +93,17 @@ String findExerciseName(Exercise exercise) {
     if (intervals > 1) {
       if (exercise.runType == RunType.distance) {
         exerciseName =
-            '${tr('active_training_running_interval')} ${'$intervals'}x$targetDistance$targetPace';
+            '${tr('active_training_running_interval')} ${'$intervals'}x$targetDistance$targetSpeed';
       } else {
         exerciseName =
-            '${tr('active_training_running_interval')} ${'$intervals'}x$targetDuration$targetPace';
+            '${tr('active_training_running_interval')} ${'$intervals'}x$targetDuration$targetSpeed';
       }
     } else if (exercise.runType == RunType.distance) {
       exerciseName =
-          '${tr('active_training_running')} $targetDistance$targetPace';
+          '${tr('active_training_running')} $targetDistance$targetSpeed';
     } else if (exercise.runType == RunType.duration) {
       exerciseName =
-          '${tr('active_training_running')} $targetDuration$targetPace';
+          '${tr('active_training_running')} $targetDuration$targetSpeed';
     }
   } else {
     exerciseName =

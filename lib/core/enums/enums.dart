@@ -41,15 +41,15 @@ enum RunType {
 }
 
 enum TrainingType {
-  run,
+  running,
   yoga,
   workout,
   unknown;
 
   String toMap() {
     switch (this) {
-      case TrainingType.run:
-        return 'run';
+      case TrainingType.running:
+        return 'running';
       case TrainingType.yoga:
         return 'yoga';
       case TrainingType.workout:
@@ -61,8 +61,8 @@ enum TrainingType {
 
   static TrainingType fromMap(String value) {
     switch (value) {
-      case 'run':
-        return TrainingType.run;
+      case 'running':
+        return TrainingType.running;
       case 'yoga':
         return TrainingType.yoga;
       case 'workout':
@@ -75,8 +75,8 @@ enum TrainingType {
 
   String translate(String locale) {
     switch (this) {
-      case TrainingType.run:
-        return locale == 'fr' ? 'Course' : 'Run';
+      case TrainingType.running:
+        return locale == 'fr' ? 'Course' : 'Running';
       case TrainingType.yoga:
         return locale == 'fr' ? 'Yoga' : 'Yoga';
       case TrainingType.workout:
@@ -137,7 +137,7 @@ enum TrainingDay {
 }
 
 enum ExerciseType {
-  run,
+  running,
   yoga,
   workout,
   meditation,
@@ -156,8 +156,8 @@ enum ExerciseType {
 
   String translate(String locale) {
     switch (this) {
-      case ExerciseType.run:
-        return locale == 'fr' ? 'Course' : 'Run';
+      case ExerciseType.running:
+        return locale == 'fr' ? 'Course' : 'Running';
       case ExerciseType.yoga:
         return locale == 'fr' ? 'Yoga' : 'Yoga';
       case ExerciseType.workout:

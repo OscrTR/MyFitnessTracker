@@ -2,7 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
-import 'package:my_fitness_tracker/core/notification_service.dart';
+import 'core/notification_service.dart';
 import 'core/database/database_service.dart';
 
 import 'app_theme.dart';

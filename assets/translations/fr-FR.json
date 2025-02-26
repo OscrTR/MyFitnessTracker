@@ -99,7 +99,7 @@
   "home_page_distance": "Distance",
   "home_page_calories": "Calories",
   "home_page_pace": "Allure moyenne",
-  "home_page_drop": "Dénivelé",
+  "home_page_altitude": "Dénivelé",
   "home_page_load": "Charge",
   "home_page_sets": "Séries",
   "home_page_rest": "Repos",
@@ -172,5 +172,6 @@
 
   "stats_page_title": "Statistiques",
   "stats_page_deleted_exercises": "Exercices supprimés",
-  "stats_page_training_search": "Chercher un entraînement"
+  "stats_page_training_search": "Chercher un entraînement",
+  "stats_page_trainings_duration": "Durée des entraînements (minutes)"
 }

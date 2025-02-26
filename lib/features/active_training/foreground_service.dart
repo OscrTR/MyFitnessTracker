@@ -1,7 +1,7 @@
 import 'package:fl_location/fl_location.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
-import 'package:my_fitness_tracker/app_colors.dart';
+import '../../app_colors.dart';
 
 import '../../core/messages/bloc/message_bloc.dart';
 import '../../injection_container.dart';

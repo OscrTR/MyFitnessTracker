@@ -1,7 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
-import '../../../core/database/database_service.dart';
 
+import '../../../core/database/database_service.dart';
 import '../../../core/enums/enums.dart';
 import '../../../injection_container.dart';
 import '../../training_management/models/training.dart';

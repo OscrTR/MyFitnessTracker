@@ -6,8 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:my_fitness_tracker/core/database/database_service.dart';
-import 'package:my_fitness_tracker/features/active_training/bloc/active_training_bloc.dart';
+import '../../active_training/bloc/active_training_bloc.dart';
 import '../../training_history/models/history_period_stats.dart';
 import '../../training_history/models/history_training.dart';
 import '../../training_history/bloc/training_history_bloc.dart';
@@ -83,11 +82,6 @@ class _HomePageState extends State<HomePage> {
     return sum;
   }
 
-  void _printVersions() async {
-    final reminders = await sl<DatabaseService>().getAllTrainingVersions();
-    print('Training versions : $reminders');
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -97,15 +91,6 @@ class _HomePageState extends State<HomePage> {
           if (state is TrainingManagementLoaded) {
             return Column(
               children: [
-                Row(
-                  children: [
-                    TextButton(
-                        onPressed: () {
-                          _printVersions();
-                        },
-                        child: Text('GetAll')),
-                  ],
-                ),
                 const SizedBox(height: 30),
                 _buildTrainingsList(context),
                 const SizedBox(height: 30),
@@ -371,7 +356,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Column _buildRunStats(BuildContext context) {
-    _plannedWeeklyTrainings = _calculateTotalTrainings(TrainingType.run);
+    _plannedWeeklyTrainings = _calculateTotalTrainings(TrainingType.running);
     _weeklyTrainingProgress = _plannedWeeklyTrainings != 0
         ? _weeklyStats!.runTrainingsCount / _plannedWeeklyTrainings
         : 0;
@@ -412,7 +397,7 @@ class _HomePageState extends State<HomePage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  tr('home_page_drop'),
+                  tr('home_page_altitude'),
                   style: Theme.of(context)
                       .textTheme
                       .bodySmall!

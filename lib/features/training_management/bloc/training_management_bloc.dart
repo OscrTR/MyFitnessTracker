@@ -47,7 +47,6 @@ class TrainingManagementBloc
       } catch (e) {
         messageBloc.add(AddMessageEvent(
             message: 'An error occurred: ${e.toString()}', isError: true));
-        rethrow;
       }
     });
 
@@ -65,7 +64,6 @@ class TrainingManagementBloc
       } catch (e) {
         messageBloc.add(AddMessageEvent(
             message: 'An error occurred: ${e.toString()}', isError: true));
-        rethrow;
       }
     });
 
@@ -83,7 +81,6 @@ class TrainingManagementBloc
       } catch (e) {
         messageBloc.add(AddMessageEvent(
             message: 'An error occurred: ${e.toString()}', isError: true));
-        rethrow;
       }
     });
 
@@ -147,7 +144,6 @@ class TrainingManagementBloc
           message: 'An error occurred: ${e.toString()}',
           isError: true,
         ));
-        rethrow;
       }
     });
 
@@ -190,7 +186,7 @@ class TrainingManagementBloc
           objectives: event.exercise.objectives,
           targetDistance: event.exercise.targetDistance,
           targetDuration: event.exercise.targetDuration,
-          targetPace: event.exercise.targetPace,
+          targetSpeed: event.exercise.targetSpeed,
           isTargetPaceSelected: event.exercise.isTargetPaceSelected,
           sets: event.exercise.sets,
           isSetsInReps: event.exercise.isSetsInReps,
@@ -445,7 +441,7 @@ class TrainingManagementBloc
           objectives: event.exercise.objectives,
           targetDistance: event.exercise.targetDistance,
           targetDuration: event.exercise.targetDuration,
-          targetPace: event.exercise.targetPace,
+          targetSpeed: event.exercise.targetSpeed,
           isTargetPaceSelected: event.exercise.isTargetPaceSelected,
           sets: event.exercise.sets,
           isSetsInReps: event.exercise.isSetsInReps,

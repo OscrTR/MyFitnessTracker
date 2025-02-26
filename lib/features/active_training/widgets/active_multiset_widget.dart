@@ -119,7 +119,7 @@ class _ActiveMultisetWidgetState extends State<ActiveMultisetWidget> {
         final exercise = items[index];
         final isLast = index == items.length - 1;
 
-        return exercise.exerciseType == ExerciseType.run
+        return exercise.exerciseType == ExerciseType.running
             ? ActiveMultisetRunWidget(
                 multiset: widget.multiset,
                 exercise: exercise,

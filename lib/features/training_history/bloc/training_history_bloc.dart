@@ -1,17 +1,17 @@
 import 'package:bloc/bloc.dart';
 import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
-import 'package:my_fitness_tracker/features/base_exercise_management/models/base_exercise.dart';
-import '../../../core/database/database_service.dart';
-import '../../../helper_functions.dart';
-import '../../training_management/models/training.dart';
-import '../models/history_run_location.dart';
 
-import '../models/history_training.dart';
+import '../../../core/database/database_service.dart';
 import '../../../core/enums/enums.dart';
-import '../../../injection_container.dart';
-import '../models/history_entry.dart';
 import '../../../core/messages/bloc/message_bloc.dart';
+import '../../../helper_functions.dart';
+import '../../../injection_container.dart';
+import '../../base_exercise_management/models/base_exercise.dart';
+import '../../training_management/models/training.dart';
+import '../models/history_entry.dart';
+import '../models/history_run_location.dart';
+import '../models/history_training.dart';
 
 part 'training_history_event.dart';
 part 'training_history_state.dart';
@@ -67,7 +67,6 @@ class TrainingHistoryBloc
       } catch (e) {
         messageBloc.add(AddMessageEvent(
             message: 'An error occurred: ${e.toString()}', isError: true));
-        rethrow;
       }
     });
 
@@ -92,7 +91,6 @@ class TrainingHistoryBloc
       } catch (e) {
         messageBloc.add(AddMessageEvent(
             message: 'An error occurred: ${e.toString()}', isError: true));
-        rethrow;
       }
     });
 
@@ -104,7 +102,6 @@ class TrainingHistoryBloc
       } catch (e) {
         messageBloc.add(AddMessageEvent(
             message: 'An error occurred: ${e.toString()}', isError: true));
-        rethrow;
       }
     });
 
@@ -118,7 +115,6 @@ class TrainingHistoryBloc
       } catch (e) {
         messageBloc.add(AddMessageEvent(
             message: 'An error occurred: ${e.toString()}', isError: true));
-        rethrow;
       }
     });
 
@@ -161,20 +157,7 @@ class TrainingHistoryBloc
       } catch (e) {
         messageBloc.add(AddMessageEvent(
             message: 'An error occurred: ${e.toString()}', isError: true));
-        rethrow;
       }
-    });
-
-    on<SelectTrainingTypeEvent>((event, emit) async {
-      if (state is! TrainingHistoryLoaded) return;
-      final currentState = state as TrainingHistoryLoaded;
-
-      final selectedTrainingTypes = currentState.selectedTrainingTypes;
-      selectedTrainingTypes[event.trainingType] = event.isSelected;
-
-      emit(currentState.copyWith(
-          selectedTrainingTypes: selectedTrainingTypes,
-          isExercisesSelected: false));
     });
 
     on<SelectHistoryTrainingEntryEvent>((event, emit) async {
@@ -191,12 +174,28 @@ class TrainingHistoryBloc
 
     //! Stats
 
+    on<SelectTrainingTypeEvent>((event, emit) async {
+      if (state is! TrainingHistoryLoaded) return;
+      final currentState = state as TrainingHistoryLoaded;
+
+      final selectedTrainingTypes = currentState.selectedTrainingTypes;
+      selectedTrainingTypes[event.trainingType] = event.isSelected;
+
+      // TODO Fetch entries for specified training types
+
+      emit(currentState.copyWith(
+          selectedTrainingTypes: selectedTrainingTypes,
+          isExercisesSelected: false));
+    });
+
     on<SelectExercisesEvent>((event, emit) async {
       if (state is! TrainingHistoryLoaded) return;
       final currentState = state as TrainingHistoryLoaded;
 
       final selectedTrainingTypes =
           createMapWithDefaultValues(TrainingType.values);
+
+      // TODO Fetch entries for all trainings
 
       emit(currentState.copyWith(
           selectedTrainingTypes: selectedTrainingTypes,
@@ -207,6 +206,8 @@ class TrainingHistoryBloc
       if (state is! TrainingHistoryLoaded) return;
       final currentState = state as TrainingHistoryLoaded;
 
+      // TODO Fetch entries for this exercise
+
       emit(currentState.copyWith(
         selectedStatsBaseExercise: event.baseExercise,
         resetSelectedStatsBaseExercise: event.baseExercise == null,
@@ -216,6 +217,8 @@ class TrainingHistoryBloc
     on<SelectTrainingEvent>((event, emit) async {
       if (state is! TrainingHistoryLoaded) return;
       final currentState = state as TrainingHistoryLoaded;
+
+      // TODO Fetch entries for this training
 
       emit(currentState.copyWith(
         selectedStatsTraining: event.training,

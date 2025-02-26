@@ -5,11 +5,10 @@ import 'package:dio_cache_interceptor_file_store/dio_cache_interceptor_file_stor
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_cache/flutter_map_cache.dart';
-
 import 'package:latlong2/latlong.dart';
 import 'package:path_provider/path_provider.dart';
-import '../../../app_colors.dart';
 
+import '../../../app_colors.dart';
 import '../models/history_run_location.dart';
 
 class RunMapView extends StatefulWidget {

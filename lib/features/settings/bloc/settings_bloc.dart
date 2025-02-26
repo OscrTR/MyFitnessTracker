@@ -1,7 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:my_fitness_tracker/core/database/database_service.dart';
+import '../../../core/database/database_service.dart';
 
 import '../../../core/notification_service.dart';
 import '../../../injection_container.dart';

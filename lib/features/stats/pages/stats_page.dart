@@ -3,10 +3,10 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:my_fitness_tracker/features/base_exercise_management/bloc/base_exercise_management_bloc.dart';
-import 'package:my_fitness_tracker/features/stats/widgets/training_duration_chart_widget.dart';
-import 'package:my_fitness_tracker/features/training_management/bloc/training_management_bloc.dart';
-import 'package:my_fitness_tracker/features/training_management/models/training.dart';
+import '../../base_exercise_management/bloc/base_exercise_management_bloc.dart';
+import '../widgets/training_duration_chart_widget.dart';
+import '../../training_management/bloc/training_management_bloc.dart';
+import '../../training_management/models/training.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 
 import '../../../app_colors.dart';
@@ -251,8 +251,21 @@ class _StatsPageState extends State<StatsPage> {
                       ],
                     ),
                   const SizedBox(height: 30),
+                  Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                        color: AppColors.floralWhite,
+                        borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(10),
+                            topRight: Radius.circular(10))),
+                    child: Text(
+                      tr('stats_page_trainings_duration'),
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
                   TrainingDurationChart(
-                      trainings: state.historyTrainings,
+                      historyTrainings: state.historyTrainings,
                       startDate: state.startDate,
                       endDate: state.endDate)
                 ],

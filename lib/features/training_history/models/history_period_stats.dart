@@ -16,7 +16,7 @@ class PeriodStats extends Equatable {
   // Statistiques pour la course
   final int runTotalDistance;
   final int runTotalDrop;
-  final int runAveragePace;
+  final double runAveragePace;
   final int runTotalDuration;
 
   // Statistiques pour le workout
@@ -53,7 +53,7 @@ class PeriodStats extends Equatable {
   factory PeriodStats.fromTrainings(List<HistoryTraining> trainings) {
     // Filtrer les entraînements par type
     final runTrainings = trainings
-        .where((t) => t.training.trainingType == TrainingType.run)
+        .where((t) => t.training.trainingType == TrainingType.running)
         .toList();
     final workoutTrainings = trainings
         .where((t) => t.training.trainingType == TrainingType.workout)
@@ -77,13 +77,13 @@ class PeriodStats extends Equatable {
         runTrainings.fold<int>(0, (sum, t) => sum + t.duration);
 
     // Calculer l'allure moyenne pondérée par la distance
-    int runAveragePace = 0;
+    double runAveragePace = 0;
     if (runTotalDistance > 0) {
       final weightedPaceSum = runTrainings.fold<double>(
         0,
         (sum, t) => sum + (t.pace * t.distance),
       );
-      runAveragePace = (weightedPaceSum / runTotalDistance).round();
+      runAveragePace = (weightedPaceSum / runTotalDistance);
     }
 
     // Calculer les statistiques de workout

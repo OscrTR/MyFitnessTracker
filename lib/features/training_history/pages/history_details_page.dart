@@ -90,7 +90,8 @@ class HistoryDetailsPage extends StatelessWidget {
               .where((entry) => entry.exerciseId == exercise.id)
               .toList();
 
-          return exercise.exerciseType == ExerciseType.run && entries.isNotEmpty
+          return exercise.exerciseType == ExerciseType.running &&
+                  entries.isNotEmpty
               ? exercise.sets > 1
                   ? IntervalExercise(
                       exercise: exercise,
@@ -225,7 +226,7 @@ class RunExercise extends StatefulWidget {
   const RunExercise({
     super.key,
     required this.exercise,
-    this.multisetSetIndex,
+    this.multisetSetIndex = 0,
     this.intervalIndex,
     this.subtitle,
   });
@@ -725,7 +726,7 @@ class HistoryMultisetWidget extends StatelessWidget {
               itemBuilder: (context, index) {
                 final exercise = multisetExercises[index];
 
-                if (exercise.exerciseType != ExerciseType.run) {
+                if (exercise.exerciseType != ExerciseType.running) {
                   return ExerciseSetForm(
                     exercise: exercise,
                     historyState: historyState,

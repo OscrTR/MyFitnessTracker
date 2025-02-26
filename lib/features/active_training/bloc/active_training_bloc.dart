@@ -7,7 +7,7 @@ import 'package:equatable/equatable.dart';
 import 'package:fl_location/fl_location.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_tts/flutter_tts.dart';
-import 'package:my_fitness_tracker/core/messages/bloc/message_bloc.dart';
+import '../../../core/messages/bloc/message_bloc.dart';
 import '../../../core/database/database_service.dart';
 
 import '../../training_history/models/history_run_location.dart';
@@ -131,7 +131,6 @@ class ActiveTrainingBloc
           message: 'An error occurred: ${e.toString()}',
           isError: true,
         ));
-        rethrow;
       }
     });
 
@@ -160,9 +159,9 @@ class ActiveTrainingBloc
             currentState.timersStateList[currentTimerIndex];
         final currentTimerValue = currentTimerState.timerValue;
 
-        final targetPace = currentTimerState.targetPace;
-        final targetPaceMinutes = targetPace ~/ 60;
-        final targetPaceSeconds = targetPace % 60;
+        final targetSpeed = currentTimerState.targetSpeed;
+        final targetPaceMinutes = targetSpeed ~/ 60;
+        final targetPaceSeconds = targetSpeed % 60;
 
         // COUNTDOWN
         if (currentTimerState.isCountDown) {
@@ -206,9 +205,9 @@ class ActiveTrainingBloc
 
           void checkPace() {
             if (currentTimerValue % 30 == 0 &&
-                currentTimerState.targetPace > 0) {
-              final targetPaceMargin = currentTimerState.targetPace * 0.05;
-              if (pace < currentTimerState.targetPace - targetPaceMargin) {
+                currentTimerState.targetSpeed > 0) {
+              final targetPaceMargin = currentTimerState.targetSpeed * 0.05;
+              if (pace < currentTimerState.targetSpeed - targetPaceMargin) {
                 speak(tr('active_training_pace_faster', args: [
                   '$paceMinutes',
                   '$paceSeconds',
@@ -216,7 +215,7 @@ class ActiveTrainingBloc
                   '$targetPaceSeconds'
                 ]));
               } else if (pace >
-                  currentTimerState.targetPace + targetPaceMargin) {
+                  currentTimerState.targetSpeed + targetPaceMargin) {
                 speak(tr('active_training_pace_slower', args: [
                   '$paceMinutes',
                   '$paceSeconds',

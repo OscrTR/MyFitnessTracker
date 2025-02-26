@@ -36,26 +36,22 @@ class RunLocation extends Equatable {
 
     double totalAscent = 0;
     double totalDescent = 0;
-    double? previousAltitude;
 
-    for (var location in locations) {
-      if (previousAltitude != null) {
-        final altitudeDifference = location.altitude - previousAltitude;
+    // Parcourir la liste à partir du deuxième point.
+    for (int i = 1; i < locations.length; i++) {
+      double previousAltitude = locations[i - 1].altitude;
+      double currentAltitude = locations[i].altitude;
+      double diff = currentAltitude - previousAltitude;
 
-        // Filtrer les petites variations d'altitude (bruit GPS)
-        if (altitudeDifference.abs() > 1.0) {
-          // Seuil de 1 mètre
-          if (altitudeDifference > 0) {
-            totalAscent += altitudeDifference;
-          } else {
-            totalDescent += altitudeDifference.abs();
-          }
-        }
+      if (diff > 0) {
+        // C'est une montée.
+        totalAscent += diff;
+      } else if (diff < 0) {
+        // C'est une descente.
+        totalDescent += -diff; // On prend la valeur absolue.
       }
-      previousAltitude = location.altitude;
     }
 
-    // Le dénivelé total est la somme des montées et des descentes
     return (totalAscent + totalDescent).round();
   }
 

@@ -180,7 +180,7 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage>
                       bool isVerified = false;
 
                       bool hasRunExercise = state.activeTraining!.exercises
-                          .any((e) => e.exerciseType == ExerciseType.run);
+                          .any((e) => e.exerciseType == ExerciseType.running);
 
                       if (hasRunExercise) {
                         if (isLocationPermissionGrantedAlways &&
@@ -240,7 +240,7 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage>
                   bool isVerified = false;
 
                   bool hasRunExercise = state.activeTraining!.exercises
-                      .any((e) => e.exerciseType == ExerciseType.run);
+                      .any((e) => e.exerciseType == ExerciseType.running);
 
                   if (hasRunExercise) {
                     if (isLocationPermissionGrantedAlways &&
@@ -566,7 +566,7 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage>
                   }
                 }
               },
-              child: exercise.exerciseType == ExerciseType.run
+              child: exercise.exerciseType == ExerciseType.running
                   ? ActiveRunWidget(
                       exercise: exercise,
                       isLast: isLast,

@@ -11,10 +11,6 @@ class AltitudeChart extends StatelessWidget {
 
   const AltitudeChart({super.key, required this.locations});
 
-  String _formatAltitude(double altitude) {
-    return '${altitude.toStringAsFixed(1)}m';
-  }
-
   String _formatDate(int date) {
     final formattedDate = DateTime.fromMillisecondsSinceEpoch(date);
     return '${formattedDate.hour}:${formattedDate.minute.toString().padLeft(2, '0')}:${formattedDate.second.toString().padLeft(2, '0')}';
@@ -22,9 +18,8 @@ class AltitudeChart extends StatelessWidget {
 
   double _calculateInterval(double min, double max) {
     final double range = max - min;
-    final double rawInterval = range / 10; // Pour avoir max 11 valeurs
+    final double rawInterval = range / 5;
 
-    // Arrondir à un nombre plus lisible
     final double magnitude =
         math.pow(10, (math.log(rawInterval) / math.ln10).floor()).toDouble();
     final intervals = [1, 2, 5, 10];
@@ -34,18 +29,63 @@ class AltitudeChart extends StatelessWidget {
         .firstWhere((i) => i >= rawInterval);
   }
 
+  Map<DateTime, double> aggregateAltitudesByMinute(
+      List<RunLocation> locations) {
+    if (locations.isEmpty) return {};
+
+    final Map<DateTime, List<double>> groupedAltitudes = {};
+
+    for (final loc in locations) {
+      // Convertir le timestamp en DateTime
+      final timestamp = DateTime.fromMillisecondsSinceEpoch(loc.date);
+      // Conserver uniquement l'année, le mois, le jour, l'heure et la minute
+      final key = DateTime(timestamp.year, timestamp.month, timestamp.day,
+          timestamp.hour, timestamp.minute);
+
+      groupedAltitudes.putIfAbsent(key, () => []).add(loc.altitude);
+    }
+
+    // Calculer la moyenne pour chaque minute et retourner la map
+    final Map<DateTime, double> aggregated = {};
+    groupedAltitudes.forEach((minute, altitudes) {
+      final double avgAltitude =
+          altitudes.reduce((a, b) => a + b) / altitudes.length;
+      aggregated[minute] = avgAltitude;
+    });
+
+    return aggregated;
+  }
+
   @override
   Widget build(BuildContext context) {
-    if (locations.isEmpty) return const SizedBox();
+    if (locations.length < 2) return const SizedBox();
 
-    final startAltitude = locations.first.altitude;
-    final altitudeChanges =
-        locations.map((loc) => loc.altitude - startAltitude).toList();
-    final minAltitude = altitudeChanges.reduce((min, e) => e < min ? e : min);
-    final maxAltitude = altitudeChanges.reduce((max, e) => e > max ? e : max);
+    final altitudeMap = aggregateAltitudesByMinute(locations);
 
-    final interval = _calculateInterval(minAltitude != 0 ? minAltitude : -10,
-        maxAltitude != 0 ? maxAltitude : 10);
+    // Trier les clés de la map par date croissante
+    final sortedKeys = altitudeMap.keys.toList()..sort();
+
+    // Extraire les altitudes et définir l'axe x avec l'index (ou avec le nombre de minutes écoulées)
+    final List<double> altitudes = [];
+    final List<FlSpot> spots = [];
+
+    for (int i = 0; i < sortedKeys.length; i++) {
+      final key = sortedKeys[i];
+      final altitude = altitudeMap[key]!;
+      altitudes.add(altitude);
+      spots.add(FlSpot(i.toDouble(), altitude));
+    }
+
+    // Calcul des limites min et max pour l'axe Y
+    final minAltitude = altitudes.reduce(math.min);
+    final maxAltitude = altitudes.reduce(math.max);
+    double minY = minAltitude.floorToDouble();
+    double maxY = (maxAltitude + 1).floorToDouble();
+    if (minY == maxY) {
+      minY -= 10;
+      maxY += 10;
+    }
+    final interval = _calculateInterval(minY, maxY);
 
     return Container(
       height: 250,
@@ -56,8 +96,8 @@ class AltitudeChart extends StatelessWidget {
       padding: const EdgeInsets.only(top: 24, bottom: 14, left: 0, right: 20),
       child: LineChart(
         LineChartData(
-          minY: minAltitude != 0 ? minAltitude : -10,
-          maxY: maxAltitude != 0 ? maxAltitude : 10,
+          minY: minY,
+          maxY: maxY,
           gridData: FlGridData(
             show: true,
             drawVerticalLine: false,
@@ -90,9 +130,7 @@ class AltitudeChart extends StatelessWidget {
                 interval: interval,
                 reservedSize: 50,
                 getTitlesWidget: (value, meta) {
-                  final formattedValue = value >= 0
-                      ? '+${value.toInt()}'
-                      : value.toInt().toString();
+                  final formattedValue = '${value.toInt().toString()}m';
                   return Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -113,10 +151,7 @@ class AltitudeChart extends StatelessWidget {
           borderData: _buildBorderData(),
           lineBarsData: [
             LineChartBarData(
-              spots: locations.asMap().entries.map((entry) {
-                return FlSpot(
-                    entry.key.toDouble(), entry.value.altitude - startAltitude);
-              }).toList(),
+              spots: spots,
               isCurved: true,
               color: AppColors.folly,
               dotData: const FlDotData(show: false),
@@ -131,17 +166,12 @@ class AltitudeChart extends StatelessWidget {
               },
               getTooltipItems: (List<LineBarSpot> touchedSpots) {
                 return touchedSpots.map((LineBarSpot touchedSpot) {
-                  final difference = touchedSpot.y;
-                  final formattedDifference = difference >= 0
-                      ? '+${_formatAltitude(difference)}'
-                      : _formatAltitude(difference);
-
                   final index = touchedSpot.spotIndex;
                   final location = locations[index];
                   final date = _formatDate(location.date);
 
                   return LineTooltipItem(
-                    'Pace: $formattedDifference\nTime: $date',
+                    'Altitude: ${touchedSpot.y.toInt()}m\nTime: $date',
                     const TextStyle(color: Colors.white),
                   );
                 }).toList();

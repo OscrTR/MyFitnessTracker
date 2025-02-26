@@ -147,20 +147,20 @@ class _ActiveRunWidgetState extends State<ActiveRunWidget> {
     final targetDuration = widget.exercise.targetDuration != 0
         ? formatDurationToHoursMinutesSeconds(widget.exercise.targetDuration)
         : '';
-    final targetPace = widget.exercise.isTargetPaceSelected == true
-        ? ' at ${formatPace(widget.exercise.targetPace)}'
+    final targetSpeed = widget.exercise.isTargetPaceSelected == true
+        ? ' at ${formatPace(widget.exercise.targetSpeed)}'
         : '';
 
     if (widget.exercise.runType == RunType.distance) {
       return Text(
-        '${tr('active_training_running')} $targetDistance$targetPace',
+        '${tr('active_training_running')} $targetDistance$targetSpeed',
         style: Theme.of(context).textTheme.titleMedium,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
       );
     } else if (widget.exercise.runType == RunType.duration) {
       return Text(
-        '${tr('active_training_running')} $targetDuration$targetPace',
+        '${tr('active_training_running')} $targetDuration$targetSpeed',
         style: Theme.of(context).textTheme.titleMedium,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
@@ -183,21 +183,21 @@ class _ActiveRunWidgetState extends State<ActiveRunWidget> {
     final targetDuration = exercise.targetDuration != 0
         ? formatDurationToHoursMinutesSeconds(exercise.targetDuration)
         : '';
-    final targetPace = exercise.isTargetPaceSelected == true
-        ? ' at ${formatPace(exercise.targetPace)}'
+    final targetSpeed = exercise.isTargetPaceSelected == true
+        ? ' at ${formatPace(exercise.targetSpeed)}'
         : '';
     final intervals = exercise.sets;
 
     if (exercise.runType == RunType.distance) {
       return Text(
-        '${tr('active_training_running_interval')} ${'$intervals'}x$targetDistance$targetPace',
+        '${tr('active_training_running_interval')} ${'$intervals'}x$targetDistance$targetSpeed',
         style: Theme.of(context).textTheme.titleMedium,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
       );
     } else {
       return Text(
-        '${tr('active_training_running_interval')} ${'$intervals'}x$targetDuration$targetPace',
+        '${tr('active_training_running_interval')} ${'$intervals'}x$targetDuration$targetSpeed',
         style: Theme.of(context).textTheme.titleMedium,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
@@ -240,7 +240,8 @@ class DistanceOrDurationRun extends StatelessWidget {
             targetDuration: exercise.runType == RunType.duration
                 ? exercise.targetDuration
                 : 0,
-            targetPace: exercise.isTargetPaceSelected ? exercise.targetPace : 0,
+            targetSpeed:
+                exercise.isTargetPaceSelected ? exercise.targetSpeed : 0.0,
             isAutostart: exercise.isAutoStart,
             exerciseGlobalKey: exerciseGlobalKey,
             trainingId: exercise.trainingId!,
@@ -465,7 +466,7 @@ class IntervalRun extends StatelessWidget {
           targetDuration: exercise.runType == RunType.duration
               ? 0
               : exercise.targetDuration,
-          targetPace: exercise.isTargetPaceSelected ? exercise.targetPace : 0,
+          targetSpeed: exercise.isTargetPaceSelected ? exercise.targetSpeed : 0,
           isAutostart: intervalIndex == 0 ? exercise.isAutoStart : true,
           exerciseGlobalKey: exerciseGlobalKey,
           trainingId: exercise.trainingId!,

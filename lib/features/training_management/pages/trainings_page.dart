@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:my_fitness_tracker/features/active_training/bloc/active_training_bloc.dart';
+import '../../active_training/bloc/active_training_bloc.dart';
 import '../../../core/enums/enums.dart';
 import '../models/exercise.dart';
 import '../../../app_colors.dart';
@@ -562,7 +562,7 @@ int calculateTrainingDuration(Training training) {
           .sets;
     }
     // Pour les exercices de yoga ou de renforcement
-    if (exercise.exerciseType != ExerciseType.run) {
+    if (exercise.exerciseType != ExerciseType.running) {
       if (!exercise.isSetsInReps) {
         // Si l'exercice a une durée explicite
         totalSeconds += exercise.duration * exercise.sets * multisetSets;

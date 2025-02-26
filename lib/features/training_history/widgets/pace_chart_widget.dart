@@ -2,7 +2,6 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
 import '../../../app_colors.dart';
-import '../../../helper_functions.dart';
 import '../models/history_run_location.dart';
 
 class PaceChart extends StatelessWidget {
@@ -15,8 +14,49 @@ class PaceChart extends StatelessWidget {
     return '${formattedDate.hour}:${formattedDate.minute.toString().padLeft(2, '0')}:${formattedDate.second.toString().padLeft(2, '0')}';
   }
 
+  List<FlSpot> _applyMovingAverage(List<FlSpot> spots, {int windowSize = 5}) {
+    if (spots.isEmpty) return [];
+    final List<FlSpot> smoothed = [];
+
+    for (int i = 0; i < spots.length; i++) {
+      // Déterminer le début et la fin de la fenêtre
+      final int start = (i - (windowSize ~/ 2)).clamp(0, spots.length - 1);
+      final int end = (i + (windowSize ~/ 2)).clamp(0, spots.length - 1);
+
+      double sumY = 0;
+      int count = 0;
+      for (int j = start; j <= end; j++) {
+        sumY += spots[j].y;
+        count++;
+      }
+      // Conserver l'abscisse d'origine, et calculer la moyenne des ordonnées
+      smoothed.add(FlSpot(spots[i].x, sumY / count));
+    }
+
+    return smoothed;
+  }
+
   @override
   Widget build(BuildContext context) {
+    const double minSpeed = 0.5;
+    const double maxSpeed = 10.0;
+
+    // Filtrer les valeurs aberrantes de vitesse
+    final filteredLocations = locations
+        .where((loc) => loc.speed >= minSpeed && loc.speed <= maxSpeed)
+        .toList();
+
+    // Créer les spots bruts à partir des locations filtrées
+    final List<FlSpot> rawSpots = filteredLocations.map((loc) {
+      // Calcul du pace en minutes par km (en supposant une vitesse en m/s)
+      final double pace = loc.speed > 0 ? 1000 / loc.speed / 60 : 0;
+      return FlSpot(loc.date.toDouble(), pace);
+    }).toList();
+
+    // Appliquer le lissage via une moyenne mobile
+    final List<FlSpot> smoothedSpots =
+        _applyMovingAverage(rawSpots, windowSize: 5);
+
     return Container(
       height: 250,
       decoration: BoxDecoration(
@@ -80,10 +120,7 @@ class PaceChart extends StatelessWidget {
           borderData: _buildBorderData(),
           lineBarsData: [
             LineChartBarData(
-              spots: locations.map((loc) {
-                final double pace = loc.speed > 0 ? 1000 / loc.speed / 60 : 0;
-                return FlSpot(loc.date.toDouble(), pace);
-              }).toList(),
+              spots: smoothedSpots,
               isCurved: true,
               color: AppColors.folly,
               dotData: const FlDotData(show: false),
@@ -99,9 +136,14 @@ class PaceChart extends StatelessWidget {
               getTooltipItems: (List<LineBarSpot> touchedSpots) {
                 return touchedSpots.map((LineBarSpot touchedSpot) {
                   final index = touchedSpot.spotIndex;
-                  final location = locations[index];
+                  final location = filteredLocations[index];
                   final date = _formatDate(location.date);
-                  final pace = formatPace(touchedSpot.y.toInt());
+                  final int minutes = touchedSpot.y.floor();
+                  final int seconds = ((touchedSpot.y - minutes) * 60).round();
+
+                  // Formater les secondes pour toujours afficher deux chiffres.
+                  final String secondsStr = seconds.toString().padLeft(2, '0');
+                  final pace = '$minutes:$secondsStr/km';
 
                   return LineTooltipItem(
                     'Pace: $pace\nTime: $date',

@@ -45,7 +45,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
     objectives: '',
     targetDistance: 0,
     targetDuration: 0,
-    targetPace: 0,
+    targetSpeed: 0,
     minReps: 0,
     maxReps: 0,
     duration: 0,
@@ -65,7 +65,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
     objectives: '',
     targetDistance: 0,
     targetDuration: 0,
-    targetPace: 0,
+    targetSpeed: 0,
     minReps: 0,
     maxReps: 0,
     duration: 0,
@@ -137,7 +137,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
         targetDistance: exercise.targetDistance,
         targetDuration: exercise.targetDuration,
         isTargetPaceSelected: exercise.isTargetPaceSelected,
-        targetPace: exercise.targetPace,
+        targetSpeed: exercise.targetSpeed,
         isAutoStart: exercise.isAutoStart,
         isSetsInReps: exercise.isSetsInReps,
         sets: exercise.sets,
@@ -181,11 +181,11 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
           (exercise.targetDuration != 0
               ? (exercise.targetDuration % 60).toString()
               : '');
-      _controllers['paceMinutes']?.text = (exercise.targetPace != 0
-          ? (exercise.targetPace % 3600 ~/ 60).toString()
+      _controllers['paceMinutes']?.text = (exercise.targetSpeed != 0
+          ? (exercise.targetSpeed % 3600 ~/ 60).toString()
           : '');
-      _controllers['paceSeconds']?.text = (exercise.targetPace != 0
-          ? (exercise.targetPace % 60).toString()
+      _controllers['paceSeconds']?.text = (exercise.targetSpeed != 0
+          ? (exercise.targetSpeed % 60).toString()
           : '');
       _controllers['exerciseRestMinutes']?.text = (exercise.exerciseRest != 0
           ? (exercise.exerciseRest % 3600 ~/ 60).toString()
@@ -340,7 +340,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
         'objectives': _tExerciseToCreateOrEdit.objectives,
         'distance': _tExerciseToCreateOrEdit.targetDistance,
         'targetDuration': _tExerciseToCreateOrEdit.targetDuration,
-        'targetPace': _tExerciseToCreateOrEdit.targetPace,
+        'targetSpeed': _tExerciseToCreateOrEdit.targetSpeed,
       };
 
       _tExerciseToCreateOrEdit = _tExerciseToCreateOrEdit.copyWith(
@@ -403,11 +403,11 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                         _controllers['targetDurationSeconds']?.text ?? '') ??
                     0)
             : currentValues['targetDuration'] as int?,
-        targetPace: key == 'paceMinutes' || key == 'paceSeconds'
-            ? ((int.tryParse(_controllers['paceMinutes']?.text ?? '') ?? 0) *
+        targetSpeed: key == 'paceMinutes' || key == 'paceSeconds'
+            ? ((double.tryParse(_controllers['paceMinutes']?.text ?? '') ?? 0) *
                     60) +
-                (int.tryParse(_controllers['paceSeconds']?.text ?? '') ?? 0)
-            : currentValues['targetPace'] as int?,
+                (double.tryParse(_controllers['paceSeconds']?.text ?? '') ?? 0)
+            : currentValues['targetSpeed'] as double?,
       );
     }
   }
@@ -573,7 +573,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
 
         if (item['type'] == 'exercise') {
           var exercise = item['data'] as Exercise;
-          if (exercise.exerciseType == ExerciseType.run) {
+          if (exercise.exerciseType == ExerciseType.running) {
             if (exercisesAndMultisetsList.length <= 1) {
               return GestureDetector(
                 key: ValueKey(exercise.widgetKey),
@@ -935,7 +935,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
         physics: const NeverScrollableScrollPhysics(),
         itemBuilder: (context, index) {
           final Exercise exercise = multisetExercises[index];
-          if (exercise.exerciseType == ExerciseType.run) {
+          if (exercise.exerciseType == ExerciseType.running) {
             return _buildRunExerciseItem(exercise, context, multiset);
           }
 
@@ -960,8 +960,8 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
       final targetDuration = exercise.targetDuration != 0
           ? formatDurationToHoursMinutesSeconds(exercise.targetDuration)
           : '';
-      final targetPace = exercise.isTargetPaceSelected == true
-          ? ' at ${formatPace(exercise.targetPace)}'
+      final targetSpeed = exercise.isTargetPaceSelected == true
+          ? ' at ${formatPace(exercise.targetSpeed)}'
           : '';
       final intervals = exercise.sets;
       if (exercise.runType == RunType.distance) {
@@ -969,7 +969,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              '${intervals}x$targetDistance$targetPace',
+              '${intervals}x$targetDistance$targetSpeed',
               style: const TextStyle(color: AppColors.taupeGray),
             ),
             Text(
@@ -983,7 +983,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              '${intervals}x$targetDuration$targetPace',
+              '${intervals}x$targetDuration$targetSpeed',
               style: const TextStyle(color: AppColors.taupeGray),
             ),
             Text(
@@ -1001,14 +1001,14 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
       final targetDuration = exercise.targetDuration != 0
           ? formatDurationToHoursMinutesSeconds(exercise.targetDuration)
           : '';
-      final targetPace = exercise.isTargetPaceSelected == true
-          ? ' at ${formatPace(exercise.targetPace)}'
+      final targetSpeed = exercise.isTargetPaceSelected == true
+          ? ' at ${formatPace(exercise.targetSpeed)}'
           : '';
       if (exercise.runType == RunType.distance) {
         return Column(
           children: [
             Text(
-              '$targetDistance$targetPace',
+              '$targetDistance$targetSpeed',
               style: const TextStyle(color: AppColors.taupeGray),
             ),
           ],
@@ -1017,7 +1017,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
         return Column(
           children: [
             Text(
-              '$targetDuration$targetPace',
+              '$targetDuration$targetSpeed',
               style: const TextStyle(color: AppColors.taupeGray),
             ),
           ],
@@ -1367,7 +1367,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                     },
                   ),
                   const SizedBox(height: 20),
-                  _tExerciseToCreateOrEdit.exerciseType != ExerciseType.run
+                  _tExerciseToCreateOrEdit.exerciseType != ExerciseType.running
                       ? _buildYogaOrWorkoutFields(context, setDialogState,
                           multiset, _tExerciseToCreateOrEdit.baseExerciseId)
                       : _buildRunFields(setDialogState),
