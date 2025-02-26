@@ -83,6 +83,11 @@ class _HomePageState extends State<HomePage> {
     return sum;
   }
 
+  void _printVersions() async {
+    final reminders = await sl<DatabaseService>().getAllTrainingVersions();
+    print('Training versions : $reminders');
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -92,6 +97,15 @@ class _HomePageState extends State<HomePage> {
           if (state is TrainingManagementLoaded) {
             return Column(
               children: [
+                Row(
+                  children: [
+                    TextButton(
+                        onPressed: () {
+                          _printVersions();
+                        },
+                        child: Text('GetAll')),
+                  ],
+                ),
                 const SizedBox(height: 30),
                 _buildTrainingsList(context),
                 const SizedBox(height: 30),
