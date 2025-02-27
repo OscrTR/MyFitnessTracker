@@ -172,7 +172,13 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage>
               child: Column(
                 children: [
                   BlocBuilder<ActiveTrainingBloc, ActiveTrainingState>(
-                      builder: (context, state) {
+                      buildWhen: (previous, current) {
+                    if (previous is ActiveTrainingLoaded &&
+                        current is ActiveTrainingLoaded) {
+                      return previous.activeTraining != current.activeTraining;
+                    }
+                    return true;
+                  }, builder: (context, state) {
                     if (state is ActiveTrainingLoaded &&
                         state.activeTraining != null) {
                       bool isVerified = false;
