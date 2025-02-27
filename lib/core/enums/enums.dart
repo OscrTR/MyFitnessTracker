@@ -40,6 +40,49 @@ enum RunType {
   }
 }
 
+enum LogLevel {
+  debug,
+  info,
+  warning,
+  error,
+  critical,
+  unknown;
+
+  String toMap() {
+    switch (this) {
+      case LogLevel.debug:
+        return 'DEBUG';
+      case LogLevel.info:
+        return 'INFO';
+      case LogLevel.warning:
+        return 'WARNING';
+      case LogLevel.error:
+        return 'ERROR';
+      case LogLevel.critical:
+        return 'CRITICAL';
+      case LogLevel.unknown:
+        return 'UNKNOWN';
+    }
+  }
+
+  static LogLevel fromMap(String value) {
+    switch (value) {
+      case 'DEBUG':
+        return LogLevel.debug;
+      case 'INFO':
+        return LogLevel.info;
+      case 'WARNING':
+        return LogLevel.warning;
+      case 'ERROR':
+        return LogLevel.error;
+      case 'CRITICAL':
+        return LogLevel.critical;
+      default:
+        return LogLevel.unknown;
+    }
+  }
+}
+
 enum TrainingType {
   running,
   yoga,

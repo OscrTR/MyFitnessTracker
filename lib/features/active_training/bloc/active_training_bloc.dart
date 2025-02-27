@@ -7,7 +7,7 @@ import 'package:equatable/equatable.dart';
 import 'package:fl_location/fl_location.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_tts/flutter_tts.dart';
-import '../../../core/messages/bloc/message_bloc.dart';
+import '../../../core/messages/toast.dart';
 import '../../../core/database/database_service.dart';
 
 import '../../training_history/models/history_run_location.dart';
@@ -128,10 +128,7 @@ class ActiveTrainingBloc
           ));
         }
       } catch (e) {
-        sl<MessageBloc>().add(AddMessageEvent(
-          message: 'An error occurred: ${e.toString()}',
-          isError: true,
-        ));
+        showToastMessage(message: 'An error occurred: ${e.toString()}');
       }
     });
 

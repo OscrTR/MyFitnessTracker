@@ -1,11 +1,11 @@
 import 'package:bloc/bloc.dart';
 import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
+import '../../../core/messages/toast.dart';
 import '../../active_training/bloc/active_training_bloc.dart';
 
 import '../../../core/database/database_service.dart';
 import '../../../core/enums/enums.dart';
-import '../../../core/messages/bloc/message_bloc.dart';
 import '../../../helper_functions.dart';
 import '../../../injection_container.dart';
 import '../../base_exercise_management/models/base_exercise.dart';
@@ -18,10 +18,7 @@ part 'training_history_state.dart';
 
 class TrainingHistoryBloc
     extends Bloc<TrainingHistoryEvent, TrainingHistoryState> {
-  final MessageBloc messageBloc;
-
-  TrainingHistoryBloc({required this.messageBloc})
-      : super(TrainingHistoryInitial()) {
+  TrainingHistoryBloc() : super(TrainingHistoryInitial()) {
     on<FetchHistoryEntriesEvent>((event, emit) async {
       try {
         final startDate = DateTime(
@@ -55,8 +52,7 @@ class TrainingHistoryBloc
               isWeekSelected: event.isWeekSelected));
         }
       } catch (e) {
-        messageBloc.add(AddMessageEvent(
-            message: 'An error occurred: ${e.toString()}', isError: true));
+        showToastMessage(message: 'An error occurred: ${e.toString()}');
       }
     });
 
@@ -123,8 +119,7 @@ class TrainingHistoryBloc
 
         add(FetchHistoryEntriesEvent());
       } catch (e) {
-        messageBloc.add(AddMessageEvent(
-            message: 'An error occurred: ${e.toString()}', isError: true));
+        showToastMessage(message: 'An error occurred: ${e.toString()}');
       }
     });
 
@@ -153,8 +148,7 @@ class TrainingHistoryBloc
 
         add(FetchHistoryEntriesEvent());
       } catch (e) {
-        messageBloc.add(AddMessageEvent(
-            message: 'An error occurred: ${e.toString()}', isError: true));
+        showToastMessage(message: 'An error occurred: ${e.toString()}');
       }
     });
 
@@ -164,8 +158,7 @@ class TrainingHistoryBloc
         await sl<DatabaseService>().deleteHistoryEntry(event.id);
         add(FetchHistoryEntriesEvent());
       } catch (e) {
-        messageBloc.add(AddMessageEvent(
-            message: 'An error occurred: ${e.toString()}', isError: true));
+        showToastMessage(message: 'An error occurred: ${e.toString()}');
       }
     });
 
@@ -177,8 +170,7 @@ class TrainingHistoryBloc
             .deleteHistoryEntriesByTrainingId(event.trainingId);
         add(FetchHistoryEntriesEvent());
       } catch (e) {
-        messageBloc.add(AddMessageEvent(
-            message: 'An error occurred: ${e.toString()}', isError: true));
+        showToastMessage(message: 'An error occurred: ${e.toString()}');
       }
     });
 
@@ -210,8 +202,7 @@ class TrainingHistoryBloc
           endDate: endDate,
         ));
       } catch (e) {
-        messageBloc.add(AddMessageEvent(
-            message: 'An error occurred: ${e.toString()}', isError: true));
+        showToastMessage(message: 'An error occurred: ${e.toString()}');
       }
     });
 
@@ -383,12 +374,7 @@ Future<List<HistoryTraining>> getHistoryTrainings({
 
     return historyTrainings;
   } catch (e) {
-    // Gestion d'erreur : par exemple notifier le MessageBloc et retourner une liste vide
-    sl<MessageBloc>().add(AddMessageEvent(
-      message:
-          'Erreur lors du chargement des données historiques : ${e.toString()}',
-      isError: true,
-    ));
+    showToastMessage(message: 'An error occurred: ${e.toString()}');
     return [];
   }
 }

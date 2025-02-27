@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import '../../../core/messages/models/log.dart';
 import '../../../core/database/database_service.dart';
 
 import '../../../core/notification_service.dart';
@@ -20,6 +21,22 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
         await sl<DatabaseService>().savePreferences(true);
         emit(SettingsLoaded(isReminderActive: true));
       }
+      add(GetLogs());
+    });
+
+    on<CreateLog>((event, emit) async {
+      if (state is! SettingsLoaded) return;
+      await sl<DatabaseService>().createLog(event.log);
+
+      add(GetLogs());
+    });
+
+    on<GetLogs>((event, emit) async {
+      if (state is! SettingsLoaded) return;
+      final logs = await sl<DatabaseService>().getAllLogs();
+      final currentState = state as SettingsLoaded;
+
+      emit(currentState.copyWith(logs: logs));
     });
 
     on<UpdateSettings>((event, emit) async {

@@ -1,3 +1,4 @@
+import 'package:bot_toast/bot_toast.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -5,7 +6,6 @@ import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 
 import 'app_theme.dart';
 import 'core/database/database_service.dart';
-import 'core/messages/bloc/message_bloc.dart';
 import 'core/notification_service.dart';
 import 'features/active_training/bloc/active_training_bloc.dart';
 import 'features/base_exercise_management/bloc/base_exercise_management_bloc.dart';
@@ -42,10 +42,6 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: <BlocProvider<dynamic>>[
-        BlocProvider<MessageBloc>(
-          create: (_) => di.sl<MessageBloc>(),
-          lazy: false,
-        ),
         BlocProvider<BaseExerciseManagementBloc>(
           create: (_) => di.sl<BaseExerciseManagementBloc>()
             ..add(GetAllBaseExercisesEvent()),
@@ -71,6 +67,7 @@ class MyApp extends StatelessWidget {
         )
       ],
       child: MaterialApp.router(
+        builder: BotToastInit(),
         routerConfig: router,
         debugShowCheckedModeBanner: false,
         theme: appTheme,

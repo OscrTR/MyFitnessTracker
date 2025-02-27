@@ -1,20 +1,18 @@
-import '../enums/enums.dart';
-
-import '../messages/bloc/message_bloc.dart';
-import '../../features/training_management/models/reminder.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
-
+import 'package:sqlite_async/sqlite_async.dart';
+import '../messages/toast.dart';
+import '../enums/enums.dart';
+import '../../features/training_management/models/reminder.dart';
 import '../../features/base_exercise_management/models/base_exercise.dart';
 import '../../features/training_history/models/history_entry.dart';
 import '../../features/training_history/models/history_run_location.dart';
 import '../../features/training_management/models/multiset.dart';
-import 'package:sqlite_async/sqlite_async.dart';
-
 import '../../features/training_history/models/training_version.dart';
 import '../../features/training_management/models/exercise.dart';
 import '../../features/training_management/models/training.dart';
-import '../../injection_container.dart';
+
+import '../messages/models/log.dart';
 
 class DatabaseService {
   late final SqliteDatabase _db;
@@ -154,6 +152,16 @@ class DatabaseService {
   ''');
 
       await tx.execute('''
+  CREATE TABLE IF NOT EXISTS logs (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    level TEXT NOT NULL,
+    function TEXT,
+    message TEXT,
+    date INTEGER NOT NULL
+  )
+  ''');
+
+      await tx.execute('''
   CREATE INDEX idx_history_entries_trainingId ON history_entries(trainingId)
   ''');
 
@@ -190,11 +198,11 @@ class DatabaseService {
     try {
       await _db.execute("VACUUM;");
       await _db.execute("ANALYZE;");
+      await deleteOldLogs();
     } catch (e) {
-      sl<MessageBloc>().add(AddMessageEvent(
+      showToastMessage(
           message:
-              'Database error while performing maintenance : ${e.toString()}',
-          isError: true));
+              'Database error while performing maintenance : ${e.toString()}');
     }
   }
 
@@ -208,9 +216,8 @@ class DatabaseService {
 
       await migrations.migrate(_db);
     } catch (e) {
-      sl<MessageBloc>().add(AddMessageEvent(
-          message: 'Database error while initializing : ${e.toString()}',
-          isError: true));
+      showToastMessage(
+          message: 'Database error while initializing : ${e.toString()}');
     }
   }
 
@@ -230,9 +237,8 @@ class DatabaseService {
       final result = await _db.execute('SELECT last_insert_rowid()');
       return result.first.values.first as int;
     } catch (e) {
-      sl<MessageBloc>().add(AddMessageEvent(
-          message: 'Database error while inserting : ${e.toString()}',
-          isError: true));
+      showToastMessage(
+          message: 'Database error while inserting : ${e.toString()}');
 
       return -1;
     }
@@ -254,22 +260,29 @@ class DatabaseService {
       final allArgs = [...cleanFields.values, ...whereArgs];
       await _db.execute(sql, allArgs);
     } catch (e) {
-      sl<MessageBloc>().add(AddMessageEvent(
-          message: 'Database error while updating : ${e.toString()}',
-          isError: true));
+      showToastMessage(
+          message: 'Database error while updating : ${e.toString()}');
     }
   }
 
   //! Create operations
 
+  Future<void> createLog(Log log) async {
+    try {
+      await insert('logs', log.toMap());
+    } catch (e) {
+      showToastMessage(
+          message: 'Database error while creating log : ${e.toString()}');
+    }
+  }
+
   Future<int> createBaseExercise(BaseExercise baseExercise) async {
     try {
       return await insert('base_exercises', baseExercise.toMap());
     } catch (e) {
-      sl<MessageBloc>().add(AddMessageEvent(
+      showToastMessage(
           message:
-              'Database error while creating base exercise : ${e.toString()}',
-          isError: true));
+              'Database error while creating base exercise : ${e.toString()}');
 
       return -1;
     }
@@ -279,9 +292,8 @@ class DatabaseService {
     try {
       return await insert('exercises', exercise.toMap());
     } catch (e) {
-      sl<MessageBloc>().add(AddMessageEvent(
-          message: 'Database error while creating exercise : ${e.toString()}',
-          isError: true));
+      showToastMessage(
+          message: 'Database error while creating exercise : ${e.toString()}');
 
       return -1;
     }
@@ -291,9 +303,8 @@ class DatabaseService {
     try {
       return await insert('multisets', multiset.toMap());
     } catch (e) {
-      sl<MessageBloc>().add(AddMessageEvent(
-          message: 'Database error while creating multiset : ${e.toString()}',
-          isError: true));
+      showToastMessage(
+          message: 'Database error while creating multiset : ${e.toString()}');
 
       return -1;
     }
@@ -354,9 +365,8 @@ class DatabaseService {
 
       return trainingId;
     } catch (e) {
-      sl<MessageBloc>().add(AddMessageEvent(
-          message: 'Database error while creating training : ${e.toString()}',
-          isError: true));
+      showToastMessage(
+          message: 'Database error while creating training : ${e.toString()}');
 
       return -1;
     }
@@ -371,10 +381,9 @@ class DatabaseService {
     )''');
       return await insert('training_versions', trainingVersion.toMap());
     } catch (e) {
-      sl<MessageBloc>().add(AddMessageEvent(
+      showToastMessage(
           message:
-              'Database error while creating training version : ${e.toString()}',
-          isError: true));
+              'Database error while creating training version : ${e.toString()}');
 
       return -1;
     }
@@ -384,10 +393,9 @@ class DatabaseService {
     try {
       await insert('history_entries', historyEntry.toMap());
     } catch (e) {
-      sl<MessageBloc>().add(AddMessageEvent(
+      showToastMessage(
           message:
-              'Database error while creating history entry : ${e.toString()}',
-          isError: true));
+              'Database error while creating history entry : ${e.toString()}');
     }
   }
 
@@ -395,10 +403,9 @@ class DatabaseService {
     try {
       await insert('run_locations', runLocation.toMap());
     } catch (e) {
-      sl<MessageBloc>().add(AddMessageEvent(
+      showToastMessage(
           message:
-              'Database error while creating run location : ${e.toString()}',
-          isError: true));
+              'Database error while creating run location : ${e.toString()}');
     }
   }
 
@@ -406,9 +413,8 @@ class DatabaseService {
     try {
       await insert('reminders', reminder.toMap());
     } catch (e) {
-      sl<MessageBloc>().add(AddMessageEvent(
-          message: 'Database error while creating reminder : ${e.toString()}',
-          isError: true));
+      showToastMessage(
+          message: 'Database error while creating reminder : ${e.toString()}');
     }
   }
 
@@ -420,13 +426,24 @@ class DatabaseService {
       await insert(
           'preferences', {'isReminderActive': isReminderActive ? 1 : 0});
     } catch (e) {
-      sl<MessageBloc>().add(AddMessageEvent(
-          message: 'Database error while saving preferences : ${e.toString()}',
-          isError: true));
+      showToastMessage(
+          message: 'Database error while saving preferences : ${e.toString()}');
     }
   }
 
   //! Read operations
+
+  Future<List<Log>> getAllLogs() async {
+    try {
+      final result = await _db.execute('SELECT * from logs ORDER BY date DESC');
+      if (result.isEmpty) return [];
+      return result.map((row) => Log.fromMap(row)).toList();
+    } catch (e) {
+      showToastMessage(
+          message: 'Database error while getting all logs : ${e.toString()}');
+      return [];
+    }
+  }
 
   Future<BaseExercise?> getBaseExerciseById(int baseExerciseId) async {
     try {
@@ -438,10 +455,9 @@ class DatabaseService {
 
       return baseExercise;
     } catch (e) {
-      sl<MessageBloc>().add(AddMessageEvent(
+      showToastMessage(
           message:
-              'Database error while getting base exercise by id : ${e.toString()}',
-          isError: true));
+              'Database error while getting base exercise by id : ${e.toString()}');
 
       return null;
     }
@@ -457,10 +473,9 @@ class DatabaseService {
 
       return baseExercises;
     } catch (e) {
-      sl<MessageBloc>().add(AddMessageEvent(
+      showToastMessage(
           message:
-              'Database error while getting all base exercises : ${e.toString()}',
-          isError: true));
+              'Database error while getting all base exercises : ${e.toString()}');
 
       return [];
     }
@@ -476,10 +491,9 @@ class DatabaseService {
 
       return trainingVersions;
     } catch (e) {
-      sl<MessageBloc>().add(AddMessageEvent(
+      showToastMessage(
           message:
-              'Database error while getting all training versions : ${e.toString()}',
-          isError: true));
+              'Database error while getting all training versions : ${e.toString()}');
 
       return [];
     }
@@ -515,10 +529,9 @@ class DatabaseService {
 
       return training;
     } catch (e) {
-      sl<MessageBloc>().add(AddMessageEvent(
+      showToastMessage(
           message:
-              'Database error while getting training by id : ${e.toString()}',
-          isError: true));
+              'Database error while getting training by id : ${e.toString()}');
 
       return null;
     }
@@ -559,10 +572,9 @@ class DatabaseService {
 
       return trainings;
     } catch (e) {
-      sl<MessageBloc>().add(AddMessageEvent(
+      showToastMessage(
           message:
-              'Database error while getting all trainings : ${e.toString()}',
-          isError: true));
+              'Database error while getting all trainings : ${e.toString()}');
 
       return [];
     }
@@ -580,10 +592,9 @@ class DatabaseService {
 
       return multisets;
     } catch (e) {
-      sl<MessageBloc>().add(AddMessageEvent(
+      showToastMessage(
           message:
-              'Database error while getting multisets by training id : ${e.toString()}',
-          isError: true));
+              'Database error while getting multisets by training id : ${e.toString()}');
 
       return [];
     }
@@ -601,10 +612,9 @@ class DatabaseService {
 
       return exercises;
     } catch (e) {
-      sl<MessageBloc>().add(AddMessageEvent(
+      showToastMessage(
           message:
-              'Database error while getting exercises by training id : ${e.toString()}',
-          isError: true));
+              'Database error while getting exercises by training id : ${e.toString()}');
 
       return [];
     }
@@ -621,10 +631,9 @@ class DatabaseService {
 
       return historyEntries;
     } catch (e) {
-      sl<MessageBloc>().add(AddMessageEvent(
+      showToastMessage(
           message:
-              'Database error while getting history entries by training id : ${e.toString()}',
-          isError: true));
+              'Database error while getting history entries by training id : ${e.toString()}');
 
       return [];
     }
@@ -655,10 +664,9 @@ class DatabaseService {
 
       return daysSinceTrainings;
     } catch (e) {
-      sl<MessageBloc>().add(AddMessageEvent(
+      showToastMessage(
           message:
-              'Database error while getting days since training : ${e.toString()}',
-          isError: true));
+              'Database error while getting days since training : ${e.toString()}');
 
       return {};
     }
@@ -675,10 +683,9 @@ class DatabaseService {
 
       return training;
     } catch (e) {
-      sl<MessageBloc>().add(AddMessageEvent(
+      showToastMessage(
           message:
-              'Database error while getting basic training by version id : ${e.toString()}',
-          isError: true));
+              'Database error while getting basic training by version id : ${e.toString()}');
 
       return null;
     }
@@ -696,10 +703,9 @@ class DatabaseService {
 
       return training;
     } catch (e) {
-      sl<MessageBloc>().add(AddMessageEvent(
+      showToastMessage(
           message:
-              'Database error while getting full training by version id: ${e.toString()}',
-          isError: true));
+              'Database error while getting full training by version id: ${e.toString()}');
 
       return null;
     }
@@ -716,10 +722,9 @@ class DatabaseService {
 
       return trainingVersion;
     } catch (e) {
-      sl<MessageBloc>().add(AddMessageEvent(
+      showToastMessage(
           message:
-              'Database error while getting most recent training version: ${e.toString()}',
-          isError: true));
+              'Database error while getting most recent training version: ${e.toString()}');
 
       return null;
     }
@@ -785,10 +790,9 @@ class DatabaseService {
 
       return results.map((row) => HistoryEntry.fromMap(row)).toList();
     } catch (e) {
-      sl<MessageBloc>().add(AddMessageEvent(
+      showToastMessage(
           message:
-              'Database error while getting filtered entries : ${e.toString()}',
-          isError: true));
+              'Database error while getting filtered entries : ${e.toString()}');
 
       return [];
     }
@@ -849,11 +853,9 @@ class DatabaseService {
       // Conversion des résultats en objets RunLocation
       return results.map((row) => RunLocation.fromMap(row)).toList();
     } catch (e) {
-      sl<MessageBloc>().add(AddMessageEvent(
-        message:
-            'Database error while getting filtered run locations : ${e.toString()}',
-        isError: true,
-      ));
+      showToastMessage(
+          message:
+              'Database error while getting filtered run locations : ${e.toString()}');
       return [];
     }
   }
@@ -886,12 +888,9 @@ class DatabaseService {
       // Aucune entrée trouvée
       return null;
     } catch (e) {
-      // Gestion de l'erreur (par exemple, en loggant l'erreur et/ou en notifiant un MessageBloc)
-      sl<MessageBloc>().add(AddMessageEvent(
-        message:
-            "Database error while getting history entry id : ${e.toString()}",
-        isError: true,
-      ));
+      showToastMessage(
+          message:
+              "Database error while getting history entry id : ${e.toString()}");
       return null;
     }
   }
@@ -907,10 +906,9 @@ class DatabaseService {
 
       return DateTime.fromMillisecondsSinceEpoch(result.first['date'] as int);
     } catch (e) {
-      sl<MessageBloc>().add(AddMessageEvent(
+      showToastMessage(
           message:
-              'Database error while getting last entry date : ${e.toString()}',
-          isError: true));
+              'Database error while getting last entry date : ${e.toString()}');
 
       return null;
     }
@@ -928,10 +926,9 @@ class DatabaseService {
 
       return result.isNotEmpty;
     } catch (e) {
-      sl<MessageBloc>().add(AddMessageEvent(
+      showToastMessage(
           message:
-              'Database error while checking recent entries : ${e.toString()}',
-          isError: true));
+              'Database error while checking recent entries : ${e.toString()}');
 
       return null;
     }
@@ -949,9 +946,9 @@ class DatabaseService {
             result.first['isReminderActive'] == 1, // Convertir entier en bool
       };
     } catch (e) {
-      sl<MessageBloc>().add(AddMessageEvent(
-          message: 'Database error while getting preferences : ${e.toString()}',
-          isError: true));
+      showToastMessage(
+          message:
+              'Database error while getting preferences : ${e.toString()}');
 
       return null;
     }
@@ -967,10 +964,9 @@ class DatabaseService {
 
       return reminders;
     } catch (e) {
-      sl<MessageBloc>().add(AddMessageEvent(
+      showToastMessage(
           message:
-              'Database error while getting all reminders : ${e.toString()}',
-          isError: true));
+              'Database error while getting all reminders : ${e.toString()}');
 
       return [];
     }
@@ -983,10 +979,9 @@ class DatabaseService {
       await update(
           'base_exercises', baseExercise.toMap(), 'id = ?', [baseExercise.id!]);
     } catch (e) {
-      sl<MessageBloc>().add(AddMessageEvent(
+      showToastMessage(
           message:
-              'Database error while updating base exercise : ${e.toString()}',
-          isError: true));
+              'Database error while updating base exercise : ${e.toString()}');
     }
   }
 
@@ -994,9 +989,8 @@ class DatabaseService {
     try {
       await update('exercises', exercise.toMap(), 'id = ?', [exercise.id!]);
     } catch (e) {
-      sl<MessageBloc>().add(AddMessageEvent(
-          message: 'Database error while updating exercise : ${e.toString()}',
-          isError: true));
+      showToastMessage(
+          message: 'Database error while updating exercise : ${e.toString()}');
     }
   }
 
@@ -1004,9 +998,8 @@ class DatabaseService {
     try {
       await update('multisets', multiset.toMap(), 'id = ?', [multiset.id!]);
     } catch (e) {
-      sl<MessageBloc>().add(AddMessageEvent(
-          message: 'Database error while updating multiset : ${e.toString()}',
-          isError: true));
+      showToastMessage(
+          message: 'Database error while updating multiset : ${e.toString()}');
     }
   }
 
@@ -1144,9 +1137,8 @@ class DatabaseService {
       );
       await createTrainingVersion(trainingVersion);
     } catch (e) {
-      sl<MessageBloc>().add(AddMessageEvent(
-          message: 'Database error while updating training : ${e.toString()}',
-          isError: true));
+      showToastMessage(
+          message: 'Database error while updating training : ${e.toString()}');
     }
   }
 
@@ -1155,10 +1147,9 @@ class DatabaseService {
       await update('history_entries', historyEntry.toMap(), 'id = ?',
           [historyEntry.id!]);
     } catch (e) {
-      sl<MessageBloc>().add(AddMessageEvent(
+      showToastMessage(
           message:
-              'Database error while updating history entry : ${e.toString()}',
-          isError: true));
+              'Database error while updating history entry : ${e.toString()}');
     }
   }
 
@@ -1169,10 +1160,9 @@ class DatabaseService {
       await _db
           .execute('DELETE FROM base_exercises WHERE id = ?', [baseExerciseId]);
     } catch (e) {
-      sl<MessageBloc>().add(AddMessageEvent(
+      showToastMessage(
           message:
-              'Database error while deleting base exercise  : ${e.toString()}',
-          isError: true));
+              'Database error while deleting base exercise  : ${e.toString()}');
     }
   }
 
@@ -1180,9 +1170,8 @@ class DatabaseService {
     try {
       await _db.execute('DELETE FROM exercises WHERE id = ?', [exerciseId]);
     } catch (e) {
-      sl<MessageBloc>().add(AddMessageEvent(
-          message: 'Database error while deleting exercise : ${e.toString()}',
-          isError: true));
+      showToastMessage(
+          message: 'Database error while deleting exercise : ${e.toString()}');
     }
   }
 
@@ -1192,9 +1181,8 @@ class DatabaseService {
           .execute('DELETE FROM exercises WHERE multisetId = ?', [multisetId]);
       await _db.execute('DELETE FROM multisets WHERE id = ?', [multisetId]);
     } catch (e) {
-      sl<MessageBloc>().add(AddMessageEvent(
-          message: 'Database error while deleting multiset : ${e.toString()}',
-          isError: true));
+      showToastMessage(
+          message: 'Database error while deleting multiset : ${e.toString()}');
     }
   }
 
@@ -1206,9 +1194,8 @@ class DatabaseService {
           .execute('DELETE FROM multisets WHERE trainingId = ?', [trainingId]);
       await _db.execute('DELETE FROM trainings WHERE id = ?', [trainingId]);
     } catch (e) {
-      sl<MessageBloc>().add(AddMessageEvent(
-          message: 'Database error while deleting training : ${e.toString()}',
-          isError: true));
+      showToastMessage(
+          message: 'Database error while deleting training : ${e.toString()}');
     }
   }
 
@@ -1217,10 +1204,9 @@ class DatabaseService {
       await _db.execute(
           'DELETE FROM history_entries WHERE id = ?', [historyEntryId]);
     } catch (e) {
-      sl<MessageBloc>().add(AddMessageEvent(
+      showToastMessage(
           message:
-              'Database error while deleting history entry : ${e.toString()}',
-          isError: true));
+              'Database error while deleting history entry : ${e.toString()}');
     }
   }
 
@@ -1231,10 +1217,9 @@ class DatabaseService {
       await _db.execute(
           'DELETE FROM run_locations WHERE trainingId = ?', [trainingId]);
     } catch (e) {
-      sl<MessageBloc>().add(AddMessageEvent(
+      showToastMessage(
           message:
-              'Database error while deleting hisotry entries by training id : ${e.toString()}',
-          isError: true));
+              'Database error while deleting hisotry entries by training id : ${e.toString()}');
     }
   }
 
@@ -1243,9 +1228,19 @@ class DatabaseService {
       await _db.execute(
           'DELETE FROM reminders WHERE notificationId = ?', [notificationId]);
     } catch (e) {
-      sl<MessageBloc>().add(AddMessageEvent(
-          message: 'Database error while deleting reminder : ${e.toString()}',
-          isError: true));
+      showToastMessage(
+          message: 'Database error while deleting reminder : ${e.toString()}');
+    }
+  }
+
+  Future<void> deleteOldLogs() async {
+    try {
+      final int thirtyDaysAgo =
+          DateTime.now().subtract(Duration(days: 30)).millisecondsSinceEpoch;
+      await _db.execute('DELETE FROM logs WHERE date < ?', [thirtyDaysAgo]);
+    } catch (e) {
+      showToastMessage(
+          message: 'Database error while deleting logs : ${e.toString()}');
     }
   }
 }

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:animated_custom_dropdown/custom_dropdown.dart';
 import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -5,9 +7,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_advanced_switch/flutter_advanced_switch.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../../app_colors.dart';
+import '../../../core/messages/models/log.dart';
 import '../bloc/settings_bloc.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -74,6 +80,8 @@ class _SettingsPageState extends State<SettingsPage> {
                 _buildLanguageSection(),
                 const SizedBox(height: 30),
                 _buildNotificationSection(isReminderActive),
+                const SizedBox(height: 30),
+                _buildLogsSection(state),
                 const SizedBox(height: 30),
                 _buildVersionSection(context),
               ],
@@ -145,7 +153,165 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
               ],
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 10),
+          ],
+        ));
+  }
+
+  Widget _buildLogsSection(SettingsLoaded state) {
+    final logs = state.logs;
+
+    Future<void> shareLogsAsFile(List<Log> logs) async {
+      final logMessages = logs
+          .map((log) =>
+              '${DateFormat('yyyy-MM-dd HH:mm:ss').format(log.date)} [${log.level.toMap()}] ${log.function != null ? '(${log.function})' : ''} - ${log.message}')
+          .join('\n');
+
+      // Obtenir le répertoire temporaire
+      final directory = await getTemporaryDirectory();
+      final filePath = '${directory.path}/mft_logs.txt';
+
+      // Écrire les logs dans un fichier
+      final file = File(filePath);
+      await file.writeAsString(logMessages);
+
+      // Partager le fichier
+      await Share.shareXFiles([XFile(filePath)],
+          text: 'My Fitness Tracker Logs');
+
+      await file.delete();
+    }
+
+    return Container(
+        decoration: BoxDecoration(
+            border: Border.all(color: AppColors.taupeGray),
+            borderRadius: BorderRadius.circular(10)),
+        padding: const EdgeInsets.all(10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(
+                  LucideIcons.scrollText,
+                  color: AppColors.licorice,
+                ),
+                const SizedBox(width: 10),
+                Text(
+                  'Logs',
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                SizedBox(
+                  width: MediaQuery.of(context).size.width - 130,
+                  child: Text(
+                    'Errors and warnings events.',
+                    style: const TextStyle(
+                      color: AppColors.taupeGray,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+                GestureDetector(
+                  onTap: () => showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          insetPadding:
+                              const EdgeInsets.symmetric(horizontal: 20),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          backgroundColor: AppColors.white,
+                          title: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text('Logs'),
+                              GestureDetector(
+                                onTap: () => Navigator.pop(context, 'Close'),
+                                child: Container(
+                                  height: 30,
+                                  width: 30,
+                                  alignment: Alignment.centerRight,
+                                  child: const ClipRect(
+                                    child: Align(
+                                      alignment: Alignment.centerRight,
+                                      widthFactor: 0.85,
+                                      child: Icon(
+                                        Icons.close,
+                                        color: AppColors.licorice,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              )
+                            ],
+                          ),
+                          content: logs.isNotEmpty
+                              ? SizedBox(
+                                  width: MediaQuery.of(context).size.width,
+                                  height: logs.length < 7
+                                      ? logs.length * 64
+                                      : MediaQuery.of(context).size.height *
+                                          2 /
+                                          3,
+                                  child: ListView.builder(
+                                    itemCount: logs.length,
+                                    itemBuilder: (context, index) {
+                                      return ListTile(
+                                        contentPadding:
+                                            EdgeInsets.symmetric(horizontal: 0),
+                                        title: Text(
+                                            '${DateFormat('yyyy-MM-dd HH:mm:ss').format(logs[index].date)} [${logs[index].level.toMap()}] ${logs[index].function != null ? '(${logs[index].function})' : ''} - ${logs[index].message}'),
+                                      );
+                                    },
+                                  ),
+                                )
+                              : Text('No logs yet.'),
+                          actions: [
+                            if (logs.isNotEmpty)
+                              GestureDetector(
+                                onTap: () {
+                                  shareLogsAsFile(logs);
+                                  Navigator.pop(context, 'Share');
+                                },
+                                child: Container(
+                                  width: MediaQuery.of(context).size.width,
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 10, horizontal: 20),
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(10),
+                                      color: AppColors.licorice),
+                                  child: Center(
+                                    child: Text(
+                                      'Share',
+                                      style: const TextStyle(
+                                          color: AppColors.white),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                          ],
+                        );
+                      }),
+                  child: Text(
+                    'See',
+                    style: const TextStyle(
+                      color: AppColors.licorice,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
           ],
         ));
   }

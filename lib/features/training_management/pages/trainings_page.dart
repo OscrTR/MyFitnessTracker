@@ -5,14 +5,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import '../../active_training/bloc/active_training_bloc.dart';
-import '../../../core/enums/enums.dart';
-import '../models/exercise.dart';
+
 import '../../../app_colors.dart';
+import '../../../core/enums/enums.dart';
 import '../../../helper_functions.dart';
 import '../../../injection_container.dart';
+import '../../active_training/bloc/active_training_bloc.dart';
 import '../../base_exercise_management/bloc/base_exercise_management_bloc.dart';
 import '../bloc/training_management_bloc.dart';
+import '../models/exercise.dart';
 import '../models/training.dart';
 
 class TrainingsPage extends StatefulWidget {

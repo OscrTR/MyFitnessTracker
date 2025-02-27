@@ -3,11 +3,11 @@ import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import '../../../core/messages/toast.dart';
 import '../../../core/database/database_service.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../core/enums/enums.dart';
-import '../../../core/messages/bloc/message_bloc.dart';
 import '../../../core/notification_service.dart';
 import '../../../injection_container.dart';
 import '../../base_exercise_management/models/base_exercise.dart';
@@ -23,10 +23,7 @@ const uuid = Uuid();
 
 class TrainingManagementBloc
     extends Bloc<TrainingManagementEvent, TrainingManagementState> {
-  final MessageBloc messageBloc;
-
-  TrainingManagementBloc({required this.messageBloc})
-      : super(TrainingManagementInitial()) {
+  TrainingManagementBloc() : super(TrainingManagementInitial()) {
     on<FetchTrainingsEvent>((event, emit) async {
       try {
         final fetchedTrainings = await sl<DatabaseService>().getAllTrainings();
@@ -45,8 +42,7 @@ class TrainingManagementBloc
               daysSinceLastTraining: daysSinceTraining));
         }
       } catch (e) {
-        messageBloc.add(AddMessageEvent(
-            message: 'An error occurred: ${e.toString()}', isError: true));
+        showToastMessage(message: 'An error occurred: ${e.toString()}');
       }
     });
 
@@ -57,13 +53,10 @@ class TrainingManagementBloc
         await sl<DatabaseService>().deleteTraining(event.id);
         await _compareTrainingDays();
         emit(currentState.copyWith(resetSelectedTraining: true));
-        messageBloc.add(AddMessageEvent(
-            message: tr('message_training_deletion_success'), isError: false));
-
+        showToastMessage(message: tr('message_training_deletion_success'));
         add(FetchTrainingsEvent());
       } catch (e) {
-        messageBloc.add(AddMessageEvent(
-            message: 'An error occurred: ${e.toString()}', isError: true));
+        showToastMessage(message: 'An error occurred: ${e.toString()}');
       }
     });
 
@@ -79,8 +72,7 @@ class TrainingManagementBloc
 
         emit(currentState.copyWith(selectedTraining: training));
       } catch (e) {
-        messageBloc.add(AddMessageEvent(
-            message: 'An error occurred: ${e.toString()}', isError: true));
+        showToastMessage(message: 'An error occurred: ${e.toString()}');
       }
     });
 
@@ -128,22 +120,17 @@ class TrainingManagementBloc
 
         if (isUpdate) {
           await sl<DatabaseService>().updateTraining(event.training);
-          messageBloc.add(const AddMessageEvent(
-              message: 'Training updated successfully.', isError: false));
+          showToastMessage(message: tr('message_training_update_success'));
         } else {
           await sl<DatabaseService>().createTraining(event.training);
-          messageBloc.add(const AddMessageEvent(
-              message: 'Training created successfully.', isError: false));
+          showToastMessage(message: tr('message_training_creation_success'));
         }
 
         await _compareTrainingDays();
 
         add(FetchTrainingsEvent(true));
       } catch (e) {
-        messageBloc.add(AddMessageEvent(
-          message: 'An error occurred: ${e.toString()}',
-          isError: true,
-        ));
+        showToastMessage(message: 'An error occurred: ${e.toString()}');
       }
     });
 

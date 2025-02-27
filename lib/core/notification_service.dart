@@ -6,8 +6,8 @@ import 'package:my_fitness_tracker/app_colors.dart';
 import 'package:my_fitness_tracker/core/database/database_service.dart';
 import 'package:my_fitness_tracker/features/training_management/models/reminder.dart';
 import 'package:my_fitness_tracker/injection_container.dart';
-import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest_all.dart' as tz;
+import 'package:timezone/timezone.dart' as tz;
 
 class NotificationService {
   static Future<void> initializeNotifications() async {

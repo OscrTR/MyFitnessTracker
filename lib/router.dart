@@ -1,13 +1,10 @@
+import 'package:bot_toast/bot_toast.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
-import 'package:top_snackbar_flutter/custom_snack_bar.dart';
-import 'package:top_snackbar_flutter/top_snack_bar.dart';
 
 import 'app_colors.dart';
-import 'core/messages/bloc/message_bloc.dart';
 import 'features/active_training/pages/active_training_page.dart';
 import 'features/base_exercise_management/pages/base_exercise_detail_page.dart';
 import 'features/homepage/pages/home_page.dart';
@@ -20,6 +17,7 @@ import 'features/training_management/pages/trainings_page.dart';
 
 final router = GoRouter(
   initialLocation: '/home',
+  observers: [BotToastNavigatorObserver()],
   routes: [
     GoRoute(
       path: '/',
@@ -157,40 +155,11 @@ final router = GoRouter(
             children: [
               SafeArea(
                 child: GestureDetector(
-                  onTap: () {
-                    // Unfocus the text field and close the keyboard when tapping outside
-                    FocusScope.of(context).unfocus();
-                  },
-                  child: BlocListener<MessageBloc, MessageState>(
-                      listener: (context, state) {
-                        if (state is MessageLoaded) {
-                          if (!state.isError) {
-                            showTopSnackBar(
-                              Overlay.of(context),
-                              CustomSnackBar.success(
-                                  icon: const Icon(null),
-                                  textStyle: const TextStyle(
-                                      fontSize: 16, color: AppColors.licorice),
-                                  backgroundColor: const Color(0xffadebb3),
-                                  message: state.message),
-                            );
-                          }
-
-                          if (state.isError) {
-                            showTopSnackBar(
-                              Overlay.of(context),
-                              CustomSnackBar.error(
-                                  icon: const Icon(null),
-                                  textStyle: const TextStyle(
-                                      fontSize: 16, color: AppColors.licorice),
-                                  backgroundColor: const Color(0xffff857a),
-                                  message: state.message),
-                            );
-                          }
-                        }
-                      },
-                      child: child),
-                ),
+                    onTap: () {
+                      // Unfocus the text field and close the keyboard when tapping outside
+                      FocusScope.of(context).unfocus();
+                    },
+                    child: child),
               ),
               if (!isExerciseDetailPage &&
                   !isTrainingDetailPage &&

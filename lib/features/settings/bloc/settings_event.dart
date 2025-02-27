@@ -9,6 +9,17 @@ abstract class SettingsEvent extends Equatable {
 
 class LoadSettings extends SettingsEvent {}
 
+class CreateLog extends SettingsEvent {
+  final Log log;
+
+  const CreateLog({required this.log});
+
+  @override
+  List<Object> get props => [log];
+}
+
+class GetLogs extends SettingsEvent {}
+
 class UpdateSettings extends SettingsEvent {
   final bool isReminderActive;
 

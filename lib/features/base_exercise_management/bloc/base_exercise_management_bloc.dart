@@ -3,7 +3,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:equatable/equatable.dart';
 import '../../../core/database/database_service.dart';
 
-import '../../../core/messages/bloc/message_bloc.dart';
+import '../../../core/messages/toast.dart';
 import '../../../injection_container.dart';
 import '../models/base_exercise.dart';
 
@@ -12,10 +12,7 @@ part 'base_exercise_management_state.dart';
 
 class BaseExerciseManagementBloc
     extends Bloc<BaseExerciseManagementEvent, BaseExerciseManagementState> {
-  final MessageBloc messageBloc;
-
-  BaseExerciseManagementBloc({required this.messageBloc})
-      : super(BaseExerciseManagementInitial()) {
+  BaseExerciseManagementBloc() : super(BaseExerciseManagementInitial()) {
     on<GetAllBaseExercisesEvent>((event, emit) async {
       try {
         final fetchedBaseExercises =
@@ -29,8 +26,7 @@ class BaseExerciseManagementBloc
               baseExercises: fetchedBaseExercises));
         }
       } catch (e) {
-        messageBloc.add(AddMessageEvent(
-            message: 'An error occurred: ${e.toString()}', isError: true));
+        showToastMessage(message: 'An error occurred: ${e.toString()}');
       }
     });
 
@@ -42,8 +38,7 @@ class BaseExerciseManagementBloc
         final currentState = state as BaseExerciseManagementLoaded;
         emit(currentState.copyWith(selectedBaseExercise: fetchedBaseExercise));
       } catch (e) {
-        messageBloc.add(AddMessageEvent(
-            message: 'An error occurred: ${e.toString()}', isError: true));
+        showToastMessage(message: 'An error occurred: ${e.toString()}');
       }
     });
 
@@ -55,19 +50,15 @@ class BaseExerciseManagementBloc
 
         if (isUpdate) {
           await sl<DatabaseService>().updateBaseExercise(event.baseExercise);
-          messageBloc.add(AddMessageEvent(
-              message: tr('message_base_exercise_update_success'),
-              isError: false));
+          showToastMessage(message: tr('message_base_exercise_update_success'));
         } else {
           await sl<DatabaseService>().createBaseExercise(event.baseExercise);
-          messageBloc.add(AddMessageEvent(
-              message: tr('message_base_exercise_creation_success'),
-              isError: false));
+          showToastMessage(
+              message: tr('message_base_exercise_creation_success'));
         }
         add(GetAllBaseExercisesEvent());
       } catch (e) {
-        messageBloc.add(AddMessageEvent(
-            message: 'An error occurred: ${e.toString()}', isError: true));
+        showToastMessage(message: 'An error occurred: ${e.toString()}');
       }
     });
 
@@ -75,14 +66,11 @@ class BaseExerciseManagementBloc
       if (state is! BaseExerciseManagementLoaded) return;
       try {
         await sl<DatabaseService>().deleteBaseExercise(event.id);
-        messageBloc.add(AddMessageEvent(
-            message: tr('message_base_exercise_deletion_success'),
-            isError: false));
+        showToastMessage(message: tr('message_base_exercise_deletion_success'));
 
         add(GetAllBaseExercisesEvent());
       } catch (e) {
-        messageBloc.add(AddMessageEvent(
-            message: 'An error occurred: ${e.toString()}', isError: true));
+        showToastMessage(message: 'An error occurred: ${e.toString()}');
       }
     });
 
@@ -92,8 +80,7 @@ class BaseExerciseManagementBloc
         final currentState = state as BaseExerciseManagementLoaded;
         emit(currentState.copyWith(clearSelectedBaseExercise: true));
       } catch (e) {
-        messageBloc.add(AddMessageEvent(
-            message: 'An error occurred: ${e.toString()}', isError: true));
+        showToastMessage(message: 'An error occurred: ${e.toString()}');
       }
     });
   }
