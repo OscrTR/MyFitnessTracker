@@ -2,6 +2,7 @@ package dev.oscarthiebaut.my_fitness_tracker
 
 import android.content.Intent
 import android.provider.Settings
+import com.pravera.flutter_foreground_task.service.ForegroundService
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
@@ -23,4 +24,12 @@ class MainActivity: FlutterActivity() {
             }
         }
     }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        // Arrêter le service foreground
+        val serviceIntent = Intent(this, ForegroundService::class.java)
+        stopService(serviceIntent)
+    }
+
 }

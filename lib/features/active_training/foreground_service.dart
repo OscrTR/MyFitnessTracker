@@ -8,8 +8,6 @@ import '../../injection_container.dart';
 import 'bloc/active_training_bloc.dart';
 import 'foreground_task_handler.dart';
 
-typedef LocationChanged = void Function(Location location);
-
 class ForegroundService {
   bool isInitialized = false;
   Future<bool> get isRunningService => FlutterForegroundTask.isRunningService;
