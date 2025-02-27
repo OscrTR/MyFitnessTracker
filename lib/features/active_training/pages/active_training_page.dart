@@ -7,23 +7,22 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import '../foreground_service.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:uuid/uuid.dart';
+
 import '../../../app_colors.dart';
 import '../../../core/enums/enums.dart';
-import '../../training_history/bloc/training_history_bloc.dart';
-import '../bloc/active_training_bloc.dart';
-import '../widgets/error_state_widget.dart';
-import 'package:uuid/uuid.dart';
 import '../../../injection_container.dart';
+import '../../training_history/bloc/training_history_bloc.dart';
+import '../../training_management/models/exercise.dart';
+import '../../training_management/models/multiset.dart';
+import '../bloc/active_training_bloc.dart';
+import '../foreground_service.dart';
+import '../widgets/active_exercise_widget.dart';
 import '../widgets/active_multiset_widget.dart';
 import '../widgets/active_run_widget.dart';
+import '../widgets/error_state_widget.dart';
 import '../widgets/timer_widget.dart';
-
-import '../../training_management/models/exercise.dart';
-
-import '../../training_management/models/multiset.dart';
-import '../widgets/active_exercise_widget.dart';
 
 const uuid = Uuid();
 
@@ -286,8 +285,12 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage>
               const SizedBox(height: 30),
               GestureDetector(
                 onTap: () {
-                  final currentTimerState = state.timersStateList.firstWhere(
-                      (timer) => timer.timerId == state.lastStartedTimerId);
+                  final currentState =
+                      (sl<ActiveTrainingBloc>().state as ActiveTrainingLoaded);
+
+                  final currentTimerState = currentState.timersStateList
+                      .firstWhere((timer) =>
+                          timer.timerId == currentState.lastStartedTimerId);
 
                   if (currentTimerState.timerId != 'primaryTimer' &&
                       currentTimerState.isActive &&

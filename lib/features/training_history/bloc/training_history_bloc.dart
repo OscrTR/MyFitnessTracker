@@ -1,7 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
-import 'package:my_fitness_tracker/features/active_training/bloc/active_training_bloc.dart';
+import '../../active_training/bloc/active_training_bloc.dart';
 
 import '../../../core/database/database_service.dart';
 import '../../../core/enums/enums.dart';
@@ -132,11 +132,6 @@ class TrainingHistoryBloc
       try {
         final historyEntry = event.historyEntry;
 
-        // TODO : changer la date pour la plus récente de ce même trainingversionId
-        final lastDate = await sl<DatabaseService>()
-            .getLastEntryDate(historyEntry.trainingVersionId);
-        print('last used date is $lastDate');
-
         bool hasRecentEntry = false;
         final isUpdate = historyEntry.id != null;
 
@@ -149,7 +144,11 @@ class TrainingHistoryBloc
         if (isUpdate || hasRecentEntry) {
           await sl<DatabaseService>().updateHistoryEntry(historyEntry);
         } else {
-          await sl<DatabaseService>().createHistoryEntry(historyEntry);
+          final lastDate = await sl<DatabaseService>()
+              .getLastEntryDate(historyEntry.trainingVersionId);
+          final updatedHistoryEntry = historyEntry.copyWith(date: lastDate);
+
+          await sl<DatabaseService>().createHistoryEntry(updatedHistoryEntry);
         }
 
         add(FetchHistoryEntriesEvent());

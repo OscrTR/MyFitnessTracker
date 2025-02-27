@@ -437,9 +437,12 @@ class _ExerciseSetFormState extends State<ExerciseSetForm> {
   }) {
     final historyEntry = widget
         .historyState.selectedTrainingEntry!.historyEntries
-        .firstWhereOrNull((entry) =>
-            entry.exerciseId == widget.exercise.id &&
-            entry.setNumber == setNumber);
+        .firstWhereOrNull(
+      (entry) =>
+          entry.exerciseId == widget.exercise.id &&
+          entry.setNumber == setNumber &&
+          entry.trainingVersionId == widget.trainingVersionId,
+    );
 
     DateTime entryDate = DateTime.now();
 

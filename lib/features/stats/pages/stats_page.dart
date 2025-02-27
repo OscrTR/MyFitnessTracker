@@ -3,16 +3,16 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import '../../base_exercise_management/bloc/base_exercise_management_bloc.dart';
-import '../widgets/training_duration_chart_widget.dart';
-import '../../training_management/bloc/training_management_bloc.dart';
-import '../../training_management/models/training.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 
 import '../../../app_colors.dart';
 import '../../../helper_functions.dart';
+import '../../base_exercise_management/bloc/base_exercise_management_bloc.dart';
 import '../../base_exercise_management/models/base_exercise.dart';
 import '../../training_history/bloc/training_history_bloc.dart';
+import '../../training_management/bloc/training_management_bloc.dart';
+import '../../training_management/models/training.dart';
+import '../widgets/training_duration_chart_widget.dart';
 
 class StatsPage extends StatefulWidget {
   const StatsPage({super.key});

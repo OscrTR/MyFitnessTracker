@@ -3,18 +3,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
-import 'features/training_history/pages/history_details_page.dart';
 import 'package:top_snackbar_flutter/custom_snack_bar.dart';
 import 'package:top_snackbar_flutter/top_snack_bar.dart';
 
 import 'app_colors.dart';
 import 'core/messages/bloc/message_bloc.dart';
-import 'features/stats/pages/stats_page.dart';
-import 'features/training_history/pages/history_page.dart';
 import 'features/active_training/pages/active_training_page.dart';
 import 'features/base_exercise_management/pages/base_exercise_detail_page.dart';
 import 'features/homepage/pages/home_page.dart';
 import 'features/settings/pages/settings_page.dart';
+import 'features/stats/pages/stats_page.dart';
+import 'features/training_history/pages/history_details_page.dart';
+import 'features/training_history/pages/history_page.dart';
 import 'features/training_management/pages/training_details_page.dart';
 import 'features/training_management/pages/trainings_page.dart';
 

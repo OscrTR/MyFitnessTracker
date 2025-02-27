@@ -1,3 +1,5 @@
+import 'dart:ui' as ui;
+
 import 'package:animated_custom_dropdown/custom_dropdown.dart';
 import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:collection/collection.dart';
@@ -6,19 +8,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import '../../active_training/bloc/active_training_bloc.dart';
-import '../../training_history/models/history_period_stats.dart';
-import '../../training_history/models/history_training.dart';
-import '../../training_history/bloc/training_history_bloc.dart';
-import '../../training_management/models/training.dart';
 import 'package:toggle_switch/toggle_switch.dart';
-import '../../../app_colors.dart';
 
+import '../../../app_colors.dart';
 import '../../../core/enums/enums.dart';
 import '../../../helper_functions.dart';
 import '../../../injection_container.dart';
+import '../../active_training/bloc/active_training_bloc.dart';
+import '../../training_history/bloc/training_history_bloc.dart';
+import '../../training_history/models/history_period_stats.dart';
+import '../../training_history/models/history_training.dart';
 import '../../training_management/bloc/training_management_bloc.dart';
-import 'dart:ui' as ui;
+import '../../training_management/models/training.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
