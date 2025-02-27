@@ -476,6 +476,7 @@ class _ExerciseSetFormState extends State<ExerciseSetForm> {
               trainingVersionId:
                   historyEntry?.trainingVersionId ?? widget.trainingVersionId,
             ),
+            timerState: null,
           ),
         );
   }

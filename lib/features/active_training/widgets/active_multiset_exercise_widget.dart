@@ -522,6 +522,7 @@ class _ActiveExerciseRowState extends State<ActiveExerciseRow> {
                           distance: 0,
                           pace: 0,
                         ),
+                        timerState: null,
                       ),
                     );
                 context

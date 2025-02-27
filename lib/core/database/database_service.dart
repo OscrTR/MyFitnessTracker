@@ -1,3 +1,5 @@
+import 'package:my_fitness_tracker/core/enums/enums.dart';
+
 import '../messages/bloc/message_bloc.dart';
 import '../../features/training_management/models/reminder.dart';
 import 'package:path/path.dart';
@@ -695,6 +697,174 @@ class DatabaseService {
           message: 'Database error : ${e.toString()}', isError: true));
 
       return [];
+    }
+  }
+
+  Future<List<HistoryEntry>> getFilteredHistoryEntries({
+    required DateTime startDate,
+    required DateTime endDate,
+    required List<TrainingType>? trainingTypes,
+    required int? baseExerciseId,
+    required int? trainingId,
+  }) async {
+    try {
+      // On construit la clause WHERE
+      // On utilise un StringBuffer pour concaténer les conditions
+      final whereClause = StringBuffer();
+      // Liste des paramètres à l'ordre des "?" dans la requête
+      final List<Object?> params = [];
+
+      // Filtre sur la date
+      whereClause.write('he.date BETWEEN ? AND ?');
+      params.addAll([
+        startDate.millisecondsSinceEpoch,
+        endDate.millisecondsSinceEpoch,
+      ]);
+
+      // Si on fournit une liste de trainingTypes (et qu'elle n'est pas vide)
+      if (trainingTypes != null && trainingTypes.isNotEmpty) {
+        // Pour plusieurs valeurs, on utilise l'opérateur IN
+        final placeholders =
+            List.generate(trainingTypes.length, (_) => '?').join(', ');
+        whereClause.write(' AND t.trainingType IN ($placeholders)');
+        // On ajoute les valeurs dans la liste de paramètres, par exemple en utilisant toString()
+        params.addAll(trainingTypes.map((type) => type.toMap()));
+      }
+
+      // Si un baseExerciseId est fourni, on rejoint la table exercises.
+      if (baseExerciseId != null) {
+        whereClause.write(' AND e.baseExerciseId = ?');
+        params.add(baseExerciseId);
+      }
+
+      // Si un trainingId est fourni, on filtre directement sur la table history_entries.
+      if (trainingId != null) {
+        whereClause.write(' AND he.trainingId = ?');
+        params.add(trainingId);
+      }
+
+      // Construction de la requête SQL avec les jointures nécessaires :
+      // - Pour trainingType : join sur la table trainings.
+      // - Pour baseExerciseId : join sur la table exercises.
+      final query = '''
+      SELECT he.*
+      FROM history_entries AS he
+      LEFT JOIN trainings AS t ON he.trainingId = t.id
+      LEFT JOIN exercises AS e ON he.exerciseId = e.id
+      WHERE ${whereClause.toString()}
+      ORDER BY he.date ASC
+    ''';
+
+      // Exécution de la requête :
+      final results = await _db.execute(query, params);
+
+      return results.map((row) => HistoryEntry.fromMap(row)).toList();
+    } catch (e) {
+      sl<MessageBloc>().add(AddMessageEvent(
+          message: 'Database error : ${e.toString()}', isError: true));
+
+      return [];
+    }
+  }
+
+  Future<List<RunLocation>> getFilteredRunLocations({
+    required DateTime startDate,
+    required DateTime endDate,
+    required List<TrainingType>? trainingTypes,
+    required int? baseExerciseId,
+    required int? trainingId,
+  }) async {
+    try {
+      // Construction dynamique de la clause WHERE
+      final whereClause = StringBuffer();
+      final List<Object?> params = [];
+
+      // Filtrage sur la date (on suppose ici que la date est stockée en millisecondes)
+      whereClause.write('rl.date BETWEEN ? AND ?');
+      params.addAll([
+        startDate.millisecondsSinceEpoch,
+        endDate.millisecondsSinceEpoch,
+      ]);
+
+      // Si une liste de trainingTypes est fournie et non vide, on ajoute la condition avec IN
+      if (trainingTypes != null && trainingTypes.isNotEmpty) {
+        final placeholders =
+            List.generate(trainingTypes.length, (_) => '?').join(', ');
+        whereClause.write(' AND t.trainingType IN ($placeholders)');
+        params.addAll(trainingTypes.map((type) => type.toString()));
+      }
+
+      // Si un baseExerciseId est fourni, on filtre via la table exercises
+      if (baseExerciseId != null) {
+        whereClause.write(' AND e.baseExerciseId = ?');
+        params.add(baseExerciseId);
+      }
+
+      // Si un trainingId est fourni, on filtre directement sur la table run_locations
+      if (trainingId != null) {
+        whereClause.write(' AND rl.trainingId = ?');
+        params.add(trainingId);
+      }
+
+      // Construction de la requête SQL avec jointures pour accéder aux informations de trainings et exercises :
+      final query = '''
+      SELECT rl.*
+      FROM run_locations AS rl
+      LEFT JOIN trainings AS t ON rl.trainingId = t.id
+      LEFT JOIN exercises AS e ON rl.exerciseId = e.id
+      WHERE ${whereClause.toString()}
+      ORDER BY rl.date ASC
+    ''';
+
+      // Exécution de la requête avec les paramètres liés :
+      final results = await _db.execute(query, params);
+
+      // Conversion des résultats en objets RunLocation
+      return results.map((row) => RunLocation.fromMap(row)).toList();
+    } catch (e) {
+      sl<MessageBloc>().add(AddMessageEvent(
+        message: 'Database error : ${e.toString()}',
+        isError: true,
+      ));
+      return [];
+    }
+  }
+
+  Future<int?> getRegisteredHistoryEntryId({
+    required int exerciseId,
+    required int setNumber,
+    required int trainingId,
+  }) async {
+    try {
+      // Construction de la requête SQL avec un LIMIT pour ne retourner qu'une seule ligne
+      const query = '''
+      SELECT id 
+      FROM history_entries 
+      WHERE exerciseId = ? 
+        AND setNumber = ? 
+        AND trainingId = ?
+      LIMIT 1
+    ''';
+
+      // Exécution de la requête avec les paramètres liés
+      final results =
+          await _db.execute(query, [exerciseId, setNumber, trainingId]);
+
+      // Si un résultat est trouvé, on retourne son id
+      if (results.isNotEmpty) {
+        return results.first['id'] as int;
+      }
+
+      // Aucune entrée trouvée
+      return null;
+    } catch (e) {
+      // Gestion de l'erreur (par exemple, en loggant l'erreur et/ou en notifiant un MessageBloc)
+      sl<MessageBloc>().add(AddMessageEvent(
+        message:
+            "Database error when fetching registered entry ID: ${e.toString()}",
+        isError: true,
+      ));
+      return null;
     }
   }
 

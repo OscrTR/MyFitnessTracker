@@ -17,12 +17,25 @@ class FetchHistoryEntriesEvent extends TrainingHistoryEvent {
 }
 
 class CreateOrUpdateHistoryEntry extends TrainingHistoryEvent {
-  final HistoryEntry historyEntry;
+  final HistoryEntry? historyEntry;
+  final TimerState? timerState;
+  final int reps;
+  final int weight;
 
-  const CreateOrUpdateHistoryEntry({required this.historyEntry});
+  const CreateOrUpdateHistoryEntry({
+    required this.historyEntry,
+    required this.timerState,
+    this.reps = 0,
+    this.weight = 0,
+  });
 
   @override
-  List<Object> get props => [historyEntry];
+  List<Object?> get props => [
+        historyEntry,
+        timerState,
+        reps,
+        weight,
+      ];
 }
 
 class DeleteHistoryEntryEvent extends TrainingHistoryEvent {

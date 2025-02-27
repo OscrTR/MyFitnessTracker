@@ -99,6 +99,7 @@ class ActiveTrainingBloc
               reps: 0,
               weight: 0,
             ),
+            timerState: null,
           ),
         );
       }

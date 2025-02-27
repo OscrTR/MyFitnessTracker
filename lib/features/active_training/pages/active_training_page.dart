@@ -11,8 +11,6 @@ import '../foreground_service.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../../../app_colors.dart';
 import '../../../core/enums/enums.dart';
-import '../../../helper_functions.dart';
-import '../../training_history/models/history_entry.dart';
 import '../../training_history/bloc/training_history_bloc.dart';
 import '../bloc/active_training_bloc.dart';
 import '../widgets/error_state_widget.dart';
@@ -288,50 +286,10 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage>
                   if (currentTimerState.timerId != 'primaryTimer' &&
                       currentTimerState.isActive &&
                       !currentTimerState.timerId.contains('rest')) {
-                    final registeredId = (sl<TrainingHistoryBloc>().state
-                            as TrainingHistoryLoaded)
-                        .historyEntries
-                        .firstWhereOrNull((h) =>
-                            h.exerciseId == currentTimerState.exerciseId &&
-                            h.setNumber == currentTimerState.setNumber &&
-                            h.trainingId == currentTimerState.trainingId)
-                        ?.id;
-
-                    int cals = 0;
-
-                    final listOfExercises = state.activeTraining!.exercises;
-
-                    final matchingExercise = listOfExercises.firstWhere(
-                        (exercise) =>
-                            exercise.id == currentTimerState.exerciseId);
-
-                    final duration = currentTimerState.isCountDown
-                        ? currentTimerState.countDownValue -
-                            currentTimerState.timerValue
-                        : currentTimerState.timerValue;
-
-                    cals = getCalories(
-                        intensity: matchingExercise.intensity,
-                        duration: duration);
-
                     sl<TrainingHistoryBloc>().add(
                       CreateOrUpdateHistoryEntry(
-                        historyEntry: HistoryEntry(
-                          id: registeredId,
-                          trainingId: currentTimerState.trainingId,
-                          exerciseId: currentTimerState.exerciseId,
-                          setNumber: currentTimerState.setNumber,
-                          date: DateTime.now(),
-                          duration: duration,
-                          distance: currentTimerState.distance.toInt(),
-                          pace: currentTimerState.pace.toInt(),
-                          calories: cals,
-                          intervalNumber: currentTimerState.intervalNumber,
-                          trainingVersionId:
-                              currentTimerState.trainingVersionId,
-                          reps: 0,
-                          weight: 0,
-                        ),
+                        historyEntry: null,
+                        timerState: currentTimerState,
                       ),
                     );
                   }

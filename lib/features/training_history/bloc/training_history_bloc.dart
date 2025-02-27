@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
+import 'package:my_fitness_tracker/features/active_training/bloc/active_training_bloc.dart';
 
 import '../../../core/database/database_service.dart';
 import '../../../core/enums/enums.dart';
@@ -51,14 +52,12 @@ class TrainingHistoryBloc
         if (state is TrainingHistoryLoaded) {
           final currentState = state as TrainingHistoryLoaded;
           emit(currentState.copyWith(
-            historyEntries: fetchedEntries,
             historyTrainings: historyTrainings,
             startDate: startDate,
             endDate: endDate,
           ));
         } else {
           emit(TrainingHistoryLoaded.withDefaultLists(
-              historyEntries: fetchedEntries,
               historyTrainings: historyTrainings,
               startDate: startDate,
               endDate: endDate,
@@ -72,19 +71,63 @@ class TrainingHistoryBloc
 
     on<CreateOrUpdateHistoryEntry>((event, emit) async {
       try {
+        HistoryEntry? historyEntry;
+
+        if (event.historyEntry != null) {
+          historyEntry = event.historyEntry;
+        } else if (event.timerState != null) {
+          final timerState = event.timerState!;
+
+          final registeredId = await sl<DatabaseService>()
+              .getRegisteredHistoryEntryId(
+                  exerciseId: timerState.exerciseId,
+                  setNumber: timerState.setNumber,
+                  trainingId: timerState.trainingId);
+
+          final listOfExercises =
+              (sl<ActiveTrainingBloc>().state as ActiveTrainingLoaded)
+                  .activeTraining!
+                  .exercises;
+
+          final matchingExercise = listOfExercises
+              .firstWhere((exercise) => exercise.id == timerState.exerciseId);
+
+          final duration = timerState.isCountDown
+              ? timerState.countDownValue - timerState.timerValue
+              : timerState.timerValue;
+
+          int cals = getCalories(
+              intensity: matchingExercise.intensity, duration: duration);
+
+          historyEntry = HistoryEntry(
+              id: registeredId,
+              trainingId: timerState.trainingId,
+              exerciseId: timerState.exerciseId,
+              trainingVersionId: timerState.trainingVersionId,
+              setNumber: timerState.setNumber,
+              intervalNumber: timerState.intervalNumber,
+              date: DateTime.now(),
+              reps: event.reps,
+              weight: event.weight,
+              duration: duration,
+              distance: timerState.distance.toInt(),
+              pace: timerState.pace.toInt(),
+              calories: cals);
+        }
+
         bool hasRecentEntry = false;
-        final isUpdate = event.historyEntry.id != null;
+        final isUpdate = historyEntry?.id != null;
 
         if (isUpdate) {
           hasRecentEntry = await sl<DatabaseService>()
-                  .checkIfTrainingHasRecentEntry(event.historyEntry.id!) ??
+                  .checkIfTrainingHasRecentEntry(historyEntry!.id!) ??
               false;
         }
 
         if (isUpdate || hasRecentEntry) {
-          await sl<DatabaseService>().updateHistoryEntry(event.historyEntry);
+          await sl<DatabaseService>().updateHistoryEntry(historyEntry!);
         } else {
-          await sl<DatabaseService>().createHistoryEntry(event.historyEntry);
+          await sl<DatabaseService>().createHistoryEntry(historyEntry!);
         }
 
         add(FetchHistoryEntriesEvent());
@@ -149,7 +192,6 @@ class TrainingHistoryBloc
         );
 
         emit(currentState.copyWith(
-          historyEntries: fetchedEntries,
           historyTrainings: historyTrainings,
           startDate: startDate,
           endDate: endDate,
@@ -181,9 +223,24 @@ class TrainingHistoryBloc
       final selectedTrainingTypes = currentState.selectedTrainingTypes;
       selectedTrainingTypes[event.trainingType] = event.isSelected;
 
-      // TODO Fetch entries for specified training types
+      final startDate = currentState.startDate;
+      final endDate = currentState.endDate;
+      final trainingTypes = selectedTrainingTypes.entries
+          .where((e) => e.value == true)
+          .map((e) => e.key)
+          .toList();
+      final baseExerciseId = currentState.selectedStatsBaseExercise?.id;
+      final trainingId = currentState.selectedStatsTraining?.id;
+
+      final historyTrainings = await getHistoryTrainings(
+          startDate: startDate,
+          endDate: endDate,
+          trainingTypes: trainingTypes,
+          baseExerciseId: baseExerciseId,
+          trainingId: trainingId);
 
       emit(currentState.copyWith(
+          historyTrainings: historyTrainings,
           selectedTrainingTypes: selectedTrainingTypes,
           isExercisesSelected: false));
     });
@@ -195,9 +252,24 @@ class TrainingHistoryBloc
       final selectedTrainingTypes =
           createMapWithDefaultValues(TrainingType.values);
 
-      // TODO Fetch entries for all trainings
+      final startDate = currentState.startDate;
+      final endDate = currentState.endDate;
+      final trainingTypes = selectedTrainingTypes.entries
+          .where((e) => e.value == true)
+          .map((e) => e.key)
+          .toList();
+      final baseExerciseId = currentState.selectedStatsBaseExercise?.id;
+      final trainingId = currentState.selectedStatsTraining?.id;
+
+      final historyTrainings = await getHistoryTrainings(
+          startDate: startDate,
+          endDate: endDate,
+          trainingTypes: trainingTypes,
+          baseExerciseId: baseExerciseId,
+          trainingId: trainingId);
 
       emit(currentState.copyWith(
+          historyTrainings: historyTrainings,
           selectedTrainingTypes: selectedTrainingTypes,
           isExercisesSelected: !currentState.isExercisesSelected));
     });
@@ -206,9 +278,24 @@ class TrainingHistoryBloc
       if (state is! TrainingHistoryLoaded) return;
       final currentState = state as TrainingHistoryLoaded;
 
-      // TODO Fetch entries for this exercise
+      final startDate = currentState.startDate;
+      final endDate = currentState.endDate;
+      final trainingTypes = currentState.selectedTrainingTypes.entries
+          .where((e) => e.value == true)
+          .map((e) => e.key)
+          .toList();
+      final baseExerciseId = event.baseExercise?.id;
+      final trainingId = currentState.selectedStatsTraining?.id;
+
+      final historyTrainings = await getHistoryTrainings(
+          startDate: startDate,
+          endDate: endDate,
+          trainingTypes: trainingTypes,
+          baseExerciseId: baseExerciseId,
+          trainingId: trainingId);
 
       emit(currentState.copyWith(
+        historyTrainings: historyTrainings,
         selectedStatsBaseExercise: event.baseExercise,
         resetSelectedStatsBaseExercise: event.baseExercise == null,
       ));
@@ -218,12 +305,77 @@ class TrainingHistoryBloc
       if (state is! TrainingHistoryLoaded) return;
       final currentState = state as TrainingHistoryLoaded;
 
-      // TODO Fetch entries for this training
+      final startDate = currentState.startDate;
+      final endDate = currentState.endDate;
+      final trainingTypes = currentState.selectedTrainingTypes.entries
+          .where((e) => e.value == true)
+          .map((e) => e.key)
+          .toList();
+      final baseExerciseId = currentState.selectedStatsBaseExercise?.id;
+      final trainingId = event.training?.id;
+
+      final historyTrainings = await getHistoryTrainings(
+          startDate: startDate,
+          endDate: endDate,
+          trainingTypes: trainingTypes,
+          baseExerciseId: baseExerciseId,
+          trainingId: trainingId);
 
       emit(currentState.copyWith(
+        historyTrainings: historyTrainings,
         selectedStatsTraining: event.training,
         resetSelectedStatsTraining: event.training == null,
       ));
     });
+  }
+}
+
+Future<List<HistoryTraining>> getHistoryTrainings({
+  required DateTime startDate,
+  required DateTime endDate,
+  required List<TrainingType>? trainingTypes,
+  required int? baseExerciseId,
+  required int? trainingId,
+}) async {
+  try {
+    // Récupère les history entries filtrées
+    final fetchedEntries =
+        await sl<DatabaseService>().getFilteredHistoryEntries(
+      startDate: startDate,
+      endDate: endDate,
+      trainingTypes: trainingTypes,
+      baseExerciseId: baseExerciseId,
+      trainingId: trainingId,
+    );
+
+    // Récupère les run locations filtrées
+    final fetchedRunLocations =
+        await sl<DatabaseService>().getFilteredRunLocations(
+      startDate: startDate,
+      endDate: endDate,
+      trainingTypes: trainingTypes,
+      baseExerciseId: baseExerciseId,
+      trainingId: trainingId,
+    );
+
+    // Regroupe les run locations par trainingId
+    final locationsByTrainingId =
+        groupBy(fetchedRunLocations, (loc) => loc.trainingId);
+
+    // Construit et retourne la liste de HistoryTraining à partir des history entries et du regroupement
+    final historyTrainings = await HistoryTraining.fromHistoryEntries(
+      fetchedEntries,
+      locationsByTrainingId: locationsByTrainingId,
+    );
+
+    return historyTrainings;
+  } catch (e) {
+    // Gestion d'erreur : par exemple notifier le MessageBloc et retourner une liste vide
+    sl<MessageBloc>().add(AddMessageEvent(
+      message:
+          'Erreur lors du chargement des données historiques : ${e.toString()}',
+      isError: true,
+    ));
+    return [];
   }
 }

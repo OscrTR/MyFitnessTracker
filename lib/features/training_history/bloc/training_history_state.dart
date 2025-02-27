@@ -12,7 +12,6 @@ class TrainingHistoryInitial extends TrainingHistoryState {}
 class TrainingHistoryLoading extends TrainingHistoryState {}
 
 class TrainingHistoryLoaded extends TrainingHistoryState {
-  final List<HistoryEntry> historyEntries;
   final List<HistoryTraining> historyTrainings;
   final DateTime startDate;
   final DateTime endDate;
@@ -27,7 +26,6 @@ class TrainingHistoryLoaded extends TrainingHistoryState {
   final Training? selectedStatsTraining;
 
   const TrainingHistoryLoaded({
-    required this.historyEntries,
     required this.historyTrainings,
     required this.startDate,
     required this.endDate,
@@ -43,7 +41,6 @@ class TrainingHistoryLoaded extends TrainingHistoryState {
   });
 
   factory TrainingHistoryLoaded.withDefaultLists({
-    required List<HistoryEntry> historyEntries,
     required List<HistoryTraining> historyTrainings,
     required DateTime startDate,
     required DateTime endDate,
@@ -53,7 +50,6 @@ class TrainingHistoryLoaded extends TrainingHistoryState {
     Map<TrainingType, bool> selectedTrainingTypes = const {},
   }) {
     return TrainingHistoryLoaded(
-      historyEntries: historyEntries,
       historyTrainings: historyTrainings,
       startDate: startDate,
       endDate: endDate,
@@ -67,7 +63,6 @@ class TrainingHistoryLoaded extends TrainingHistoryState {
   }
 
   TrainingHistoryLoaded copyWith({
-    List<HistoryEntry>? historyEntries,
     List<HistoryTraining>? historyTrainings,
     DateTime? startDate,
     DateTime? endDate,
@@ -82,7 +77,6 @@ class TrainingHistoryLoaded extends TrainingHistoryState {
     bool? resetSelectedStatsTraining,
   }) {
     return TrainingHistoryLoaded(
-      historyEntries: historyEntries ?? this.historyEntries,
       historyTrainings: historyTrainings ?? this.historyTrainings,
       startDate: startDate ?? this.startDate,
       endDate: endDate ?? this.endDate,
@@ -106,7 +100,6 @@ class TrainingHistoryLoaded extends TrainingHistoryState {
 
   @override
   List<Object?> get props => [
-        historyEntries,
         historyTrainings,
         startDate,
         endDate,

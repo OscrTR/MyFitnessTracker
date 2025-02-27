@@ -21,7 +21,6 @@ class HistoryPage extends StatefulWidget {
 }
 
 class _HistoryPageState extends State<HistoryPage> {
-  List<HistoryTraining>? _historyTrainings;
   final ScrollController _scrollController = ScrollController();
 
   @override
@@ -38,10 +37,8 @@ class _HistoryPageState extends State<HistoryPage> {
           child: BlocBuilder<TrainingHistoryBloc, TrainingHistoryState>(
               builder: (context, state) {
             if (state is TrainingHistoryLoaded) {
-              _historyTrainings =
+              final historyTrainings =
                   HistoryTraining.getLastTen(state.historyTrainings);
-
-              final historyEntries = state.historyEntries;
 
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -88,8 +85,8 @@ class _HistoryPageState extends State<HistoryPage> {
                       ),
                     ],
                   ),
-                  if (historyEntries.isNotEmpty)
-                    _buildEntriesList(state)
+                  if (historyTrainings.isNotEmpty)
+                    _buildEntriesList(state, historyTrainings)
                   else
                     Expanded(
                       child:
@@ -182,17 +179,18 @@ class _HistoryPageState extends State<HistoryPage> {
     );
   }
 
-  ListView _buildEntriesList(TrainingHistoryLoaded state) {
+  ListView _buildEntriesList(
+      TrainingHistoryLoaded state, List<HistoryTraining> historyTrainings) {
     final hasSelectedTypes =
         state.selectedTrainingTypes.values.any((isSelected) => isSelected);
 
     final displayedEntries = hasSelectedTypes
-        ? _historyTrainings!
+        ? historyTrainings
             .where((entry) =>
                 state.selectedTrainingTypes[entry.training.trainingType] ??
                 false)
             .toList()
-        : _historyTrainings!;
+        : historyTrainings;
 
     return ListView.builder(
         shrinkWrap: true,
