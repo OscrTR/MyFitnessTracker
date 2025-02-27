@@ -7,6 +7,7 @@ import 'package:equatable/equatable.dart';
 import 'package:fl_location/fl_location.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_tts/flutter_tts.dart';
+import '../../../core/enums/enums.dart';
 import '../../../core/messages/toast.dart';
 import '../../../core/database/database_service.dart';
 
@@ -128,7 +129,13 @@ class ActiveTrainingBloc
           ));
         }
       } catch (e) {
-        showToastMessage(message: 'An error occurred: ${e.toString()}');
+        showToastMessage(
+          message: e.toString(),
+          isSuccess: false,
+          isLog: true,
+          logLevel: LogLevel.error,
+          logFunction: 'StartActiveTraining',
+        );
       }
     });
 

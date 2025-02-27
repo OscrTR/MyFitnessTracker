@@ -1,12 +1,12 @@
 import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+
 import '../../app_colors.dart';
+import '../../features/settings/bloc/settings_bloc.dart';
+import '../../injection_container.dart';
 import '../enums/enums.dart';
 import 'models/log.dart';
-import '../../features/settings/bloc/settings_bloc.dart';
-
-import '../../injection_container.dart';
 
 void showToastMessage({
   required String message,

@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:equatable/equatable.dart';
+import '../../../core/enums/enums.dart';
 import '../../../core/database/database_service.dart';
 
 import '../../../core/messages/toast.dart';
@@ -26,7 +27,13 @@ class BaseExerciseManagementBloc
               baseExercises: fetchedBaseExercises));
         }
       } catch (e) {
-        showToastMessage(message: 'An error occurred: ${e.toString()}');
+        showToastMessage(
+          message: e.toString(),
+          isSuccess: false,
+          isLog: true,
+          logLevel: LogLevel.error,
+          logFunction: 'GetAllBaseExercisesEvent',
+        );
       }
     });
 
@@ -38,7 +45,13 @@ class BaseExerciseManagementBloc
         final currentState = state as BaseExerciseManagementLoaded;
         emit(currentState.copyWith(selectedBaseExercise: fetchedBaseExercise));
       } catch (e) {
-        showToastMessage(message: 'An error occurred: ${e.toString()}');
+        showToastMessage(
+          message: e.toString(),
+          isSuccess: false,
+          isLog: true,
+          logLevel: LogLevel.error,
+          logFunction: 'GetBaseExerciseEvent',
+        );
       }
     });
 
@@ -58,7 +71,13 @@ class BaseExerciseManagementBloc
         }
         add(GetAllBaseExercisesEvent());
       } catch (e) {
-        showToastMessage(message: 'An error occurred: ${e.toString()}');
+        showToastMessage(
+          message: e.toString(),
+          isSuccess: false,
+          isLog: true,
+          logLevel: LogLevel.error,
+          logFunction: 'CreateOrUpdateBaseExerciseEvent',
+        );
       }
     });
 
@@ -70,7 +89,13 @@ class BaseExerciseManagementBloc
 
         add(GetAllBaseExercisesEvent());
       } catch (e) {
-        showToastMessage(message: 'An error occurred: ${e.toString()}');
+        showToastMessage(
+          message: e.toString(),
+          isSuccess: false,
+          isLog: true,
+          logLevel: LogLevel.error,
+          logFunction: 'DeleteBaseExerciseEvent',
+        );
       }
     });
 
@@ -80,7 +105,13 @@ class BaseExerciseManagementBloc
         final currentState = state as BaseExerciseManagementLoaded;
         emit(currentState.copyWith(clearSelectedBaseExercise: true));
       } catch (e) {
-        showToastMessage(message: 'An error occurred: ${e.toString()}');
+        showToastMessage(
+          message: e.toString(),
+          isSuccess: false,
+          isLog: true,
+          logLevel: LogLevel.error,
+          logFunction: 'ClearSelectedBaseExerciseEvent',
+        );
       }
     });
   }

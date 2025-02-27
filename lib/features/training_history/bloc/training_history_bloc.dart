@@ -52,7 +52,13 @@ class TrainingHistoryBloc
               isWeekSelected: event.isWeekSelected));
         }
       } catch (e) {
-        showToastMessage(message: 'An error occurred: ${e.toString()}');
+        showToastMessage(
+          message: e.toString(),
+          isSuccess: false,
+          isLog: true,
+          logLevel: LogLevel.error,
+          logFunction: 'FetchHistoryEntriesEvent',
+        );
       }
     });
 
@@ -119,7 +125,13 @@ class TrainingHistoryBloc
 
         add(FetchHistoryEntriesEvent());
       } catch (e) {
-        showToastMessage(message: 'An error occurred: ${e.toString()}');
+        showToastMessage(
+          message: e.toString(),
+          isSuccess: false,
+          isLog: true,
+          logLevel: LogLevel.error,
+          logFunction: 'CreateOrUpdateHistoryEntry',
+        );
       }
     });
 
@@ -148,7 +160,13 @@ class TrainingHistoryBloc
 
         add(FetchHistoryEntriesEvent());
       } catch (e) {
-        showToastMessage(message: 'An error occurred: ${e.toString()}');
+        showToastMessage(
+          message: e.toString(),
+          isSuccess: false,
+          isLog: true,
+          logLevel: LogLevel.error,
+          logFunction: 'CreateOrUpdateHistoryAfterwardsEntry',
+        );
       }
     });
 
@@ -158,7 +176,13 @@ class TrainingHistoryBloc
         await sl<DatabaseService>().deleteHistoryEntry(event.id);
         add(FetchHistoryEntriesEvent());
       } catch (e) {
-        showToastMessage(message: 'An error occurred: ${e.toString()}');
+        showToastMessage(
+          message: e.toString(),
+          isSuccess: false,
+          isLog: true,
+          logLevel: LogLevel.error,
+          logFunction: 'DeleteHistoryEntryEvent',
+        );
       }
     });
 
@@ -170,7 +194,13 @@ class TrainingHistoryBloc
             .deleteHistoryEntriesByTrainingId(event.trainingId);
         add(FetchHistoryEntriesEvent());
       } catch (e) {
-        showToastMessage(message: 'An error occurred: ${e.toString()}');
+        showToastMessage(
+          message: e.toString(),
+          isSuccess: false,
+          isLog: true,
+          logLevel: LogLevel.error,
+          logFunction: 'DeleteHistoryTrainingEvent',
+        );
       }
     });
 
@@ -202,7 +232,13 @@ class TrainingHistoryBloc
           endDate: endDate,
         ));
       } catch (e) {
-        showToastMessage(message: 'An error occurred: ${e.toString()}');
+        showToastMessage(
+          message: e.toString(),
+          isSuccess: false,
+          isLog: true,
+          logLevel: LogLevel.error,
+          logFunction: 'SetNewDateHistoryDateEvent',
+        );
       }
     });
 
@@ -374,7 +410,13 @@ Future<List<HistoryTraining>> getHistoryTrainings({
 
     return historyTrainings;
   } catch (e) {
-    showToastMessage(message: 'An error occurred: ${e.toString()}');
+    showToastMessage(
+      message: e.toString(),
+      isSuccess: false,
+      isLog: true,
+      logLevel: LogLevel.error,
+      logFunction: 'getHistoryTrainings',
+    );
     return [];
   }
 }

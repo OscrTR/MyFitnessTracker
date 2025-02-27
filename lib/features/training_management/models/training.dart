@@ -2,9 +2,8 @@ import 'dart:convert';
 
 import 'package:equatable/equatable.dart';
 
-import '../../base_exercise_management/models/base_exercise.dart';
-
 import '../../../core/enums/enums.dart';
+import '../../base_exercise_management/models/base_exercise.dart';
 import 'exercise.dart';
 import 'multiset.dart';
 

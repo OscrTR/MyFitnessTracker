@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 
 import '../../app_colors.dart';
+import '../../core/enums/enums.dart';
 import '../../core/messages/toast.dart';
 import '../../injection_container.dart';
 import 'bloc/active_training_bloc.dart';
@@ -17,7 +18,13 @@ class ForegroundService {
     try {
       await _methodChannel.invokeMethod('requestService');
     } on PlatformException catch (e) {
-      print('Erreur lors de la demande de service: ${e.message}');
+      showToastMessage(
+        message: e.toString(),
+        isSuccess: false,
+        isLog: true,
+        logLevel: LogLevel.error,
+        logFunction: 'requestService',
+      );
     }
   }
 
@@ -130,7 +137,13 @@ class ForegroundService {
         );
       }
     } catch (e) {
-      showToastMessage(message: '$e');
+      showToastMessage(
+        message: e.toString(),
+        isSuccess: false,
+        isLog: true,
+        logLevel: LogLevel.error,
+        logFunction: 'onReceiveTaskData',
+      );
     }
   }
 }

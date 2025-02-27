@@ -196,13 +196,17 @@ class DatabaseService {
 
   Future<void> performMaintenance() async {
     try {
-      await _db.execute("VACUUM;");
-      await _db.execute("ANALYZE;");
+      await _db.execute('VACUUM;');
+      await _db.execute('ANALYZE;');
       await deleteOldLogs();
     } catch (e) {
       showToastMessage(
-          message:
-              'Database error while performing maintenance : ${e.toString()}');
+        message: e.toString(),
+        isSuccess: false,
+        isLog: true,
+        logLevel: LogLevel.error,
+        logFunction: 'performMaintenance',
+      );
     }
   }
 
@@ -217,7 +221,12 @@ class DatabaseService {
       await migrations.migrate(_db);
     } catch (e) {
       showToastMessage(
-          message: 'Database error while initializing : ${e.toString()}');
+        message: e.toString(),
+        isSuccess: false,
+        isLog: true,
+        logLevel: LogLevel.error,
+        logFunction: 'init',
+      );
     }
   }
 
@@ -229,7 +238,7 @@ class DatabaseService {
 
   Future<int> insert(String tableName, Map<String, dynamic> fields) async {
     try {
-      // Exclut "id" car auto incrémenté
+      // Exclut 'id' car auto incrémenté
       final cleanFields = Map.of(fields)..remove('id');
 
       final sql = generateInsertSQL(tableName, cleanFields);
@@ -238,7 +247,12 @@ class DatabaseService {
       return result.first.values.first as int;
     } catch (e) {
       showToastMessage(
-          message: 'Database error while inserting : ${e.toString()}');
+        message: e.toString(),
+        isSuccess: false,
+        isLog: true,
+        logLevel: LogLevel.error,
+        logFunction: 'insert',
+      );
 
       return -1;
     }
@@ -253,7 +267,7 @@ class DatabaseService {
   Future<void> update(String tableName, Map<String, dynamic> fields,
       String whereClause, List<Object?> whereArgs) async {
     try {
-      // Exclut "id" car auto incrémenté
+      // Exclut 'id' car auto incrémenté
       final cleanFields = Map.of(fields)..remove('id');
 
       final sql = generateUpdateSQL(tableName, cleanFields, whereClause);
@@ -261,7 +275,12 @@ class DatabaseService {
       await _db.execute(sql, allArgs);
     } catch (e) {
       showToastMessage(
-          message: 'Database error while updating : ${e.toString()}');
+        message: e.toString(),
+        isSuccess: false,
+        isLog: true,
+        logLevel: LogLevel.error,
+        logFunction: 'update',
+      );
     }
   }
 
@@ -272,7 +291,12 @@ class DatabaseService {
       await insert('logs', log.toMap());
     } catch (e) {
       showToastMessage(
-          message: 'Database error while creating log : ${e.toString()}');
+        message: e.toString(),
+        isSuccess: false,
+        isLog: false,
+        logLevel: LogLevel.error,
+        logFunction: 'createLog',
+      );
     }
   }
 
@@ -281,8 +305,12 @@ class DatabaseService {
       return await insert('base_exercises', baseExercise.toMap());
     } catch (e) {
       showToastMessage(
-          message:
-              'Database error while creating base exercise : ${e.toString()}');
+        message: e.toString(),
+        isSuccess: false,
+        isLog: true,
+        logLevel: LogLevel.error,
+        logFunction: 'createBaseExercise',
+      );
 
       return -1;
     }
@@ -293,7 +321,12 @@ class DatabaseService {
       return await insert('exercises', exercise.toMap());
     } catch (e) {
       showToastMessage(
-          message: 'Database error while creating exercise : ${e.toString()}');
+        message: e.toString(),
+        isSuccess: false,
+        isLog: true,
+        logLevel: LogLevel.error,
+        logFunction: 'createExercise',
+      );
 
       return -1;
     }
@@ -304,7 +337,12 @@ class DatabaseService {
       return await insert('multisets', multiset.toMap());
     } catch (e) {
       showToastMessage(
-          message: 'Database error while creating multiset : ${e.toString()}');
+        message: e.toString(),
+        isSuccess: false,
+        isLog: true,
+        logLevel: LogLevel.error,
+        logFunction: 'createMultiset',
+      );
 
       return -1;
     }
@@ -366,7 +404,12 @@ class DatabaseService {
       return trainingId;
     } catch (e) {
       showToastMessage(
-          message: 'Database error while creating training : ${e.toString()}');
+        message: e.toString(),
+        isSuccess: false,
+        isLog: true,
+        logLevel: LogLevel.error,
+        logFunction: 'createTraining',
+      );
 
       return -1;
     }
@@ -382,8 +425,12 @@ class DatabaseService {
       return await insert('training_versions', trainingVersion.toMap());
     } catch (e) {
       showToastMessage(
-          message:
-              'Database error while creating training version : ${e.toString()}');
+        message: e.toString(),
+        isSuccess: false,
+        isLog: true,
+        logLevel: LogLevel.error,
+        logFunction: 'createTrainingVersion',
+      );
 
       return -1;
     }
@@ -394,8 +441,12 @@ class DatabaseService {
       await insert('history_entries', historyEntry.toMap());
     } catch (e) {
       showToastMessage(
-          message:
-              'Database error while creating history entry : ${e.toString()}');
+        message: e.toString(),
+        isSuccess: false,
+        isLog: true,
+        logLevel: LogLevel.error,
+        logFunction: 'createHistoryEntry',
+      );
     }
   }
 
@@ -404,8 +455,12 @@ class DatabaseService {
       await insert('run_locations', runLocation.toMap());
     } catch (e) {
       showToastMessage(
-          message:
-              'Database error while creating run location : ${e.toString()}');
+        message: e.toString(),
+        isSuccess: false,
+        isLog: true,
+        logLevel: LogLevel.error,
+        logFunction: 'createRunLocation',
+      );
     }
   }
 
@@ -414,7 +469,12 @@ class DatabaseService {
       await insert('reminders', reminder.toMap());
     } catch (e) {
       showToastMessage(
-          message: 'Database error while creating reminder : ${e.toString()}');
+        message: e.toString(),
+        isSuccess: false,
+        isLog: true,
+        logLevel: LogLevel.error,
+        logFunction: 'createReminder',
+      );
     }
   }
 
@@ -427,7 +487,12 @@ class DatabaseService {
           'preferences', {'isReminderActive': isReminderActive ? 1 : 0});
     } catch (e) {
       showToastMessage(
-          message: 'Database error while saving preferences : ${e.toString()}');
+        message: e.toString(),
+        isSuccess: false,
+        isLog: true,
+        logLevel: LogLevel.error,
+        logFunction: 'savePreferences',
+      );
     }
   }
 
@@ -440,7 +505,12 @@ class DatabaseService {
       return result.map((row) => Log.fromMap(row)).toList();
     } catch (e) {
       showToastMessage(
-          message: 'Database error while getting all logs : ${e.toString()}');
+        message: e.toString(),
+        isSuccess: false,
+        isLog: true,
+        logLevel: LogLevel.error,
+        logFunction: 'getAllLogs',
+      );
       return [];
     }
   }
@@ -456,8 +526,12 @@ class DatabaseService {
       return baseExercise;
     } catch (e) {
       showToastMessage(
-          message:
-              'Database error while getting base exercise by id : ${e.toString()}');
+        message: e.toString(),
+        isSuccess: false,
+        isLog: true,
+        logLevel: LogLevel.error,
+        logFunction: 'getBaseExerciseById',
+      );
 
       return null;
     }
@@ -474,9 +548,12 @@ class DatabaseService {
       return baseExercises;
     } catch (e) {
       showToastMessage(
-          message:
-              'Database error while getting all base exercises : ${e.toString()}');
-
+        message: e.toString(),
+        isSuccess: false,
+        isLog: true,
+        logLevel: LogLevel.error,
+        logFunction: 'getAllBaseExercises',
+      );
       return [];
     }
   }
@@ -492,9 +569,12 @@ class DatabaseService {
       return trainingVersions;
     } catch (e) {
       showToastMessage(
-          message:
-              'Database error while getting all training versions : ${e.toString()}');
-
+        message: e.toString(),
+        isSuccess: false,
+        isLog: true,
+        logLevel: LogLevel.error,
+        logFunction: 'getAllTrainingVersions',
+      );
       return [];
     }
   }
@@ -530,9 +610,12 @@ class DatabaseService {
       return training;
     } catch (e) {
       showToastMessage(
-          message:
-              'Database error while getting training by id : ${e.toString()}');
-
+        message: e.toString(),
+        isSuccess: false,
+        isLog: true,
+        logLevel: LogLevel.error,
+        logFunction: 'getTrainingById',
+      );
       return null;
     }
   }
@@ -573,9 +656,12 @@ class DatabaseService {
       return trainings;
     } catch (e) {
       showToastMessage(
-          message:
-              'Database error while getting all trainings : ${e.toString()}');
-
+        message: e.toString(),
+        isSuccess: false,
+        isLog: true,
+        logLevel: LogLevel.error,
+        logFunction: 'getAllTrainings',
+      );
       return [];
     }
   }
@@ -593,9 +679,12 @@ class DatabaseService {
       return multisets;
     } catch (e) {
       showToastMessage(
-          message:
-              'Database error while getting multisets by training id : ${e.toString()}');
-
+        message: e.toString(),
+        isSuccess: false,
+        isLog: true,
+        logLevel: LogLevel.error,
+        logFunction: 'getMultisetsByTrainingId',
+      );
       return [];
     }
   }
@@ -613,9 +702,12 @@ class DatabaseService {
       return exercises;
     } catch (e) {
       showToastMessage(
-          message:
-              'Database error while getting exercises by training id : ${e.toString()}');
-
+        message: e.toString(),
+        isSuccess: false,
+        isLog: true,
+        logLevel: LogLevel.error,
+        logFunction: 'getExercisesByTrainingId',
+      );
       return [];
     }
   }
@@ -632,9 +724,12 @@ class DatabaseService {
       return historyEntries;
     } catch (e) {
       showToastMessage(
-          message:
-              'Database error while getting history entries by training id : ${e.toString()}');
-
+        message: e.toString(),
+        isSuccess: false,
+        isLog: true,
+        logLevel: LogLevel.error,
+        logFunction: 'getHistoryEntriesByTrainingId',
+      );
       return [];
     }
   }
@@ -665,9 +760,12 @@ class DatabaseService {
       return daysSinceTrainings;
     } catch (e) {
       showToastMessage(
-          message:
-              'Database error while getting days since training : ${e.toString()}');
-
+        message: e.toString(),
+        isSuccess: false,
+        isLog: true,
+        logLevel: LogLevel.error,
+        logFunction: 'getDaysSinceTraining',
+      );
       return {};
     }
   }
@@ -684,9 +782,12 @@ class DatabaseService {
       return training;
     } catch (e) {
       showToastMessage(
-          message:
-              'Database error while getting basic training by version id : ${e.toString()}');
-
+        message: e.toString(),
+        isSuccess: false,
+        isLog: true,
+        logLevel: LogLevel.error,
+        logFunction: 'getBaseTrainingByVersionId',
+      );
       return null;
     }
   }
@@ -704,9 +805,12 @@ class DatabaseService {
       return training;
     } catch (e) {
       showToastMessage(
-          message:
-              'Database error while getting full training by version id: ${e.toString()}');
-
+        message: e.toString(),
+        isSuccess: false,
+        isLog: true,
+        logLevel: LogLevel.error,
+        logFunction: 'getFullTrainingByVersionId',
+      );
       return null;
     }
   }
@@ -723,9 +827,12 @@ class DatabaseService {
       return trainingVersion;
     } catch (e) {
       showToastMessage(
-          message:
-              'Database error while getting most recent training version: ${e.toString()}');
-
+        message: e.toString(),
+        isSuccess: false,
+        isLog: true,
+        logLevel: LogLevel.error,
+        logFunction: 'getMostRecentTrainingVersionForTrainingId',
+      );
       return null;
     }
   }
@@ -741,7 +848,7 @@ class DatabaseService {
       // On construit la clause WHERE
       // On utilise un StringBuffer pour concaténer les conditions
       final whereClause = StringBuffer();
-      // Liste des paramètres à l'ordre des "?" dans la requête
+      // Liste des paramètres à l'ordre des '?' dans la requête
       final List<Object?> params = [];
 
       // Filtre sur la date
@@ -791,9 +898,12 @@ class DatabaseService {
       return results.map((row) => HistoryEntry.fromMap(row)).toList();
     } catch (e) {
       showToastMessage(
-          message:
-              'Database error while getting filtered entries : ${e.toString()}');
-
+        message: e.toString(),
+        isSuccess: false,
+        isLog: true,
+        logLevel: LogLevel.error,
+        logFunction: 'getFilteredHistoryEntries',
+      );
       return [];
     }
   }
@@ -854,8 +964,12 @@ class DatabaseService {
       return results.map((row) => RunLocation.fromMap(row)).toList();
     } catch (e) {
       showToastMessage(
-          message:
-              'Database error while getting filtered run locations : ${e.toString()}');
+        message: e.toString(),
+        isSuccess: false,
+        isLog: true,
+        logLevel: LogLevel.error,
+        logFunction: 'getFilteredRunLocations',
+      );
       return [];
     }
   }
@@ -889,8 +1003,12 @@ class DatabaseService {
       return null;
     } catch (e) {
       showToastMessage(
-          message:
-              "Database error while getting history entry id : ${e.toString()}");
+        message: e.toString(),
+        isSuccess: false,
+        isLog: true,
+        logLevel: LogLevel.error,
+        logFunction: 'getRegisteredHistoryEntryId',
+      );
       return null;
     }
   }
@@ -907,9 +1025,12 @@ class DatabaseService {
       return DateTime.fromMillisecondsSinceEpoch(result.first['date'] as int);
     } catch (e) {
       showToastMessage(
-          message:
-              'Database error while getting last entry date : ${e.toString()}');
-
+        message: e.toString(),
+        isSuccess: false,
+        isLog: true,
+        logLevel: LogLevel.error,
+        logFunction: 'getLastEntryDate',
+      );
       return null;
     }
   }
@@ -927,9 +1048,12 @@ class DatabaseService {
       return result.isNotEmpty;
     } catch (e) {
       showToastMessage(
-          message:
-              'Database error while checking recent entries : ${e.toString()}');
-
+        message: e.toString(),
+        isSuccess: false,
+        isLog: true,
+        logLevel: LogLevel.error,
+        logFunction: 'checkIfTrainingHasRecentEntry',
+      );
       return null;
     }
   }
@@ -947,9 +1071,12 @@ class DatabaseService {
       };
     } catch (e) {
       showToastMessage(
-          message:
-              'Database error while getting preferences : ${e.toString()}');
-
+        message: e.toString(),
+        isSuccess: false,
+        isLog: true,
+        logLevel: LogLevel.error,
+        logFunction: 'getPreferences',
+      );
       return null;
     }
   }
@@ -965,9 +1092,12 @@ class DatabaseService {
       return reminders;
     } catch (e) {
       showToastMessage(
-          message:
-              'Database error while getting all reminders : ${e.toString()}');
-
+        message: e.toString(),
+        isSuccess: false,
+        isLog: true,
+        logLevel: LogLevel.error,
+        logFunction: 'getAllReminders',
+      );
       return [];
     }
   }
@@ -980,8 +1110,12 @@ class DatabaseService {
           'base_exercises', baseExercise.toMap(), 'id = ?', [baseExercise.id!]);
     } catch (e) {
       showToastMessage(
-          message:
-              'Database error while updating base exercise : ${e.toString()}');
+        message: e.toString(),
+        isSuccess: false,
+        isLog: true,
+        logLevel: LogLevel.error,
+        logFunction: 'updateBaseExercise',
+      );
     }
   }
 
@@ -990,7 +1124,12 @@ class DatabaseService {
       await update('exercises', exercise.toMap(), 'id = ?', [exercise.id!]);
     } catch (e) {
       showToastMessage(
-          message: 'Database error while updating exercise : ${e.toString()}');
+        message: e.toString(),
+        isSuccess: false,
+        isLog: true,
+        logLevel: LogLevel.error,
+        logFunction: 'updateExercise',
+      );
     }
   }
 
@@ -999,7 +1138,12 @@ class DatabaseService {
       await update('multisets', multiset.toMap(), 'id = ?', [multiset.id!]);
     } catch (e) {
       showToastMessage(
-          message: 'Database error while updating multiset : ${e.toString()}');
+        message: e.toString(),
+        isSuccess: false,
+        isLog: true,
+        logLevel: LogLevel.error,
+        logFunction: 'updateMultiset',
+      );
     }
   }
 
@@ -1138,7 +1282,12 @@ class DatabaseService {
       await createTrainingVersion(trainingVersion);
     } catch (e) {
       showToastMessage(
-          message: 'Database error while updating training : ${e.toString()}');
+        message: e.toString(),
+        isSuccess: false,
+        isLog: true,
+        logLevel: LogLevel.error,
+        logFunction: 'updateTraining',
+      );
     }
   }
 
@@ -1148,8 +1297,12 @@ class DatabaseService {
           [historyEntry.id!]);
     } catch (e) {
       showToastMessage(
-          message:
-              'Database error while updating history entry : ${e.toString()}');
+        message: e.toString(),
+        isSuccess: false,
+        isLog: true,
+        logLevel: LogLevel.error,
+        logFunction: 'updateHistoryEntry',
+      );
     }
   }
 
@@ -1161,8 +1314,12 @@ class DatabaseService {
           .execute('DELETE FROM base_exercises WHERE id = ?', [baseExerciseId]);
     } catch (e) {
       showToastMessage(
-          message:
-              'Database error while deleting base exercise  : ${e.toString()}');
+        message: e.toString(),
+        isSuccess: false,
+        isLog: true,
+        logLevel: LogLevel.error,
+        logFunction: 'deleteBaseExercise',
+      );
     }
   }
 
@@ -1171,7 +1328,12 @@ class DatabaseService {
       await _db.execute('DELETE FROM exercises WHERE id = ?', [exerciseId]);
     } catch (e) {
       showToastMessage(
-          message: 'Database error while deleting exercise : ${e.toString()}');
+        message: e.toString(),
+        isSuccess: false,
+        isLog: true,
+        logLevel: LogLevel.error,
+        logFunction: 'deleteExercise',
+      );
     }
   }
 
@@ -1182,7 +1344,12 @@ class DatabaseService {
       await _db.execute('DELETE FROM multisets WHERE id = ?', [multisetId]);
     } catch (e) {
       showToastMessage(
-          message: 'Database error while deleting multiset : ${e.toString()}');
+        message: e.toString(),
+        isSuccess: false,
+        isLog: true,
+        logLevel: LogLevel.error,
+        logFunction: 'deleteMultiset',
+      );
     }
   }
 
@@ -1195,7 +1362,12 @@ class DatabaseService {
       await _db.execute('DELETE FROM trainings WHERE id = ?', [trainingId]);
     } catch (e) {
       showToastMessage(
-          message: 'Database error while deleting training : ${e.toString()}');
+        message: e.toString(),
+        isSuccess: false,
+        isLog: true,
+        logLevel: LogLevel.error,
+        logFunction: 'deleteTraining',
+      );
     }
   }
 
@@ -1205,8 +1377,12 @@ class DatabaseService {
           'DELETE FROM history_entries WHERE id = ?', [historyEntryId]);
     } catch (e) {
       showToastMessage(
-          message:
-              'Database error while deleting history entry : ${e.toString()}');
+        message: e.toString(),
+        isSuccess: false,
+        isLog: true,
+        logLevel: LogLevel.error,
+        logFunction: 'deleteHistoryEntry',
+      );
     }
   }
 
@@ -1218,8 +1394,12 @@ class DatabaseService {
           'DELETE FROM run_locations WHERE trainingId = ?', [trainingId]);
     } catch (e) {
       showToastMessage(
-          message:
-              'Database error while deleting hisotry entries by training id : ${e.toString()}');
+        message: e.toString(),
+        isSuccess: false,
+        isLog: true,
+        logLevel: LogLevel.error,
+        logFunction: 'deleteHistoryEntriesByTrainingId',
+      );
     }
   }
 
@@ -1229,7 +1409,12 @@ class DatabaseService {
           'DELETE FROM reminders WHERE notificationId = ?', [notificationId]);
     } catch (e) {
       showToastMessage(
-          message: 'Database error while deleting reminder : ${e.toString()}');
+        message: e.toString(),
+        isSuccess: false,
+        isLog: true,
+        logLevel: LogLevel.error,
+        logFunction: 'deleteReminder',
+      );
     }
   }
 
@@ -1240,7 +1425,12 @@ class DatabaseService {
       await _db.execute('DELETE FROM logs WHERE date < ?', [thirtyDaysAgo]);
     } catch (e) {
       showToastMessage(
-          message: 'Database error while deleting logs : ${e.toString()}');
+        message: e.toString(),
+        isSuccess: false,
+        isLog: true,
+        logLevel: LogLevel.error,
+        logFunction: 'deleteOldLogs',
+      );
     }
   }
 }

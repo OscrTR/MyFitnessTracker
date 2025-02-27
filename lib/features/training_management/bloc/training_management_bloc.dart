@@ -3,18 +3,18 @@ import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import '../../../core/messages/toast.dart';
-import '../../../core/database/database_service.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../../core/database/database_service.dart';
 import '../../../core/enums/enums.dart';
+import '../../../core/messages/toast.dart';
 import '../../../core/notification_service.dart';
 import '../../../injection_container.dart';
 import '../../base_exercise_management/models/base_exercise.dart';
 import '../../settings/bloc/settings_bloc.dart';
+import '../models/exercise.dart';
 import '../models/multiset.dart';
 import '../models/training.dart';
-import '../models/exercise.dart';
 
 part 'training_management_event.dart';
 part 'training_management_state.dart';
@@ -42,7 +42,13 @@ class TrainingManagementBloc
               daysSinceLastTraining: daysSinceTraining));
         }
       } catch (e) {
-        showToastMessage(message: 'An error occurred: ${e.toString()}');
+        showToastMessage(
+          message: e.toString(),
+          isSuccess: false,
+          isLog: true,
+          logLevel: LogLevel.error,
+          logFunction: 'FetchTrainingsEvent',
+        );
       }
     });
 
@@ -56,7 +62,13 @@ class TrainingManagementBloc
         showToastMessage(message: tr('message_training_deletion_success'));
         add(FetchTrainingsEvent());
       } catch (e) {
-        showToastMessage(message: 'An error occurred: ${e.toString()}');
+        showToastMessage(
+          message: e.toString(),
+          isSuccess: false,
+          isLog: true,
+          logLevel: LogLevel.error,
+          logFunction: 'DeleteTrainingEvent',
+        );
       }
     });
 
@@ -72,7 +84,13 @@ class TrainingManagementBloc
 
         emit(currentState.copyWith(selectedTraining: training));
       } catch (e) {
-        showToastMessage(message: 'An error occurred: ${e.toString()}');
+        showToastMessage(
+          message: e.toString(),
+          isSuccess: false,
+          isLog: true,
+          logLevel: LogLevel.error,
+          logFunction: 'GetTrainingEvent',
+        );
       }
     });
 
@@ -130,7 +148,13 @@ class TrainingManagementBloc
 
         add(FetchTrainingsEvent(true));
       } catch (e) {
-        showToastMessage(message: 'An error occurred: ${e.toString()}');
+        showToastMessage(
+          message: e.toString(),
+          isSuccess: false,
+          isLog: true,
+          logLevel: LogLevel.error,
+          logFunction: 'CreateOrUpdateTrainingEvent',
+        );
       }
     });
 
