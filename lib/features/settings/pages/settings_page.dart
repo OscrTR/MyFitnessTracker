@@ -210,7 +210,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 SizedBox(
                   width: MediaQuery.of(context).size.width - 130,
                   child: Text(
-                    'Errors and warnings events.',
+                    tr('settings_page_logs'),
                     style: const TextStyle(
                       color: AppColors.taupeGray,
                       fontWeight: FontWeight.w500,
@@ -273,7 +273,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                     },
                                   ),
                                 )
-                              : Text('No logs yet.'),
+                              : Text(tr('settings_page_no_logs')),
                           actions: [
                             if (logs.isNotEmpty)
                               GestureDetector(
@@ -290,7 +290,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                       color: AppColors.licorice),
                                   child: Center(
                                     child: Text(
-                                      'Share',
+                                      tr('settings_page_share'),
                                       style: const TextStyle(
                                           color: AppColors.white),
                                     ),
@@ -301,7 +301,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         );
                       }),
                   child: Text(
-                    'See',
+                    tr('settings_page_see'),
                     style: const TextStyle(
                       color: AppColors.licorice,
                       fontWeight: FontWeight.w500,

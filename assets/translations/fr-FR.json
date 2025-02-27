@@ -159,6 +159,10 @@
   "settings_page_notifications": "Notifications",
   "settings_page_reminder": "Rappels d'entraînement",
   "settings_page_reminder_description": "Recevez un rappel de vos séances prévues",
+  "settings_page_logs": "Avertissements et erreurs.",
+  "settings_page_share": "Partager",
+  "settings_page_see": "Voir",
+  "settings_page_no_logs": "Pas encore de logs.",
 
   "history_page_no_training": "Aucun entraînement trouvé.",
   "history_page_title": "Historique",
@@ -174,4 +178,5 @@
   "stats_page_deleted_exercises": "Exercices supprimés",
   "stats_page_training_search": "Chercher un entraînement",
   "stats_page_trainings_duration": "Durée des entraînements (minutes)"
+
 }

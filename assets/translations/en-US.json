@@ -159,6 +159,10 @@
   "settings_page_notifications": "Notifications",
   "settings_page_reminder": "Training reminders",
   "settings_page_reminder_description": "Receive a reminder for your planned trainings",
+  "settings_page_logs": "Errors and warnings events.",
+  "settings_page_share": "Share",
+  "settings_page_see": "See",
+  "settings_page_no_logs": "No logs yet.",
 
   "history_page_no_training": "No training found.",
   "history_page_title": "History",
