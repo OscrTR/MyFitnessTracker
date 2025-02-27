@@ -11,7 +11,6 @@ import '../../../injection_container.dart';
 import '../../base_exercise_management/models/base_exercise.dart';
 import '../../training_management/models/training.dart';
 import '../models/history_entry.dart';
-import '../models/history_run_location.dart';
 import '../models/history_training.dart';
 
 part 'training_history_event.dart';
@@ -34,20 +33,12 @@ class TrainingHistoryBloc
             .subtract(Duration(days: DateTime.now().weekday - 1))
             .add(const Duration(days: 6));
 
-        final List<HistoryEntry> fetchedEntries = await sl<DatabaseService>()
-            .getHistoryEntriesForPeriod(startDate, endDate);
-
-        final List<RunLocation> fetchedRunLocations =
-            await sl<DatabaseService>()
-                .getRunLocationsForPeriod(startDate, endDate);
-
-        final locationsByTrainingId =
-            groupBy(fetchedRunLocations, (loc) => loc.trainingId);
-
-        final historyTrainings = await HistoryTraining.fromHistoryEntries(
-          fetchedEntries,
-          locationsByTrainingId: locationsByTrainingId,
-        );
+        final historyTrainings = await getHistoryTrainings(
+            startDate: startDate,
+            endDate: endDate,
+            trainingTypes: null,
+            baseExerciseId: null,
+            trainingId: null);
 
         if (state is TrainingHistoryLoaded) {
           final currentState = state as TrainingHistoryLoaded;
@@ -137,6 +128,37 @@ class TrainingHistoryBloc
       }
     });
 
+    on<CreateOrUpdateHistoryAfterwardsEntry>((event, emit) async {
+      try {
+        final historyEntry = event.historyEntry;
+
+        // TODO : changer la date pour la plus récente de ce même trainingversionId
+        final lastDate = await sl<DatabaseService>()
+            .getLastEntryDate(historyEntry.trainingVersionId);
+        print('last used date is $lastDate');
+
+        bool hasRecentEntry = false;
+        final isUpdate = historyEntry.id != null;
+
+        if (isUpdate) {
+          hasRecentEntry = await sl<DatabaseService>()
+                  .checkIfTrainingHasRecentEntry(historyEntry.id!) ??
+              false;
+        }
+
+        if (isUpdate || hasRecentEntry) {
+          await sl<DatabaseService>().updateHistoryEntry(historyEntry);
+        } else {
+          await sl<DatabaseService>().createHistoryEntry(historyEntry);
+        }
+
+        add(FetchHistoryEntriesEvent());
+      } catch (e) {
+        messageBloc.add(AddMessageEvent(
+            message: 'An error occurred: ${e.toString()}', isError: true));
+      }
+    });
+
     on<DeleteHistoryEntryEvent>((event, emit) async {
       if (state is! TrainingHistoryLoaded) return;
       try {
@@ -176,20 +198,12 @@ class TrainingHistoryBloc
             : DateTime(startDate.year, startDate.month + 1, 1)
                 .subtract(const Duration(seconds: 1));
 
-        final List<HistoryEntry> fetchedEntries = await sl<DatabaseService>()
-            .getHistoryEntriesForPeriod(startDate, endDate);
-
-        final List<RunLocation> fetchedRunLocations =
-            await sl<DatabaseService>()
-                .getRunLocationsForPeriod(startDate, endDate);
-
-        final locationsByTrainingId =
-            groupBy(fetchedRunLocations, (loc) => loc.trainingId);
-
-        final historyTrainings = await HistoryTraining.fromHistoryEntries(
-          fetchedEntries,
-          locationsByTrainingId: locationsByTrainingId,
-        );
+        final historyTrainings = await getHistoryTrainings(
+            startDate: startDate,
+            endDate: endDate,
+            trainingTypes: null,
+            baseExerciseId: null,
+            trainingId: null);
 
         emit(currentState.copyWith(
           historyTrainings: historyTrainings,

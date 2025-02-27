@@ -683,23 +683,6 @@ class DatabaseService {
     }
   }
 
-  Future<List<HistoryEntry>> getHistoryEntriesForPeriod(
-      DateTime startDate, DateTime endDate) async {
-    try {
-      final results = await _db.execute(
-        'SELECT * FROM history_entries WHERE date BETWEEN ? AND ?',
-        [startDate.millisecondsSinceEpoch, endDate.millisecondsSinceEpoch],
-      );
-
-      return results.map((row) => HistoryEntry.fromMap(row)).toList();
-    } catch (e) {
-      sl<MessageBloc>().add(AddMessageEvent(
-          message: 'Database error : ${e.toString()}', isError: true));
-
-      return [];
-    }
-  }
-
   Future<List<HistoryEntry>> getFilteredHistoryEntries({
     required DateTime startDate,
     required DateTime endDate,
@@ -868,20 +851,19 @@ class DatabaseService {
     }
   }
 
-  Future<List<RunLocation>> getRunLocationsForPeriod(
-      DateTime startDate, DateTime endDate) async {
+  Future<DateTime?> getLastEntryDate(int trainingVersionId) async {
     try {
-      final results = await _db.execute(
-        'SELECT * FROM run_locations WHERE date BETWEEN ? AND ?',
-        [startDate.millisecondsSinceEpoch, endDate.millisecondsSinceEpoch],
+      final result = await _db.execute(
+        'SELECT 1 FROM history_entries WHERE trainingVersionId = ? LIMIT 1',
+        [trainingVersionId],
       );
 
-      return results.map((row) => RunLocation.fromMap(row)).toList();
+      return DateTime.fromMillisecondsSinceEpoch(result.first['date'] as int);
     } catch (e) {
       sl<MessageBloc>().add(AddMessageEvent(
           message: 'Database error : ${e.toString()}', isError: true));
 
-      return [];
+      return null;
     }
   }
 

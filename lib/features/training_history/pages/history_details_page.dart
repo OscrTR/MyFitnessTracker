@@ -458,7 +458,7 @@ class _ExerciseSetFormState extends State<ExerciseSetForm> {
             duration: duration ?? historyEntry?.duration);
 
     context.read<TrainingHistoryBloc>().add(
-          CreateOrUpdateHistoryEntry(
+          CreateOrUpdateHistoryAfterwardsEntry(
             historyEntry: HistoryEntry(
               id: historyEntry?.id,
               trainingId:
@@ -476,7 +476,6 @@ class _ExerciseSetFormState extends State<ExerciseSetForm> {
               trainingVersionId:
                   historyEntry?.trainingVersionId ?? widget.trainingVersionId,
             ),
-            timerState: null,
           ),
         );
   }
