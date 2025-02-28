@@ -319,8 +319,9 @@ class LottieIconButtonState extends State<LottieIconButton>
             widget.customAction!();
           }
         },
-        child: SizedBox(
-          width: 80,
+        child: Container(
+          width: MediaQuery.of(context).size.width / 5,
+          color: AppColors.floralWhite,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,

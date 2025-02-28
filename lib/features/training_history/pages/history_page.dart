@@ -51,7 +51,7 @@ class _HistoryPageState extends State<HistoryPage> {
                   _buildDateTypeSelection(context, state),
                   const SizedBox(height: 10),
                   _buildDatesList(state),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 10),
                   Wrap(
                     spacing: 10,
                     children: [
