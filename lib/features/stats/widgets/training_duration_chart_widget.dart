@@ -1,6 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import '../../training_history/models/history_training.dart';
+import 'dart:math' as math;
 
 import '../../../app_colors.dart';
 
@@ -15,6 +16,19 @@ class TrainingDurationChart extends StatelessWidget {
     required this.startDate,
     required this.endDate,
   });
+
+  double _calculateInterval(double min, double max) {
+    final double range = max - min;
+    final double rawInterval = range / 5;
+
+    final double magnitude =
+        math.pow(10, (math.log(rawInterval) / math.ln10).floor()).toDouble();
+    final intervals = [1, 2, 5, 10];
+
+    return intervals
+        .map((i) => i * magnitude)
+        .firstWhere((i) => i >= rawInterval);
+  }
 
   /// Vérifie si deux dates représentent le même jour
   bool isSameDay(DateTime d1, DateTime d2) {
@@ -48,10 +62,12 @@ class TrainingDurationChart extends StatelessWidget {
 
   /// Calcule la valeur maximale de l’axe Y (en minutes) parmi tous les jours
   double _calculateMaxY(Map<DateTime, double> dailyTotals) {
-    if (dailyTotals.isEmpty) return 10;
+    if (dailyTotals.isEmpty) return 20;
     final maxVal = dailyTotals.values.reduce((a, b) => a > b ? a : b);
-    // On rajoute un petit marge (20 %)
-    return (maxVal + 1).floorToDouble();
+    final calculatedMax = (maxVal + 1).floorToDouble();
+    return calculatedMax < 20
+        ? 20
+        : calculatedMax; // Toujours retourner au moins 20
   }
 
   @override
@@ -110,6 +126,7 @@ class TrainingDurationChart extends StatelessWidget {
 
     // Définir l'échelle Y en fonction des durées maximales
     final maxY = _calculateMaxY(dailyTotals);
+    final interval = _calculateInterval(0, maxY);
 
     return Container(
       height: 250,
@@ -118,7 +135,7 @@ class TrainingDurationChart extends StatelessWidget {
             bottomLeft: Radius.circular(10), bottomRight: Radius.circular(10)),
         color: AppColors.floralWhite,
       ),
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.only(top: 24, bottom: 14, left: 0, right: 20),
       child: BarChart(
         BarChartData(
           maxY: maxY,
@@ -127,7 +144,7 @@ class TrainingDurationChart extends StatelessWidget {
             show: true,
             drawVerticalLine: false,
             drawHorizontalLine: true,
-            horizontalInterval: 1,
+            horizontalInterval: interval,
             getDrawingHorizontalLine: (value) => const FlLine(
               color: AppColors.platinum,
               strokeWidth: 1,
@@ -137,15 +154,21 @@ class TrainingDurationChart extends StatelessWidget {
             leftTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
-                interval: 1,
+                interval: interval,
                 reservedSize: 40,
                 getTitlesWidget: (value, meta) {
-                  return Padding(
-                    padding: const EdgeInsets.only(right: 8.0),
-                    child: Text(
-                      value.toInt().toString(),
-                      style: const TextStyle(fontSize: 14),
-                    ),
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const SizedBox(width: 8),
+                      Center(
+                        child: Text(
+                          value.toInt().toString(),
+                          style: const TextStyle(fontSize: 14),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                    ],
                   );
                 },
               ),

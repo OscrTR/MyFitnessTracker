@@ -255,7 +255,8 @@ class _StatsPageState extends State<StatsPage> {
                   const SizedBox(height: 30),
                   Container(
                     width: double.infinity,
-                    padding: EdgeInsets.all(16),
+                    padding: EdgeInsets.only(
+                        bottom: 10, left: 16, right: 16, top: 16),
                     decoration: BoxDecoration(
                         color: AppColors.floralWhite,
                         borderRadius: BorderRadius.only(

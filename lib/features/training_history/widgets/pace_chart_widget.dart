@@ -120,7 +120,7 @@ class PaceChart extends StatelessWidget {
           borderData: _buildBorderData(),
           lineBarsData: [
             LineChartBarData(
-              spots: smoothedSpots,
+              spots: smoothedSpots.isNotEmpty ? smoothedSpots : [FlSpot(0, 0)],
               isCurved: true,
               color: AppColors.folly,
               dotData: const FlDotData(show: false),

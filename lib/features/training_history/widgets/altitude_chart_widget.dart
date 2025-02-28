@@ -58,8 +58,6 @@ class AltitudeChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (locations.length < 2) return const SizedBox();
-
     final altitudeMap = aggregateAltitudesByMinute(locations);
 
     // Trier les clés de la map par date croissante
@@ -77,15 +75,12 @@ class AltitudeChart extends StatelessWidget {
     }
 
     // Calcul des limites min et max pour l'axe Y
-    final minAltitude = altitudes.reduce(math.min);
-    final maxAltitude = altitudes.reduce(math.max);
-    double minY = minAltitude.floorToDouble();
-    double maxY = (maxAltitude + 1).floorToDouble();
-    if (minY == maxY) {
-      minY -= 10;
-      maxY += 10;
-    }
-    final interval = _calculateInterval(minY, maxY);
+    final maxAltitude = locations.length > 1 ? altitudes.reduce(math.max) : 0;
+    double maxY = (maxAltitude + 1).floorToDouble() < 50
+        ? 50
+        : (maxAltitude + 1).floorToDouble();
+
+    final interval = _calculateInterval(0, maxY);
 
     return Container(
       height: 250,
@@ -96,7 +91,7 @@ class AltitudeChart extends StatelessWidget {
       padding: const EdgeInsets.only(top: 24, bottom: 14, left: 0, right: 20),
       child: LineChart(
         LineChartData(
-          minY: minY,
+          minY: 0,
           maxY: maxY,
           gridData: FlGridData(
             show: true,
@@ -109,26 +104,17 @@ class AltitudeChart extends StatelessWidget {
             ),
           ),
           titlesData: FlTitlesData(
-            bottomTitles: const AxisTitles(
-              sideTitles: SideTitles(
-                showTitles: false,
-              ),
-            ),
-            topTitles: const AxisTitles(
-              sideTitles: SideTitles(
-                showTitles: false,
-              ),
-            ),
-            rightTitles: const AxisTitles(
-              sideTitles: SideTitles(
-                showTitles: false,
-              ),
-            ),
+            bottomTitles:
+                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            topTitles:
+                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            rightTitles:
+                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
             leftTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
                 interval: interval,
-                reservedSize: 50,
+                reservedSize: 60,
                 getTitlesWidget: (value, meta) {
                   final formattedValue = '${value.toInt().toString()}m';
                   return Row(
@@ -151,7 +137,7 @@ class AltitudeChart extends StatelessWidget {
           borderData: _buildBorderData(),
           lineBarsData: [
             LineChartBarData(
-              spots: spots,
+              spots: spots.isNotEmpty ? spots : [FlSpot(0, 0)],
               isCurved: true,
               color: AppColors.folly,
               dotData: const FlDotData(show: false),
