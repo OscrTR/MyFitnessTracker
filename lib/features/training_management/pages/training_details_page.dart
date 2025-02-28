@@ -33,7 +33,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
   late final Map<String, TextEditingController> _controllers;
   bool _isDataInitialized = false;
 
-  final Exercise _defaultTExercise = Exercise(
+  Exercise _exerciseToCreateOrEdit = Exercise(
     sets: 1,
     isSetsInReps: true,
     exerciseType: ExerciseType.workout,
@@ -51,35 +51,6 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
     duration: 0,
     setRest: 0,
     exerciseRest: 0,
-  );
-
-  Exercise _tExerciseToCreateOrEdit = Exercise(
-    sets: 1,
-    isSetsInReps: true,
-    exerciseType: ExerciseType.workout,
-    isAutoStart: false,
-    runType: RunType.distance,
-    isTargetPaceSelected: false,
-    intensity: 2,
-    specialInstructions: '',
-    objectives: '',
-    targetDistance: 0,
-    targetDuration: 0,
-    targetSpeed: 0,
-    minReps: 0,
-    maxReps: 0,
-    duration: 0,
-    setRest: 0,
-    exerciseRest: 0,
-  );
-
-  final Multiset _defaultMultiset = Multiset(
-    sets: 1,
-    setRest: 0,
-    multisetRest: 0,
-    specialInstructions: '',
-    objectives: '',
-    position: null,
   );
 
   Multiset _multisetToCreateOrEdit = Multiset(
@@ -115,120 +86,142 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
     _controllers['trainingObjectives']!.text = training.objectives;
   }
 
-  void initializeExerciseControllers(String key) {
-    final bloc = context.read<TrainingManagementBloc>();
-    final currentState = bloc.state;
+  void initializeExerciseControllers(String? key) {
+    final Exercise exercise;
 
-    if (currentState is TrainingManagementLoaded) {
+    if (key != null) {
+      final bloc = context.read<TrainingManagementBloc>();
+      final currentState = bloc.state;
+
+      if (currentState is! TrainingManagementLoaded) return;
       final exercises = currentState.selectedTraining.exercises;
-
-      final Exercise exercise =
-          exercises.firstWhere((exercise) => exercise.widgetKey == key);
-
-      _tExerciseToCreateOrEdit = _tExerciseToCreateOrEdit.copyWith(
-        id: exercise.id,
-        trainingId: exercise.trainingId,
-        multisetId: exercise.multisetId,
-        baseExerciseId: exercise.baseExerciseId,
-        exerciseType: exercise.exerciseType,
-        runType: exercise.runType,
-        specialInstructions: exercise.specialInstructions,
-        objectives: exercise.objectives,
-        targetDistance: exercise.targetDistance,
-        targetDuration: exercise.targetDuration,
-        isTargetPaceSelected: exercise.isTargetPaceSelected,
-        targetSpeed: exercise.targetSpeed,
-        isAutoStart: exercise.isAutoStart,
-        isSetsInReps: exercise.isSetsInReps,
-        sets: exercise.sets,
-        duration: exercise.duration,
-        minReps: exercise.minReps,
-        maxReps: exercise.maxReps,
-        setRest: exercise.setRest,
-        exerciseRest: exercise.exerciseRest,
-        position: exercise.position,
-        intensity: exercise.intensity,
-        widgetKey: exercise.widgetKey,
-        multisetKey: exercise.multisetKey,
-      );
-
-      _controllers['sets']?.text = exercise.sets.toString();
-      _controllers['durationMinutes']?.text = (exercise.duration != 0
-          ? (exercise.duration % 3600 ~/ 60).toString()
-          : '');
-      _controllers['durationSeconds']?.text =
-          (exercise.duration != 0 ? (exercise.duration % 60).toString() : '');
-      _controllers['minReps']?.text = exercise.minReps.toString();
-      _controllers['maxReps']?.text = exercise.maxReps.toString();
-      _controllers['setRestMinutes']?.text = (exercise.setRest != 0
-          ? (exercise.setRest % 3600 ~/ 60).toString()
-          : '');
-      _controllers['setRestSeconds']?.text =
-          (exercise.setRest != 0 ? (exercise.setRest % 60).toString() : '');
-      _controllers['specialInstructions']?.text = exercise.specialInstructions;
-      _controllers['objectives']?.text = exercise.objectives;
-      _controllers['distance']?.text = (exercise.targetDistance != 0
-          ? (exercise.targetDistance / 1000).toString()
-          : '');
-      _controllers['targetDurationHours']?.text = (exercise.targetDuration != 0
-          ? (exercise.targetDuration ~/ 3600).toString()
-          : '');
-      _controllers['targetDurationMinutes']?.text =
-          (exercise.targetDuration != 0
-              ? (exercise.targetDuration % 3600 ~/ 60).toString()
-              : '');
-      _controllers['targetDurationSeconds']?.text =
-          (exercise.targetDuration != 0
-              ? (exercise.targetDuration % 60).toString()
-              : '');
-      _controllers['paceMinutes']?.text = (exercise.targetSpeed != 0
-          ? (exercise.targetSpeed % 3600 ~/ 60).toString()
-          : '');
-      _controllers['paceSeconds']?.text = (exercise.targetSpeed != 0
-          ? (exercise.targetSpeed % 60).toString()
-          : '');
-      _controllers['exerciseRestMinutes']?.text = (exercise.exerciseRest != 0
-          ? (exercise.exerciseRest % 3600 ~/ 60).toString()
-          : '');
-      _controllers['exerciseRestSeconds']?.text = (exercise.exerciseRest != 0
-          ? (exercise.exerciseRest % 60).toString()
-          : '');
+      exercise = exercises.firstWhere((e) => e.widgetKey == key);
+    } else {
+      exercise = _exerciseToCreateOrEdit;
     }
+
+    // Update `_exerciseToCreateOrEdit` with the selected `exercise`
+    _updateExerciseToCreateOrEdit(exercise);
+
+    // Populate the `_controllers` with values from `exercise`
+    _populateControllers(exercise);
   }
 
-  void initializeMultisetControllers(String key) {
-    final bloc = context.read<TrainingManagementBloc>();
-    final currentState = bloc.state;
+  void _updateExerciseToCreateOrEdit(Exercise exercise) {
+    _exerciseToCreateOrEdit = _exerciseToCreateOrEdit.copyWith(
+      id: exercise.id,
+      trainingId: exercise.trainingId,
+      multisetId: exercise.multisetId,
+      baseExerciseId: exercise.baseExerciseId,
+      exerciseType: exercise.exerciseType,
+      runType: exercise.runType,
+      specialInstructions: exercise.specialInstructions,
+      objectives: exercise.objectives,
+      targetDistance: exercise.targetDistance,
+      targetDuration: exercise.targetDuration,
+      isTargetPaceSelected: exercise.isTargetPaceSelected,
+      targetSpeed: exercise.targetSpeed,
+      isAutoStart: exercise.isAutoStart,
+      isSetsInReps: exercise.isSetsInReps,
+      sets: exercise.sets,
+      duration: exercise.duration,
+      minReps: exercise.minReps,
+      maxReps: exercise.maxReps,
+      setRest: exercise.setRest,
+      exerciseRest: exercise.exerciseRest,
+      position: exercise.position,
+      intensity: exercise.intensity,
+      widgetKey: exercise.widgetKey,
+      multisetKey: exercise.multisetKey,
+    );
+  }
 
-    if (currentState is TrainingManagementLoaded) {
+  void _populateControllers(Exercise exercise) {
+    _controllers['sets']?.text = exercise.sets.toString();
+    _controllers['durationMinutes']?.text = _formatMinutes(exercise.duration);
+    _controllers['durationSeconds']?.text = _formatSeconds(exercise.duration);
+    _controllers['minReps']?.text = exercise.minReps.toString();
+    _controllers['maxReps']?.text = exercise.maxReps.toString();
+    _controllers['setRestMinutes']?.text = _formatMinutes(exercise.setRest);
+    _controllers['setRestSeconds']?.text = _formatSeconds(exercise.setRest);
+    _controllers['specialInstructions']?.text = exercise.specialInstructions;
+    _controllers['objectives']?.text = exercise.objectives;
+    _controllers['distance']?.text = exercise.targetDistance != 0
+        ? (exercise.targetDistance / 1000).toString()
+        : '0';
+    _controllers['targetDurationHours']?.text =
+        _formatHours(exercise.targetDuration);
+    _controllers['targetDurationMinutes']?.text =
+        _formatMinutes(exercise.targetDuration);
+    _controllers['targetDurationSeconds']?.text =
+        _formatSeconds(exercise.targetDuration);
+    _controllers['paceMinutes']?.text = _formatMinutes(exercise.targetSpeed);
+    _controllers['paceSeconds']?.text = _formatSeconds(exercise.targetSpeed);
+    _controllers['exerciseRestMinutes']?.text =
+        _formatMinutes(exercise.exerciseRest);
+    _controllers['exerciseRestSeconds']?.text =
+        _formatSeconds(exercise.exerciseRest);
+  }
+
+  String _formatMinutes(num value) {
+    return value != 0 ? (value % 3600 ~/ 60).toString() : '0';
+  }
+
+  String _formatSeconds(num value) {
+    return value != 0 ? (value % 60).toString() : '0';
+  }
+
+  String _formatHours(int value) {
+    return value != 0 ? (value ~/ 3600).toString() : '0';
+  }
+
+  void initializeMultisetControllers(String? key) {
+    final Multiset multiset;
+
+    if (key != null) {
+      final bloc = context.read<TrainingManagementBloc>();
+      final currentState = bloc.state;
+
+      if (currentState is! TrainingManagementLoaded) return;
       final List<Multiset> multisets = currentState.selectedTraining.multisets;
-      final Multiset multiset =
-          multisets.firstWhere((multiset) => multiset.widgetKey == key);
-
-      _multisetToCreateOrEdit = _multisetToCreateOrEdit.copyWith(
-        id: multiset.id,
-        trainingId: multiset.trainingId,
-        sets: multiset.sets,
-        setRest: multiset.setRest,
-        multisetRest: multiset.multisetRest,
-        specialInstructions: multiset.specialInstructions,
-        objectives: multiset.objectives,
-        position: multiset.position,
-        widgetKey: key,
-      );
-
-      _controllers['multisetSets']?.text = multiset.sets.toString();
-      _controllers['multisetSetRestMinutes']?.text =
-          ((multiset.setRest % 3600 ~/ 60).toString());
-      _controllers['multisetSetRestSeconds']?.text =
-          ((multiset.setRest % 60).toString());
-      _controllers['multisetRestMinutes']?.text =
-          (multiset.multisetRest % 3600 ~/ 60).toString();
-      _controllers['multisetRestSeconds']?.text =
-          (multiset.multisetRest % 60).toString();
-      _controllers['multisetInstructions']?.text = multiset.specialInstructions;
-      _controllers['multisetObjectives']?.text = multiset.objectives;
+      multiset = multisets.firstWhere((multiset) => multiset.widgetKey == key);
+    } else {
+      multiset = _multisetToCreateOrEdit;
     }
+
+    // Update `_multisetToCreateOrEdit` with the selected `multiset`
+    _updateMultisetToCreateOrEdit(multiset);
+
+    // Populate the `_controllers` with values from `multiset`
+    _populateMultisetControllers(multiset);
+  }
+
+  void _populateMultisetControllers(Multiset multiset) {
+    _controllers['multisetSets']?.text = multiset.sets.toString();
+    _controllers['multisetSetRestMinutes']?.text =
+        _formatMinutes(multiset.setRest);
+    _controllers['multisetSetRestSeconds']?.text =
+        _formatSeconds(multiset.setRest);
+    _controllers['multisetRestMinutes']?.text =
+        _formatMinutes(multiset.multisetRest);
+    _controllers['multisetRestSeconds']?.text =
+        _formatSeconds(multiset.multisetRest);
+    _controllers['multisetInstructions']?.text = multiset.specialInstructions;
+    _controllers['multisetObjectives']?.text = multiset.objectives;
+  }
+
+  void _updateMultisetToCreateOrEdit(Multiset multiset) {
+    _multisetToCreateOrEdit = _multisetToCreateOrEdit.copyWith(
+      id: multiset.id,
+      trainingId: multiset.trainingId,
+      sets: multiset.sets,
+      setRest: multiset.setRest,
+      multisetRest: multiset.multisetRest,
+      specialInstructions: multiset.specialInstructions,
+      objectives: multiset.objectives,
+      position: multiset.position,
+      widgetKey: multiset.widgetKey,
+    );
   }
 
   void _initializeControllers() {
@@ -330,20 +323,20 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
     } else {
       // Pour exercise, on garde les valeurs existantes sauf pour le champ modifié
       final currentValues = {
-        'sets': _tExerciseToCreateOrEdit.sets,
-        'minReps': _tExerciseToCreateOrEdit.minReps,
-        'maxReps': _tExerciseToCreateOrEdit.maxReps,
-        'duration': _tExerciseToCreateOrEdit.duration,
-        'setRest': _tExerciseToCreateOrEdit.setRest,
-        'exerciseRest': _tExerciseToCreateOrEdit.exerciseRest,
-        'specialInstructions': _tExerciseToCreateOrEdit.specialInstructions,
-        'objectives': _tExerciseToCreateOrEdit.objectives,
-        'distance': _tExerciseToCreateOrEdit.targetDistance,
-        'targetDuration': _tExerciseToCreateOrEdit.targetDuration,
-        'targetSpeed': _tExerciseToCreateOrEdit.targetSpeed,
+        'sets': _exerciseToCreateOrEdit.sets,
+        'minReps': _exerciseToCreateOrEdit.minReps,
+        'maxReps': _exerciseToCreateOrEdit.maxReps,
+        'duration': _exerciseToCreateOrEdit.duration,
+        'setRest': _exerciseToCreateOrEdit.setRest,
+        'exerciseRest': _exerciseToCreateOrEdit.exerciseRest,
+        'specialInstructions': _exerciseToCreateOrEdit.specialInstructions,
+        'objectives': _exerciseToCreateOrEdit.objectives,
+        'distance': _exerciseToCreateOrEdit.targetDistance,
+        'targetDuration': _exerciseToCreateOrEdit.targetDuration,
+        'targetSpeed': _exerciseToCreateOrEdit.targetSpeed,
       };
 
-      _tExerciseToCreateOrEdit = _tExerciseToCreateOrEdit.copyWith(
+      _exerciseToCreateOrEdit = _exerciseToCreateOrEdit.copyWith(
         sets: key == 'sets'
             ? int.tryParse(_controllers['sets']?.text ?? '1') ?? 1
             : currentValues['sets'] as int?,
@@ -410,16 +403,6 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
             : currentValues['targetSpeed'] as double?,
       );
     }
-  }
-
-  void _resetData() {
-    _tExerciseToCreateOrEdit = _defaultTExercise;
-    _multisetToCreateOrEdit = _defaultMultiset;
-    _controllers.forEach((key, controller) {
-      if (key != 'trainingName' && key != 'trainingObjectives') {
-        controller.text = '';
-      }
-    });
   }
 
   List<TrainingDay> _sortTrainingDays(List<TrainingDay> trainingDays) {
@@ -902,6 +885,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
           const SizedBox(height: 20),
           GestureDetector(
             onTap: () {
+              initializeExerciseControllers(null);
               _buildExerciseDialog(context, multiset: multiset);
             },
             child: Container(
@@ -1032,6 +1016,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
         Expanded(
           child: GestureDetector(
             onTap: () {
+              initializeExerciseControllers(null);
               _buildExerciseDialog(context);
             },
             child: Container(
@@ -1207,7 +1192,6 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                             multiset: _multisetToCreateOrEdit,
                             training: training));
 
-                    _resetData();
                     Navigator.pop(context, 'Save');
                   },
                   child: Container(
@@ -1231,8 +1215,6 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
         ),
       ),
     );
-
-    _resetData();
   }
 
   Future<void> _buildExerciseDialog(BuildContext context,
@@ -1241,7 +1223,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
       context: context,
       builder: (dialogContext) => StatefulBuilder(
         builder: (context, setDialogState) => Builder(builder: (context) {
-          final bool isEdit = _tExerciseToCreateOrEdit.id != null;
+          final bool isEdit = _exerciseToCreateOrEdit.id != null;
           return AlertDialog(
             insetPadding: const EdgeInsets.symmetric(horizontal: 20),
             shape: RoundedRectangleBorder(
@@ -1287,7 +1269,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                   CustomDropdown<ExerciseType>(
                     items: ExerciseType.values
                         .sublist(0, ExerciseType.values.length - 1),
-                    initialItem: _tExerciseToCreateOrEdit.exerciseType,
+                    initialItem: _exerciseToCreateOrEdit.exerciseType,
                     decoration: CustomDropdownDecoration(
                       listItemStyle: Theme.of(context)
                           .textTheme
@@ -1320,7 +1302,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                     onChanged: (value) {
                       setDialogState(
                         () {
-                          _tExerciseToCreateOrEdit = _tExerciseToCreateOrEdit
+                          _exerciseToCreateOrEdit = _exerciseToCreateOrEdit
                               .copyWith(exerciseType: value);
                         },
                       );
@@ -1330,7 +1312,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                   CustomDropdown<ExerciseDifficulty>(
                     items: ExerciseDifficulty.values,
                     initialItem:
-                        difficultyMap[_tExerciseToCreateOrEdit.intensity] ??
+                        difficultyMap[_exerciseToCreateOrEdit.intensity] ??
                             ExerciseDifficulty.moderate,
                     decoration: CustomDropdownDecoration(
                       listItemStyle: Theme.of(context)
@@ -1362,14 +1344,14 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                       return Text(item.translate(context.locale.languageCode));
                     },
                     onChanged: (value) {
-                      _tExerciseToCreateOrEdit = _tExerciseToCreateOrEdit
+                      _exerciseToCreateOrEdit = _exerciseToCreateOrEdit
                           .copyWith(intensity: difficultyLevelMap[value!]);
                     },
                   ),
                   const SizedBox(height: 20),
-                  _tExerciseToCreateOrEdit.exerciseType != ExerciseType.running
+                  _exerciseToCreateOrEdit.exerciseType != ExerciseType.running
                       ? _buildYogaOrWorkoutFields(context, setDialogState,
-                          multiset, _tExerciseToCreateOrEdit.baseExerciseId)
+                          multiset, _exerciseToCreateOrEdit.baseExerciseId)
                       : _buildRunFields(setDialogState),
                   SizedBox(
                     height: 48,
@@ -1404,12 +1386,12 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                       SizedBox(
                         width: 20,
                         child: Checkbox(
-                          value: _tExerciseToCreateOrEdit.isAutoStart,
+                          value: _exerciseToCreateOrEdit.isAutoStart,
                           onChanged: (bool? value) {
                             setDialogState(
                               () {
-                                _tExerciseToCreateOrEdit =
-                                    _tExerciseToCreateOrEdit.copyWith(
+                                _exerciseToCreateOrEdit =
+                                    _exerciseToCreateOrEdit.copyWith(
                                         isAutoStart: value);
                               },
                             );
@@ -1442,23 +1424,22 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                           .state as BaseExerciseManagementLoaded)
                       .baseExercises
                       .firstWhereOrNull((b) =>
-                          b.id == _tExerciseToCreateOrEdit.baseExerciseId);
+                          b.id == _exerciseToCreateOrEdit.baseExerciseId);
 
                   if (multiset != null) {
                     sl<TrainingManagementBloc>().add(
                         CreateOrUpdateMultisetExerciseEvent(
-                            exercise: _tExerciseToCreateOrEdit,
+                            exercise: _exerciseToCreateOrEdit,
                             multisetKey: multiset.widgetKey!,
                             baseExercise: baseExercise));
                   } else {
                     sl<TrainingManagementBloc>()
                         .add(CreateOrUpdateExerciseEvent(
-                      exercise: _tExerciseToCreateOrEdit,
+                      exercise: _exerciseToCreateOrEdit,
                       baseExercise: baseExercise,
                     ));
                   }
 
-                  _resetData();
                   Navigator.pop(context, 'Save');
                 },
                 child: Container(
@@ -1481,8 +1462,6 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
         }),
       ),
     );
-
-    _resetData();
   }
 
   Column _buildRunFields(StateSetter setDialogState) {
@@ -1502,11 +1481,11 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
         _buildTargetChoiceOption(
           choice: tr('exercise_distance'),
           choiceValue: RunType.distance,
-          currentSelection: _tExerciseToCreateOrEdit.runType,
+          currentSelection: _exerciseToCreateOrEdit.runType,
           onSelectionChanged: (RunType value) {
             setDialogState(() {
-              _tExerciseToCreateOrEdit =
-                  _tExerciseToCreateOrEdit.copyWith(runType: value);
+              _exerciseToCreateOrEdit =
+                  _exerciseToCreateOrEdit.copyWith(runType: value);
             });
           },
           controller1: _controllers['distance'],
@@ -1514,11 +1493,11 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
         _buildTargetChoiceOption(
           choice: tr('exercise_duration'),
           choiceValue: RunType.duration,
-          currentSelection: _tExerciseToCreateOrEdit.runType,
+          currentSelection: _exerciseToCreateOrEdit.runType,
           onSelectionChanged: (RunType value) {
             setDialogState(() {
-              _tExerciseToCreateOrEdit =
-                  _tExerciseToCreateOrEdit.copyWith(runType: value);
+              _exerciseToCreateOrEdit =
+                  _exerciseToCreateOrEdit.copyWith(runType: value);
             });
           },
           controller1: _controllers['targetDurationHours'],
@@ -1555,11 +1534,11 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
             SizedBox(
               width: 20,
               child: Checkbox(
-                value: _tExerciseToCreateOrEdit.isTargetPaceSelected,
+                value: _exerciseToCreateOrEdit.isTargetPaceSelected,
                 onChanged: (value) {
                   setDialogState(
                     () {
-                      _tExerciseToCreateOrEdit = _tExerciseToCreateOrEdit
+                      _exerciseToCreateOrEdit = _exerciseToCreateOrEdit
                           .copyWith(isTargetPaceSelected: value);
                     },
                   );
@@ -1577,7 +1556,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                     children: [
                       SmallTextFieldWidget(
                         controller: _controllers['paceMinutes']!,
-                        textColor: _tExerciseToCreateOrEdit.isTargetPaceSelected
+                        textColor: _exerciseToCreateOrEdit.isTargetPaceSelected
                             ? AppColors.licorice
                             : AppColors.frenchGray,
                       ),
@@ -1587,16 +1566,16 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                           child: Text(':',
                               style: TextStyle(
                                 fontSize: 20,
-                                color: _tExerciseToCreateOrEdit
-                                        .isTargetPaceSelected
-                                    ? AppColors.licorice
-                                    : AppColors.frenchGray,
+                                color:
+                                    _exerciseToCreateOrEdit.isTargetPaceSelected
+                                        ? AppColors.licorice
+                                        : AppColors.frenchGray,
                               )),
                         ),
                       ),
                       SmallTextFieldWidget(
                         controller: _controllers['paceSeconds']!,
-                        textColor: _tExerciseToCreateOrEdit.isTargetPaceSelected
+                        textColor: _exerciseToCreateOrEdit.isTargetPaceSelected
                             ? AppColors.licorice
                             : AppColors.frenchGray,
                       ),
@@ -1655,7 +1634,8 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
               ? (sl<BaseExerciseManagementBloc>().state
                       as BaseExerciseManagementLoaded)
                   .baseExercises
-                  .firstWhereOrNull((exercise) => exercise.id == exercise.id)
+                  .firstWhereOrNull(
+                      (exercise) => exercise.id == initialBaseExerciseId)
               : null,
           decoration: CustomDropdownDecoration(
             listItemStyle: Theme.of(context)
@@ -1686,8 +1666,8 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
             return Text(item.name);
           },
           onChanged: (value) {
-            _tExerciseToCreateOrEdit =
-                _tExerciseToCreateOrEdit.copyWith(baseExerciseId: value?.id!);
+            _exerciseToCreateOrEdit =
+                _exerciseToCreateOrEdit.copyWith(baseExerciseId: value?.id!);
           },
         ),
         const SizedBox(height: 20),
@@ -1706,12 +1686,12 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
         _buildSetsChoiceOption(
           choice: tr('exercise_reps'),
           choiceValue: true,
-          currentSelection: _tExerciseToCreateOrEdit.isSetsInReps,
+          currentSelection: _exerciseToCreateOrEdit.isSetsInReps,
           isReps: true,
           onSelectionChanged: (bool newValue) {
             setDialogState(() {
-              _tExerciseToCreateOrEdit =
-                  _tExerciseToCreateOrEdit.copyWith(isSetsInReps: newValue);
+              _exerciseToCreateOrEdit =
+                  _exerciseToCreateOrEdit.copyWith(isSetsInReps: newValue);
             });
           },
           controller1: _controllers['minReps'],
@@ -1720,12 +1700,12 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
         _buildSetsChoiceOption(
           choice: tr('exercise_duration'),
           choiceValue: false,
-          currentSelection: _tExerciseToCreateOrEdit.isSetsInReps,
+          currentSelection: _exerciseToCreateOrEdit.isSetsInReps,
           isReps: false,
           onSelectionChanged: (bool newValue) {
             setDialogState(() {
-              _tExerciseToCreateOrEdit =
-                  _tExerciseToCreateOrEdit.copyWith(isSetsInReps: newValue);
+              _exerciseToCreateOrEdit =
+                  _exerciseToCreateOrEdit.copyWith(isSetsInReps: newValue);
             });
           },
           controller1: _controllers['durationMinutes'],
