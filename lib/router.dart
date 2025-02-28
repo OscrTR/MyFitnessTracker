@@ -141,37 +141,30 @@ final router = GoRouter(
         ),
       ],
       builder: (context, state, child) {
-        bool isExerciseDetailPage =
-            GoRouterState.of(context).uri.toString() == '/exercise_detail';
-        bool isTrainingDetailPage =
-            GoRouterState.of(context).uri.toString() == '/training_detail';
-        bool isActiveTrainingPage =
-            GoRouterState.of(context).uri.toString() == '/active_training';
-        bool isHistoryDetailPage =
-            GoRouterState.of(context).uri.toString() == '/history_details';
+        bool isExerciseDetailPage = state.name == '/exercise_detail';
+        bool isTrainingDetailPage = state.name == '/training_detail';
+        bool isActiveTrainingPage = state.name == '/active_training';
+        bool isHistoryDetailPage = state.name == '/history_details';
 
-        return Scaffold(
-          body: Stack(
-            children: [
-              SafeArea(
-                child: GestureDetector(
-                    onTap: () {
-                      // Unfocus the text field and close the keyboard when tapping outside
-                      FocusScope.of(context).unfocus();
-                    },
-                    child: child),
-              ),
-              if (!isExerciseDetailPage &&
-                  !isTrainingDetailPage &&
-                  !isActiveTrainingPage &&
-                  !isHistoryDetailPage)
-                const Positioned(
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  child: BottomNavigationBarWidget(),
-                ),
-            ],
+        return GestureDetector(
+          onTap: () => FocusScope.of(context).unfocus(),
+          behavior: HitTestBehavior.opaque,
+          child: Scaffold(
+            body: Stack(
+              children: [
+                SafeArea(child: child),
+                if (!isExerciseDetailPage &&
+                    !isTrainingDetailPage &&
+                    !isActiveTrainingPage &&
+                    !isHistoryDetailPage)
+                  const Positioned(
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    child: BottomNavigationBarWidget(),
+                  ),
+              ],
+            ),
           ),
         );
       },
@@ -314,6 +307,7 @@ class LottieIconButtonState extends State<LottieIconButton>
     }
     return GestureDetector(
         onTap: () {
+          FocusScope.of(context).unfocus();
           _controller.forward(from: 0.0);
           if (widget.customAction != null) {
             widget.customAction!();

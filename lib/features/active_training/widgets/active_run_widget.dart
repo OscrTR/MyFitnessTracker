@@ -312,6 +312,7 @@ class DistanceOrDurationRun extends StatelessWidget {
               const SizedBox(height: 20),
               GestureDetector(
                 onTap: () async {
+                  FocusScope.of(context).unfocus();
                   context
                       .read<ActiveTrainingBloc>()
                       .add(StartTimer(timerId: timerId));
@@ -396,6 +397,7 @@ class IntervalWidget extends StatelessWidget {
             }
             return GestureDetector(
               onTap: () async {
+                FocusScope.of(context).unfocus();
                 context.read<ActiveTrainingBloc>().add(StartTimer(
                     timerId:
                         '${exerciseIndex < 10 ? 0 : ''}$exerciseIndex-00'));

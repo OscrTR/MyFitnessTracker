@@ -479,6 +479,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
         height: 70,
         child: GestureDetector(
           onTap: () {
+            FocusScope.of(context).unfocus();
             final training = (context.read<TrainingManagementBloc>().state
                     as TrainingManagementLoaded)
                 .selectedTraining;
@@ -560,6 +561,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
             if (exercisesAndMultisetsList.length <= 1) {
               return GestureDetector(
                 key: ValueKey(exercise.widgetKey),
+                onTap: () => FocusScope.of(context).unfocus(),
                 onLongPress: () {},
                 child: _buildRunExerciseItem(exercise, context, null),
               );
@@ -577,6 +579,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
           if (exercisesAndMultisetsList.length <= 1) {
             return GestureDetector(
               key: ValueKey(exercise.widgetKey),
+              onTap: () => FocusScope.of(context).unfocus(),
               onLongPress: () {},
               child: _buildExerciseItem(exercise, baseExercise, context, null),
             );
@@ -589,6 +592,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
           if (exercisesAndMultisetsList.length <= 1) {
             return GestureDetector(
               key: ValueKey(tMultiset.widgetKey),
+              onTap: () => FocusScope.of(context).unfocus(),
               onLongPress: () {},
               child: _buildMultisetItem(context, tMultiset),
             );
@@ -713,11 +717,11 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                   ],
                 ),
                 Text(
-                  '${multiset == null ? '${exercise.sets}x' : ''}${exercise.isSetsInReps ? '${exercise.minReps}-${exercise.maxReps} reps' : '${exercise.duration} seconds'}',
+                  '${multiset == null ? '${exercise.sets}x' : ''}${exercise.isSetsInReps ? '${exercise.minReps}-${exercise.maxReps} reps' : '${exercise.duration}"'}',
                   style: const TextStyle(color: AppColors.taupeGray),
                 ),
                 Text(
-                  '${multiset == null ? (exercise.setRest) : exercise.exerciseRest} seconds rest',
+                  '${multiset == null ? (exercise.sets > 1 ? exercise.setRest : exercise.exerciseRest) : exercise.exerciseRest}" ${tr('exercise_set_rest').toLowerCase()}',
                   style: const TextStyle(color: AppColors.taupeGray),
                 )
               ],
@@ -885,6 +889,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
           const SizedBox(height: 20),
           GestureDetector(
             onTap: () {
+              FocusScope.of(context).unfocus();
               initializeExerciseControllers(null);
               _buildExerciseDialog(context, multiset: multiset);
             },
@@ -1016,6 +1021,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
         Expanded(
           child: GestureDetector(
             onTap: () {
+              FocusScope.of(context).unfocus();
               initializeExerciseControllers(null);
               _buildExerciseDialog(context);
             },
@@ -1037,6 +1043,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
         Expanded(
           child: GestureDetector(
             onTap: () {
+              FocusScope.of(context).unfocus();
               _buildMultisetDialog(context);
             },
             child: Container(
@@ -1077,7 +1084,10 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                       ? tr('training_detail_page_edit_multiset')
                       : tr('training_detail_page_add_multiset')),
                   GestureDetector(
-                    onTap: () => Navigator.pop(context, 'Close'),
+                    onTap: () {
+                      FocusScope.of(context).unfocus();
+                      Navigator.pop(context, 'Close');
+                    },
                     child: Container(
                       height: 30,
                       width: 30,
@@ -1182,6 +1192,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
               actions: [
                 GestureDetector(
                   onTap: () {
+                    FocusScope.of(context).unfocus();
                     final training = (context
                             .read<TrainingManagementBloc>()
                             .state as TrainingManagementLoaded)
@@ -1237,7 +1248,10 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                     ? tr('exercise_detail_page_title_edit')
                     : tr('training_detail_page_add_exercise')),
                 GestureDetector(
-                  onTap: () => Navigator.pop(context, 'Close'),
+                  onTap: () {
+                    FocusScope.of(context).unfocus();
+                    Navigator.pop(context, 'Close');
+                  },
                   child: Container(
                     height: 30,
                     width: 30,
@@ -1421,6 +1435,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
             actions: [
               GestureDetector(
                 onTap: () {
+                  FocusScope.of(context).unfocus();
                   final baseExercise = (context
                           .read<BaseExerciseManagementBloc>()
                           .state as BaseExerciseManagementLoaded)
@@ -1608,6 +1623,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
             ),
             GestureDetector(
               onTap: () {
+                FocusScope.of(context).unfocus();
                 Navigator.pop(context, 'New exercise');
                 GoRouter.of(context)
                     .push('/exercise_detail', extra: 'training_detail');
@@ -1753,7 +1769,10 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
     TextEditingController? controller3,
   }) {
     return GestureDetector(
-      onTap: () => onSelectionChanged(choiceValue),
+      onTap: () {
+        FocusScope.of(context).unfocus();
+        onSelectionChanged(choiceValue);
+      },
       child: Row(
         children: [
           SizedBox(
@@ -1853,6 +1872,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
   }) {
     return GestureDetector(
       onTap: () {
+        FocusScope.of(context).unfocus();
         onSelectionChanged(choiceValue);
       },
       child: Row(
@@ -2026,6 +2046,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                 children: [
                   GestureDetector(
                     onTap: () {
+                      FocusScope.of(context).unfocus();
                       List<TrainingDay> newSelection =
                           List.from(training.trainingDays);
                       if (isSelected) {
@@ -2096,6 +2117,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
             bottom: 0,
             child: GestureDetector(
               onTap: () {
+                FocusScope.of(context).unfocus();
                 GoRouter.of(context).push('/trainings');
                 context
                     .read<TrainingManagementBloc>()
@@ -2126,6 +2148,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
               right: 0,
               child: GestureDetector(
                 onTap: () {
+                  FocusScope.of(context).unfocus();
                   sl<TrainingManagementBloc>()
                       .add(DeleteTrainingEvent(state.selectedTraining.id!));
                   GoRouter.of(context).push('/trainings');
@@ -2139,29 +2162,6 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
         ],
       ),
     );
-  }
-}
-
-enum ExerciseDifficulty {
-  veryEasy,
-  easy,
-  moderate,
-  hard,
-  veryHard;
-
-  String translate(String locale) {
-    switch (this) {
-      case ExerciseDifficulty.veryEasy:
-        return locale == 'fr' ? 'Très facile' : 'Very easy';
-      case ExerciseDifficulty.easy:
-        return locale == 'fr' ? 'Facile' : 'Easy';
-      case ExerciseDifficulty.moderate:
-        return locale == 'fr' ? 'Modéré' : 'Moderate';
-      case ExerciseDifficulty.hard:
-        return locale == 'fr' ? 'Difficile' : 'Hard';
-      case ExerciseDifficulty.veryHard:
-        return locale == 'fr' ? 'Très difficile' : 'Very hard';
-    }
   }
 }
 

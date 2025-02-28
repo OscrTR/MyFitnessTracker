@@ -140,6 +140,7 @@ class HistoryDetailsPage extends StatelessWidget {
           bottom: 0,
           child: GestureDetector(
             onTap: () {
+              FocusScope.of(context).unfocus();
               GoRouter.of(context).go('/home');
             },
             child: const Icon(
@@ -169,6 +170,7 @@ class HistoryDetailsPage extends StatelessWidget {
           right: 0,
           child: GestureDetector(
             onTap: () {
+              FocusScope.of(context).unfocus();
               context
                   .read<TrainingHistoryBloc>()
                   .add(DeleteHistoryTrainingEvent(

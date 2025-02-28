@@ -16,6 +16,7 @@ class SaveButtonState extends State<SaveButton> {
 
   void _onTap() {
     setState(() {
+      FocusScope.of(context).unfocus();
       _isPressed = true;
     });
 

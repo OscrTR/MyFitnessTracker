@@ -46,6 +46,7 @@ class _BaseExerciseDetailPageState extends State<BaseExerciseDetailPage> {
   }
 
   void _pickImage() async {
+    FocusScope.of(context).unfocus();
     final XFile? file =
         await ImagePicker().pickImage(source: ImageSource.gallery);
     if (file == null) return;
@@ -189,6 +190,7 @@ class _BaseExerciseDetailPageState extends State<BaseExerciseDetailPage> {
                     height: 70,
                     child: GestureDetector(
                       onTap: () {
+                        FocusScope.of(context).unfocus();
                         if (_imageToDelete != null) {
                           _deleteImageFile();
                         }
@@ -248,6 +250,7 @@ class _BaseExerciseDetailPageState extends State<BaseExerciseDetailPage> {
             ),
             GestureDetector(
               onTap: () {
+                FocusScope.of(context).unfocus();
                 showDialog(
                   context: context,
                   builder: (dialogContext) => StatefulBuilder(
@@ -361,6 +364,7 @@ class _BaseExerciseDetailPageState extends State<BaseExerciseDetailPage> {
             bottom: 0,
             child: GestureDetector(
               onTap: () {
+                FocusScope.of(context).unfocus();
                 widget.fromTrainingCreation
                     ? GoRouter.of(context).push('/training_detail')
                     : GoRouter.of(context).push('/trainings');
@@ -388,6 +392,7 @@ class _BaseExerciseDetailPageState extends State<BaseExerciseDetailPage> {
               right: 0,
               child: GestureDetector(
                 onTap: () {
+                  FocusScope.of(context).unfocus();
                   sl<BaseExerciseManagementBloc>()
                       .add(DeleteBaseExerciseEvent(baseExercise.id!));
                   GoRouter.of(context).push('/trainings');

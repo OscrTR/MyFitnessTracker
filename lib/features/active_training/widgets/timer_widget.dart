@@ -100,6 +100,7 @@ class TimerWidgetState extends State<TimerWidget> {
           }),
           GestureDetector(
             onTap: () {
+              FocusScope.of(context).unfocus();
               context.read<ActiveTrainingBloc>().add(PauseTimer());
             },
             child: Container(

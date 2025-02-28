@@ -285,6 +285,7 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage>
               const SizedBox(height: 30),
               GestureDetector(
                 onTap: () {
+                  FocusScope.of(context).unfocus();
                   final currentState =
                       (sl<ActiveTrainingBloc>().state as ActiveTrainingLoaded);
 
@@ -459,6 +460,7 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage>
           bottom: 0,
           child: GestureDetector(
             onTap: () {
+              FocusScope.of(context).unfocus();
               showDialog(
                 context: context,
                 builder: (context) => AlertDialog(

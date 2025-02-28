@@ -288,3 +288,26 @@ enum MuscleGroup {
     }
   }
 }
+
+enum ExerciseDifficulty {
+  veryEasy,
+  easy,
+  moderate,
+  hard,
+  veryHard;
+
+  String translate(String locale) {
+    switch (this) {
+      case ExerciseDifficulty.veryEasy:
+        return locale == 'fr' ? 'Très facile' : 'Very easy';
+      case ExerciseDifficulty.easy:
+        return locale == 'fr' ? 'Facile' : 'Easy';
+      case ExerciseDifficulty.moderate:
+        return locale == 'fr' ? 'Modéré' : 'Moderate';
+      case ExerciseDifficulty.hard:
+        return locale == 'fr' ? 'Difficile' : 'Hard';
+      case ExerciseDifficulty.veryHard:
+        return locale == 'fr' ? 'Très difficile' : 'Very hard';
+    }
+  }
+}

@@ -492,6 +492,7 @@ class _ActiveExerciseRowState extends State<ActiveExerciseRow> {
             const SizedBox(width: 10),
             GestureDetector(
               onTap: () {
+                FocusScope.of(context).unfocus();
                 int cals = 0;
 
                 if (widget.exercise.isSetsInReps) {
@@ -636,6 +637,7 @@ class ActiveExerciseDurationRow extends StatelessWidget {
 
         return GestureDetector(
           onTap: () async {
+            FocusScope.of(context).unfocus();
             context
                 .read<ActiveTrainingBloc>()
                 .add(StartTimer(timerId: timerId));
