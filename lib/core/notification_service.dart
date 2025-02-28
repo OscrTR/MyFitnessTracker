@@ -4,6 +4,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:my_fitness_tracker/app_colors.dart';
 import 'package:my_fitness_tracker/core/database/database_service.dart';
+import 'package:my_fitness_tracker/core/messages/toast.dart';
 import 'package:my_fitness_tracker/features/training_management/models/reminder.dart';
 import 'package:my_fitness_tracker/injection_container.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
@@ -36,6 +37,43 @@ class NotificationService {
 
   static Future<void> deleteNotification(id) async {
     await sl<FlutterLocalNotificationsPlugin>().cancel(id);
+  }
+
+  static Future<void> showTZ() async {
+    final String currentTimeZone = await FlutterTimezone.getLocalTimezone();
+    showToastMessage(message: '${tz.local}');
+  }
+
+  static Future<void> notify(id) async {
+    await sl<FlutterLocalNotificationsPlugin>().show(
+      id,
+      'Instant notif',
+      'nothing here',
+      const NotificationDetails(
+        android: AndroidNotificationDetails(
+            'weekly_channel_id', 'Weekly Notifications',
+            channelDescription: 'This channel is for weekly notifications',
+            importance: Importance.max,
+            priority: Priority.high,
+            color: AppColors.folly),
+        iOS: DarwinNotificationDetails(),
+      ),
+    );
+  }
+
+  static Future<void> notifyIn1Min(id) async {
+    await sl<FlutterLocalNotificationsPlugin>().zonedSchedule(
+        0,
+        'scheduled title',
+        'scheduled body',
+        tz.TZDateTime.now(tz.local).add(const Duration(seconds: 5)),
+        const NotificationDetails(
+            android: AndroidNotificationDetails(
+                'your channel id', 'your channel name',
+                channelDescription: 'your channel description')),
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+        uiLocalNotificationDateInterpretation:
+            UILocalNotificationDateInterpretation.absoluteTime);
   }
 
   static Future<void> scheduleWeeklyNotification({required Day day}) async {
