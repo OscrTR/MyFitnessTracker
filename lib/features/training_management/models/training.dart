@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:animated_custom_dropdown/custom_dropdown.dart';
 import 'package:equatable/equatable.dart';
 
 import '../../../core/enums/enums.dart';
@@ -7,7 +8,7 @@ import '../../base_exercise_management/models/base_exercise.dart';
 import 'exercise.dart';
 import 'multiset.dart';
 
-class Training extends Equatable {
+class Training extends Equatable with CustomDropdownListFilter {
   final int? id;
   final String name;
   final TrainingType trainingType;
@@ -27,6 +28,11 @@ class Training extends Equatable {
     required this.exercises,
     required this.baseExercises,
   });
+
+  @override
+  bool filter(String query) {
+    return name.toLowerCase().contains(query.toLowerCase());
+  }
 
   @override
   List<Object?> get props {

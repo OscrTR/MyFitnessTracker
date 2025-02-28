@@ -1,10 +1,11 @@
 import 'dart:convert';
 
+import 'package:animated_custom_dropdown/custom_dropdown.dart';
 import 'package:equatable/equatable.dart';
 
 import '../../../core/enums/enums.dart';
 
-class BaseExercise extends Equatable {
+class BaseExercise extends Equatable with CustomDropdownListFilter {
   final int? id;
   final String name;
   final String imagePath;
@@ -18,6 +19,11 @@ class BaseExercise extends Equatable {
     required this.description,
     required this.muscleGroups,
   });
+
+  @override
+  bool filter(String query) {
+    return name.toLowerCase().contains(query.toLowerCase());
+  }
 
   @override
   List<Object?> get props {

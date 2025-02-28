@@ -107,6 +107,7 @@ class _HomePageState extends State<HomePage> {
                       SizedBox(
                         width: 180,
                         child: CustomDropdown<String>(
+                          excludeSelected: false,
                           items: StatPeriod.values
                               .map((period) =>
                                   period.translate(context.locale.languageCode))

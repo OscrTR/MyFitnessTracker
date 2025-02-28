@@ -126,6 +126,7 @@ class _StatsPageState extends State<StatsPage> {
                         SizedBox(
                           width: MediaQuery.of(context).size.width - 40 - 60,
                           child: CustomDropdown<BaseExercise>.search(
+                            excludeSelected: false,
                             closedHeaderPadding: EdgeInsets.symmetric(
                                 horizontal: 15, vertical: 10),
                             items: (context
@@ -192,6 +193,7 @@ class _StatsPageState extends State<StatsPage> {
                         SizedBox(
                           width: MediaQuery.of(context).size.width - 40 - 60,
                           child: CustomDropdown<Training>.search(
+                            excludeSelected: false,
                             closedHeaderPadding: EdgeInsets.symmetric(
                                 horizontal: 15, vertical: 10),
                             items: (context.read<TrainingManagementBloc>().state

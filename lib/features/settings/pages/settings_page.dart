@@ -349,6 +349,7 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           const SizedBox(height: 20),
           CustomDropdown<String>(
+            excludeSelected: false,
             items: _languages,
             initialItem: _getLocaleName(context.locale),
             decoration: CustomDropdownDecoration(

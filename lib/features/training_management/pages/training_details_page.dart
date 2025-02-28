@@ -1267,6 +1267,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                   ),
                   const SizedBox(height: 10),
                   CustomDropdown<ExerciseType>(
+                    excludeSelected: false,
                     items: ExerciseType.values
                         .sublist(0, ExerciseType.values.length - 1),
                     initialItem: _exerciseToCreateOrEdit.exerciseType,
@@ -1310,6 +1311,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                   ),
                   const SizedBox(height: 20),
                   CustomDropdown<ExerciseDifficulty>(
+                    excludeSelected: false,
                     items: ExerciseDifficulty.values,
                     initialItem:
                         difficultyMap[_exerciseToCreateOrEdit.intensity] ??
@@ -1626,6 +1628,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
         ),
         const SizedBox(height: 10),
         CustomDropdown<BaseExercise>.search(
+          excludeSelected: false,
           items: (sl<BaseExerciseManagementBloc>().state
                   as BaseExerciseManagementLoaded)
               .baseExercises,
@@ -1965,6 +1968,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
           ),
           const SizedBox(height: 10),
           CustomDropdown<TrainingType>(
+            excludeSelected: false,
             items:
                 TrainingType.values.sublist(0, TrainingType.values.length - 1),
             initialItem: training.trainingType,
