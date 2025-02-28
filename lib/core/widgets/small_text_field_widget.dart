@@ -29,6 +29,7 @@ class SmallTextFieldWidget extends StatelessWidget {
       child: Center(
         child: TextField(
           controller: controller,
+          textCapitalization: TextCapitalization.sentences,
           textAlign: TextAlign.center,
           style: TextStyle(color: textColor ?? AppColors.licorice),
           keyboardType: TextInputType.number,

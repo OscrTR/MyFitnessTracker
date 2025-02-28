@@ -19,6 +19,7 @@ class CustomTextField extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextField(
       controller: controller,
+      textCapitalization: TextCapitalization.sentences,
       maxLines: null,
       style: Theme.of(context).textTheme.bodyMedium,
       decoration: InputDecoration(
