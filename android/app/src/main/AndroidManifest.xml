@@ -19,7 +19,7 @@
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
 
-                <receiver android:exported="false" android:name="com.dexterous.flutterlocalnotifications.ActionBroadcastReceiver" />
+        <receiver android:exported="false" android:name="com.dexterous.flutterlocalnotifications.ActionBroadcastReceiver" />
         <receiver android:exported="false" android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver" />
         <receiver android:exported="false" android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver">
             <intent-filter>
@@ -58,7 +58,8 @@
         <service
             android:name="com.pravera.flutter_foreground_task.service.ForegroundService"
             android:foregroundServiceType="location"
-            android:exported="false" />
+            android:exported="false"
+            android:stopWithTask="true" />
 
         <meta-data
             android:name="dev.oscarthiebaut.my_fitness_tracker.NOTIF_ICON"

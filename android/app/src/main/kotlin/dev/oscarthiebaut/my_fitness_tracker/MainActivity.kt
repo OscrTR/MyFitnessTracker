@@ -25,11 +25,4 @@ class MainActivity: FlutterActivity() {
         }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        // Arrêter le service foreground
-        val serviceIntent = Intent(this, ForegroundService::class.java)
-        stopService(serviceIntent)
-    }
-
 }

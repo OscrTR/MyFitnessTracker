@@ -141,10 +141,11 @@ final router = GoRouter(
         ),
       ],
       builder: (context, state, child) {
-        bool isExerciseDetailPage = state.name == '/exercise_detail';
-        bool isTrainingDetailPage = state.name == '/training_detail';
-        bool isActiveTrainingPage = state.name == '/active_training';
-        bool isHistoryDetailPage = state.name == '/history_details';
+        String pageName = GoRouterState.of(context).uri.toString();
+        bool isExerciseDetailPage = pageName == '/exercise_detail';
+        bool isTrainingDetailPage = pageName == '/training_detail';
+        bool isActiveTrainingPage = pageName == '/active_training';
+        bool isHistoryDetailPage = pageName == '/history_details';
 
         return GestureDetector(
           onTap: () => FocusScope.of(context).unfocus(),
