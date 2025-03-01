@@ -2,7 +2,6 @@ import 'package:bloc/bloc.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:equatable/equatable.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../core/database/database_service.dart';
@@ -552,13 +551,10 @@ Future<void> _compareTrainingDays() async {
     final reminders = await sl<DatabaseService>().getAllReminders();
     final trainings = await sl<DatabaseService>().getAllTrainings();
 
-    final trainingDays = <Day>{};
+    final trainingDays = <TrainingDay>{};
     for (final training in trainings) {
       for (final trainingDay in training.trainingDays) {
-        trainingDays.add(Day.values.firstWhere(
-          (day) => day.name == trainingDay.name,
-          orElse: () => throw Exception('Invalid training day'),
-        ));
+        trainingDays.add(trainingDay);
       }
     }
 

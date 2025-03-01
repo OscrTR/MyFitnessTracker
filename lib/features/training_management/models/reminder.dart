@@ -1,10 +1,10 @@
 import 'package:equatable/equatable.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:my_fitness_tracker/core/enums/enums.dart';
 
 class Reminder extends Equatable {
   final int? id;
   final int notificationId;
-  final Day day;
+  final TrainingDay day;
   const Reminder({
     this.id,
     required this.notificationId,
@@ -14,7 +14,7 @@ class Reminder extends Equatable {
   Reminder copyWith({
     int? id,
     int? notificationId,
-    Day? day,
+    TrainingDay? day,
   }) {
     return Reminder(
       id: id ?? this.id,
@@ -27,20 +27,15 @@ class Reminder extends Equatable {
     return <String, dynamic>{
       'id': id,
       'notificationId': notificationId,
-      'day': day.value,
+      'day': day.toMap(),
     };
-  }
-
-  static dayFromValue(int value) {
-    return Day.values
-        .firstWhere((day) => day.value == value, orElse: () => Day.sunday);
   }
 
   factory Reminder.fromMap(Map<String, dynamic> map) {
     return Reminder(
       id: map['id'] as int?,
       notificationId: map['notificationId'] as int,
-      day: dayFromValue(map['day'] as int),
+      day: TrainingDay.fromMap(map['day'] as String),
     );
   }
 

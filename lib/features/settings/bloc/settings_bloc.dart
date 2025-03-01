@@ -1,6 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:my_fitness_tracker/core/enums/enums.dart';
 import '../../../core/messages/models/log.dart';
 import '../../../core/database/database_service.dart';
 
@@ -56,13 +56,10 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
         final reminders = await sl<DatabaseService>().getAllReminders();
         final trainings = await sl<DatabaseService>().getAllTrainings();
 
-        final trainingDays = <Day>{};
+        final trainingDays = <TrainingDay>{};
         for (final training in trainings) {
           for (final trainingDay in training.trainingDays) {
-            trainingDays.add(Day.values.firstWhere(
-              (day) => day.name == trainingDay.name,
-              orElse: () => throw Exception('Invalid training day'),
-            ));
+            trainingDays.add(trainingDay);
           }
         }
 

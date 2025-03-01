@@ -8,7 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:my_fitness_tracker/core/notification_service.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 
 import '../../../app_colors.dart';
@@ -93,25 +92,6 @@ class _HomePageState extends State<HomePage> {
           if (state is TrainingManagementLoaded) {
             return Column(
               children: [
-                Row(
-                  children: [
-                    OutlinedButton(
-                        onPressed: () {
-                          NotificationService.notify(49);
-                        },
-                        child: Text('Notify now')),
-                    OutlinedButton(
-                        onPressed: () {
-                          NotificationService.notifyIn1Min(69);
-                        },
-                        child: Text('Notify in 1 min')),
-                    OutlinedButton(
-                        onPressed: () {
-                          NotificationService.showTZ();
-                        },
-                        child: Text('TZ')),
-                  ],
-                ),
                 const SizedBox(height: 30),
                 _buildTrainingsList(context),
                 const SizedBox(height: 30),

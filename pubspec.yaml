@@ -28,7 +28,7 @@ dependencies:
   flutter_advanced_switch: ^3.1.0
   flutter_bloc: ^9.0.0
   flutter_foreground_task: ^8.17.0
-  flutter_local_notifications: ^18.0.1
+  flutter_local_notifications: ^19.0.0-dev.7
   flutter_map: ^8.0.0
   flutter_map_cache: ^1.5.2
   flutter_svg: ^2.0.10+1

@@ -23,7 +23,7 @@ class DatabaseService {
   CREATE TABLE IF NOT EXISTS reminders (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     notificationId INTEGER NOT NULL,
-    day INTEGER NOT NULL
+    day TEXT NOT NULL
   )
   ''');
 
