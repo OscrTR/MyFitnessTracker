@@ -25,8 +25,6 @@ class NotificationService {
 
     await sl<FlutterLocalNotificationsPlugin>()
         .initialize(initializationSettings);
-
-    askNotificationPermission();
   }
 
   static Future<bool> areNotificationsEnabled() async {
@@ -82,9 +80,6 @@ class NotificationService {
           tz.local, nextDay.year, nextDay.month, nextDay.day, 8, 0, 0);
       return scheduledDate;
     }
-
-    print(
-        'notif planned ${nextInstanceOfWeekday(day)} while now is ${tz.TZDateTime.now(tz.local)}');
 
     final notificationId =
         DateTime.now().millisecondsSinceEpoch.remainder(100000);

@@ -1,5 +1,6 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get_it/get_it.dart';
+import 'package:my_fitness_tracker/core/permission_cubit.dart';
 
 import 'core/database/database_service.dart';
 import 'features/active_training/bloc/active_training_bloc.dart';
@@ -15,6 +16,8 @@ Future<void> init() async {
   //! Core
   sl.registerLazySingleton(() => DatabaseService());
   sl.registerLazySingleton(() => FlutterLocalNotificationsPlugin());
+  sl.registerLazySingleton(
+      () => PermissionCubit(flutterLocalNotificationsPlugin: sl()));
 
   //! Features - Exercise Management
   sl.registerLazySingleton(() => BaseExerciseManagementBloc());

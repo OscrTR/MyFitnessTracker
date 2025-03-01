@@ -3,6 +3,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
+import 'package:my_fitness_tracker/core/permission_cubit.dart';
 
 import 'app_theme.dart';
 import 'core/database/database_service.dart';
@@ -64,11 +65,16 @@ class MyApp extends StatelessWidget {
         BlocProvider<SettingsBloc>(
           create: (_) => di.sl<SettingsBloc>()..add(LoadSettings()),
           lazy: false,
-        )
+        ),
+        BlocProvider<PermissionCubit>(
+          create: (_) =>
+              di.sl<PermissionCubit>()..requestNotificationPermission(),
+          lazy: false,
+        ),
       ],
       child: MaterialApp.router(
-        builder: BotToastInit(),
-        routerConfig: router,
+        builder: BotToastInit(), // Toasts
+        routerConfig: router, // Ton GoRouter
         debugShowCheckedModeBanner: false,
         theme: appTheme,
         localizationsDelegates: context.localizationDelegates,

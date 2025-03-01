@@ -56,12 +56,15 @@ class ForegroundService {
     }
   }
 
-  Future<ServiceRequestResult> stopService() {
-    FlutterForegroundTask.sendDataToTask(
-        {'command': MyTaskHandler.clearTimersCommand});
-    FlutterForegroundTask.removeTaskDataCallback(onReceiveTaskData);
-    isInitialized = false;
-    return FlutterForegroundTask.stopService();
+  Future<ServiceRequestResult?> stopService() async {
+    if (await FlutterForegroundTask.isRunningService) {
+      FlutterForegroundTask.sendDataToTask(
+          {'command': MyTaskHandler.clearTimersCommand});
+      FlutterForegroundTask.removeTaskDataCallback(onReceiveTaskData);
+      isInitialized = false;
+      return FlutterForegroundTask.stopService();
+    }
+    return null;
   }
 
   Future<ServiceRequestResult> startService() async {

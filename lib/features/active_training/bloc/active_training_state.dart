@@ -13,7 +13,6 @@ class ActiveTrainingLoaded extends ActiveTrainingState {
   final Training? activeTraining;
   final int? activeTrainingMostRecentVersionId;
   final String? lastStartedTimerId;
-
   final List<TimerState> timersStateList;
 
   const ActiveTrainingLoaded({

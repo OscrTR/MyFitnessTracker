@@ -127,6 +127,7 @@ class ActiveTrainingBloc
             .getMostRecentTrainingVersionForTrainingId(training.id!);
 
         final lastTrainingVersionId = lastTrainingVersion?.id!;
+
         if (state is ActiveTrainingLoaded) {
           final currentState = state as ActiveTrainingLoaded;
           emit(currentState.copyWith(

@@ -417,11 +417,12 @@ class DatabaseService {
 
   Future<int> createTrainingVersion(TrainingVersion trainingVersion) async {
     try {
-      await _db.execute('''DELETE FROM training_versions WHERE id NOT IN (
+      await _db.execute(
+          '''DELETE FROM training_versions WHERE trainingId = ? AND id NOT IN (
       SELECT DISTINCT trainingVersionId FROM history_entries
       UNION
       SELECT DISTINCT trainingVersionId FROM run_locations
-    )''');
+    )''', [trainingVersion.trainingId]);
       return await insert('training_versions', trainingVersion.toMap());
     } catch (e) {
       showToastMessage(
@@ -820,6 +821,8 @@ class DatabaseService {
     try {
       final List<Map<String, dynamic>> result = await _db.getAll(
           'SELECT * FROM training_versions WHERE trainingId = ?', [trainingId]);
+
+      if (result.isEmpty) return null;
 
       final TrainingVersion trainingVersion =
           TrainingVersion.fromMap(result.last);
