@@ -1,10 +1,12 @@
 import 'dart:io';
 
+import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import '../../../core/back_button_behavior.dart';
 import '../../../core/widgets/small_text_field_widget.dart';
 import '../bloc/training_history_bloc.dart';
 import '../widgets/altitude_chart_widget.dart';
@@ -25,10 +27,31 @@ import '../../training_management/models/multiset.dart';
 import '../models/history_entry.dart';
 import '../models/history_run_location.dart';
 
-class HistoryDetailsPage extends StatelessWidget {
+class HistoryDetailsPage extends StatefulWidget {
   const HistoryDetailsPage({
     super.key,
   });
+
+  @override
+  State<HistoryDetailsPage> createState() => _HistoryDetailsPageState();
+}
+
+class _HistoryDetailsPageState extends State<HistoryDetailsPage> {
+  @override
+  void initState() {
+    super.initState();
+    BackButtonInterceptor.add(myInterceptor);
+  }
+
+  @override
+  void dispose() {
+    BackButtonInterceptor.remove(myInterceptor);
+    super.dispose();
+  }
+
+  bool myInterceptor(bool stopDefaultButtonEvent, RouteInfo info) {
+    return backButtonClick(context);
+  }
 
   @override
   Widget build(BuildContext context) {

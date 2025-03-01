@@ -1,10 +1,12 @@
 import 'dart:io';
 
+import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import '../../../core/back_button_behavior.dart';
 
 import '../../../app_colors.dart';
 import '../../../core/enums/enums.dart';
@@ -33,6 +35,17 @@ class _TrainingsPageState extends State<TrainingsPage> {
     _selectedTrainingTypes = {};
     _selectedTrainingTypes = createMapWithDefaultValues(TrainingType.values);
     sl<TrainingManagementBloc>().add(FetchTrainingsEvent());
+    BackButtonInterceptor.add(myInterceptor);
+  }
+
+  @override
+  void dispose() {
+    BackButtonInterceptor.remove(myInterceptor);
+    super.dispose();
+  }
+
+  bool myInterceptor(bool stopDefaultButtonEvent, RouteInfo info) {
+    return backButtonClick(context);
   }
 
   @override
@@ -164,7 +177,7 @@ class _TrainingsPageState extends State<TrainingsPage> {
                           context
                               .read<BaseExerciseManagementBloc>()
                               .add(GetBaseExerciseEvent(exercise.id!));
-                          GoRouter.of(context).push('/exercise_detail');
+                          GoRouter.of(context).go('/exercise_detail');
                         },
                         child: Container(
                           padding: const EdgeInsets.symmetric(
@@ -254,7 +267,7 @@ class _TrainingsPageState extends State<TrainingsPage> {
                   context
                       .read<TrainingManagementBloc>()
                       .add(GetTrainingEvent(id: training.id!));
-                  GoRouter.of(context).push('/training_detail');
+                  GoRouter.of(context).go('/training_detail');
                 },
                 child: Container(
                   width: double.infinity,
@@ -276,7 +289,7 @@ class _TrainingsPageState extends State<TrainingsPage> {
                   context
                       .read<ActiveTrainingBloc>()
                       .add(StartActiveTraining(trainingId: training.id!));
-                  GoRouter.of(context).push('/active_training');
+                  GoRouter.of(context).go('/active_training');
                 },
                 child: Container(
                   width: double.infinity,
@@ -504,7 +517,7 @@ void _showNewDialog(BuildContext context) {
               context
                   .read<TrainingManagementBloc>()
                   .add(GetTrainingEvent(id: null));
-              GoRouter.of(context).push(
+              GoRouter.of(context).go(
                 '/training_detail',
               );
               Navigator.pop(context, 'New training');
@@ -524,7 +537,7 @@ void _showNewDialog(BuildContext context) {
           const SizedBox(height: 10),
           GestureDetector(
             onTap: () {
-              GoRouter.of(context).push('/exercise_detail');
+              GoRouter.of(context).go('/exercise_detail');
               Navigator.pop(context, 'New exercise');
             },
             child: Container(

@@ -3,7 +3,8 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
-import 'package:my_fitness_tracker/core/permission_cubit.dart';
+import 'core/navigation_cubit.dart';
+import 'core/permission_cubit.dart';
 
 import 'app_theme.dart';
 import 'core/database/database_service.dart';
@@ -44,33 +45,22 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: <BlocProvider<dynamic>>[
         BlocProvider<BaseExerciseManagementBloc>(
-          create: (_) => di.sl<BaseExerciseManagementBloc>()
-            ..add(GetAllBaseExercisesEvent()),
-          lazy: false,
-        ),
+            create: (_) => di.sl<BaseExerciseManagementBloc>()
+              ..add(GetAllBaseExercisesEvent())),
         BlocProvider<TrainingManagementBloc>(
-          create: (_) =>
-              di.sl<TrainingManagementBloc>()..add(FetchTrainingsEvent()),
-          lazy: false,
-        ),
+            create: (_) =>
+                di.sl<TrainingManagementBloc>()..add(FetchTrainingsEvent())),
         BlocProvider<ActiveTrainingBloc>(
-          create: (_) => di.sl<ActiveTrainingBloc>(),
-          lazy: false,
-        ),
+            create: (_) => di.sl<ActiveTrainingBloc>()),
         BlocProvider<TrainingHistoryBloc>(
-          create: (_) =>
-              di.sl<TrainingHistoryBloc>()..add(FetchHistoryEntriesEvent()),
-          lazy: false,
-        ),
+            create: (_) =>
+                di.sl<TrainingHistoryBloc>()..add(FetchHistoryEntriesEvent())),
         BlocProvider<SettingsBloc>(
-          create: (_) => di.sl<SettingsBloc>()..add(LoadSettings()),
-          lazy: false,
-        ),
+            create: (_) => di.sl<SettingsBloc>()..add(LoadSettings())),
         BlocProvider<PermissionCubit>(
-          create: (_) =>
-              di.sl<PermissionCubit>()..requestNotificationPermission(),
-          lazy: false,
-        ),
+            create: (_) =>
+                di.sl<PermissionCubit>()..requestNotificationPermission()),
+        BlocProvider<NavigationCubit>(create: (_) => di.sl<NavigationCubit>()),
       ],
       child: MaterialApp.router(
         builder: BotToastInit(), // Toasts

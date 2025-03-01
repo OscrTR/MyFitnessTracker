@@ -1,8 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:my_fitness_tracker/core/enums/enums.dart';
-import 'package:my_fitness_tracker/core/messages/toast.dart';
-import 'package:my_fitness_tracker/features/active_training/foreground_service.dart';
+import 'enums/enums.dart';
+import 'messages/toast.dart';
+import '../features/active_training/foreground_service.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:fl_location/fl_location.dart';
 

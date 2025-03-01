@@ -1,10 +1,12 @@
 import 'dart:io';
 
+import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
+import '../../../core/back_button_behavior.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 
@@ -34,15 +36,21 @@ class _BaseExerciseDetailPageState extends State<BaseExerciseDetailPage> {
 
   @override
   void initState() {
-    _initType();
     super.initState();
+    _initType();
+    BackButtonInterceptor.add(myInterceptor);
   }
 
   @override
   void dispose() {
     _nameController.dispose();
     _descriptionController.dispose();
+    BackButtonInterceptor.remove(myInterceptor);
     super.dispose();
+  }
+
+  bool myInterceptor(bool stopDefaultButtonEvent, RouteInfo info) {
+    return backButtonClick(context);
   }
 
   void _pickImage() async {
@@ -209,8 +217,8 @@ class _BaseExerciseDetailPageState extends State<BaseExerciseDetailPage> {
                               ),
                             );
                         widget.fromTrainingCreation
-                            ? GoRouter.of(context).push('/training_detail')
-                            : GoRouter.of(context).push('/trainings');
+                            ? GoRouter.of(context).go('/training_detail')
+                            : GoRouter.of(context).go('/trainings');
                         BlocProvider.of<BaseExerciseManagementBloc>(context)
                             .add(ClearSelectedBaseExerciseEvent());
                       },
@@ -366,8 +374,8 @@ class _BaseExerciseDetailPageState extends State<BaseExerciseDetailPage> {
               onTap: () {
                 FocusScope.of(context).unfocus();
                 widget.fromTrainingCreation
-                    ? GoRouter.of(context).push('/training_detail')
-                    : GoRouter.of(context).push('/trainings');
+                    ? GoRouter.of(context).go('/training_detail')
+                    : GoRouter.of(context).go('/trainings');
                 BlocProvider.of<BaseExerciseManagementBloc>(context)
                     .add(ClearSelectedBaseExerciseEvent());
               },
@@ -395,7 +403,7 @@ class _BaseExerciseDetailPageState extends State<BaseExerciseDetailPage> {
                   FocusScope.of(context).unfocus();
                   sl<BaseExerciseManagementBloc>()
                       .add(DeleteBaseExerciseEvent(baseExercise.id!));
-                  GoRouter.of(context).push('/trainings');
+                  GoRouter.of(context).go('/trainings');
                 },
                 child: const Icon(
                   Icons.delete_outline,

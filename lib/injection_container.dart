@@ -1,6 +1,7 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get_it/get_it.dart';
-import 'package:my_fitness_tracker/core/permission_cubit.dart';
+import 'core/navigation_cubit.dart';
+import 'core/permission_cubit.dart';
 
 import 'core/database/database_service.dart';
 import 'features/active_training/bloc/active_training_bloc.dart';
@@ -14,24 +15,24 @@ final sl = GetIt.instance;
 
 Future<void> init() async {
   //! Core
-  sl.registerLazySingleton(() => DatabaseService());
-  sl.registerLazySingleton(() => FlutterLocalNotificationsPlugin());
-  sl.registerLazySingleton(
-      () => PermissionCubit(flutterLocalNotificationsPlugin: sl()));
+  sl.registerSingleton(DatabaseService());
+  sl.registerSingleton(FlutterLocalNotificationsPlugin());
+  sl.registerSingleton(PermissionCubit(flutterLocalNotificationsPlugin: sl()));
+  sl.registerSingleton(NavigationCubit());
 
   //! Features - Exercise Management
-  sl.registerLazySingleton(() => BaseExerciseManagementBloc());
+  sl.registerSingleton(BaseExerciseManagementBloc());
 
   //! Features - Training Management
-  sl.registerLazySingleton(() => TrainingManagementBloc());
+  sl.registerSingleton(TrainingManagementBloc());
 
   //! Features - Active Training
-  sl.registerLazySingleton(() => ActiveTrainingBloc());
-  sl.registerLazySingleton(() => ForegroundService());
+  sl.registerSingleton(ActiveTrainingBloc());
+  sl.registerSingleton(ForegroundService());
 
   //! Features - Training History
-  sl.registerLazySingleton<TrainingHistoryBloc>(() => TrainingHistoryBloc());
+  sl.registerSingleton(TrainingHistoryBloc());
 
   //! Features - Training Management
-  sl.registerLazySingleton<SettingsBloc>(() => SettingsBloc());
+  sl.registerSingleton(SettingsBloc());
 }

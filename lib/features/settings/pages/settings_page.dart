@@ -6,8 +6,8 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_advanced_switch/flutter_advanced_switch.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import '../../../core/back_button_behavior.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -40,8 +40,7 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   bool myInterceptor(bool stopDefaultButtonEvent, RouteInfo info) {
-    GoRouter.of(context).go('/home');
-    return true;
+    return backButtonClick(context);
   }
 
   @override

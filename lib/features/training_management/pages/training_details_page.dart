@@ -2,12 +2,14 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:animated_custom_dropdown/custom_dropdown.dart';
+import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import '../../../core/back_button_behavior.dart';
 import '../../../core/enums/enums.dart';
 import '../../base_exercise_management/bloc/base_exercise_management_bloc.dart';
 
@@ -67,6 +69,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
     super.initState();
     _initializeControllers();
     _attachListeners();
+    BackButtonInterceptor.add(myInterceptor);
   }
 
   @override
@@ -74,7 +77,12 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
     for (var controller in _controllers.values) {
       controller.dispose();
     }
+    BackButtonInterceptor.remove(myInterceptor);
     super.dispose();
+  }
+
+  bool myInterceptor(bool stopDefaultButtonEvent, RouteInfo info) {
+    return backButtonClick(context);
   }
 
   void _initializeTrainingGeneralInfo() {
@@ -485,7 +493,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                 .selectedTraining;
             final bloc = context.read<TrainingManagementBloc>();
             bloc.add(CreateOrUpdateTrainingEvent(training));
-            GoRouter.of(context).push('/trainings');
+            GoRouter.of(context).go('/trainings');
           },
           child: Container(
             decoration: BoxDecoration(
@@ -2118,7 +2126,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
             child: GestureDetector(
               onTap: () {
                 FocusScope.of(context).unfocus();
-                GoRouter.of(context).push('/trainings');
+                GoRouter.of(context).go('/trainings');
                 context
                     .read<TrainingManagementBloc>()
                     .add(ClearSelectedTrainingEvent());
@@ -2151,7 +2159,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                   FocusScope.of(context).unfocus();
                   sl<TrainingManagementBloc>()
                       .add(DeleteTrainingEvent(state.selectedTraining.id!));
-                  GoRouter.of(context).push('/trainings');
+                  GoRouter.of(context).go('/trainings');
                 },
                 child: const Icon(
                   Icons.delete_outline,

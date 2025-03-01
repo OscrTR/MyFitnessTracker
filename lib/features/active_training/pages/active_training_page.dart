@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import '../../../core/back_button_behavior.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../app_colors.dart';
@@ -75,7 +76,7 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage>
             onPressed: () {
               context.read<ActiveTrainingBloc>().add(ClearTimers());
               Navigator.of(context).pop(true);
-              GoRouter.of(context).go('/home');
+              backButtonClick(context);
             },
             child: Text(tr('global_yes')),
           ),

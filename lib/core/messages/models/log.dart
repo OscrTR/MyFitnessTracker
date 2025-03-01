@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+
 import '../../enums/enums.dart';
 
 class Log extends Equatable {

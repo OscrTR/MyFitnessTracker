@@ -1,9 +1,11 @@
+import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import '../../../core/back_button_behavior.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 
 import '../../../app_colors.dart';
@@ -27,6 +29,17 @@ class _HistoryPageState extends State<HistoryPage> {
   void initState() {
     super.initState();
     scrollToMostRecentDate(_scrollController);
+    BackButtonInterceptor.add(myInterceptor);
+  }
+
+  @override
+  void dispose() {
+    BackButtonInterceptor.remove(myInterceptor);
+    super.dispose();
+  }
+
+  bool myInterceptor(bool stopDefaultButtonEvent, RouteInfo info) {
+    return backButtonClick(context);
   }
 
   @override
@@ -215,7 +228,7 @@ class _HistoryPageState extends State<HistoryPage> {
             onTap: () {
               context.read<TrainingHistoryBloc>().add(
                   SelectHistoryTrainingEntryEvent(displayedEntries[index]));
-              GoRouter.of(context).push('/history_details');
+              GoRouter.of(context).go('/history_details');
             },
             child: Container(
                 padding: const EdgeInsets.all(10),

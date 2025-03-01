@@ -11,6 +11,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 
 import '../../../app_colors.dart';
+import '../../../core/back_button_behavior.dart';
 import '../../../core/enums/enums.dart';
 import '../../../helper_functions.dart';
 import '../../../injection_container.dart';
@@ -52,7 +53,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   bool myInterceptor(bool stopDefaultButtonEvent, RouteInfo info) {
-    return true;
+    return backButtonClick(context);
   }
 
   PeriodStats _fetchPeriodStats(StatPeriod startPeriod) {
@@ -274,7 +275,7 @@ class _HomePageState extends State<HomePage> {
                   context.read<TrainingHistoryBloc>().add(
                       SelectHistoryTrainingEntryEvent(
                           _historyTrainings![index]));
-                  GoRouter.of(context).push('/history_details');
+                  GoRouter.of(context).go('/history_details');
                 },
                 child: Container(
                     padding: const EdgeInsets.all(10),
@@ -878,7 +879,7 @@ Widget _buildTrainingsList(BuildContext context) {
                       context
                           .read<TrainingManagementBloc>()
                           .add(GetTrainingEvent(id: null));
-                      GoRouter.of(context).push('/training_detail');
+                      GoRouter.of(context).go('/training_detail');
                     },
                     child: Container(
                       padding: const EdgeInsets.symmetric(
@@ -976,7 +977,7 @@ Widget _buildTrainingsList(BuildContext context) {
                                 context.read<ActiveTrainingBloc>().add(
                                     StartActiveTraining(
                                         trainingId: training.id!));
-                                GoRouter.of(context).push('/active_training');
+                                GoRouter.of(context).go('/active_training');
                               },
                               child: Container(
                                 padding: const EdgeInsets.symmetric(
@@ -1041,7 +1042,7 @@ Widget _buildTrainingsList(BuildContext context) {
                           context
                               .read<TrainingManagementBloc>()
                               .add(GetTrainingEvent(id: training.id!));
-                          GoRouter.of(context).push('/training_detail');
+                          GoRouter.of(context).go('/training_detail');
                         }
                       },
                       itemBuilder: (BuildContext context) => [

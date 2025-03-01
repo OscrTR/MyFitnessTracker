@@ -3,6 +3,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
+import 'core/navigation_cubit.dart';
 
 import 'app_colors.dart';
 import 'features/active_training/pages/active_training_page.dart';
@@ -14,6 +15,7 @@ import 'features/training_history/pages/history_details_page.dart';
 import 'features/training_history/pages/history_page.dart';
 import 'features/training_management/pages/training_details_page.dart';
 import 'features/training_management/pages/trainings_page.dart';
+import 'injection_container.dart';
 
 final router = GoRouter(
   initialLocation: '/home',
@@ -30,6 +32,7 @@ final router = GoRouter(
         GoRoute(
           path: '/home',
           pageBuilder: (context, state) {
+            sl<NavigationCubit>().addRoute('/home');
             return CustomTransitionPage(
               child: const HomePage(),
               transitionsBuilder:
@@ -42,6 +45,7 @@ final router = GoRouter(
         GoRoute(
           path: '/trainings',
           pageBuilder: (context, state) {
+            sl<NavigationCubit>().addRoute('/trainings');
             return CustomTransitionPage(
               child: const TrainingsPage(),
               transitionsBuilder:
@@ -54,6 +58,7 @@ final router = GoRouter(
         GoRoute(
           path: '/history',
           pageBuilder: (context, state) {
+            sl<NavigationCubit>().addRoute('/history');
             return CustomTransitionPage(
               child: const HistoryPage(),
               transitionsBuilder:
@@ -66,6 +71,7 @@ final router = GoRouter(
         GoRoute(
           path: '/history_details',
           pageBuilder: (context, state) {
+            sl<NavigationCubit>().addRoute('/history_details');
             return CustomTransitionPage(
               child: const HistoryDetailsPage(),
               transitionsBuilder:
@@ -78,6 +84,7 @@ final router = GoRouter(
         GoRoute(
           path: '/stats',
           pageBuilder: (context, state) {
+            sl<NavigationCubit>().addRoute('/stats');
             return CustomTransitionPage(
               child: const StatsPage(),
               transitionsBuilder:
@@ -90,6 +97,7 @@ final router = GoRouter(
         GoRoute(
           path: '/settings',
           pageBuilder: (context, state) {
+            sl<NavigationCubit>().addRoute('/settings');
             return CustomTransitionPage(
               child: const SettingsPage(),
               transitionsBuilder:
@@ -102,6 +110,7 @@ final router = GoRouter(
         GoRoute(
           path: '/exercise_detail',
           pageBuilder: (context, state) {
+            sl<NavigationCubit>().addRoute('/exercise_detail');
             final fromTrainingCreation =
                 (state.extra as String?) == 'training_detail';
             return CustomTransitionPage(
@@ -118,6 +127,7 @@ final router = GoRouter(
         GoRoute(
           path: '/training_detail',
           pageBuilder: (context, state) {
+            sl<NavigationCubit>().addRoute('/training_detail');
             return CustomTransitionPage(
               child: const TrainingDetailsPage(),
               transitionsBuilder:
@@ -130,6 +140,7 @@ final router = GoRouter(
         GoRoute(
           path: '/active_training',
           pageBuilder: (context, state) {
+            sl<NavigationCubit>().addRoute('/active_training');
             return CustomTransitionPage(
               child: const ActiveTrainingPage(),
               transitionsBuilder:
@@ -199,7 +210,7 @@ class BottomNavigationBarWidget extends StatelessWidget {
             iconSize: 30,
             customAction: () {
               if (!isHomePage) {
-                GoRouter.of(context).push('/home');
+                GoRouter.of(context).go('/home');
               }
             },
           ),
@@ -210,7 +221,7 @@ class BottomNavigationBarWidget extends StatelessWidget {
             iconSize: 30,
             customAction: () {
               if (!isTrainingsPage) {
-                GoRouter.of(context).push('/trainings');
+                GoRouter.of(context).go('/trainings');
               }
             },
           ),
@@ -221,7 +232,7 @@ class BottomNavigationBarWidget extends StatelessWidget {
             iconSize: 30,
             customAction: () {
               if (!isHistoryPage) {
-                GoRouter.of(context).push('/history');
+                GoRouter.of(context).go('/history');
               }
             },
           ),
@@ -232,7 +243,7 @@ class BottomNavigationBarWidget extends StatelessWidget {
             iconSize: 30,
             customAction: () {
               if (!isStatsPage) {
-                GoRouter.of(context).push('/stats');
+                GoRouter.of(context).go('/stats');
               }
             },
           ),
@@ -243,7 +254,7 @@ class BottomNavigationBarWidget extends StatelessWidget {
             iconSize: 30,
             customAction: () {
               if (!isSettingsPage) {
-                GoRouter.of(context).push('/settings');
+                GoRouter.of(context).go('/settings');
               }
             },
           ),

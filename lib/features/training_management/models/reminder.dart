@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:my_fitness_tracker/core/enums/enums.dart';
+import '../../../core/enums/enums.dart';
 
 class Reminder extends Equatable {
   final int? id;

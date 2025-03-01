@@ -1,13 +1,13 @@
 import 'package:bloc/bloc.dart';
 import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
-import '../../../core/messages/toast.dart';
-import '../../active_training/bloc/active_training_bloc.dart';
 
 import '../../../core/database/database_service.dart';
 import '../../../core/enums/enums.dart';
+import '../../../core/messages/toast.dart';
 import '../../../helper_functions.dart';
 import '../../../injection_container.dart';
+import '../../active_training/bloc/active_training_bloc.dart';
 import '../../base_exercise_management/models/base_exercise.dart';
 import '../../training_management/models/training.dart';
 import '../models/history_entry.dart';
