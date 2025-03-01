@@ -122,7 +122,7 @@ class HistoryTraining extends Equatable {
     final firstEntry = group.first;
 
     final matchingTraining = (await sl<DatabaseService>()
-        .getBaseTrainingByVersionId(firstEntry.trainingVersionId));
+        .getTrainingByVersionId(firstEntry.trainingVersionId));
 
     // Calculer les statistiques agrégées
     final totalDuration = _calculateDuration(group);

@@ -356,6 +356,7 @@ class _HomePageState extends State<HomePage> {
         : 0;
 
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,

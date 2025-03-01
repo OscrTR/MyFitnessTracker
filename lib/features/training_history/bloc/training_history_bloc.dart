@@ -251,7 +251,7 @@ class TrainingHistoryBloc
       final currentState = state as TrainingHistoryLoaded;
 
       final selectedTraining = await sl<DatabaseService>()
-          .getFullTrainingByVersionId(event.historyTraining.trainingVersionId);
+          .getTrainingByVersionId(event.historyTraining.trainingVersionId);
 
       emit(currentState.copyWith(
           selectedTrainingEntry: event.historyTraining,

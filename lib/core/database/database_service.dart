@@ -771,29 +771,7 @@ class DatabaseService {
     }
   }
 
-  Future<Training?> getBaseTrainingByVersionId(int versionId) async {
-    try {
-      final List<Map<String, dynamic>> result = await _db
-          .getAll('SELECT * FROM training_versions WHERE id = ?', [versionId]);
-
-      if (result.isEmpty) return null;
-      final trainingVersion = TrainingVersion.fromMap(result.first);
-      final training = trainingVersion.training;
-
-      return training;
-    } catch (e) {
-      showToastMessage(
-        message: e.toString(),
-        isSuccess: false,
-        isLog: true,
-        logLevel: LogLevel.error,
-        logFunction: 'getBaseTrainingByVersionId',
-      );
-      return null;
-    }
-  }
-
-  Future<Training?> getFullTrainingByVersionId(int versionId) async {
+  Future<Training?> getTrainingByVersionId(int versionId) async {
     try {
       final List<Map<String, dynamic>> result = await _db
           .getAll('SELECT * FROM training_versions WHERE id = ?', [versionId]);
