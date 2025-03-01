@@ -23,7 +23,7 @@ String formatDurationToHoursMinutesSeconds(int seconds) {
 String formatDurationToApproximativeHoursMinutes(int seconds) {
   final hours = seconds ~/ 3600;
   final minutes = (seconds % 3600) ~/ 60;
-  return '~${hours > 0 ? '$hours ${tr('global_hours')}' : ''}${minutes > 0 ? '${minutes.toString().padLeft(2, '0')} ${tr('global_minutes')}' : ''}';
+  return '~${hours > 0 ? '$hours ${tr('global_hours')}' : ''} ${minutes > 0 ? '${minutes.toString().padLeft(2, '0')} ${tr('global_minutes')}' : ''}';
 }
 
 String formatPace(double speed) {

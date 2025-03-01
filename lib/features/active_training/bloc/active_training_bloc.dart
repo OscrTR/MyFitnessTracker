@@ -39,6 +39,10 @@ class ActiveTrainingBloc
       ))
       ..setSource(AssetSource('sounds/countdown.mp3'));
 
+    audioPlayer.onPlayerComplete.listen((event) {
+      audioPlayer.setSource(AssetSource('sounds/countdown.mp3'));
+    });
+
     final FlutterTts flutterTts = FlutterTts();
     int? lastTimerValue;
     bool halfRunDone = false;
@@ -503,8 +507,6 @@ class ActiveTrainingBloc
           : currentTimerState.timerValue + 1;
 
       if (event.isCountDown && newTimerValue == 2) {
-        // audioPlayer.pause();
-        // audioPlayer.seek(const Duration(milliseconds: 0));
         audioPlayer.resume();
       }
 
