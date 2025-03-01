@@ -55,7 +55,7 @@ int getCalories({required int intensity, int? reps, int? duration}) {
     4: _IntensityData(met: 9.0, epocFactor: 0.20),
   };
 
-  effectiveDuration = (duration ?? (reps ?? 0 * 3)) / 3600;
+  effectiveDuration = (duration ?? ((reps ?? 0) * 3)) / 3600;
 
   caloriesDuringExercise =
       intensityLevels[intensity]!.met * standardWeight * effectiveDuration;
@@ -65,7 +65,7 @@ int getCalories({required int intensity, int? reps, int? duration}) {
 
   totalCalories = caloriesDuringExercise + caloriesAfterBurn;
 
-  return totalCalories.toInt();
+  return totalCalories.round();
 }
 
 class _IntensityData {
