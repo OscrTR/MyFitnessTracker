@@ -5,6 +5,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../base_exercise_management/bloc/base_exercise_management_bloc.dart';
 import '../../base_exercise_management/models/base_exercise.dart';
 import '../../../injection_container.dart';
@@ -244,7 +245,34 @@ class _ActiveExerciseWidgetState extends State<ActiveExerciseWidget> {
                               child: Text(isSetsInReps ? 'Reps' : '',
                                   style: const TextStyle(
                                       color: AppColors.taupeGray)))),
-                      const SizedBox(width: 46)
+                      const SizedBox(width: 10),
+                      GestureDetector(
+                        onTap: () {
+                          FocusScope.of(context).unfocus();
+
+                          for (var controller in _controllers!.entries) {
+                            if (controller.key != 'weightSet1' &&
+                                controller.key.contains('weight')) {
+                              controller.value.text =
+                                  _controllers['weightSet1']?.text ?? '';
+                            } else if (controller.key != 'repsSet1' &&
+                                controller.key.contains('reps')) {
+                              controller.value.text =
+                                  _controllers['repsSet1']?.text ?? '';
+                            }
+                          }
+                        },
+                        child: SizedBox(
+                          width: 36,
+                          height: 36,
+                          child: Center(
+                              child: Icon(
+                            LucideIcons.copy,
+                            color: AppColors.frenchGray,
+                          )),
+                        ),
+                      ),
+                      // const SizedBox(width: 46)
                     ],
                   )
                 ],
