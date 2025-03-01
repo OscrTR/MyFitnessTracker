@@ -33,16 +33,12 @@ class _HomePageState extends State<HomePage> {
   int _selectedStatType = 0;
   StatPeriod _selectedStatPeriod = StatPeriod.week;
   double _weeklyTrainingProgress = 0;
-  PeriodStats? _periodStats;
-  List<HistoryTraining>? _historyTrainings;
-  PeriodStats? _weeklyStats;
   int _plannedWeeklyTrainings = 0;
 
   @override
   void initState() {
     super.initState();
     BackButtonInterceptor.add(myInterceptor);
-    sl<TrainingHistoryBloc>().add(FetchHistoryEntriesEvent());
   }
 
   @override
@@ -56,17 +52,14 @@ class _HomePageState extends State<HomePage> {
     return backButtonClick(context);
   }
 
-  PeriodStats _fetchPeriodStats(StatPeriod startPeriod) {
-    final historyTrainings =
-        (sl<TrainingHistoryBloc>().state as TrainingHistoryLoaded)
-            .historyTrainings;
-    switch (startPeriod) {
+  void _fetchPeriodStats() {
+    switch (_selectedStatPeriod) {
       case StatPeriod.week:
-        return PeriodStats.getCurrentWeek(historyTrainings);
+        PeriodStats.getCurrentWeek();
       case StatPeriod.month:
-        return PeriodStats.getCurrentMonth(historyTrainings);
+        PeriodStats.getCurrentMonth();
       case StatPeriod.year:
-        return PeriodStats.getCurrentYear(historyTrainings);
+        PeriodStats.getCurrentYear();
     }
   }
 
@@ -86,6 +79,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    _fetchPeriodStats();
     return Scaffold(
       body: SingleChildScrollView(
         child: BlocBuilder<TrainingManagementBloc, TrainingManagementState>(
@@ -148,8 +142,6 @@ class _HomePageState extends State<HomePage> {
                                       period.translate(
                                           context.locale.languageCode) ==
                                       value);
-                              _periodStats =
-                                  _fetchPeriodStats(_selectedStatPeriod);
                             });
                           },
                         ),
@@ -233,9 +225,6 @@ class _HomePageState extends State<HomePage> {
     return BlocBuilder<TrainingHistoryBloc, TrainingHistoryState>(
         builder: (context, state) {
       if (state is TrainingHistoryLoaded) {
-        _periodStats = _fetchPeriodStats(_selectedStatPeriod);
-        _weeklyStats = _fetchPeriodStats(StatPeriod.week);
-
         if (_selectedStatType == 0) return _buildGeneralStats(context);
         if (_selectedStatType == 1) return _buildRunStats(context);
         if (_selectedStatType == 2) return _buildWorkoutStats(context);
@@ -249,16 +238,17 @@ class _HomePageState extends State<HomePage> {
     return BlocBuilder<TrainingHistoryBloc, TrainingHistoryState>(
         builder: (context, state) {
       if (state is TrainingHistoryLoaded) {
-        _historyTrainings = HistoryTraining.getLastTen(state.historyTrainings);
+        final historyTrainings =
+            HistoryTraining.getLastTen(state.historyTrainings);
 
         return ListView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            itemCount: _historyTrainings?.length ?? 0,
+            itemCount: historyTrainings.length,
             itemBuilder: (context, index) {
               String dateFormatee =
                   DateFormat('EEEE d MMMM y', context.locale.languageCode)
-                      .format(_historyTrainings![index].date);
+                      .format(historyTrainings[index].date);
               dateFormatee =
                   dateFormatee[0].toUpperCase() + dateFormatee.substring(1);
 
@@ -266,15 +256,14 @@ class _HomePageState extends State<HomePage> {
                           as TrainingManagementLoaded)
                       .trainings
                       .firstWhereOrNull((trainning) =>
-                          trainning.id == _historyTrainings![index].training.id)
+                          trainning.id == historyTrainings[index].training.id)
                       ?.name ??
-                  '${_historyTrainings![index].training.name} (${tr('global_deleted')})';
+                  '${historyTrainings[index].training.name} (${tr('global_deleted')})';
 
               return GestureDetector(
                 onTap: () {
                   context.read<TrainingHistoryBloc>().add(
-                      SelectHistoryTrainingEntryEvent(
-                          _historyTrainings![index]));
+                      SelectHistoryTrainingEntryEvent(historyTrainings[index]));
                   GoRouter.of(context).go('/history_details');
                 },
                 child: Container(
@@ -301,7 +290,7 @@ class _HomePageState extends State<HomePage> {
                                   color: AppColors.parchment,
                                   borderRadius: BorderRadius.circular(5)),
                               child: Text(
-                                _historyTrainings![index]
+                                historyTrainings[index]
                                     .training
                                     .trainingType
                                     .translate(context.locale.languageCode),
@@ -320,17 +309,17 @@ class _HomePageState extends State<HomePage> {
                                 const Icon(LucideIcons.clock, size: 16),
                                 const SizedBox(width: 5),
                                 Text(formatDurationToHoursMinutesSeconds(
-                                    _historyTrainings![index].duration)),
+                                    historyTrainings[index].duration)),
                               ],
                             ),
-                            if (_historyTrainings![index].distance > 0)
+                            if (historyTrainings[index].distance > 0)
                               Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   const Icon(LucideIcons.activity, size: 16),
                                   const SizedBox(width: 5),
                                   Text(
-                                      '${(_historyTrainings![index].distance / 1000).toStringAsFixed(2)}km'),
+                                      '${(historyTrainings[index].distance / 1000).toStringAsFixed(2)}km'),
                                 ],
                               ),
                             Row(
@@ -338,8 +327,7 @@ class _HomePageState extends State<HomePage> {
                               children: [
                                 const Icon(LucideIcons.flame, size: 16),
                                 const SizedBox(width: 5),
-                                Text(
-                                    '${_historyTrainings![index].calories} cal'),
+                                Text('${historyTrainings[index].calories} cal'),
                               ],
                             ),
                           ],
@@ -359,10 +347,14 @@ class _HomePageState extends State<HomePage> {
   }
 
   Column _buildRunStats(BuildContext context) {
+    final state = sl<TrainingHistoryBloc>().state as TrainingHistoryLoaded;
+    final periodStats = state.periodStats;
+
     _plannedWeeklyTrainings = _calculateTotalTrainings(TrainingType.running);
     _weeklyTrainingProgress = _plannedWeeklyTrainings != 0
-        ? _weeklyStats!.runTrainingsCount / _plannedWeeklyTrainings
+        ? periodStats.runTrainingsCount / _plannedWeeklyTrainings
         : 0;
+
     return Column(
       children: [
         Row(
@@ -378,7 +370,7 @@ class _HomePageState extends State<HomePage> {
                       .bodySmall!
                       .copyWith(color: AppColors.taupeGray),
                 ),
-                Text('${_periodStats!.runTotalDistance.toStringAsFixed(2)} km',
+                Text('${periodStats.runTotalDistance.toStringAsFixed(2)} km',
                     style: Theme.of(context).textTheme.titleLarge)
               ],
             ),
@@ -392,7 +384,7 @@ class _HomePageState extends State<HomePage> {
                       .bodySmall!
                       .copyWith(color: AppColors.taupeGray),
                 ),
-                Text(formatPace(_periodStats!.runAveragePace),
+                Text(formatPace(periodStats.runAveragePace),
                     style: Theme.of(context).textTheme.titleLarge)
               ],
             ),
@@ -406,7 +398,7 @@ class _HomePageState extends State<HomePage> {
                       .bodySmall!
                       .copyWith(color: AppColors.taupeGray),
                 ),
-                Text('${_periodStats!.runTotalDrop} m',
+                Text('${periodStats.runTotalDrop} m',
                     style: Theme.of(context).textTheme.titleLarge)
               ],
             )
@@ -424,7 +416,7 @@ class _HomePageState extends State<HomePage> {
                   .copyWith(color: AppColors.taupeGray),
             ),
             if (_selectedStatPeriod != StatPeriod.week)
-              Text('${_periodStats!.runTrainingsCount}',
+              Text('${periodStats.runTrainingsCount}',
                   style: Theme.of(context).textTheme.titleLarge)
             else
               Row(
@@ -432,7 +424,7 @@ class _HomePageState extends State<HomePage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                      '${_periodStats!.runTrainingsCount}/$_plannedWeeklyTrainings',
+                      '${periodStats.runTrainingsCount}/$_plannedWeeklyTrainings',
                       style: Theme.of(context).textTheme.titleLarge),
                   Text(
                     '${(_weeklyTrainingProgress * 100).round()}%',
@@ -462,10 +454,14 @@ class _HomePageState extends State<HomePage> {
   }
 
   Column _buildWorkoutStats(BuildContext context) {
+    final state = sl<TrainingHistoryBloc>().state as TrainingHistoryLoaded;
+    final periodStats = state.periodStats;
+
     _plannedWeeklyTrainings = _calculateTotalTrainings(TrainingType.workout);
     _weeklyTrainingProgress = _plannedWeeklyTrainings != 0
-        ? _weeklyStats!.workoutTrainingsCount / _plannedWeeklyTrainings
+        ? periodStats.workoutTrainingsCount / _plannedWeeklyTrainings
         : 0;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -482,7 +478,7 @@ class _HomePageState extends State<HomePage> {
                       .bodySmall!
                       .copyWith(color: AppColors.taupeGray),
                 ),
-                Text('${_periodStats!.workoutTotalLoad} kg',
+                Text('${periodStats.workoutTotalLoad} kg',
                     style: Theme.of(context).textTheme.titleLarge)
               ],
             ),
@@ -496,7 +492,7 @@ class _HomePageState extends State<HomePage> {
                       .bodySmall!
                       .copyWith(color: AppColors.taupeGray),
                 ),
-                Text('${_periodStats!.workoutTotalSets}',
+                Text('${periodStats.workoutTotalSets}',
                     style: Theme.of(context).textTheme.titleLarge)
               ],
             ),
@@ -512,7 +508,7 @@ class _HomePageState extends State<HomePage> {
                 ),
                 Text(
                     formatDurationToHoursMinutesSeconds(
-                        _periodStats!.workoutTotalRest),
+                        periodStats.workoutTotalRest),
                     style: Theme.of(context).textTheme.titleLarge)
               ],
             )
@@ -530,7 +526,7 @@ class _HomePageState extends State<HomePage> {
                   .copyWith(color: AppColors.taupeGray),
             ),
             if (_selectedStatPeriod != StatPeriod.week)
-              Text('${_periodStats!.workoutTrainingsCount}',
+              Text('${periodStats.workoutTrainingsCount}',
                   style: Theme.of(context).textTheme.titleLarge)
             else
               Row(
@@ -538,7 +534,7 @@ class _HomePageState extends State<HomePage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                      '${_periodStats!.workoutTrainingsCount}/$_plannedWeeklyTrainings',
+                      '${periodStats.workoutTrainingsCount}/$_plannedWeeklyTrainings',
                       style: Theme.of(context).textTheme.titleLarge),
                   Text(
                     '${(_weeklyTrainingProgress * 100).round()}%',
@@ -568,9 +564,12 @@ class _HomePageState extends State<HomePage> {
   }
 
   Column _buildYogaStats(BuildContext context) {
+    final state = sl<TrainingHistoryBloc>().state as TrainingHistoryLoaded;
+    final periodStats = state.periodStats;
+
     _plannedWeeklyTrainings = _calculateTotalTrainings(TrainingType.yoga);
     _weeklyTrainingProgress = _plannedWeeklyTrainings != 0
-        ? _weeklyStats!.yogaTrainingsCount / _plannedWeeklyTrainings
+        ? periodStats.yogaTrainingsCount / _plannedWeeklyTrainings
         : 0;
 
     return Column(
@@ -591,7 +590,7 @@ class _HomePageState extends State<HomePage> {
                 ),
                 Text(
                     formatDurationToHoursMinutesSeconds(
-                        _periodStats!.yogaTotalDuration),
+                        periodStats.yogaTotalDuration),
                     style: Theme.of(context).textTheme.titleLarge)
               ],
             ),
@@ -605,7 +604,7 @@ class _HomePageState extends State<HomePage> {
                       .bodySmall!
                       .copyWith(color: AppColors.taupeGray),
                 ),
-                Text('${_periodStats!.yogaUniqueExercises}',
+                Text('${periodStats.yogaUniqueExercises}',
                     style: Theme.of(context).textTheme.titleLarge)
               ],
             ),
@@ -621,7 +620,7 @@ class _HomePageState extends State<HomePage> {
                 ),
                 Text(
                     formatDurationToHoursMinutesSeconds(
-                        _periodStats!.yogaTotalMeditationDuration),
+                        periodStats.yogaTotalMeditationDuration),
                     style: Theme.of(context).textTheme.titleLarge)
               ],
             )
@@ -639,7 +638,7 @@ class _HomePageState extends State<HomePage> {
                   .copyWith(color: AppColors.taupeGray),
             ),
             if (_selectedStatPeriod != StatPeriod.week)
-              Text('${_periodStats!.yogaTrainingsCount}',
+              Text('${periodStats.yogaTrainingsCount}',
                   style: Theme.of(context).textTheme.titleLarge)
             else
               Row(
@@ -647,7 +646,7 @@ class _HomePageState extends State<HomePage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                      '${_weeklyStats!.yogaTrainingsCount}/$_plannedWeeklyTrainings',
+                      '${periodStats.yogaTrainingsCount}/$_plannedWeeklyTrainings',
                       style: Theme.of(context).textTheme.titleLarge),
                   Text(
                     '${(_weeklyTrainingProgress * 100).round()}%',
@@ -677,9 +676,12 @@ class _HomePageState extends State<HomePage> {
   }
 
   Column _buildGeneralStats(BuildContext context) {
+    final state = sl<TrainingHistoryBloc>().state as TrainingHistoryLoaded;
+    final periodStats = state.periodStats;
+
     _plannedWeeklyTrainings = _calculateTotalTrainings(null);
     _weeklyTrainingProgress = _plannedWeeklyTrainings != 0
-        ? _weeklyStats!.totalTrainingsCount / _plannedWeeklyTrainings
+        ? periodStats.totalTrainingsCount / _plannedWeeklyTrainings
         : 0;
 
     return Column(
@@ -700,7 +702,7 @@ class _HomePageState extends State<HomePage> {
                 ),
                 Text(
                     formatDurationToHoursMinutesSeconds(
-                        _periodStats!.totalDuration),
+                        periodStats.totalDuration),
                     style: Theme.of(context).textTheme.titleLarge)
               ],
             ),
@@ -715,7 +717,7 @@ class _HomePageState extends State<HomePage> {
                       .copyWith(color: AppColors.taupeGray),
                 ),
                 Text(
-                    '${(_periodStats!.runTotalDistance / 1000).toStringAsFixed(2)} km',
+                    '${(periodStats.runTotalDistance / 1000).toStringAsFixed(2)} km',
                     style: Theme.of(context).textTheme.titleLarge)
               ],
             ),
@@ -729,7 +731,7 @@ class _HomePageState extends State<HomePage> {
                       .bodySmall!
                       .copyWith(color: AppColors.taupeGray),
                 ),
-                Text('${_periodStats!.totalCalories} cal',
+                Text('${periodStats.totalCalories} cal',
                     style: Theme.of(context).textTheme.titleLarge)
               ],
             )
@@ -747,7 +749,7 @@ class _HomePageState extends State<HomePage> {
                   .copyWith(color: AppColors.taupeGray),
             ),
             if (_selectedStatPeriod != StatPeriod.week)
-              Text('${_periodStats!.totalTrainingsCount}',
+              Text('${periodStats.totalTrainingsCount}',
                   style: Theme.of(context).textTheme.titleLarge)
             else
               Row(
@@ -755,7 +757,7 @@ class _HomePageState extends State<HomePage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                      '${_weeklyStats!.totalTrainingsCount}/$_plannedWeeklyTrainings',
+                      '${periodStats.totalTrainingsCount}/$_plannedWeeklyTrainings',
                       style: Theme.of(context).textTheme.titleLarge),
                   Text(
                     '${(_weeklyTrainingProgress * 100).round()}%',
@@ -1067,41 +1069,4 @@ Widget _buildTrainingsList(BuildContext context) {
     }
     return const SizedBox();
   });
-}
-
-enum StatType {
-  all,
-  run,
-  workout,
-  yoga;
-
-  String translate(String locale) {
-    switch (this) {
-      case StatType.all:
-        return locale == 'fr' ? 'Tous' : 'All';
-      case StatType.run:
-        return locale == 'fr' ? 'Course' : 'Run';
-      case StatType.workout:
-        return locale == 'fr' ? 'Renforcement' : 'Workout';
-      case StatType.yoga:
-        return locale == 'fr' ? 'Yoga' : 'Yoga';
-    }
-  }
-}
-
-enum StatPeriod {
-  week,
-  month,
-  year;
-
-  String translate(String locale) {
-    switch (this) {
-      case StatPeriod.week:
-        return locale == 'fr' ? 'Cette semaine' : 'This week';
-      case StatPeriod.month:
-        return locale == 'fr' ? 'Ce mois' : 'This month';
-      case StatPeriod.year:
-        return locale == 'fr' ? 'Cette année' : 'This year';
-    }
-  }
 }

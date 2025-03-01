@@ -264,6 +264,11 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
     };
   }
 
+  void resetData() {
+    _exerciseToCreateOrEdit = _exerciseToCreateOrEdit.copyWith(resetKeys: true);
+    _multisetToCreateOrEdit = _multisetToCreateOrEdit.copyWith(resetKey: true);
+  }
+
   void _attachListeners() {
     _controllers.forEach((key, controller) {
       controller.addListener(() => _onControllerChanged(key));
@@ -1211,6 +1216,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                             multiset: _multisetToCreateOrEdit,
                             training: training));
 
+                    resetData();
                     Navigator.pop(context, 'Save');
                   },
                   child: Container(
@@ -1465,6 +1471,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                     ));
                   }
 
+                  resetData();
                   Navigator.pop(context, 'Save');
                 },
                 child: Container(

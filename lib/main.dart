@@ -46,21 +46,27 @@ class MyApp extends StatelessWidget {
       providers: <BlocProvider<dynamic>>[
         BlocProvider<BaseExerciseManagementBloc>(
             create: (_) => di.sl<BaseExerciseManagementBloc>()
-              ..add(GetAllBaseExercisesEvent())),
+              ..add(GetAllBaseExercisesEvent()),
+            lazy: false),
         BlocProvider<TrainingManagementBloc>(
             create: (_) =>
-                di.sl<TrainingManagementBloc>()..add(FetchTrainingsEvent())),
+                di.sl<TrainingManagementBloc>()..add(FetchTrainingsEvent()),
+            lazy: false),
         BlocProvider<ActiveTrainingBloc>(
-            create: (_) => di.sl<ActiveTrainingBloc>()),
+            create: (_) => di.sl<ActiveTrainingBloc>(), lazy: false),
         BlocProvider<TrainingHistoryBloc>(
             create: (_) =>
-                di.sl<TrainingHistoryBloc>()..add(FetchHistoryEntriesEvent())),
+                di.sl<TrainingHistoryBloc>()..add(FetchHistoryEntriesEvent()),
+            lazy: false),
         BlocProvider<SettingsBloc>(
-            create: (_) => di.sl<SettingsBloc>()..add(LoadSettings())),
+            create: (_) => di.sl<SettingsBloc>()..add(LoadSettings()),
+            lazy: false),
         BlocProvider<PermissionCubit>(
             create: (_) =>
-                di.sl<PermissionCubit>()..requestNotificationPermission()),
-        BlocProvider<NavigationCubit>(create: (_) => di.sl<NavigationCubit>()),
+                di.sl<PermissionCubit>()..requestNotificationPermission(),
+            lazy: false),
+        BlocProvider<NavigationCubit>(
+            create: (_) => di.sl<NavigationCubit>(), lazy: false),
       ],
       child: MaterialApp.router(
         builder: BotToastInit(), // Toasts

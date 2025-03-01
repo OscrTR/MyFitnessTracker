@@ -1,7 +1,9 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:equatable/equatable.dart';
+import 'package:my_fitness_tracker/features/training_history/bloc/training_history_bloc.dart';
 
 import '../../../core/enums/enums.dart';
+import '../../../injection_container.dart';
 import 'history_training.dart';
 
 class PeriodStats extends Equatable {
@@ -151,35 +153,25 @@ class PeriodStats extends Equatable {
   }
 
   // Méthodes de filtrage avec statistiques
-  static PeriodStats getCurrentWeek(List<HistoryTraining> trainings) {
+  static void getCurrentWeek() {
     final now = DateTime.now();
     final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
-    final endOfWeek = startOfWeek.add(const Duration(days: 7));
 
-    final weekTrainings = trainings
-        .where((training) =>
-            training.date.isAfter(startOfWeek) &&
-            training.date.isBefore(endOfWeek))
-        .toList();
-
-    return PeriodStats.fromTrainings(weekTrainings);
+    sl<TrainingHistoryBloc>()
+        .add(SetNewDateHistoryDateEvent(startDate: startOfWeek, endDate: now));
   }
 
-  static PeriodStats getCurrentMonth(List<HistoryTraining> trainings) {
+  static void getCurrentMonth() {
     final now = DateTime.now();
-    final monthTrainings = trainings
-        .where((training) =>
-            training.date.year == now.year && training.date.month == now.month)
-        .toList();
-
-    return PeriodStats.fromTrainings(monthTrainings);
+    final startOfMonth = DateTime(now.year, now.month, 1);
+    sl<TrainingHistoryBloc>()
+        .add(SetNewDateHistoryDateEvent(startDate: startOfMonth, endDate: now));
   }
 
-  static PeriodStats getCurrentYear(List<HistoryTraining> trainings) {
+  static void getCurrentYear() {
     final now = DateTime.now();
-    final yearTrainings =
-        trainings.where((training) => training.date.year == now.year).toList();
-
-    return PeriodStats.fromTrainings(yearTrainings);
+    final startOfYear = DateTime(now.year, 1, 1);
+    sl<TrainingHistoryBloc>()
+        .add(SetNewDateHistoryDateEvent(startDate: startOfYear, endDate: now));
   }
 }

@@ -311,3 +311,40 @@ enum ExerciseDifficulty {
     }
   }
 }
+
+enum StatType {
+  all,
+  run,
+  workout,
+  yoga;
+
+  String translate(String locale) {
+    switch (this) {
+      case StatType.all:
+        return locale == 'fr' ? 'Tous' : 'All';
+      case StatType.run:
+        return locale == 'fr' ? 'Course' : 'Run';
+      case StatType.workout:
+        return locale == 'fr' ? 'Renforcement' : 'Workout';
+      case StatType.yoga:
+        return locale == 'fr' ? 'Yoga' : 'Yoga';
+    }
+  }
+}
+
+enum StatPeriod {
+  week,
+  month,
+  year;
+
+  String translate(String locale) {
+    switch (this) {
+      case StatPeriod.week:
+        return locale == 'fr' ? 'Cette semaine' : 'This week';
+      case StatPeriod.month:
+        return locale == 'fr' ? 'Ce mois' : 'This month';
+      case StatPeriod.year:
+        return locale == 'fr' ? 'Cette année' : 'This year';
+    }
+  }
+}

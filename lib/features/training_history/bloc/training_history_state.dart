@@ -13,6 +13,7 @@ class TrainingHistoryLoading extends TrainingHistoryState {}
 
 class TrainingHistoryLoaded extends TrainingHistoryState {
   final List<HistoryTraining> historyTrainings;
+  final PeriodStats periodStats;
   final DateTime startDate;
   final DateTime endDate;
   final bool isWeekSelected;
@@ -27,6 +28,7 @@ class TrainingHistoryLoaded extends TrainingHistoryState {
 
   const TrainingHistoryLoaded({
     required this.historyTrainings,
+    required this.periodStats,
     required this.startDate,
     required this.endDate,
     this.isWeekSelected = true,
@@ -42,6 +44,7 @@ class TrainingHistoryLoaded extends TrainingHistoryState {
 
   factory TrainingHistoryLoaded.withDefaultLists({
     required List<HistoryTraining> historyTrainings,
+    required PeriodStats periodStats,
     required DateTime startDate,
     required DateTime endDate,
     bool isWeekSelected = true,
@@ -51,6 +54,7 @@ class TrainingHistoryLoaded extends TrainingHistoryState {
   }) {
     return TrainingHistoryLoaded(
       historyTrainings: historyTrainings,
+      periodStats: periodStats,
       startDate: startDate,
       endDate: endDate,
       isWeekSelected: isWeekSelected,
@@ -64,6 +68,7 @@ class TrainingHistoryLoaded extends TrainingHistoryState {
 
   TrainingHistoryLoaded copyWith({
     List<HistoryTraining>? historyTrainings,
+    PeriodStats? periodStats,
     DateTime? startDate,
     DateTime? endDate,
     HistoryTraining? selectedTrainingEntry,
@@ -78,6 +83,7 @@ class TrainingHistoryLoaded extends TrainingHistoryState {
   }) {
     return TrainingHistoryLoaded(
       historyTrainings: historyTrainings ?? this.historyTrainings,
+      periodStats: periodStats ?? this.periodStats,
       startDate: startDate ?? this.startDate,
       endDate: endDate ?? this.endDate,
       selectedTrainingEntry:
@@ -101,6 +107,7 @@ class TrainingHistoryLoaded extends TrainingHistoryState {
   @override
   List<Object?> get props => [
         historyTrainings,
+        periodStats,
         startDate,
         endDate,
         selectedTrainingEntry,

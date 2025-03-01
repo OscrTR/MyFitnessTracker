@@ -112,6 +112,7 @@ class Exercise extends Equatable {
     int? intensity,
     String? widgetKey,
     String? multisetKey,
+    bool resetKeys = false,
   }) {
     return Exercise(
       id: id ?? this.id,
@@ -136,8 +137,8 @@ class Exercise extends Equatable {
       isAutoStart: isAutoStart ?? this.isAutoStart,
       position: position ?? this.position,
       intensity: intensity ?? this.intensity,
-      widgetKey: widgetKey ?? this.widgetKey,
-      multisetKey: multisetKey ?? this.multisetKey,
+      widgetKey: resetKeys ? null : widgetKey ?? this.widgetKey,
+      multisetKey: resetKeys ? null : multisetKey ?? this.multisetKey,
     );
   }
 

@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
+import 'package:my_fitness_tracker/features/training_history/models/history_period_stats.dart';
 
 import '../../../core/database/database_service.dart';
 import '../../../core/enums/enums.dart';
@@ -41,12 +42,14 @@ class TrainingHistoryBloc
           final currentState = state as TrainingHistoryLoaded;
           emit(currentState.copyWith(
             historyTrainings: historyTrainings,
+            periodStats: PeriodStats.fromTrainings(historyTrainings),
             startDate: startDate,
             endDate: endDate,
           ));
         } else {
           emit(TrainingHistoryLoaded.withDefaultLists(
               historyTrainings: historyTrainings,
+              periodStats: PeriodStats.fromTrainings(historyTrainings),
               startDate: startDate,
               endDate: endDate,
               isWeekSelected: event.isWeekSelected));
@@ -228,6 +231,7 @@ class TrainingHistoryBloc
 
         emit(currentState.copyWith(
           historyTrainings: historyTrainings,
+          periodStats: PeriodStats.fromTrainings(historyTrainings),
           startDate: startDate,
           endDate: endDate,
         ));
@@ -281,6 +285,7 @@ class TrainingHistoryBloc
 
       emit(currentState.copyWith(
           historyTrainings: historyTrainings,
+          periodStats: PeriodStats.fromTrainings(historyTrainings),
           selectedTrainingTypes: selectedTrainingTypes,
           isExercisesSelected: false));
     });
@@ -310,6 +315,7 @@ class TrainingHistoryBloc
 
       emit(currentState.copyWith(
           historyTrainings: historyTrainings,
+          periodStats: PeriodStats.fromTrainings(historyTrainings),
           selectedTrainingTypes: selectedTrainingTypes,
           isExercisesSelected: !currentState.isExercisesSelected));
     });
@@ -336,6 +342,7 @@ class TrainingHistoryBloc
 
       emit(currentState.copyWith(
         historyTrainings: historyTrainings,
+        periodStats: PeriodStats.fromTrainings(historyTrainings),
         selectedStatsBaseExercise: event.baseExercise,
         resetSelectedStatsBaseExercise: event.baseExercise == null,
       ));
@@ -363,6 +370,7 @@ class TrainingHistoryBloc
 
       emit(currentState.copyWith(
         historyTrainings: historyTrainings,
+        periodStats: PeriodStats.fromTrainings(historyTrainings),
         selectedStatsTraining: event.training,
         resetSelectedStatsTraining: event.training == null,
       ));

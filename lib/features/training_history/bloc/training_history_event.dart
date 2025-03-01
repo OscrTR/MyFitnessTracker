@@ -67,11 +67,12 @@ class DeleteHistoryTrainingEvent extends TrainingHistoryEvent {
 
 class SetNewDateHistoryDateEvent extends TrainingHistoryEvent {
   final DateTime startDate;
+  final DateTime? endDate;
 
-  const SetNewDateHistoryDateEvent({required this.startDate});
+  const SetNewDateHistoryDateEvent({required this.startDate, this.endDate});
 
   @override
-  List<Object> get props => [startDate];
+  List<Object?> get props => [startDate, endDate];
 }
 
 class SelectHistoryTrainingEntryEvent extends TrainingHistoryEvent {

@@ -265,11 +265,13 @@ class _ActiveExerciseWidgetState extends State<ActiveExerciseWidget> {
                         child: SizedBox(
                           width: 36,
                           height: 36,
-                          child: Center(
-                              child: Icon(
-                            LucideIcons.copy,
-                            color: AppColors.frenchGray,
-                          )),
+                          child: isSetsInReps
+                              ? Center(
+                                  child: Icon(
+                                  LucideIcons.copy,
+                                  color: AppColors.frenchGray,
+                                ))
+                              : const SizedBox(),
                         ),
                       ),
                       // const SizedBox(width: 46)

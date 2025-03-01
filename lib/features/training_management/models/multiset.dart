@@ -50,6 +50,7 @@ class Multiset extends Equatable {
     String? objectives,
     int? position,
     String? widgetKey,
+    bool resetKey = false,
   }) {
     return Multiset(
       id: id ?? this.id,
@@ -60,7 +61,7 @@ class Multiset extends Equatable {
       specialInstructions: specialInstructions ?? this.specialInstructions,
       objectives: objectives ?? this.objectives,
       position: position ?? this.position,
-      widgetKey: widgetKey ?? this.widgetKey,
+      widgetKey: resetKey ? null : widgetKey ?? this.widgetKey,
     );
   }
 
