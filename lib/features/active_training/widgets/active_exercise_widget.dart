@@ -161,7 +161,7 @@ class _ActiveExerciseWidgetState extends State<ActiveExerciseWidget> {
           decoration: BoxDecoration(
               border: Border.all(
                   color: isActiveExercise
-                      ? AppColors.parchment
+                      ? AppColors.licorice
                       : AppColors.timberwolf),
               borderRadius: BorderRadius.circular(10),
               color:

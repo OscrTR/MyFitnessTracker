@@ -62,7 +62,7 @@ class _ActiveRunWidgetState extends State<ActiveRunWidget> {
                     isActiveExercise ? AppColors.floralWhite : AppColors.white,
                 border: Border.all(
                     color: isActiveExercise
-                        ? AppColors.parchment
+                        ? AppColors.licorice
                         : AppColors.timberwolf),
                 borderRadius: BorderRadius.circular(15),
               ),

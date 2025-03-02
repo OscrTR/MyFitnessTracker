@@ -76,7 +76,7 @@ class _ActiveMultisetRunWidgetState extends State<ActiveMultisetRunWidget> {
                     isActiveExercise ? AppColors.floralWhite : AppColors.white,
                 border: Border.all(
                     color: isActiveExercise
-                        ? AppColors.parchment
+                        ? AppColors.licorice
                         : AppColors.timberwolf),
                 borderRadius: BorderRadius.circular(15),
               ),
