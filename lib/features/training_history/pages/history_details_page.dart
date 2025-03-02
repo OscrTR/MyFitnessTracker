@@ -532,13 +532,14 @@ class _ExerciseSetFormState extends State<ExerciseSetForm> {
           const SizedBox(height: 10),
           const Divider(color: AppColors.timberwolf),
           const SizedBox(height: 10),
-          _buildHeaderRow(),
+          _buildHeaderRow(widget.exercise.exerciseType),
           ListView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             itemCount: widget.multiset?.sets ?? widget.exercise.sets,
             itemBuilder: (context, index) {
-              return _buildSetRow(index, widget.multiset != null);
+              return _buildSetRow(
+                  index, widget.multiset != null, widget.exercise.exerciseType);
             },
           ),
         ],
@@ -596,7 +597,7 @@ class _ExerciseSetFormState extends State<ExerciseSetForm> {
     );
   }
 
-  Widget _buildSetRow(int index, bool isMultiset) {
+  Widget _buildSetRow(int index, bool isMultiset, ExerciseType exerciseType) {
     return Container(
       margin: const EdgeInsets.only(top: 10),
       child: Row(
@@ -608,11 +609,13 @@ class _ExerciseSetFormState extends State<ExerciseSetForm> {
           ),
           Row(
             children: [
-              SizedBox(
-                width: 50,
-                child:
-                    SmallTextFieldWidget(controller: weightControllers[index]),
-              ),
+              if (exerciseType != ExerciseType.meditation &&
+                  exerciseType != ExerciseType.yoga)
+                SizedBox(
+                  width: 50,
+                  child: SmallTextFieldWidget(
+                      controller: weightControllers[index]),
+                ),
               const SizedBox(width: 10),
               if (isSetInReps)
                 SizedBox(
@@ -664,22 +667,24 @@ class _ExerciseSetFormState extends State<ExerciseSetForm> {
     );
   }
 
-  Widget _buildHeaderRow() {
+  Widget _buildHeaderRow(ExerciseType exerciseType) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         const Text('Sets', style: TextStyle(color: AppColors.taupeGray)),
         Row(
           children: [
-            const SizedBox(
-              width: 50,
-              child: Center(
-                child: Text(
-                  'Kg',
-                  style: TextStyle(color: AppColors.taupeGray),
+            if (exerciseType != ExerciseType.meditation &&
+                exerciseType != ExerciseType.yoga)
+              const SizedBox(
+                width: 50,
+                child: Center(
+                  child: Text(
+                    'Kg',
+                    style: TextStyle(color: AppColors.taupeGray),
+                  ),
                 ),
               ),
-            ),
             const SizedBox(width: 10),
             if (isSetInReps)
               const SizedBox(
