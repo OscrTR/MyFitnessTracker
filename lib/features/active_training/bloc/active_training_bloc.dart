@@ -30,18 +30,13 @@ class ActiveTrainingBloc
     extends Bloc<ActiveTrainingEvent, ActiveTrainingState> {
   ActiveTrainingBloc() : super(ActiveTrainingInitial()) {
     final AudioPlayer audioPlayer = AudioPlayer()
+      ..setReleaseMode(ReleaseMode.stop)
       ..setAudioContext(AudioContext(
         android: const AudioContextAndroid(
-          contentType: AndroidContentType.sonification,
-          usageType: AndroidUsageType.assistanceSonification,
           audioFocus: AndroidAudioFocus.gainTransientMayDuck,
         ),
       ))
       ..setSource(AssetSource('sounds/countdown.mp3'));
-
-    audioPlayer.onPlayerComplete.listen((event) {
-      audioPlayer.setSource(AssetSource('sounds/countdown.mp3'));
-    });
 
     final FlutterTts flutterTts = FlutterTts();
     int? lastTimerValue;
