@@ -39,13 +39,15 @@ String formatPace(double speed) {
   return '$minutes:$secondsStr/km';
 }
 
-int getCalories({required int intensity, int? reps, int? duration}) {
+int getCalories(
+    {required int intensity, required int? weight, int? reps, int? duration}) {
   double caloriesDuringExercise = 0;
   double caloriesAfterBurn = 0;
   double totalCalories = 0;
   double effectiveDuration = 0;
 
-  const double standardWeight = 70.0;
+  double standardWeight =
+      (weight != null && weight != 0 ? weight : 70.0).toDouble();
 
   final Map<int, _IntensityData> intensityLevels = {
     0: _IntensityData(met: 2.0, epocFactor: 0.05),

@@ -479,9 +479,11 @@ class _ExerciseSetFormState extends State<ExerciseSetForm> {
     int? cals = historyEntry?.calories;
     cals = isSetInReps
         ? getCalories(
+            weight: weight,
             intensity: widget.exercise.intensity,
             reps: reps ?? historyEntry?.reps)
         : getCalories(
+            weight: weight,
             intensity: widget.exercise.intensity,
             duration: duration ?? historyEntry?.duration);
 

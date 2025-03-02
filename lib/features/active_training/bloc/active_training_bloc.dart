@@ -82,6 +82,7 @@ class ActiveTrainingBloc
             (exercise) => exercise.id == currentTimerState.exerciseId);
 
         cals = getCalories(
+            weight: 0,
             intensity: matchingExercise.intensity,
             duration: currentTimerState.isCountDown
                 ? matchingExercise.duration

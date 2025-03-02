@@ -93,7 +93,10 @@ class TrainingHistoryBloc
               : timerState.timerValue;
 
           int cals = getCalories(
-              intensity: matchingExercise.intensity, duration: duration);
+            weight: event.weight,
+            intensity: matchingExercise.intensity,
+            duration: duration,
+          );
 
           historyEntry = HistoryEntry(
               id: registeredId,

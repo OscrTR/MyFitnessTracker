@@ -497,10 +497,12 @@ class _ActiveExerciseRowState extends State<ActiveExerciseRow> {
 
                 if (widget.exercise.isSetsInReps) {
                   cals = getCalories(
+                      weight: int.tryParse(widget.weightController.text),
                       intensity: widget.exercise.intensity,
                       reps: int.tryParse(widget.repsController.text));
                 } else {
                   cals = getCalories(
+                      weight: int.tryParse(widget.weightController.text),
                       intensity: widget.exercise.intensity,
                       duration: widget.exercise.duration);
                 }
