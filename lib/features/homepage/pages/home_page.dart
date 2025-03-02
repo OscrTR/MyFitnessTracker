@@ -1031,36 +1031,16 @@ Widget _buildTrainingsList(BuildContext context) {
                     ),
                   ),
                   Positioned(
-                    top: 10,
-                    right: 20,
-                    child: PopupMenuButton(
-                      constraints: const BoxConstraints(maxWidth: 100),
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          side: const BorderSide(color: AppColors.timberwolf)),
-                      color: AppColors.white,
-                      onSelected: (value) {
-                        if (value == 'edit') {
-                          context
-                              .read<TrainingManagementBloc>()
-                              .add(GetTrainingEvent(id: training.id!));
-                          GoRouter.of(context).go('/training_detail');
-                        }
-                      },
-                      itemBuilder: (BuildContext context) => [
-                        PopupMenuItem(
-                          height: 30,
-                          value: 'edit',
-                          child: Text(
-                            tr('global_edit'),
-                            style: const TextStyle(color: AppColors.taupeGray),
-                          ),
+                      top: 10,
+                      right: 10,
+                      child: IconButton(
+                        onPressed: () =>
+                            GoRouter.of(context).go('/training_detail'),
+                        icon: const Icon(
+                          LucideIcons.pencil,
+                          size: 18,
                         ),
-                      ],
-                      icon: const Icon(Icons.more_horiz),
-                    ),
-                  ),
+                      )),
                 ],
               );
             },
