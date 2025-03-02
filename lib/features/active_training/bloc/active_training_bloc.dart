@@ -243,13 +243,14 @@ class ActiveTrainingBloc
             final targetDistance = currentTimerState.targetDistance;
             final targetDuration = currentTimerState.targetDuration;
 
-            if (!halfRunDone &&
-                targetDistance > 0 &&
-                currentDistance >= targetDistance / 2) {
+            print(
+                'timer ${currentTimerState.timerId} target distance is $targetDistance, target duration is $targetDuration, half run done is $halfRunDone, current distance is $currentDistance');
+
+            if (halfRunDone) return;
+            if (targetDistance > 0 && currentDistance >= targetDistance / 2) {
               speak(tr('active_training_half_training'));
               halfRunDone = true;
-            } else if (!halfRunDone &&
-                targetDistance == 0 &&
+            } else if (targetDistance == 0 &&
                 currentTimerValue >= targetDuration / 2) {
               speak(tr('active_training_half_training'));
               halfRunDone = true;
@@ -280,12 +281,10 @@ class ActiveTrainingBloc
           }
 
           // DISTANCE TIMER
-          if (currentState.timersStateList[currentTimerIndex].distance > 0) {
-            // Check if the current distance equals the objective distance or
-            if ((currentTimerState.targetDistance > 0 &&
-                    currentDistance >= currentTimerState.targetDistance) ||
-                (currentTimerState.targetDuration > 0 &&
-                    currentTimerValue >= currentTimerState.targetDuration)) {
+          if (currentTimerState.distance > 0 &&
+              currentTimerState.targetDistance > 0) {
+            // Check if the current distance equals the objective distance
+            if (currentDistance >= currentTimerState.targetDistance) {
               handleTimerCompletion();
             } else {
               checkPace();
@@ -303,8 +302,7 @@ class ActiveTrainingBloc
                 currentTimerValue >= currentTimerState.targetDuration) {
               handleTimerCompletion();
             } else {
-              if (currentState.timersStateList[currentTimerIndex].distance >
-                      0 &&
+              if (currentTimerState.distance > 0 &&
                   currentTimerState.targetDuration > 0) {
                 checkPace();
                 checkHalfRun();
