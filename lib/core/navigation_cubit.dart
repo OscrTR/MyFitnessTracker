@@ -5,8 +5,10 @@ class NavigationCubit extends Cubit<List<String>> {
 
   // Ajoute une nouvelle route et conserve uniquement les 3 dernières
   void addRoute(String route) {
-    if (state.contains(route) || route.isEmpty) {
-      return; // Ne rien faire si la route existe déjà
+    if (state.contains(route) ||
+        route.isEmpty ||
+        route.contains('active_training')) {
+      return;
     }
 
     final updatedRoutes = List<String>.from(state);
