@@ -28,6 +28,7 @@
   "global_month": "Month",
   "global_hours": "Hours(s)",
   "global_minutes": "Minute(s)",
+  "global_pace":"Pace",
 
   "nav_home": "Home",
   "nav_trainings": "Trainings",
@@ -169,7 +170,7 @@
   "history_page_edit": "Edit entry",
   "history_page_distance": "Distance",
   "history_page_duration": "Duration",
-  "history_page_pace": "Pace",
+  "history_page_pace": "Pace (min/km)",
   "history_page_trace": "Trace",
   "history_page_drop": "Elevation",
   "history_page_interval": "Interval",

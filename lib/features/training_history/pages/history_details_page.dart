@@ -347,7 +347,7 @@ class _RunExerciseState extends State<RunExercise> {
             totalSwitches: 3,
             labels: [
               tr('history_page_trace'),
-              tr('history_page_pace'),
+              tr('global_pace'),
               tr('history_page_drop')
             ],
             onToggle: (index) {

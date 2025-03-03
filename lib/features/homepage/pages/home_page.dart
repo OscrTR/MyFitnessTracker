@@ -1032,7 +1032,7 @@ Widget _buildTrainingsList(BuildContext context) {
                   ),
                   Positioned(
                       top: 10,
-                      right: 25,
+                      left: MediaQuery.of(context).size.width - 70,
                       child: IconButton(
                         onPressed: () {
                           context
