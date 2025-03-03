@@ -243,9 +243,6 @@ class ActiveTrainingBloc
             final targetDistance = currentTimerState.targetDistance;
             final targetDuration = currentTimerState.targetDuration;
 
-            print(
-                'timer ${currentTimerState.timerId} target distance is $targetDistance, target duration is $targetDuration, half run done is $halfRunDone, current distance is $currentDistance');
-
             if (halfRunDone) return;
             if (targetDistance > 0 && currentDistance >= targetDistance / 2) {
               speak(tr('active_training_half_training'));
