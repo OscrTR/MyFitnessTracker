@@ -160,22 +160,28 @@ class PeriodStats extends Equatable {
   static void getCurrentWeek() {
     final now = DateTime.now();
     final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
+    final startDate =
+        DateTime(startOfWeek.year, startOfWeek.month, startOfWeek.day);
 
     sl<TrainingHistoryBloc>()
-        .add(SetNewDateHistoryDateEvent(startDate: startOfWeek, endDate: now));
+        .add(SetNewDateHistoryDateEvent(startDate: startDate, endDate: now));
   }
 
   static void getCurrentMonth() {
     final now = DateTime.now();
     final startOfMonth = DateTime(now.year, now.month, 1);
+    final startDate =
+        DateTime(startOfMonth.year, startOfMonth.month, startOfMonth.day);
     sl<TrainingHistoryBloc>()
-        .add(SetNewDateHistoryDateEvent(startDate: startOfMonth, endDate: now));
+        .add(SetNewDateHistoryDateEvent(startDate: startDate, endDate: now));
   }
 
   static void getCurrentYear() {
     final now = DateTime.now();
     final startOfYear = DateTime(now.year, 1, 1);
+    final startDate =
+        DateTime(startOfYear.year, startOfYear.month, startOfYear.day);
     sl<TrainingHistoryBloc>()
-        .add(SetNewDateHistoryDateEvent(startDate: startOfYear, endDate: now));
+        .add(SetNewDateHistoryDateEvent(startDate: startDate, endDate: now));
   }
 }

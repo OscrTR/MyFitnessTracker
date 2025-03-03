@@ -217,7 +217,8 @@ class TrainingHistoryBloc
       try {
         final currentState = state as TrainingHistoryLoaded;
 
-        final startDate = event.startDate;
+        final startDate = DateTime(
+            event.startDate.year, event.startDate.month, event.startDate.day);
         final endDate = currentState.isWeekSelected
             ? startDate
                 .add(const Duration(days: 7))

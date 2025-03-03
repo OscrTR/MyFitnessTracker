@@ -1032,10 +1032,14 @@ Widget _buildTrainingsList(BuildContext context) {
                   ),
                   Positioned(
                       top: 10,
-                      right: 10,
+                      right: 25,
                       child: IconButton(
-                        onPressed: () =>
-                            GoRouter.of(context).go('/training_detail'),
+                        onPressed: () {
+                          context
+                              .read<TrainingManagementBloc>()
+                              .add(GetTrainingEvent(id: training.id!));
+                          GoRouter.of(context).go('/training_detail');
+                        },
                         icon: const Icon(
                           LucideIcons.pencil,
                           size: 18,
