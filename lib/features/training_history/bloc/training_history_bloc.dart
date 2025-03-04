@@ -22,14 +22,20 @@ class TrainingHistoryBloc
   TrainingHistoryBloc() : super(TrainingHistoryInitial()) {
     on<FetchHistoryEntriesEvent>((event, emit) async {
       try {
-        final startDate = DateTime(
-          DateTime.now().year,
-          DateTime.now().month,
-          DateTime.now().day - DateTime.now().weekday + 1,
-        );
-        final endDate = DateTime.now()
-            .subtract(Duration(days: DateTime.now().weekday - 1))
-            .add(const Duration(days: 6));
+        final now = DateTime.now();
+        DateTime startDate = now;
+        DateTime endDate = now;
+
+        if (event.isWeekSelected) {
+          final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
+          endDate = startOfWeek.add(const Duration(days: 6));
+          startDate = startOfWeek;
+        } else {
+          final startOfMonth = DateTime(now.year, now.month, 1);
+          DateTime firstDayOfNextMonth = DateTime(now.year, now.month + 1, 1);
+          endDate = firstDayOfNextMonth.subtract(Duration(seconds: 1));
+          startDate = startOfMonth;
+        }
 
         final historyTrainings = await getHistoryTrainings(
             startDate: startDate,
@@ -45,6 +51,7 @@ class TrainingHistoryBloc
             periodStats: PeriodStats.fromTrainings(historyTrainings),
             startDate: startDate,
             endDate: endDate,
+            isWeekSelected: event.isWeekSelected,
           ));
         } else {
           emit(TrainingHistoryLoaded.withDefaultLists(
