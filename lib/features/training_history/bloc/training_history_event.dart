@@ -57,12 +57,12 @@ class DeleteHistoryEntryEvent extends TrainingHistoryEvent {
 }
 
 class DeleteHistoryTrainingEvent extends TrainingHistoryEvent {
-  final int trainingId;
+  final HistoryTraining historyTraining;
 
-  const DeleteHistoryTrainingEvent({required this.trainingId});
+  const DeleteHistoryTrainingEvent({required this.historyTraining});
 
   @override
-  List<Object> get props => [trainingId];
+  List<Object> get props => [historyTraining];
 }
 
 class SetNewDateHistoryDateEvent extends TrainingHistoryEvent {

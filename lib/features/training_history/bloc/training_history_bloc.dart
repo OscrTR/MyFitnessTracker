@@ -204,7 +204,7 @@ class TrainingHistoryBloc
 
       try {
         await sl<DatabaseService>()
-            .deleteHistoryEntriesByTrainingId(event.trainingId);
+            .deleteHistoryTraining(event.historyTraining);
         add(FetchHistoryEntriesEvent());
       } catch (e) {
         showToastMessage(

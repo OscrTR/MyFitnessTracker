@@ -1,3 +1,4 @@
+import 'package:my_fitness_tracker/features/training_history/models/history_training.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqlite_async/sqlite_async.dart';
@@ -1367,12 +1368,16 @@ class DatabaseService {
     }
   }
 
-  Future<void> deleteHistoryEntriesByTrainingId(int trainingId) async {
+  Future<void> deleteHistoryTraining(HistoryTraining historyTraining) async {
     try {
-      await _db.execute(
-          'DELETE FROM history_entries WHERE trainingId = ?', [trainingId]);
-      await _db.execute(
-          'DELETE FROM run_locations WHERE trainingId = ?', [trainingId]);
+      for (var entry in historyTraining.historyEntries) {
+        await _db
+            .execute('DELETE FROM history_entries WHERE id = ?', [entry.id]);
+      }
+      for (var location in historyTraining.locations) {
+        await _db
+            .execute('DELETE FROM run_locations WHERE id = ?', [location.id]);
+      }
     } catch (e) {
       showToastMessage(
         message: e.toString(),

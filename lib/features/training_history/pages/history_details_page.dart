@@ -194,11 +194,9 @@ class _HistoryDetailsPageState extends State<HistoryDetailsPage> {
           child: GestureDetector(
             onTap: () {
               FocusScope.of(context).unfocus();
-              context
-                  .read<TrainingHistoryBloc>()
-                  .add(DeleteHistoryTrainingEvent(
-                    trainingId: state.selectedTrainingEntry!.training.id!,
-                  ));
+              context.read<TrainingHistoryBloc>().add(
+                  DeleteHistoryTrainingEvent(
+                      historyTraining: state.selectedTrainingEntry!));
               GoRouter.of(context).go('/home');
             },
             child: const Icon(

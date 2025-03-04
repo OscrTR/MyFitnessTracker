@@ -57,6 +57,8 @@ class _ActiveExerciseWidgetState extends State<ActiveExerciseWidget> {
           .lastOrNull
           ?.historyEntries;
 
+      print(entries);
+
       _setHistoryIds = {
         for (int i = 1; i <= sets; i++) ...{
           'idSet$i': entries
