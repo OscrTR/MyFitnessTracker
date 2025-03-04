@@ -174,6 +174,8 @@ class MyTaskHandler extends TaskHandler {
       secondaryTimerId = timerId;
     }
 
+    _pauseTimers();
+
     timers[timerId]?.start();
     timers['primaryTimer']!.start();
   }
