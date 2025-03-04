@@ -75,6 +75,9 @@ class TrainingDurationChart extends StatelessWidget {
     // 1. Récupérer la liste de tous les jours dans l'intervalle.
     final allDates = getDatesInRange(startDate, endDate);
 
+    // Définir la largeur des barres en fonction du nombre de dates
+    final double rodWidth = allDates.length > 15 ? 8.0 : 20.0;
+
     // 2. Grouper les entraînements par date (en comparant juste le jour)
     Map<DateTime, List<HistoryTraining>> trainingsByDate = {};
     for (DateTime day in allDates) {
@@ -112,7 +115,7 @@ class TrainingDurationChart extends StatelessWidget {
         toY: cumulative,
         color: AppColors.licorice,
         rodStackItems: stackItems,
-        width: 20,
+        width: rodWidth,
         borderRadius: BorderRadius.circular(4),
       );
 
@@ -179,6 +182,10 @@ class TrainingDurationChart extends StatelessWidget {
                 getTitlesWidget: (double value, TitleMeta meta) {
                   int index = value.toInt();
                   if (index < 0 || index >= allDates.length) {
+                    return const SizedBox.shrink();
+                  }
+                  // Si le nombre de dates est > 15, n'afficher qu'un jour sur deux
+                  if (allDates.length > 15 && index % 2 != 0) {
                     return const SizedBox.shrink();
                   }
                   final day = allDates[index];
