@@ -43,6 +43,7 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage>
     context.read<PermissionCubit>().checkNotificationPermission();
     context.read<PermissionCubit>().checkLocationPermission();
     context.read<PermissionCubit>().checkLocationStatus();
+    context.read<PermissionCubit>().checkBatteryOptimization();
   }
 
   @override
@@ -58,6 +59,7 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage>
       context.read<PermissionCubit>().checkNotificationPermission();
       context.read<PermissionCubit>().checkLocationPermission();
       context.read<PermissionCubit>().checkLocationStatus();
+      context.read<PermissionCubit>().checkBatteryOptimization();
     }
   }
 
@@ -123,9 +125,12 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage>
                               return !permissionState
                                       .isLocationPermissionGrantedAlways ||
                                   !permissionState.isLocationEnabled ||
-                                  !permissionState.isNotificationAuthorized;
+                                  !permissionState.isNotificationAuthorized ||
+                                  !permissionState.isBatteryOptimizationIgnored;
                             } else {
-                              return !permissionState.isNotificationAuthorized;
+                              return !permissionState
+                                      .isNotificationAuthorized ||
+                                  !permissionState.isBatteryOptimizationIgnored;
                             }
                           },
                           builder: (context, isPermissionMissing) {
@@ -135,7 +140,7 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage>
                                   e.exerciseType == ExerciseType.running)) {
                                 return _buildRunPermissions(context);
                               }
-                              return _buildNotificationPermission(context);
+                              return _buildMinimalPermission(context);
                             }
 
                             // Sinon, construit la liste des exercices et multisets
@@ -189,7 +194,8 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage>
                         permissionState.isNotificationAuthorized) {
                       return const TimerWidget();
                     }
-                  } else if (permissionState.isNotificationAuthorized) {
+                  } else if (permissionState.isNotificationAuthorized &&
+                      permissionState.isBatteryOptimizationIgnored) {
                     return const TimerWidget();
                   }
                 }
@@ -202,7 +208,7 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage>
     );
   }
 
-  SizedBox _buildNotificationPermission(BuildContext context) {
+  SizedBox _buildMinimalPermission(BuildContext context) {
     final permissionState =
         context.watch<PermissionCubit>().state; // Accès à l'état du cubit
 
@@ -234,6 +240,33 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage>
                         : tr('active_training_ask'),
                     style: TextStyle(
                         color: permissionState.isNotificationAuthorized
+                            ? AppColors.frenchGray
+                            : AppColors.white),
+                  )),
+            ),
+            const SizedBox(height: 30),
+            Text(tr('active_training_battery_optimization_ignored')),
+            const SizedBox(height: 10),
+            GestureDetector(
+              onTap: () {
+                context
+                    .read<PermissionCubit>()
+                    .requestBatteryOptimizationIgnored();
+              },
+              child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                  decoration: BoxDecoration(
+                      color: permissionState.isBatteryOptimizationIgnored
+                          ? AppColors.whiteSmoke
+                          : AppColors.licorice,
+                      borderRadius: BorderRadius.circular(10)),
+                  child: Text(
+                    permissionState.isBatteryOptimizationIgnored
+                        ? tr('active_training_granted')
+                        : tr('active_training_ask'),
+                    style: TextStyle(
+                        color: permissionState.isBatteryOptimizationIgnored
                             ? AppColors.frenchGray
                             : AppColors.white),
                   )),
@@ -324,6 +357,33 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage>
                         : tr('active_training_ask'),
                     style: TextStyle(
                         color: permissionState.isLocationEnabled
+                            ? AppColors.frenchGray
+                            : AppColors.white),
+                  )),
+            ),
+            const SizedBox(height: 30),
+            Text(tr('active_training_battery_optimization_ignored')),
+            const SizedBox(height: 10),
+            GestureDetector(
+              onTap: () {
+                context
+                    .read<PermissionCubit>()
+                    .requestBatteryOptimizationIgnored();
+              },
+              child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                  decoration: BoxDecoration(
+                      color: permissionState.isBatteryOptimizationIgnored
+                          ? AppColors.whiteSmoke
+                          : AppColors.licorice,
+                      borderRadius: BorderRadius.circular(10)),
+                  child: Text(
+                    permissionState.isBatteryOptimizationIgnored
+                        ? tr('active_training_granted')
+                        : tr('active_training_ask'),
+                    style: TextStyle(
+                        color: permissionState.isBatteryOptimizationIgnored
                             ? AppColors.frenchGray
                             : AppColors.white),
                   )),

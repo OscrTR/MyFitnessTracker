@@ -1,3 +1,7 @@
+import 'dart:io';
+
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'enums/enums.dart';
@@ -14,6 +18,7 @@ class PermissionState {
   final bool isLocationPermissionGrantedInUse;
   final bool isLocationEnabled;
   final bool isLocationPermissionDeniedForever;
+  final bool isBatteryOptimizationIgnored;
 
   const PermissionState({
     this.isNotificationAuthorized = false,
@@ -21,6 +26,7 @@ class PermissionState {
     this.isLocationPermissionGrantedInUse = false,
     this.isLocationEnabled = false,
     this.isLocationPermissionDeniedForever = false,
+    this.isBatteryOptimizationIgnored = false,
   });
 
   PermissionState copyWith({
@@ -29,6 +35,7 @@ class PermissionState {
     bool? isLocationPermissionGrantedInUse,
     bool? isLocationEnabled,
     bool? isLocationPermissionDeniedForever,
+    bool? isBatteryOptimizationIgnored,
   }) {
     return PermissionState(
       isNotificationAuthorized:
@@ -40,6 +47,8 @@ class PermissionState {
       isLocationEnabled: isLocationEnabled ?? this.isLocationEnabled,
       isLocationPermissionDeniedForever: isLocationPermissionDeniedForever ??
           this.isLocationPermissionDeniedForever,
+      isBatteryOptimizationIgnored:
+          isBatteryOptimizationIgnored ?? this.isBatteryOptimizationIgnored,
     );
   }
 }
@@ -129,5 +138,56 @@ class PermissionCubit extends Cubit<PermissionState> {
 
     // Mettre à jour l'état du cubit
     emit(state.copyWith(isLocationEnabled: updatedServiceEnabled));
+  }
+
+  /// Vérifie si l'optimisation de batterie est ignorée
+  Future<void> checkBatteryOptimization() async {
+    PermissionStatus status =
+        await Permission.ignoreBatteryOptimizations.status;
+    emit(state.copyWith(isBatteryOptimizationIgnored: status.isGranted));
+  }
+
+  /// Demande la permission d'ignorer les optimisations de batterie
+  Future<void> requestBatteryOptimizationIgnored() async {
+    if (!state.isBatteryOptimizationIgnored) {
+      final result = await Permission.ignoreBatteryOptimizations.request();
+      if (!result.isGranted) {
+        openAppSettings();
+      }
+    }
+  }
+
+  /// Vérifie si l'appareil est Xiaomi/Redmi ou Huawei et demande
+  /// à l'utilisateur de désactiver l'optimisation de batterie.
+  Future<void> checkAndRequestBatteryOptimization(BuildContext context) async {
+    if (!Platform.isAndroid) return;
+
+    // Petit délai pour s'assurer que l'application a terminé son build
+    await Future.delayed(const Duration(milliseconds: 500));
+
+    await checkBatteryOptimization();
+
+    // Affichage d'une boîte de dialogue pour informer l'utilisateur.
+    if (!state.isBatteryOptimizationIgnored && context.mounted) {
+      await showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) {
+          return AlertDialog(
+            title: Text(tr('home_page_battery_title')),
+            content: Text(tr('home_page_battery_text')),
+            actions: [
+              TextButton(
+                onPressed: () async {
+                  Navigator.of(context).pop();
+                  await requestBatteryOptimizationIgnored();
+                },
+                child: const Text("OK"),
+              ),
+            ],
+          );
+        },
+      );
+    }
   }
 }
