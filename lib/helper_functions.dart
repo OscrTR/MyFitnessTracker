@@ -143,3 +143,13 @@ Map<T, bool> createMapWithDefaultValues<T>(List<T> enumValues) {
       .sublist(0, enumValues.length - 1)
       .map((value) => MapEntry(value, false)));
 }
+
+class NotificationIdGenerator {
+  // On initialise le compteur avec une valeur basée sur le timestamp en microsecondes, puis on réduit à 5 chiffres
+  static int _counter = DateTime.now().microsecondsSinceEpoch % 100000;
+
+  static int getNextId() {
+    // Retourne l'id courant et l'incrémente ensuite. On s'assure que le résultat reste dans 5 chiffres.
+    return _counter++ % 100000;
+  }
+}

@@ -2,6 +2,7 @@ import 'package:bloc/bloc.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:equatable/equatable.dart';
+import 'package:my_fitness_tracker/helper_functions.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../core/database/database_service.dart';
@@ -558,29 +559,17 @@ Future<void> _compareTrainingDays() async {
       }
     }
 
-    final reminderDays = reminders.map((reminder) => reminder.day).toSet();
-
-    // Trouver les jours présents dans trainingDays mais absents dans reminderDays
-    final daysToCreate = trainingDays.difference(reminderDays);
-
-    // Trouver les jours présents dans reminderDays mais absents dans trainingDays
-    final daysToDelete = reminderDays.difference(trainingDays);
-
-    // Créer des reminders pour les jours manquants
-    for (final day in daysToCreate) {
-      if (!reminders.any((d) => d.day == day)) {
-        NotificationService.scheduleWeeklyNotification(day: day);
-      }
+    // Supprimer tous les reminders et notifications
+    for (var reminder in reminders) {
+      await sl<DatabaseService>().deleteReminder(reminder.notificationId);
+      await NotificationService.deleteNotification(reminder.notificationId);
     }
 
-    // Supprimer les reminders pour les jours obsolètes
-    for (final day in daysToDelete) {
-      for (var reminder in reminders) {
-        if (reminder.day == day) {
-          await sl<DatabaseService>().deleteReminder(reminder.notificationId);
-          await NotificationService.deleteNotification(reminder.notificationId);
-        }
-      }
+    // Créer des reminders pour les jours manquants
+    for (final day in trainingDays) {
+      final int notificationId = NotificationIdGenerator.getNextId();
+      NotificationService.scheduleWeeklyNotification(
+          day: day, notificationId: notificationId);
     }
   }
 }

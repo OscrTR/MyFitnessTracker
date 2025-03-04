@@ -1,5 +1,3 @@
-// ignore_for_file: depend_on_referenced_packages
-
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:my_fitness_tracker/app_colors.dart';
@@ -61,7 +59,7 @@ class NotificationService {
   }
 
   static Future<void> scheduleWeeklyNotification(
-      {required TrainingDay day}) async {
+      {required TrainingDay day, required int notificationId}) async {
     tz.TZDateTime nextInstanceOfWeekday(TrainingDay day) {
       final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
       final currentDay = now.weekday;
@@ -80,9 +78,6 @@ class NotificationService {
           tz.local, nextDay.year, nextDay.month, nextDay.day, 8, 0, 0);
       return scheduledDate;
     }
-
-    final notificationId =
-        DateTime.now().millisecondsSinceEpoch.remainder(100000);
 
     await sl<FlutterLocalNotificationsPlugin>().zonedSchedule(
       notificationId,

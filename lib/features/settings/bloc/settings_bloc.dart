@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:my_fitness_tracker/helper_functions.dart';
 import '../../../core/enums/enums.dart';
 import '../../../core/messages/models/log.dart';
 import '../../../core/database/database_service.dart';
@@ -63,16 +64,17 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
           }
         }
 
-        final reminderDays = reminders.map((reminder) => reminder.day).toSet();
-
-        // Trouver les jours présents dans trainingDays mais absents dans reminderDays
-        final daysToCreate = trainingDays.difference(reminderDays);
+        // Supprimer tous les reminders et notifications
+        for (var reminder in reminders) {
+          await sl<DatabaseService>().deleteReminder(reminder.notificationId);
+          await NotificationService.deleteNotification(reminder.notificationId);
+        }
 
         // Créer des reminders pour les jours manquants
-        for (final day in daysToCreate) {
-          if (!reminders.any((d) => d.day == day)) {
-            NotificationService.scheduleWeeklyNotification(day: day);
-          }
+        for (final day in trainingDays) {
+          final int notificationId = NotificationIdGenerator.getNextId();
+          NotificationService.scheduleWeeklyNotification(
+              day: day, notificationId: notificationId);
         }
       }
 
