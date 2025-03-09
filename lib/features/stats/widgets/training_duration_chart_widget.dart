@@ -39,7 +39,8 @@ class TrainingDurationChart extends StatelessWidget {
   List<DateTime> getDatesInRange(DateTime start, DateTime end) {
     final List<DateTime> dates = [];
     DateTime current = DateTime(start.year, start.month, start.day);
-    final DateTime last = DateTime(end.year, end.month, end.day);
+    final DateTime last = DateTime(
+        end.year, end.month, end.day, end.hour, end.minute, end.second);
     while (!current.isAfter(last)) {
       dates.add(current);
       current = current.add(const Duration(days: 1));

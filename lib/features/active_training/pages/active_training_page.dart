@@ -121,7 +121,20 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage>
                                 state.activeTraining!.exercises.any((e) =>
                                     e.exerciseType == ExerciseType.running);
 
-                            if (hasRunExercise) {
+                            if (permissionState.requiresAllPermissions) {
+                              if (hasRunExercise) {
+                                return !permissionState
+                                        .isLocationPermissionGrantedAlways ||
+                                    !permissionState.isLocationEnabled ||
+                                    !permissionState.isNotificationAuthorized ||
+                                    !permissionState
+                                        .isBatteryOptimizationIgnored;
+                              }
+                              return !permissionState
+                                      .isLocationPermissionGrantedAlways ||
+                                  !permissionState.isNotificationAuthorized ||
+                                  !permissionState.isBatteryOptimizationIgnored;
+                            } else if (hasRunExercise) {
                               return !permissionState
                                       .isLocationPermissionGrantedAlways ||
                                   !permissionState.isLocationEnabled ||
@@ -134,11 +147,17 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage>
                             }
                           },
                           builder: (context, isPermissionMissing) {
+                            final isRun = state.activeTraining!.exercises.any(
+                                (e) => e.exerciseType == ExerciseType.running);
                             // Si les permissions ne sont pas correctes
                             if (isPermissionMissing) {
-                              if (state.activeTraining!.exercises.any((e) =>
-                                  e.exerciseType == ExerciseType.running)) {
-                                return _buildRunPermissions(context);
+                              if (isRun ||
+                                  context
+                                      .read<PermissionCubit>()
+                                      .state
+                                      .requiresAllPermissions) {
+                                return _buildFullPermissions(context,
+                                    isRun: isRun);
                               }
                               return _buildMinimalPermission(context);
                             }
@@ -179,28 +198,44 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage>
               right: 0,
               left: 0,
               child: BlocBuilder<ActiveTrainingBloc, ActiveTrainingState>(
-                  builder: (context, state) {
-                if (state is ActiveTrainingLoaded &&
-                    state.activeTraining != null) {
-                  final permissionState =
-                      context.watch<PermissionCubit>().state;
+                builder: (context, state) {
+                  if (state is ActiveTrainingLoaded &&
+                      state.activeTraining != null) {
+                    final permissionState =
+                        context.watch<PermissionCubit>().state;
 
-                  bool hasRunExercise = state.activeTraining!.exercises
-                      .any((e) => e.exerciseType == ExerciseType.running);
+                    final hasRunExercise = state.activeTraining!.exercises
+                        .any((e) => e.exerciseType == ExerciseType.running);
 
-                  if (hasRunExercise) {
-                    if (permissionState.isLocationPermissionGrantedAlways &&
-                        permissionState.isLocationEnabled &&
-                        permissionState.isNotificationAuthorized) {
-                      return const TimerWidget();
+                    final hasAllPermissions =
+                        permissionState.isLocationPermissionGrantedAlways &&
+                            permissionState.isNotificationAuthorized &&
+                            permissionState.isBatteryOptimizationIgnored;
+
+                    final locationEnabled = permissionState.isLocationEnabled;
+
+                    // Case 1: Requires all permissions
+                    if (permissionState.requiresAllPermissions) {
+                      if (hasAllPermissions &&
+                          (!hasRunExercise || locationEnabled)) {
+                        return const TimerWidget();
+                      }
                     }
-                  } else if (permissionState.isNotificationAuthorized &&
-                      permissionState.isBatteryOptimizationIgnored) {
-                    return const TimerWidget();
+                    // Case 2: Does not require all permissions
+                    else {
+                      if (hasRunExercise) {
+                        if (hasAllPermissions && locationEnabled) {
+                          return const TimerWidget();
+                        }
+                      } else if (permissionState.isNotificationAuthorized &&
+                          permissionState.isBatteryOptimizationIgnored) {
+                        return const TimerWidget();
+                      }
+                    }
                   }
-                }
-                return const SizedBox();
-              }),
+                  return const SizedBox();
+                },
+              ),
             )
           ],
         ),
@@ -277,7 +312,7 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage>
     );
   }
 
-  SizedBox _buildRunPermissions(BuildContext context) {
+  SizedBox _buildFullPermissions(BuildContext context, {required bool isRun}) {
     final permissionState =
         context.watch<PermissionCubit>().state; // Accès à l'état du cubit
 
@@ -337,31 +372,36 @@ class _ActiveTrainingPageState extends State<ActiveTrainingPage>
                   )),
             ),
             const SizedBox(height: 30),
-            Text(tr('active_training_location_enabled')),
-            const SizedBox(height: 10),
-            GestureDetector(
-              onTap: () {
-                context.read<PermissionCubit>().requestLocationEnabled();
-              },
-              child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                  decoration: BoxDecoration(
-                      color: permissionState.isLocationEnabled
-                          ? AppColors.whiteSmoke
-                          : AppColors.licorice,
-                      borderRadius: BorderRadius.circular(10)),
-                  child: Text(
-                    permissionState.isLocationEnabled
-                        ? tr('active_training_granted')
-                        : tr('active_training_ask'),
-                    style: TextStyle(
-                        color: permissionState.isLocationEnabled
-                            ? AppColors.frenchGray
-                            : AppColors.white),
-                  )),
-            ),
-            const SizedBox(height: 30),
+            if (isRun)
+              Column(
+                children: [
+                  Text(tr('active_training_location_enabled')),
+                  const SizedBox(height: 10),
+                  GestureDetector(
+                    onTap: () {
+                      context.read<PermissionCubit>().requestLocationEnabled();
+                    },
+                    child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 10, horizontal: 20),
+                        decoration: BoxDecoration(
+                            color: permissionState.isLocationEnabled
+                                ? AppColors.whiteSmoke
+                                : AppColors.licorice,
+                            borderRadius: BorderRadius.circular(10)),
+                        child: Text(
+                          permissionState.isLocationEnabled
+                              ? tr('active_training_granted')
+                              : tr('active_training_ask'),
+                          style: TextStyle(
+                              color: permissionState.isLocationEnabled
+                                  ? AppColors.frenchGray
+                                  : AppColors.white),
+                        )),
+                  ),
+                  const SizedBox(height: 30),
+                ],
+              ),
             Text(tr('active_training_battery_optimization_ignored')),
             const SizedBox(height: 10),
             GestureDetector(

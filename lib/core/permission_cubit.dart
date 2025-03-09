@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -19,6 +20,7 @@ class PermissionState {
   final bool isLocationEnabled;
   final bool isLocationPermissionDeniedForever;
   final bool isBatteryOptimizationIgnored;
+  final bool requiresAllPermissions;
 
   const PermissionState({
     this.isNotificationAuthorized = false,
@@ -27,6 +29,7 @@ class PermissionState {
     this.isLocationEnabled = false,
     this.isLocationPermissionDeniedForever = false,
     this.isBatteryOptimizationIgnored = false,
+    this.requiresAllPermissions = false,
   });
 
   PermissionState copyWith({
@@ -36,6 +39,7 @@ class PermissionState {
     bool? isLocationEnabled,
     bool? isLocationPermissionDeniedForever,
     bool? isBatteryOptimizationIgnored,
+    bool? requiresAllPermissions,
   }) {
     return PermissionState(
       isNotificationAuthorized:
@@ -49,6 +53,8 @@ class PermissionState {
           this.isLocationPermissionDeniedForever,
       isBatteryOptimizationIgnored:
           isBatteryOptimizationIgnored ?? this.isBatteryOptimizationIgnored,
+      requiresAllPermissions:
+          requiresAllPermissions ?? this.requiresAllPermissions,
     );
   }
 }
@@ -58,6 +64,21 @@ class PermissionCubit extends Cubit<PermissionState> {
   PermissionCubit({
     required this.flutterLocalNotificationsPlugin,
   }) : super(const PermissionState());
+
+  void checkIfRequiresAllPermissions() async {
+    DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+    var androidInfo = await deviceInfo.androidInfo;
+
+    // On peut récupérer la marque de l'appareil.
+    String deviceBrand = androidInfo.brand;
+    if (deviceBrand.toLowerCase() == "xiaomi") {
+      emit(state.copyWith(requiresAllPermissions: true));
+    } else if (deviceBrand.toLowerCase() == "huawei") {
+      emit(state.copyWith(requiresAllPermissions: true));
+    } else if (deviceBrand.toLowerCase() == "redmi") {
+      emit(state.copyWith(requiresAllPermissions: true));
+    }
+  }
 
   /// Vérifie si les notifications sont autorisées
   Future<void> checkNotificationPermission() async {

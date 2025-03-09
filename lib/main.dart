@@ -62,8 +62,9 @@ class MyApp extends StatelessWidget {
             create: (_) => di.sl<SettingsBloc>()..add(LoadSettings()),
             lazy: false),
         BlocProvider<PermissionCubit>(
-            create: (_) =>
-                di.sl<PermissionCubit>()..requestNotificationPermission(),
+            create: (_) => di.sl<PermissionCubit>()
+              ..requestNotificationPermission()
+              ..checkIfRequiresAllPermissions(),
             lazy: false),
         BlocProvider<NavigationCubit>(
             create: (_) => di.sl<NavigationCubit>(), lazy: false),
