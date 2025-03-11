@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:my_fitness_tracker/app_colors.dart';
@@ -44,20 +45,6 @@ class NotificationService {
     await sl<FlutterLocalNotificationsPlugin>().cancel(id);
   }
 
-  static Future<void> notify() async {
-    const androidNotificationDetails = AndroidNotificationDetails(
-        'your channel id', 'your channel name',
-        channelDescription: 'your channel description',
-        importance: Importance.max,
-        priority: Priority.high,
-        ticker: 'ticker');
-    const notificationDetails =
-        NotificationDetails(android: androidNotificationDetails);
-    await sl<FlutterLocalNotificationsPlugin>().show(
-        0, 'plain title', 'plain body', notificationDetails,
-        payload: 'item x');
-  }
-
   static Future<void> scheduleWeeklyNotification(
       {required TrainingDay day, required int notificationId}) async {
     tz.TZDateTime nextInstanceOfWeekday(TrainingDay day) {
@@ -81,14 +68,15 @@ class NotificationService {
 
     await sl<FlutterLocalNotificationsPlugin>().zonedSchedule(
       notificationId,
-      'Training planned today!',
-      "Don't forget to train.",
+      tr('notification_title'),
+      tr('notification_content'),
       nextInstanceOfWeekday(day),
       const NotificationDetails(
         android: AndroidNotificationDetails(
-          'weekly notification channel id',
-          'weekly notification channel name',
-          channelDescription: 'weekly notificationdescription',
+          'weeklyNotificationChannelId',
+          'weeklyNotificationChannel',
+          channelDescription:
+              "Planned notifications to remind of the current day's trainings.",
           color: AppColors.folly,
         ),
       ),

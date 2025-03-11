@@ -182,5 +182,8 @@
   "stats_page_title": "Stats",
   "stats_page_deleted_exercises": "Deleted exercises",
   "stats_page_training_search": "Search a training",
-  "stats_page_trainings_duration": "Trainings duration (minutes)"
+  "stats_page_trainings_duration": "Trainings duration (minutes)",
+
+  "notification_title": "Training planned today!",
+  "notification_content": "Don't forget to do it."
 }

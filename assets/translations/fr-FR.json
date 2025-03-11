@@ -180,6 +180,8 @@
   "stats_page_title": "Statistiques",
   "stats_page_deleted_exercises": "Exercices supprimés",
   "stats_page_training_search": "Chercher un entraînement",
-  "stats_page_trainings_duration": "Durée des entraînements (minutes)"
+  "stats_page_trainings_duration": "Durée des entraînements (minutes)",
 
+  "notification_title": "Entraînement planifié aujourd'hui!",
+  "notification_content": "N'oublie pas de le réaliser."
 }

@@ -2,7 +2,7 @@ name: my_fitness_tracker
 description: "A fitness trainings tracker."
 publish_to: "none"
 
-version: 0.0.3+3
+version: 0.0.4+4
 
 environment:
   sdk: ^3.5.3
