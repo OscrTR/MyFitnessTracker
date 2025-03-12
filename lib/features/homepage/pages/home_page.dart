@@ -211,7 +211,7 @@ class _HomePageState extends State<HomePage> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 30),
                 _buildHistoryList(),
                 const SizedBox(height: 90)
               ],
@@ -243,106 +243,136 @@ class _HomePageState extends State<HomePage> {
         final historyTrainings =
             HistoryTraining.getLastTen(state.historyTrainings);
 
-        return ListView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: historyTrainings.length,
-            itemBuilder: (context, index) {
-              String dateFormatee =
-                  DateFormat('EEEE d MMMM y', context.locale.languageCode)
-                      .format(historyTrainings[index].date);
-              dateFormatee =
-                  dateFormatee[0].toUpperCase() + dateFormatee.substring(1);
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                tr('home_page_training_history'),
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+              if (historyTrainings.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(top: 10),
+                  child: Text(
+                    tr('home_page_training_history_empty'),
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodySmall!
+                        .copyWith(color: AppColors.taupeGray),
+                  ),
+                ),
+              ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: historyTrainings.length,
+                  itemBuilder: (context, index) {
+                    String dateFormatee =
+                        DateFormat('EEEE d MMMM y', context.locale.languageCode)
+                            .format(historyTrainings[index].date);
+                    dateFormatee = dateFormatee[0].toUpperCase() +
+                        dateFormatee.substring(1);
 
-              final trainingName = (sl<TrainingManagementBloc>().state
-                          as TrainingManagementLoaded)
-                      .trainings
-                      .firstWhereOrNull((trainning) =>
-                          trainning.id == historyTrainings[index].training.id)
-                      ?.name ??
-                  '${historyTrainings[index].training.name} (${tr('global_deleted')})';
+                    final trainingName = (sl<TrainingManagementBloc>().state
+                                as TrainingManagementLoaded)
+                            .trainings
+                            .firstWhereOrNull((trainning) =>
+                                trainning.id ==
+                                historyTrainings[index].training.id)
+                            ?.name ??
+                        '${historyTrainings[index].training.name} (${tr('global_deleted')})';
 
-              return GestureDetector(
-                onTap: () {
-                  context.read<TrainingHistoryBloc>().add(
-                      SelectHistoryTrainingEntryEvent(historyTrainings[index]));
-                  GoRouter.of(context).go('/history_details');
-                },
-                child: Container(
-                    padding: const EdgeInsets.all(10),
-                    margin: const EdgeInsets.only(top: 20, left: 20, right: 20),
-                    decoration: BoxDecoration(
-                        border: Border.all(color: AppColors.timberwolf),
-                        borderRadius: BorderRadius.circular(10)),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Wrap(
-                          spacing: 8,
-                          children: [
-                            Text(
-                              dateFormatee,
-                              style:
-                                  const TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 5, vertical: 3),
-                              decoration: BoxDecoration(
-                                  color: AppColors.parchment,
-                                  borderRadius: BorderRadius.circular(5)),
-                              child: Text(
-                                historyTrainings[index]
-                                    .training
-                                    .trainingType
-                                    .translate(context.locale.languageCode),
-                                style: Theme.of(context).textTheme.bodySmall,
-                              ),
-                            )
-                          ],
-                        ),
-                        const SizedBox(height: 10),
-                        Wrap(
-                          spacing: 20,
-                          children: [
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Icon(LucideIcons.clock, size: 16),
-                                const SizedBox(width: 5),
-                                Text(formatDurationToHoursMinutesSeconds(
-                                    historyTrainings[index].duration)),
-                              ],
-                            ),
-                            if (historyTrainings[index].distance > 0)
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
+                    return GestureDetector(
+                      onTap: () {
+                        context.read<TrainingHistoryBloc>().add(
+                            SelectHistoryTrainingEntryEvent(
+                                historyTrainings[index]));
+                        GoRouter.of(context).go('/history_details');
+                      },
+                      child: Container(
+                          padding: const EdgeInsets.all(10),
+                          margin: const EdgeInsets.only(top: 20),
+                          decoration: BoxDecoration(
+                              border: Border.all(color: AppColors.timberwolf),
+                              borderRadius: BorderRadius.circular(10)),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Wrap(
+                                spacing: 8,
                                 children: [
-                                  const Icon(LucideIcons.activity, size: 16),
-                                  const SizedBox(width: 5),
                                   Text(
-                                      '${(historyTrainings[index].distance / 1000).toStringAsFixed(2)}km'),
+                                    dateFormatee,
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 5, vertical: 3),
+                                    decoration: BoxDecoration(
+                                        color: AppColors.parchment,
+                                        borderRadius: BorderRadius.circular(5)),
+                                    child: Text(
+                                      historyTrainings[index]
+                                          .training
+                                          .trainingType
+                                          .translate(
+                                              context.locale.languageCode),
+                                      style:
+                                          Theme.of(context).textTheme.bodySmall,
+                                    ),
+                                  )
                                 ],
                               ),
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Icon(LucideIcons.flame, size: 16),
-                                const SizedBox(width: 5),
-                                Text('${historyTrainings[index].calories} cal'),
-                              ],
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 10),
-                        Text(
-                          trainingName,
-                          style: const TextStyle(color: AppColors.taupeGray),
-                        ),
-                      ],
-                    )),
-              );
-            });
+                              const SizedBox(height: 10),
+                              Wrap(
+                                spacing: 20,
+                                children: [
+                                  Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Icon(LucideIcons.clock, size: 16),
+                                      const SizedBox(width: 5),
+                                      Text(formatDurationToHoursMinutesSeconds(
+                                          historyTrainings[index].duration)),
+                                    ],
+                                  ),
+                                  if (historyTrainings[index].distance > 0)
+                                    Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        const Icon(LucideIcons.activity,
+                                            size: 16),
+                                        const SizedBox(width: 5),
+                                        Text(
+                                            '${(historyTrainings[index].distance / 1000).toStringAsFixed(2)}km'),
+                                      ],
+                                    ),
+                                  Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Icon(LucideIcons.flame, size: 16),
+                                      const SizedBox(width: 5),
+                                      Text(
+                                          '${historyTrainings[index].calories} cal'),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 10),
+                              Text(
+                                trainingName,
+                                style:
+                                    const TextStyle(color: AppColors.taupeGray),
+                              ),
+                            ],
+                          )),
+                    );
+                  }),
+            ],
+          ),
+        );
       }
       return const SizedBox();
     });
