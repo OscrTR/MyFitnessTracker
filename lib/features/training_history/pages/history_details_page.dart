@@ -486,7 +486,7 @@ class _ExerciseSetFormState extends State<ExerciseSetForm> {
             duration: duration ?? historyEntry?.duration);
 
     context.read<TrainingHistoryBloc>().add(
-          CreateOrUpdateHistoryAfterwardsEntry(
+          CreateOrUpdateHistoryEntryFromHistory(
             historyEntry: HistoryEntry(
               id: historyEntry?.id,
               trainingId:

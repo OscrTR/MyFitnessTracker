@@ -1023,7 +1023,7 @@ class DatabaseService {
       final twoHoursAgo = now.subtract(const Duration(hours: 2));
 
       final result = await _db.execute(
-        'SELECT 1 FROM history_entries WHERE date > ? AND trainingId = ? LIMIT 1',
+        'SELECT 1 FROM history_entries WHERE date > ? AND exerciseId = ? LIMIT 1',
         [twoHoursAgo.millisecondsSinceEpoch, exerciseId],
       );
 

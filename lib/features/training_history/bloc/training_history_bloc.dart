@@ -122,15 +122,13 @@ class TrainingHistoryBloc
         }
 
         bool hasRecentEntry = false;
-        final isUpdate = historyEntry?.id != null;
-
-        if (isUpdate) {
+        if (historyEntry?.id != null) {
           hasRecentEntry = await sl<DatabaseService>()
-                  .checkIfTrainingHasRecentEntry(historyEntry!.id!) ??
+                  .checkIfTrainingHasRecentEntry(historyEntry!.exerciseId) ??
               false;
         }
 
-        if (isUpdate || hasRecentEntry) {
+        if (hasRecentEntry) {
           await sl<DatabaseService>().updateHistoryEntry(historyEntry!);
         } else {
           await sl<DatabaseService>().createHistoryEntry(historyEntry!);
@@ -148,20 +146,12 @@ class TrainingHistoryBloc
       }
     });
 
-    on<CreateOrUpdateHistoryAfterwardsEntry>((event, emit) async {
+    on<CreateOrUpdateHistoryEntryFromHistory>((event, emit) async {
       try {
         final historyEntry = event.historyEntry;
-
-        bool hasRecentEntry = false;
         final isUpdate = historyEntry.id != null;
 
         if (isUpdate) {
-          hasRecentEntry = await sl<DatabaseService>()
-                  .checkIfTrainingHasRecentEntry(historyEntry.id!) ??
-              false;
-        }
-
-        if (isUpdate || hasRecentEntry) {
           await sl<DatabaseService>().updateHistoryEntry(historyEntry);
         } else {
           final lastDate = await sl<DatabaseService>()
@@ -178,7 +168,7 @@ class TrainingHistoryBloc
           isSuccess: false,
           isLog: true,
           logLevel: LogLevel.error,
-          logFunction: 'CreateOrUpdateHistoryAfterwardsEntry',
+          logFunction: 'CreateOrUpdateHistoryEntryFromHistory',
         );
       }
     });

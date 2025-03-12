@@ -38,10 +38,10 @@ class CreateOrUpdateHistoryEntry extends TrainingHistoryEvent {
       ];
 }
 
-class CreateOrUpdateHistoryAfterwardsEntry extends TrainingHistoryEvent {
+class CreateOrUpdateHistoryEntryFromHistory extends TrainingHistoryEvent {
   final HistoryEntry historyEntry;
 
-  const CreateOrUpdateHistoryAfterwardsEntry({required this.historyEntry});
+  const CreateOrUpdateHistoryEntryFromHistory({required this.historyEntry});
 
   @override
   List<Object> get props => [historyEntry];
