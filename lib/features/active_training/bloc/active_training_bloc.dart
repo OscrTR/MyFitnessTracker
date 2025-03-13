@@ -41,6 +41,7 @@ class ActiveTrainingBloc
     final FlutterTts flutterTts = FlutterTts();
     int? lastTimerValue;
     bool halfRunDone = false;
+    bool runAlmostComplete = false;
 
     Future<void> speak(String string) async {
       await flutterTts.speak(string);
@@ -254,12 +255,39 @@ class ActiveTrainingBloc
             }
           }
 
+          void checkLastTenPercentRun() {
+            final targetDistance = currentTimerState.targetDistance;
+            final targetDuration = currentTimerState.targetDuration;
+
+            if (runAlmostComplete) return;
+            if (targetDistance > 0 && currentDistance >= targetDistance * 0.9) {
+              speak(tr('active_training_almost_end_training'));
+              runAlmostComplete = true;
+            } else if (targetDistance == 0 &&
+                currentTimerValue >= targetDuration * 0.9) {
+              speak(tr('active_training_almost_end_training'));
+              runAlmostComplete = true;
+            }
+          }
+
           void notifyKmProgress() {
             if (currentDistance > 0 && currentDistance / 1000 >= nextKmMarker) {
               speak(tr('active_training_pace',
                   args: ['$nextKmMarker', '$paceMinutes', '$paceSeconds']));
               add(UpdateNextKmMarker(
                   timerId: timerId, nextKmMarker: nextKmMarker + 1));
+            }
+          }
+
+          void notifyEndOfTraining() {
+            if (currentTimerState.isRunTimer) {
+              speak(tr('active_training_running_end_speak', args: [
+                ((currentDistance / 1000).toStringAsFixed(2)),
+                '$paceMinutes',
+                '$paceSeconds'
+              ]));
+            } else {
+              speak(tr('active_training_end_speak'));
             }
           }
 
@@ -275,6 +303,9 @@ class ActiveTrainingBloc
             } else {
               add(PauseTimer());
             }
+            if (nextTimerId == null) {
+              notifyEndOfTraining();
+            }
           }
 
           // DISTANCE TIMER
@@ -286,6 +317,7 @@ class ActiveTrainingBloc
             } else {
               checkPace();
               checkHalfRun();
+              checkLastTenPercentRun();
               notifyKmProgress();
 
               add(TickTimer(
@@ -303,6 +335,7 @@ class ActiveTrainingBloc
                   currentTimerState.targetDuration > 0) {
                 checkPace();
                 checkHalfRun();
+                checkLastTenPercentRun();
                 notifyKmProgress();
               }
 
