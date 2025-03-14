@@ -26,15 +26,13 @@ String formatDurationToApproximativeHoursMinutes(int seconds) {
   return '~${hours > 0 ? '$hours ${tr('global_hours')}' : ''} ${minutes > 0 ? '${minutes.toString().padLeft(2, '0')} ${tr('global_minutes')}' : ''}';
 }
 
-String formatPace(double speed) {
-  if (speed <= 0) {
+String formatPace(double paceInMinPerKm) {
+  if (paceInMinPerKm <= 0) {
     return '00:00/km';
   }
-  final double paceInMinutes = (1000 / speed) / 60;
-  final int minutes = paceInMinutes.floor();
-  final int seconds = ((paceInMinutes - minutes) * 60).round();
+  final int minutes = paceInMinPerKm.floor();
+  final int seconds = ((paceInMinPerKm - minutes) * 60).round();
 
-  // Formater les secondes pour toujours afficher deux chiffres.
   final String secondsStr = seconds.toString().padLeft(2, '0');
   return '$minutes:$secondsStr/km';
 }
@@ -83,8 +81,8 @@ class _IntensityData {
 String findExerciseName(Exercise exercise) {
   String exerciseName = '';
   if (exercise.exerciseType == ExerciseType.running) {
-    final targetSpeed = exercise.isTargetPaceSelected == true
-        ? ' at ${formatPace(exercise.targetSpeed)}'
+    final targetPace = exercise.isTargetPaceSelected == true
+        ? ' at ${formatPace(exercise.targetPace)}'
         : '';
     final intervals = exercise.sets;
     final targetDistance =
@@ -95,17 +93,17 @@ String findExerciseName(Exercise exercise) {
     if (intervals > 1) {
       if (exercise.runType == RunType.distance) {
         exerciseName =
-            '${tr('active_training_running_interval')} ${'$intervals'}x$targetDistance$targetSpeed';
+            '${tr('active_training_running_interval')} ${'$intervals'}x$targetDistance$targetPace';
       } else {
         exerciseName =
-            '${tr('active_training_running_interval')} ${'$intervals'}x$targetDuration$targetSpeed';
+            '${tr('active_training_running_interval')} ${'$intervals'}x$targetDuration$targetPace';
       }
     } else if (exercise.runType == RunType.distance) {
       exerciseName =
-          '${tr('active_training_running')} $targetDistance$targetSpeed';
+          '${tr('active_training_running')} $targetDistance$targetPace';
     } else if (exercise.runType == RunType.duration) {
       exerciseName =
-          '${tr('active_training_running')} $targetDuration$targetSpeed';
+          '${tr('active_training_running')} $targetDuration$targetPace';
     }
   } else {
     exerciseName =
@@ -152,4 +150,21 @@ class NotificationIdGenerator {
     // Retourne l'id courant et l'incrémente ensuite. On s'assure que le résultat reste dans 5 chiffres.
     return _counter++ % 100000;
   }
+}
+
+double paceMSToMinPerKm(double speedMS) {
+  if (speedMS <= 0) {
+    return 0;
+  }
+  // Calcul du pace en minutes par km
+  double pace = 1000 / (speedMS * 60);
+  return pace;
+}
+
+double calculateAverage(List<double> list) {
+  if (list.isEmpty) {
+    return 0.0;
+  }
+  double sum = list.reduce((a, b) => a + b);
+  return sum / list.length;
 }

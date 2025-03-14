@@ -1,6 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:my_fitness_tracker/helper_functions.dart';
+import '../../../helper_functions.dart';
 import '../../../core/enums/enums.dart';
 import '../../../core/messages/models/log.dart';
 import '../../../core/database/database_service.dart';

@@ -16,7 +16,9 @@ class Exercise extends Equatable {
   final int targetDistance;
   final int targetDuration;
   final bool isTargetPaceSelected;
-  final double targetSpeed;
+
+  /// Minutes per km
+  final double targetPace;
   final int sets;
   final bool isSetsInReps;
   final int minReps;
@@ -42,7 +44,7 @@ class Exercise extends Equatable {
     required this.targetDistance,
     required this.targetDuration,
     required this.isTargetPaceSelected,
-    required this.targetSpeed,
+    required this.targetPace,
     required this.sets,
     required this.isSetsInReps,
     required this.minReps,
@@ -71,7 +73,7 @@ class Exercise extends Equatable {
       targetDistance,
       targetDuration,
       isTargetPaceSelected,
-      targetSpeed,
+      targetPace,
       sets,
       isSetsInReps,
       minReps,
@@ -99,7 +101,7 @@ class Exercise extends Equatable {
     int? targetDistance,
     int? targetDuration,
     bool? isTargetPaceSelected,
-    double? targetSpeed,
+    double? targetPace,
     int? sets,
     bool? isSetsInReps,
     int? minReps,
@@ -126,7 +128,7 @@ class Exercise extends Equatable {
       targetDistance: targetDistance ?? this.targetDistance,
       targetDuration: targetDuration ?? this.targetDuration,
       isTargetPaceSelected: isTargetPaceSelected ?? this.isTargetPaceSelected,
-      targetSpeed: targetSpeed ?? this.targetSpeed,
+      targetPace: targetPace ?? this.targetPace,
       sets: sets ?? this.sets,
       isSetsInReps: isSetsInReps ?? this.isSetsInReps,
       minReps: minReps ?? this.minReps,
@@ -155,7 +157,7 @@ class Exercise extends Equatable {
       'targetDistance': targetDistance,
       'targetDuration': targetDuration,
       'isTargetPaceSelected': isTargetPaceSelected ? 1 : 0,
-      'targetSpeed': targetSpeed,
+      'targetPace': targetPace,
       'sets': sets,
       'isSetsInReps': isSetsInReps ? 1 : 0,
       'minReps': minReps,
@@ -186,7 +188,7 @@ class Exercise extends Equatable {
       targetDuration: map['targetDuration'] as int,
       isTargetPaceSelected:
           (map['isTargetPaceSelected'] as int) == 1 ? true : false,
-      targetSpeed: map['targetSpeed'] as double,
+      targetPace: map['targetPace'] as double,
       sets: map['sets'] as int,
       isSetsInReps: (map['isSetsInReps'] as int) == 1 ? true : false,
       minReps: map['minReps'] as int,

@@ -1,7 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
-import 'package:my_fitness_tracker/features/training_history/models/history_period_stats.dart';
+import '../models/history_period_stats.dart';
 
 import '../../../core/database/database_service.dart';
 import '../../../core/enums/enums.dart';
@@ -117,7 +117,7 @@ class TrainingHistoryBloc
               weight: event.weight,
               duration: duration,
               distance: timerState.distance.toInt(),
-              pace: timerState.pace.toInt(),
+              pace: timerState.pace,
               calories: cals);
         }
 

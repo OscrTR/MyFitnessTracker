@@ -11,12 +11,13 @@ class AltitudeChart extends StatelessWidget {
 
   const AltitudeChart({super.key, required this.locations});
 
-  String _formatDate(int date) {
-    final formattedDate = DateTime.fromMillisecondsSinceEpoch(date);
-    return '${formattedDate.hour}:${formattedDate.minute.toString().padLeft(2, '0')}:${formattedDate.second.toString().padLeft(2, '0')}';
+  String _formatDate(DateTime date) {
+    return '${date.hour}:${date.minute.toString().padLeft(2, '0')}';
   }
 
   double _calculateInterval(double min, double max) {
+    if (min == 0 && max == 0) return 1;
+
     final double range = max - min;
     final double rawInterval = range / 5;
 
@@ -58,7 +59,10 @@ class AltitudeChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final altitudeMap = aggregateAltitudesByMinute(locations);
+    // Application du filtre de Kalman
+    List<RunLocation> kalmanFilteredData =
+        RunLocation.applyKalmanFilter(locations);
+    final altitudeMap = aggregateAltitudesByMinute(kalmanFilteredData);
 
     // Trier les clés de la map par date croissante
     final sortedKeys = altitudeMap.keys.toList()..sort();
@@ -75,12 +79,15 @@ class AltitudeChart extends StatelessWidget {
     }
 
     // Calcul des limites min et max pour l'axe Y
-    final maxAltitude = locations.length > 1 ? altitudes.reduce(math.max) : 0;
-    double maxY = (maxAltitude + 1).floorToDouble() < 50
-        ? 50
-        : (maxAltitude + 1).floorToDouble();
+    final double maxAltitude =
+        altitudes.length > 1 ? altitudes.reduce(math.max) : 0;
+    final double minAltitude =
+        altitudes.length > 1 ? altitudes.reduce(math.min).floorToDouble() : 0;
 
-    final interval = _calculateInterval(0, maxY);
+    final interval = _calculateInterval(minAltitude, maxAltitude);
+
+    double adjustedMin = (minAltitude / interval).floor() * interval;
+    double adjustedMax = (maxAltitude / interval).ceil() * interval;
 
     return Container(
       height: 250,
@@ -91,8 +98,8 @@ class AltitudeChart extends StatelessWidget {
       padding: const EdgeInsets.only(top: 24, bottom: 14, left: 0, right: 20),
       child: LineChart(
         LineChartData(
-          minY: 0,
-          maxY: maxY,
+          minY: adjustedMin,
+          maxY: adjustedMax,
           gridData: FlGridData(
             show: true,
             drawVerticalLine: false,
@@ -153,8 +160,7 @@ class AltitudeChart extends StatelessWidget {
               getTooltipItems: (List<LineBarSpot> touchedSpots) {
                 return touchedSpots.map((LineBarSpot touchedSpot) {
                   final index = touchedSpot.spotIndex;
-                  final location = locations[index];
-                  final date = _formatDate(location.date);
+                  final date = _formatDate(altitudeMap.keys.toList()[index]);
 
                   return LineTooltipItem(
                     'Altitude: ${touchedSpot.y.toInt()}m\nTime: $date',

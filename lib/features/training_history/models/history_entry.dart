@@ -14,7 +14,9 @@ class HistoryEntry extends Equatable {
   final int weight;
   final int duration;
   final int distance;
-  final int pace;
+
+  /// Minutes per km
+  final double pace;
   final int calories;
 
   const HistoryEntry({
@@ -64,7 +66,7 @@ class HistoryEntry extends Equatable {
     int? weight,
     int? duration,
     int? distance,
-    int? pace,
+    double? pace,
     int? calories,
   }) {
     return HistoryEntry(
@@ -115,7 +117,7 @@ class HistoryEntry extends Equatable {
       weight: map['weight'] as int,
       duration: map['duration'] as int,
       distance: map['distance'] as int,
-      pace: map['pace'] as int,
+      pace: map['pace'] as double,
       calories: map['calories'] as int,
     );
   }

@@ -101,7 +101,7 @@ class ActiveTrainingBloc
                   ? currentTimerState.countDownValue
                   : currentTimerState.timerValue,
               distance: currentTimerState.distance.toInt(),
-              pace: currentTimerState.pace.toInt(),
+              pace: currentTimerState.pace,
               calories: cals,
               intervalNumber: currentTimerState.intervalNumber,
               trainingVersionId: currentTimerState.trainingVersionId,
@@ -173,9 +173,10 @@ class ActiveTrainingBloc
             currentState.timersStateList[currentTimerIndex];
         final currentTimerValue = currentTimerState.timerValue;
 
-        final targetSpeed = currentTimerState.targetSpeed;
-        final targetPaceMinutes = targetSpeed ~/ 60;
-        final targetPaceSeconds = targetSpeed % 60;
+        final targetPace = currentTimerState.targetPace;
+        final targetPaceMinutes = targetPace.floor();
+        final targetPaceSeconds =
+            ((targetPace - targetPaceMinutes) * 60).round();
 
         // COUNTDOWN
         if (currentTimerState.isCountDown) {
@@ -209,19 +210,23 @@ class ActiveTrainingBloc
           final currentDistance = currentTimerState.distance;
           final nextKmMarker = currentTimerState.nextKmMarker;
 
-          // Calculate pace if distance > 0
-          final isDistanceValid = currentDistance > 0;
-          final pace = isDistanceValid
-              ? currentTimerValue / 60 / (currentDistance / 1000)
-              : 0;
+          double pace = 0;
+
+          if (currentDistance > 0) {
+            double secondsPerKm = (currentTimerValue / currentDistance) * 1000;
+            double minPerKm = secondsPerKm / 60;
+
+            pace = minPerKm;
+          }
+
           final paceMinutes = pace.floor();
           final paceSeconds = ((pace - paceMinutes) * 60).round();
 
           void checkPace() {
             if (currentTimerValue % 30 == 0 &&
-                currentTimerState.targetSpeed > 0) {
-              final targetPaceMargin = currentTimerState.targetSpeed * 0.05;
-              if (pace < currentTimerState.targetSpeed - targetPaceMargin) {
+                currentTimerState.targetPace > 0) {
+              final targetPaceMargin = currentTimerState.targetPace * 0.05;
+              if (pace < currentTimerState.targetPace - targetPaceMargin) {
                 speak(tr('active_training_pace_faster', args: [
                   '$paceMinutes',
                   '$paceSeconds',
@@ -229,7 +234,7 @@ class ActiveTrainingBloc
                   '$targetPaceSeconds'
                 ]));
               } else if (pace >
-                  currentTimerState.targetSpeed + targetPaceMargin) {
+                  currentTimerState.targetPace + targetPaceMargin) {
                 speak(tr('active_training_pace_slower', args: [
                   '$paceMinutes',
                   '$paceSeconds',
@@ -391,7 +396,7 @@ class ActiveTrainingBloc
               altitude: event.locationData!.altitude,
               date: DateTime.now().millisecondsSinceEpoch,
               accuracy: event.locationData!.accuracy,
-              speed: event.locationData!.speed,
+              pace: paceMSToMinPerKm(event.locationData!.speed),
               trainingVersionId: timerState.trainingVersionId,
             );
 
@@ -468,8 +473,14 @@ class ActiveTrainingBloc
 
       final double newDistance = event.distance;
 
-      final double newPace =
-          newDistance > 0 ? newTimerValue * 1000 / newDistance : 0;
+      double newPace = 0;
+
+      if (newDistance > 0) {
+        double secondsPerKm = (newTimerValue / newDistance) * 1000;
+        double minPerKm = secondsPerKm / 60;
+
+        newPace = minPerKm;
+      }
 
       final updatedTimerState = currentTimerState.copyWith(
         timerValue: newTimerValue,
@@ -536,8 +547,14 @@ class ActiveTrainingBloc
       }
 
       final double newDistance = event.totalDistance;
-      final double newPace =
-          newDistance > 0 ? newTimerValue * 1000 / newDistance : 0;
+      double newPace = 0;
+
+      if (newDistance > 0) {
+        double secondsPerKm = (newTimerValue / newDistance) * 1000;
+        double minPerKm = secondsPerKm / 60;
+
+        newPace = minPerKm;
+      }
 
       sl<ForegroundService>().updateNotificationText(
         'Timer: ${formatDurationToMinutesSeconds(lastTimerValue)}${event.totalDistance > 0 ? '\nDistance : ${event.totalDistance.floor()}m' : ''} ',

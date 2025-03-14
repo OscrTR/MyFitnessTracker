@@ -2,7 +2,7 @@ import 'package:bloc/bloc.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:equatable/equatable.dart';
-import 'package:my_fitness_tracker/helper_functions.dart';
+import '../../../helper_functions.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../core/database/database_service.dart';
@@ -197,7 +197,7 @@ class TrainingManagementBloc
           objectives: event.exercise.objectives,
           targetDistance: event.exercise.targetDistance,
           targetDuration: event.exercise.targetDuration,
-          targetSpeed: event.exercise.targetSpeed,
+          targetPace: event.exercise.targetPace,
           isTargetPaceSelected: event.exercise.isTargetPaceSelected,
           sets: event.exercise.sets,
           isSetsInReps: event.exercise.isSetsInReps,
@@ -452,7 +452,7 @@ class TrainingManagementBloc
           objectives: event.exercise.objectives,
           targetDistance: event.exercise.targetDistance,
           targetDuration: event.exercise.targetDuration,
-          targetSpeed: event.exercise.targetSpeed,
+          targetPace: event.exercise.targetPace,
           isTargetPaceSelected: event.exercise.isTargetPaceSelected,
           sets: event.exercise.sets,
           isSetsInReps: event.exercise.isSetsInReps,

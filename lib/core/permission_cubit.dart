@@ -1,8 +1,4 @@
-import 'dart:io';
-
 import 'package:device_info_plus/device_info_plus.dart';
-import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'enums/enums.dart';
@@ -175,40 +171,6 @@ class PermissionCubit extends Cubit<PermissionState> {
       if (!result.isGranted) {
         openAppSettings();
       }
-    }
-  }
-
-  /// Vérifie si l'appareil est Xiaomi/Redmi ou Huawei et demande
-  /// à l'utilisateur de désactiver l'optimisation de batterie.
-  Future<void> checkAndRequestBatteryOptimization(BuildContext context) async {
-    if (!Platform.isAndroid) return;
-
-    // Petit délai pour s'assurer que l'application a terminé son build
-    await Future.delayed(const Duration(milliseconds: 500));
-
-    await checkBatteryOptimization();
-
-    // Affichage d'une boîte de dialogue pour informer l'utilisateur.
-    if (!state.isBatteryOptimizationIgnored && context.mounted) {
-      await showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) {
-          return AlertDialog(
-            title: Text(tr('home_page_battery_title')),
-            content: Text(tr('home_page_battery_text')),
-            actions: [
-              TextButton(
-                onPressed: () async {
-                  Navigator.of(context).pop();
-                  await requestBatteryOptimizationIgnored();
-                },
-                child: const Text("OK"),
-              ),
-            ],
-          );
-        },
-      );
     }
   }
 }

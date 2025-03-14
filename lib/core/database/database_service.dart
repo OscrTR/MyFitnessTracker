@@ -1,4 +1,4 @@
-import 'package:my_fitness_tracker/features/training_history/models/history_training.dart';
+import '../../features/training_history/models/history_training.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqlite_async/sqlite_async.dart';
@@ -83,7 +83,7 @@ class DatabaseService {
     targetDistance INTEGER NOT NULL,
     targetDuration INTEGER NOT NULL,
     isTargetPaceSelected INTEGER NOT NULL,
-    targetSpeed REAL NOT NULL,
+    targetPace REAL NOT NULL,
     sets INTEGER NOT NULL,
     isSetsInReps INTEGER NOT NULL,
     minReps INTEGER NOT NULL,
@@ -124,7 +124,7 @@ class DatabaseService {
     weight INTEGER NOT NULL,
     duration INTEGER NOT NULL,
     distance INTEGER NOT NULL,
-    pace INTEGER NOT NULL,
+    pace REAL NOT NULL,
     calories INTEGER NOT NULL,
     FOREIGN KEY (trainingId) REFERENCES trainings (id),
     FOREIGN KEY (exerciseId) REFERENCES exercises (id),
@@ -145,7 +145,7 @@ class DatabaseService {
     altitude REAL NOT NULL,
     date INTEGER NOT NULL,
     accuracy REAL NOT NULL,
-    speed REAL NOT NULL,
+    pace REAL NOT NULL,
     FOREIGN KEY (trainingId) REFERENCES trainings (id),
     FOREIGN KEY (exerciseId) REFERENCES exercises (id),
     FOREIGN KEY (trainingVersionId) REFERENCES training_versions (id)

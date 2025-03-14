@@ -3,12 +3,12 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
-import 'core/navigation_cubit.dart';
-import 'core/permission_cubit.dart';
 
 import 'app_theme.dart';
 import 'core/database/database_service.dart';
+import 'core/navigation_cubit.dart';
 import 'core/notification_service.dart';
+import 'core/permission_cubit.dart';
 import 'features/active_training/bloc/active_training_bloc.dart';
 import 'features/base_exercise_management/bloc/base_exercise_management_bloc.dart';
 import 'features/settings/bloc/settings_bloc.dart';
@@ -62,9 +62,8 @@ class MyApp extends StatelessWidget {
             create: (_) => di.sl<SettingsBloc>()..add(LoadSettings()),
             lazy: false),
         BlocProvider<PermissionCubit>(
-            create: (_) => di.sl<PermissionCubit>()
-              ..requestNotificationPermission()
-              ..checkIfRequiresAllPermissions(),
+            create: (_) =>
+                di.sl<PermissionCubit>()..checkIfRequiresAllPermissions(),
             lazy: false),
         BlocProvider<NavigationCubit>(
             create: (_) => di.sl<NavigationCubit>(), lazy: false),

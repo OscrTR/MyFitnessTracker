@@ -9,53 +9,55 @@ class PaceChart extends StatelessWidget {
 
   const PaceChart({super.key, required this.locations});
 
-  String _formatDate(int date) {
-    final formattedDate = DateTime.fromMillisecondsSinceEpoch(date);
-    return '${formattedDate.hour}:${formattedDate.minute.toString().padLeft(2, '0')}:${formattedDate.second.toString().padLeft(2, '0')}';
+  String _formatDate(DateTime date) {
+    return '${date.hour}:${date.minute.toString().padLeft(2, '0')}';
   }
 
-  List<FlSpot> _applyMovingAverage(List<FlSpot> spots, {int windowSize = 5}) {
-    if (spots.isEmpty) return [];
-    final List<FlSpot> smoothed = [];
+  Map<DateTime, double> aggregatePacesByMinute(List<RunLocation> locations) {
+    if (locations.isEmpty) return {};
 
-    for (int i = 0; i < spots.length; i++) {
-      // Déterminer le début et la fin de la fenêtre
-      final int start = (i - (windowSize ~/ 2)).clamp(0, spots.length - 1);
-      final int end = (i + (windowSize ~/ 2)).clamp(0, spots.length - 1);
+    final Map<DateTime, List<double>> groupedPaces = {};
 
-      double sumY = 0;
-      int count = 0;
-      for (int j = start; j <= end; j++) {
-        sumY += spots[j].y;
-        count++;
-      }
-      // Conserver l'abscisse d'origine, et calculer la moyenne des ordonnées
-      smoothed.add(FlSpot(spots[i].x, sumY / count));
+    for (final loc in locations) {
+      // Convertir le timestamp en DateTime
+      final timestamp = DateTime.fromMillisecondsSinceEpoch(loc.date);
+      // Conserver uniquement l'année, le mois, le jour, l'heure et la minute
+      final key = DateTime(timestamp.year, timestamp.month, timestamp.day,
+          timestamp.hour, timestamp.minute);
+
+      groupedPaces.putIfAbsent(key, () => []).add(loc.pace);
     }
 
-    return smoothed;
+    // Calculer la moyenne pour chaque minute et retourner la map
+    final Map<DateTime, double> aggregated = {};
+    groupedPaces.forEach((minute, paces) {
+      final double avgPace = paces.reduce((a, b) => a + b) / paces.length;
+      aggregated[minute] = avgPace;
+    });
+
+    return aggregated;
   }
 
   @override
   Widget build(BuildContext context) {
-    const double minSpeed = 0.5;
-    const double maxSpeed = 10.0;
+    final filteredData =
+        locations.where((e) => e.pace > 0 && e.pace <= 10).toList();
 
-    // Filtrer les valeurs aberrantes de vitesse
-    final filteredLocations = locations
-        .where((loc) => loc.speed >= minSpeed && loc.speed <= maxSpeed)
-        .toList();
+    List<RunLocation> kalmanFilteredData =
+        RunLocation.applyKalmanFilter(filteredData);
+    final paceMap = aggregatePacesByMinute(kalmanFilteredData);
 
-    // Créer les spots bruts à partir des locations filtrées
-    final List<FlSpot> rawSpots = filteredLocations.map((loc) {
-      // Calcul du pace en minutes par km (en supposant une vitesse en m/s)
-      final double pace = loc.speed > 0 ? 1000 / loc.speed / 60 : 0;
-      return FlSpot(loc.date.toDouble(), pace);
-    }).toList();
+    final sortedKeys = paceMap.keys.toList()..sort();
 
-    // Appliquer le lissage via une moyenne mobile
-    final List<FlSpot> smoothedSpots =
-        _applyMovingAverage(rawSpots, windowSize: 5);
+    final List<double> paces = [];
+    final List<FlSpot> spots = [];
+
+    for (int i = 0; i < sortedKeys.length; i++) {
+      final key = sortedKeys[i];
+      final pace = paceMap[key]!;
+      paces.add(pace);
+      spots.add(FlSpot(i.toDouble(), pace));
+    }
 
     return Container(
       height: 250,
@@ -120,7 +122,7 @@ class PaceChart extends StatelessWidget {
           borderData: _buildBorderData(),
           lineBarsData: [
             LineChartBarData(
-              spots: smoothedSpots.isNotEmpty ? smoothedSpots : [FlSpot(0, 0)],
+              spots: spots.isNotEmpty ? spots : [FlSpot(0, 0)],
               isCurved: true,
               color: AppColors.folly,
               dotData: const FlDotData(show: false),
@@ -136,8 +138,7 @@ class PaceChart extends StatelessWidget {
               getTooltipItems: (List<LineBarSpot> touchedSpots) {
                 return touchedSpots.map((LineBarSpot touchedSpot) {
                   final index = touchedSpot.spotIndex;
-                  final location = filteredLocations[index];
-                  final date = _formatDate(location.date);
+                  final date = _formatDate(paceMap.keys.toList()[index]);
                   final int minutes = touchedSpot.y.floor();
                   final int seconds = ((touchedSpot.y - minutes) * 60).round();
 

@@ -1,5 +1,5 @@
-import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
+import '../../../helper_functions.dart';
 
 import '../../../core/database/database_service.dart';
 import '../../../core/enums/enums.dart';
@@ -16,7 +16,9 @@ class HistoryTraining extends Equatable {
   final int duration;
   final int distance;
   final int calories;
-  final int pace;
+
+  /// Minutes per km
+  final double pace;
   final int elevation;
   final int load;
   final int sets;
@@ -142,9 +144,7 @@ class HistoryTraining extends Equatable {
 
     final totalSets = group.map((e) => e.setNumber).nonNulls.length;
 
-    final averagePace = group.map((e) => e.pace).nonNulls.isEmpty
-        ? 0
-        : group.map((e) => e.pace).nonNulls.average.round();
+    final averagePace = calculateAverage(group.map((e) => e.pace).toList());
 
     final totalRest = _calculateTotalRest(group);
 

@@ -1,6 +1,7 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:equatable/equatable.dart';
 import 'package:my_fitness_tracker/features/training_history/bloc/training_history_bloc.dart';
+import 'package:my_fitness_tracker/helper_functions.dart';
 
 import '../../../core/enums/enums.dart';
 import '../../../injection_container.dart';
@@ -18,6 +19,8 @@ class PeriodStats extends Equatable {
   // Statistiques pour la course
   final int runTotalDistance;
   final int runTotalDrop;
+
+  /// Minutes per km
   final double runAveragePace;
   final int runTotalDuration;
 
@@ -79,14 +82,8 @@ class PeriodStats extends Equatable {
         runTrainings.fold<int>(0, (sum, t) => sum + t.duration);
 
     // Calculer l'allure moyenne pondérée par la distance
-    double runAveragePace = 0;
-    if (runTotalDistance > 0) {
-      final weightedPaceSum = runTrainings.fold<double>(
-        0,
-        (sum, t) => sum + (t.pace * t.distance),
-      );
-      runAveragePace = (weightedPaceSum / runTotalDistance);
-    }
+    double runAveragePace =
+        calculateAverage(runTrainings.map((t) => t.pace).toList());
 
     // Calculer les statistiques de workout
     final workoutTotalLoad =

@@ -47,7 +47,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
     objectives: '',
     targetDistance: 0,
     targetDuration: 0,
-    targetSpeed: 0,
+    targetPace: 0,
     minReps: 0,
     maxReps: 0,
     duration: 0,
@@ -128,7 +128,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
       targetDistance: exercise.targetDistance,
       targetDuration: exercise.targetDuration,
       isTargetPaceSelected: exercise.isTargetPaceSelected,
-      targetSpeed: exercise.targetSpeed,
+      targetPace: exercise.targetPace,
       isAutoStart: exercise.isAutoStart,
       isSetsInReps: exercise.isSetsInReps,
       sets: exercise.sets,
@@ -163,8 +163,8 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
         _formatMinutes(exercise.targetDuration);
     _controllers['targetDurationSeconds']?.text =
         _formatSeconds(exercise.targetDuration);
-    _controllers['paceMinutes']?.text = _formatMinutes(exercise.targetSpeed);
-    _controllers['paceSeconds']?.text = _formatSeconds(exercise.targetSpeed);
+    _controllers['paceMinutes']?.text = _formatMinutes(exercise.targetPace);
+    _controllers['paceSeconds']?.text = _formatSeconds(exercise.targetPace);
     _controllers['exerciseRestMinutes']?.text =
         _formatMinutes(exercise.exerciseRest);
     _controllers['exerciseRestSeconds']?.text =
@@ -346,7 +346,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
         'objectives': _exerciseToCreateOrEdit.objectives,
         'distance': _exerciseToCreateOrEdit.targetDistance,
         'targetDuration': _exerciseToCreateOrEdit.targetDuration,
-        'targetSpeed': _exerciseToCreateOrEdit.targetSpeed,
+        'targetPace': _exerciseToCreateOrEdit.targetPace,
       };
 
       _exerciseToCreateOrEdit = _exerciseToCreateOrEdit.copyWith(
@@ -409,11 +409,12 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
                         _controllers['targetDurationSeconds']?.text ?? '') ??
                     0)
             : currentValues['targetDuration'] as int?,
-        targetSpeed: key == 'paceMinutes' || key == 'paceSeconds'
-            ? ((double.tryParse(_controllers['paceMinutes']?.text ?? '') ?? 0) *
-                    60) +
-                (double.tryParse(_controllers['paceSeconds']?.text ?? '') ?? 0)
-            : currentValues['targetSpeed'] as double?,
+        targetPace: key == 'paceMinutes' || key == 'paceSeconds'
+            ? (double.tryParse(_controllers['paceMinutes']?.text ?? '') ?? 0) +
+                ((double.tryParse(_controllers['paceSeconds']?.text ?? '') ??
+                        0) /
+                    60)
+            : currentValues['targetPace'] as double?,
       );
     }
   }
@@ -962,8 +963,8 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
       final targetDuration = exercise.targetDuration != 0
           ? formatDurationToHoursMinutesSeconds(exercise.targetDuration)
           : '';
-      final targetSpeed = exercise.isTargetPaceSelected == true
-          ? ' at ${formatPace(exercise.targetSpeed)}'
+      final targetPace = exercise.isTargetPaceSelected == true
+          ? ' at ${formatPace(exercise.targetPace)}'
           : '';
       final intervals = exercise.sets;
       if (exercise.runType == RunType.distance) {
@@ -971,7 +972,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              '${intervals}x$targetDistance$targetSpeed',
+              '${intervals}x$targetDistance$targetPace',
               style: const TextStyle(color: AppColors.taupeGray),
             ),
             Text(
@@ -985,7 +986,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              '${intervals}x$targetDuration$targetSpeed',
+              '${intervals}x$targetDuration$targetPace',
               style: const TextStyle(color: AppColors.taupeGray),
             ),
             Text(
@@ -1003,14 +1004,14 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
       final targetDuration = exercise.targetDuration != 0
           ? formatDurationToHoursMinutesSeconds(exercise.targetDuration)
           : '';
-      final targetSpeed = exercise.isTargetPaceSelected == true
-          ? ' at ${formatPace(exercise.targetSpeed)}'
+      final targetPace = exercise.isTargetPaceSelected == true
+          ? ' at ${formatPace(exercise.targetPace)}'
           : '';
       if (exercise.runType == RunType.distance) {
         return Column(
           children: [
             Text(
-              '$targetDistance$targetSpeed',
+              '$targetDistance$targetPace',
               style: const TextStyle(color: AppColors.taupeGray),
             ),
           ],
@@ -1019,7 +1020,7 @@ class _TrainingDetailsPageState extends State<TrainingDetailsPage> {
         return Column(
           children: [
             Text(
-              '$targetDuration$targetSpeed',
+              '$targetDuration$targetPace',
               style: const TextStyle(color: AppColors.taupeGray),
             ),
           ],

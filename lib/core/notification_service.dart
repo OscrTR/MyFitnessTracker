@@ -1,11 +1,11 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
-import 'package:my_fitness_tracker/app_colors.dart';
-import 'package:my_fitness_tracker/core/database/database_service.dart';
-import 'package:my_fitness_tracker/core/enums/enums.dart';
-import 'package:my_fitness_tracker/features/training_management/models/reminder.dart';
-import 'package:my_fitness_tracker/injection_container.dart';
+import '../app_colors.dart';
+import 'database/database_service.dart';
+import 'enums/enums.dart';
+import '../features/training_management/models/reminder.dart';
+import '../injection_container.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 

@@ -62,7 +62,6 @@ class _HistoryDetailsPageState extends State<HistoryDetailsPage> {
             state.selectedTrainingEntry != null) {
           final selectedTrainingEntry = state.selectedTrainingEntry!;
 
-          // Récupérer le bon training
           final Training training =
               state.selectedTraining ?? selectedTrainingEntry.training;
 
@@ -324,7 +323,7 @@ class _RunExerciseState extends State<RunExercise> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(tr('history_page_pace')),
-              Text(formatDurationToHoursMinutesSeconds(entry?.pace ?? 0))
+              Text(formatPace(entry?.pace ?? 0))
             ],
           ),
           const SizedBox(height: 10),
