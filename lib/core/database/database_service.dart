@@ -19,6 +19,181 @@ class DatabaseService {
   late final SqliteDatabase _db;
 
   final migrations = SqliteMigrations()
+    ..add(SqliteMigration(1, (tx) async {
+      await tx.execute('''
+  CREATE TABLE IF NOT EXISTS reminders (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    notificationId INTEGER NOT NULL,
+    day TEXT NOT NULL
+  )
+  ''');
+
+      await tx.execute('''
+  CREATE TABLE IF NOT EXISTS preferences (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    isReminderActive INTEGER NOT NULL
+  )
+  ''');
+
+      await tx.execute('''
+  CREATE TABLE IF NOT EXISTS base_exercises (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    imagePath TEXT,
+    description TEXT NOT NULL,
+    muscleGroups TEXT NOT NULL
+  )
+  ''');
+
+      await tx.execute('''
+  CREATE TABLE IF NOT EXISTS trainings (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    trainingType TEXT NOT NULL,
+    objectives TEXT NOT NULL,
+    trainingDays TEXT NOT NULL
+  )
+  ''');
+
+      await tx.execute('''
+  CREATE TABLE IF NOT EXISTS multisets (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    trainingId INTEGER,
+    sets INTEGER NOT NULL,
+    setRest INTEGER NOT NULL,
+    multisetRest INTEGER NOT NULL,
+    specialInstructions TEXT NOT NULL,
+    objectives TEXT NOT NULL,
+    position INTEGER,
+    widgetKey TEXT,
+    FOREIGN KEY (trainingId) REFERENCES trainings (id)
+  )
+  ''');
+
+      await tx.execute('''
+  CREATE TABLE IF NOT EXISTS exercises (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    trainingId INTEGER,
+    multisetId INTEGER,
+    baseExerciseId INTEGER,
+    exerciseType TEXT NOT NULL,
+    runType TEXT NOT NULL,
+    specialInstructions TEXT NOT NULL,
+    objectives TEXT NOT NULL,
+    targetDistance INTEGER NOT NULL,
+    targetDuration INTEGER NOT NULL,
+    isTargetPaceSelected INTEGER NOT NULL,
+    targetPace REAL NOT NULL,
+    sets INTEGER NOT NULL,
+    isSetsInReps INTEGER NOT NULL,
+    minReps INTEGER NOT NULL,
+    maxReps INTEGER NOT NULL,
+    duration INTEGER NOT NULL,
+    setRest INTEGER NOT NULL,
+    exerciseRest INTEGER NOT NULL,
+    isAutoStart INTEGER NOT NULL,
+    position INTEGER,
+    intensity INTEGER NOT NULL,
+    widgetKey TEXT,
+    multisetKey TEXT,
+    FOREIGN KEY (trainingId) REFERENCES trainings (id),
+    FOREIGN KEY (multisetId) REFERENCES multisets (id),
+    FOREIGN KEY (baseExerciseId) REFERENCES base_exercises (id)
+  )
+  ''');
+
+      await tx.execute('''
+  CREATE TABLE IF NOT EXISTS training_versions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    trainingId INTEGER,
+    jsonRepresentation TEXT NOT NULL,
+    FOREIGN KEY (trainingId) REFERENCES trainings (id)
+  )
+  ''');
+
+      await tx.execute('''
+  CREATE TABLE IF NOT EXISTS history_entries (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    trainingId INTEGER NOT NULL,
+    exerciseId INTEGER NOT NULL,
+    trainingVersionId INTEGER NOT NULL,
+    setNumber INTEGER NOT NULL,
+    intervalNumber INTEGER,
+    date INTEGER NOT NULL,
+    reps INTEGER NOT NULL,
+    weight INTEGER NOT NULL,
+    duration INTEGER NOT NULL,
+    distance INTEGER NOT NULL,
+    pace REAL NOT NULL,
+    calories INTEGER NOT NULL,
+    FOREIGN KEY (trainingId) REFERENCES trainings (id),
+    FOREIGN KEY (exerciseId) REFERENCES exercises (id),
+    FOREIGN KEY (trainingVersionId) REFERENCES training_versions (id)
+  )
+  ''');
+
+      await tx.execute('''
+  CREATE TABLE IF NOT EXISTS run_locations (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    trainingId INTEGER NOT NULL,
+    exerciseId INTEGER NOT NULL,
+    trainingVersionId INTEGER NOT NULL,
+    setNumber INTEGER NOT NULL,
+    intervalNumber INTEGER,
+    latitude REAL NOT NULL,
+    longitude REAL NOT NULL,
+    altitude REAL NOT NULL,
+    date INTEGER NOT NULL,
+    accuracy REAL NOT NULL,
+    pace REAL NOT NULL,
+    FOREIGN KEY (trainingId) REFERENCES trainings (id),
+    FOREIGN KEY (exerciseId) REFERENCES exercises (id),
+    FOREIGN KEY (trainingVersionId) REFERENCES training_versions (id)
+  )
+  ''');
+
+      await tx.execute('''
+  CREATE TABLE IF NOT EXISTS logs (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    level TEXT NOT NULL,
+    function TEXT,
+    message TEXT,
+    date INTEGER NOT NULL
+  )
+  ''');
+
+      await tx.execute('''
+  CREATE INDEX idx_history_entries_trainingId ON history_entries(trainingId)
+  ''');
+
+      await tx.execute('''
+  CREATE INDEX idx_training_versions_trainingId ON training_versions(trainingId)
+  ''');
+
+      await tx.execute('''
+  CREATE INDEX idx_exercises_multisetId ON exercises(multisetId)
+  ''');
+
+      await tx.execute('''
+  CREATE INDEX idx_exercises_trainingId ON exercises(trainingId)
+  ''');
+
+      await tx.execute('''
+  CREATE INDEX idx_multisets_trainingId ON multisets(trainingId)
+  ''');
+
+      await tx.execute('''
+  CREATE INDEX idx_history_entries_date ON history_entries(date)
+  ''');
+
+      await tx.execute('''
+  CREATE INDEX idx_run_locations_date ON run_locations(date)
+  ''');
+
+      await tx.execute('''
+  CREATE INDEX idx_history_entries_trainingId_date ON history_entries(trainingId, date)
+  ''');
+    }))
     ..add(SqliteMigration(2, (tx) async {
       await tx.execute('DROP TABLE exercises');
       await tx.execute('DROP TABLE trainings');
