@@ -14,8 +14,6 @@ class HistoryEntry extends Equatable {
   final int weight;
   final int duration;
   final int distance;
-
-  /// Minutes per km
   final double pace;
   final int calories;
 

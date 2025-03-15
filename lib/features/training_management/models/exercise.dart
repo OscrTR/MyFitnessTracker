@@ -16,8 +16,6 @@ class Exercise extends Equatable {
   final int targetDistance;
   final int targetDuration;
   final bool isTargetPaceSelected;
-
-  /// Minutes per km
   final double targetPace;
   final int sets;
   final bool isSetsInReps;
