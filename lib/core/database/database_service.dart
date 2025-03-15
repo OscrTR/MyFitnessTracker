@@ -202,6 +202,16 @@ class DatabaseService {
       await tx.execute('''
   CREATE INDEX idx_history_entries_trainingId_date ON history_entries(trainingId, date)
   ''');
+
+      await tx.execute(
+        'INSERT INTO logs (level, function, message, date) VALUES (?, ?, ?, ?)',
+        [
+          "INFO", // Niveau de log
+          "init", // Fonction
+          "Migration succeeded.", // Message
+          DateTime.now().millisecondsSinceEpoch // Date en millisecondes
+        ],
+      );
     }));
 
   Future<void> performMaintenance() async {
@@ -229,9 +239,13 @@ class DatabaseService {
       _db = SqliteDatabase(path: dbPath);
 
       await migrations.migrate(_db);
-      print('migration succeeded');
     } catch (e) {
-      print(e);
+      await createLog(Log(
+        date: DateTime.now(),
+        message: e.toString(),
+        level: LogLevel.error,
+        function: 'init',
+      ));
     }
   }
 
