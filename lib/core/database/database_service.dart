@@ -19,7 +19,7 @@ class DatabaseService {
   late final SqliteDatabase _db;
 
   final migrations = SqliteMigrations()
-    ..add(SqliteMigration(1, (tx) async {
+    ..add(SqliteMigration(2, (tx) async {
       await tx.execute('''
   CREATE TABLE IF NOT EXISTS reminders (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -71,7 +71,7 @@ class DatabaseService {
   ''');
 
       await tx.execute('''
-  CREATE TABLE IF NOT EXISTS exercises (
+  CREATE TABLE IF NOT EXISTS exercises_temp (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     trainingId INTEGER,
     multisetId INTEGER,
@@ -103,6 +103,65 @@ class DatabaseService {
   ''');
 
       await tx.execute('''
+  INSERT INTO exercises_temp (
+    id,
+    trainingId,
+    multisetId,
+    baseExerciseId,
+    exerciseType,
+    runType,
+    specialInstructions,
+    objectives,
+    targetDistance,
+    targetDuration,
+    isTargetPaceSelected,
+    targetPace,
+    sets,
+    isSetsInReps,
+    minReps,
+    maxReps,
+    duration,
+    setRest,
+    exerciseRest,
+    isAutoStart,
+    position,
+    intensity,
+    widgetKey,
+    multisetKey
+  )
+  SELECT 
+    id,
+    trainingId,
+    multisetId,
+    baseExerciseId,
+    exerciseType,
+    runType,
+    specialInstructions,
+    objectives,
+    targetDistance,
+    targetDuration,
+    isTargetPaceSelected,
+    targetSpeed,
+    sets,
+    isSetsInReps,
+    minReps,
+    maxReps,
+    duration,
+    setRest,
+    exerciseRest,
+    isAutoStart,
+    position,
+    intensity,
+    widgetKey,
+    multisetKey
+  FROM exercises
+  ''');
+
+      await tx.execute('DROP TABLE exercises');
+
+      await tx.execute('ALTER TABLE exercises_temp RENAME TO exercises');
+
+      await tx.execute('''
   CREATE TABLE IF NOT EXISTS training_versions (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     trainingId INTEGER,
@@ -112,7 +171,7 @@ class DatabaseService {
   ''');
 
       await tx.execute('''
-  CREATE TABLE IF NOT EXISTS history_entries (
+  CREATE TABLE IF NOT EXISTS history_entries_temp (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     trainingId INTEGER NOT NULL,
     exerciseId INTEGER NOT NULL,
@@ -133,7 +192,45 @@ class DatabaseService {
   ''');
 
       await tx.execute('''
-  CREATE TABLE IF NOT EXISTS run_locations (
+  INSERT INTO history_entries_temp (
+    id,
+    trainingId,
+    exerciseId,
+    trainingVersionId,
+    setNumber,
+    intervalNumber,
+    date,
+    reps,
+    weight,
+    duration,
+    distance,
+    pace,
+    calories
+    )
+  SELECT 
+    id,
+    trainingId,
+    exerciseId,
+    trainingVersionId,
+    setNumber,
+    intervalNumber,
+    date,
+    reps,
+    weight,
+    duration,
+    distance,
+    pace,
+    calories
+  FROM history_entries
+  ''');
+
+      await tx.execute('DROP TABLE history_entries');
+
+      await tx.execute(
+          'ALTER TABLE history_entries_temp RENAME TO history_entries');
+
+      await tx.execute('''
+  CREATE TABLE IF NOT EXISTS run_locations_temp (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     trainingId INTEGER NOT NULL,
     exerciseId INTEGER NOT NULL,
@@ -151,6 +248,42 @@ class DatabaseService {
     FOREIGN KEY (trainingVersionId) REFERENCES training_versions (id)
   )
   ''');
+
+      await tx.execute('''
+  INSERT INTO run_locations_temp (
+    id,
+    trainingId,
+    exerciseId,
+    trainingVersionId,
+    setNumber,
+    intervalNumber,
+    latitude,
+    longitude,
+    altitude,
+    date,
+    accuracy,
+    pace
+  )
+  SELECT 
+    id,
+    trainingId,
+    exerciseId,
+    trainingVersionId,
+    setNumber,
+    intervalNumber,
+    latitude,
+    longitude,
+    altitude,
+    date,
+    accuracy,
+    speed
+  FROM run_locations
+  ''');
+
+      await tx.execute('DROP TABLE run_locations');
+
+      await tx
+          .execute('ALTER TABLE run_locations_temp RENAME TO run_locations');
 
       await tx.execute('''
   CREATE TABLE IF NOT EXISTS logs (
@@ -220,14 +353,9 @@ class DatabaseService {
       _db = SqliteDatabase(path: dbPath);
 
       await migrations.migrate(_db);
+      print('migration succeeded');
     } catch (e) {
-      showToastMessage(
-        message: e.toString(),
-        isSuccess: false,
-        isLog: true,
-        logLevel: LogLevel.error,
-        logFunction: 'init',
-      );
+      print(e);
     }
   }
 

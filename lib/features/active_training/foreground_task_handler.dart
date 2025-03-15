@@ -67,7 +67,23 @@ class MyTaskHandler extends TaskHandler {
     }
   }
 
-  void _startLocationTracking() {
+  Future<void> _calibrateGPS() async {
+    try {
+      Location initialLocation = await FlLocation.getLocation();
+
+      lastLocation = initialLocation;
+      if (lastLocation?.accuracy != null) {}
+      isLocationInitialized = true;
+    } catch (e) {
+      isLocationInitialized = false;
+    }
+  }
+
+  void _startLocationTracking() async {
+    if (!isLocationInitialized) {
+      await _calibrateGPS();
+    }
+
     _locationSubscription = FlLocation.getLocationStream().listen(
       (location) {
         _updateLocationAndDistance(location);
